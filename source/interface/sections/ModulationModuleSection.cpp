@@ -133,7 +133,7 @@ ModulationSection* ModulationModuleSection::createNewObject (const juce::ValueTr
     LEAF* leaf = parent->getLEAF();
     std::any args = std::make_tuple( v,leaf );
 
-    try {
+//    try {
 
         auto proc = factory.create(v.getProperty(IDs::type).toString().toStdString(),std::make_tuple( v,leaf ));
         auto *module_section = new ModulationSection(v.getProperty(IDs::type).toString(), v,(proc->createEditor()));
@@ -144,9 +144,9 @@ ModulationSection* ModulationModuleSection::createNewObject (const juce::ValueTr
                 _parent->addModulationSource(proc, 0);
             });
         return module_section;
-    } catch (const std::bad_any_cast& e) {
-        std::cerr << "Error during object creation: " << e.what() << std::endl;
-    }
+//    } catch (const std::bad_any_cast& e) {
+//        std::cerr << "Error during object creation: " << e.what() << std::endl;
+//    }
 
 
     return nullptr;

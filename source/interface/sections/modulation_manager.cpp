@@ -104,7 +104,7 @@ class ExpandModulationButton : public OpenGlToggleButton {
       }
     }
 
-  private:
+     private:
     std::vector<ModulationAmountKnob*> sliders_;
     int num_sliders_;
     juce::Colour colors_[electrosynth::kMaxModulationConnections];
@@ -687,7 +687,7 @@ void 	ModulationManager::valueTreeChildAdded (ValueTree &parentTree, ValueTree &
 
             modulation_callout_buttons_[modulation_button.first] = std::make_unique<ExpandModulationButton>();
             addChildComponent(modulation_callout_buttons_[modulation_button.first].get());
-            addOpenGlComponent(modulation_callout_buttons_[modulation_button.first]->getGlComponent());
+           // addOpenGlComponent(modulation_callout_buttons_[modulation_button.first]->getGlComponent());
             modulation_callout_buttons_[modulation_button.first]->addListener(this);
         }
 
@@ -1237,7 +1237,7 @@ void ModulationManager::renderOpenGlComponents(OpenGlWrapper& open_gl, bool anim
   ScopedLock lock(open_gl_critical_section_);
   drawCurrentModulator(open_gl);
   for (auto& callout_button : modulation_callout_buttons_) {
-    if (callout_button.second->isVisible())
+    if (callout_button.second->isVisible() && !callout_button.second->isInit())
       callout_button.second->renderSliderQuads(open_gl, animate);
   }
 

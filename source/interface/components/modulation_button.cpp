@@ -27,7 +27,7 @@
 ModulationButton::ModulationButton(String name) : PlainShapeComponent(std::move(name)), parent_(nullptr),
                                                   mouse_state_(kNone), selected_(false), connect_right_(false),
                                                   draw_border_(false), active_modulation_(false), font_size_(12.0f),
-                                                  show_drag_drop_(false), drag_drop_alpha_(0.0f) {
+                                                  show_drag_drop_(false), drag_drop_alpha_(0.0f),initialized(false) {
   setWantsKeyboardFocus(true);
   Path shape = Paths::dragDropArrows();
   shape.addLineSegment(Line<float>(-50.0f, -50.0f, -50.0f, -50.0f), 0.2f);
@@ -202,7 +202,9 @@ void ModulationButton::render(OpenGlWrapper& open_gl, bool animate) {
 
 void ModulationButton::init(OpenGlWrapper &open_gl)
 {
+    //DBG("intialiaidzed modbnutton");
     PlainShapeComponent::init(open_gl);
+    //DBG(juce::String(image_.shader()->getProgramID()));
     if (image_.shader()->getProgramID() !=  0)
         initialized = true;
 }

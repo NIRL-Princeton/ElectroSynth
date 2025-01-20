@@ -375,7 +375,7 @@ void SynthSection::renderOpenGlComponents(OpenGlWrapper& open_gl, bool animate) 
       GLenum gl =  juce::gl::glGetError();
       _ASSERT(gl == juce::gl::GL_NO_ERROR);
       }
-      if (open_gl_component->isVisible() && open_gl_component->isAlwaysOnTop()) {
+      if (open_gl_component->isVisible() && open_gl_component->isAlwaysOnTop() && open_gl_component->isInit()) {
       open_gl_component->render(open_gl, animate);
       _ASSERT(juce::gl::glGetError() == juce::gl::GL_NO_ERROR);
       }
