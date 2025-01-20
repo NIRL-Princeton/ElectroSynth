@@ -1,0 +1,18 @@
+name:  Documentation Change
+description: File a change required to Documentation.
+title: "[Doc]: "
+labels: ["documentation"]
+
+assignees:
+  - davispolito
+body:
+  - type: textarea
+    id: what-update
+    attributes:
+      label: What Needs to Update
+
+      placeholder: Tell us what is confusing!
+      value: "Tell us what is confusing!!"
+    validations:
+      required: true
+
