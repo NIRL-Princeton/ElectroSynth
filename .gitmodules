@@ -8,10 +8,6 @@
 	url = https://github.com/sudara/cmake-includes.git
 	branch = main
 	update = merge
-[submodule "third_party/tracktion_engine"]
-	path = third_party/tracktion_engine
-	url = git@github.com:Tracktion/tracktion_engine.git
-	update = merge
 [submodule "third_party/leaf_modules"]
 	path = third_party/leaf_modules
 	url = git@github.com:JoshuaWarner22/MappingandProcessors.git

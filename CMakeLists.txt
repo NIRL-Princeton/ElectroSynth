@@ -1,12 +1,12 @@
 # 3.24.1 is bundled in Visual Studio 2022 v17.4
 # 3.24.1 is also bundled in CLion as of 2023
-cmake_minimum_required(VERSION 3.24.1)
-
+cmake_minimum_required(VERSION 3.25)
+set(JSON_BuildTests OFF CACHE INTERNAL "")
 
 # This tells cmake we have goodies in the /cmake folder
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include (PamplejuceVersion)
-
+include(CPM)
 # Configures universal binaries and decides which version of macOS to support
 include(PamplejuceMacOS)
 
@@ -17,7 +17,7 @@ add_compile_options(-w)
 # This is the internal name of the project and the name of JUCE's shared code target
 # Note: This cannot have spaces (it may be 2024, but you can't have it all!)
 # Worry not, JUCE's PRODUCT_NAME can have spaces (and is what DAWs display)
-set(PROJECT_NAME "ElectroSynth")
+set(PROJECT_NAME "ElectorSynth")
 
 # Worry not, JUCE's PRODUCT_NAME can have spaces (and is what DAWs will display)
 # You can also just have it be the same thing as PROJECT_NAME
@@ -25,13 +25,13 @@ set(PROJECT_NAME "ElectroSynth")
 #   set(PROJECT_NAME "MyPlugin_v${MAJOR_VERSION}")
 # Doing so enables major versions to show up in IDEs and DAWs as separate plugins
 # allowing you to change parameters and behavior without breaking existing user projects
-set(PRODUCT_NAME "ElectroSynth")
+set(PRODUCT_NAME "ElectorSynth")
 
 # Change me! Used for the MacOS bundle name and Installers
-set(COMPANY_NAME "ElectroSynth")
+set(COMPANY_NAME "snyderphones")
 
 # Change me! Used for the MacOS bundle identifier (and signing)
-set(BUNDLE_ID "com.snyderphonics.pamplejuce")
+set(BUNDLE_ID "com.snyderphonics.electorsynth")
 
 # Change me! Set the plugin formats you want built
 # Valid choices: AAX Unity VST VST3 AU AUv3 Standalone
@@ -48,10 +48,9 @@ add_subdirectory(JUCE)
 
 # Add any other modules you want modules here, before the juce_add_plugin call
 # juce_add_module(modules/my_module)
-juce_add_module(third_party/tracktion_engine/modules/tracktion_engine)
-
+message("-- Adding juce modules")
 juce_add_module(modules/melatonin_audio_sparklines)
-
+message("-- Adding external libraries" )
 # This adds the melatonin inspector module
 add_subdirectory (modules/melatonin_inspector)
 add_subdirectory(third_party/chowdsp_utils)
@@ -110,16 +109,31 @@ include(Assets)
 
 # MacOS only: Cleans up folder and target organization on Xcode.
 include(XcodePrettify)
-include_directories(source/common)
-include_directories(source/interface/look_and_feel)
-include_directories(source/interface)
-include_directories(source/synthesis)
-include_directories(source/synthesis/framework)
-include_directories(source/synthesis/lookups)
-include_directories(source/synthesis/synth_engine)
-include_directories(source/interface/components)
-include_directories(source/interface/sections)
-include_directories(third_party/tracktion_engine/modules/tracktion_engine)
+target_include_directories(SharedCode
+        INTERFACE
+        source/common
+        source/synthesis/sound_engine
+        source/synthesis
+        source/synthesis/framework
+        source/synthesis/framework/Processors
+        source/synthesis/framework/ParamHolders
+        source/synthesis/framework/Synthesiser
+        #interface includes
+        source/interface
+        source/interface/components
+
+
+        source/interface/components/opengl
+        source/interface/sections
+
+        source/interface/ParameterView
+        source/interface/look_and_feel)
+#we were previously linking against the entire tracktion_engine and including
+# via git submodules. this was a source of many headaches and we only use a small
+# portion of the library so i moved the useful files here and removed the submodule
+target_include_directories(SharedCode
+        INTERFACE
+        third_party/tracktion_engine)
 # This is where you can set preprocessor definitions for JUCE and your plugin
 target_compile_definitions(SharedCode
     INTERFACE
@@ -145,20 +159,41 @@ target_compile_definitions(SharedCode
 # See https://github.com/juce-framework/JUCE/blob/master/docs/CMake%20API.md#juce_add_module
 # However, with Pamplejuce, you'll link modules to SharedCode with INTERFACE visibility
 # This allows the JUCE plugin targets and the Tests target to link against it
+# Link to any other modules you added (with juce_add_module) here!
+# Usually JUCE modules must have PRIVATE visibility
+# See https://github.com/juce-framework/JUCE/blob/master/docs/CMake%20API.md#juce_add_module
+# However, with bitKlavier2, you'll link modules to SharedCode with INTERFACE visibility
+# This allows the JUCE plugin targets and the Tests target to link against it
+set(CHOWDSP_DEPENDENCIES
+        chowdsp::chowdsp_plugin_base
+        chowdsp::chowdsp_plugin_state
+        chowdsp::chowdsp_sources
+        chowdsp::chowdsp_plugin_utils
+        chowdsp::chowdsp_gui
+        chowdsp::chowdsp_dsp_utils
+        chowdsp::chowdsp_data_structures
+)
+set(JUCE_DEPENDENCIES
+        juce_audio_utils
+        juce_audio_processors
+        juce_dsp
+        juce_gui_basics
+        juce_gui_extra
+        juce_opengl
+        juce::juce_recommended_config_flags
+        juce::juce_recommended_lto_flags
+        juce::juce_recommended_warning_flags
+
+)
+
+
 target_link_libraries(SharedCode
     INTERFACE
     Assets
+        ${CHOWDSP_DEPENDENCIES}
+        ${JUCE_DEPENDENCIES}
     melatonin_inspector
-    juce_audio_utils
-    juce_audio_processors
-    juce_dsp
-    juce_gui_basics
-    juce_gui_extra
-        juce_opengl
-        chowdsp::chowdsp_core
-        chowdsp::chowdsp_gui
-        chowdsp::chowdsp_plugin_state
-        chowdsp::chowdsp_dsp_data_structures
+
     juce::juce_recommended_config_flags
     juce::juce_recommended_lto_flags
     juce::juce_recommended_warning_flags

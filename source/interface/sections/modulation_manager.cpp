@@ -340,7 +340,6 @@ void ModulationAmountKnob::setCurrentModulator(bool current) {
 }
 
 void ModulationAmountKnob::setDestinationComponent(juce::Component* component, const std::string& name) {
-  color_component_ = component;
 //  setPopupPrefix(electrosynth::juce::Parameters::getDisplayName(name) + ": ");
   
   if (color_component_)
