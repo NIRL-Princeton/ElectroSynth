@@ -17,7 +17,7 @@
 #include "open_gl_background.h"
 
 #include "open_gl_component.h"
-#include "../synthesis/framework/common.h"
+#include "common.h"
 #include "look_and_feel/shaders.h"
 
 OpenGlBackground::OpenGlBackground() : component_(nullptr),image_shader_(nullptr), vertices_() {

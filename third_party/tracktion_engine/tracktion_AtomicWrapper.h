@@ -2,8 +2,8 @@
 // Created by Davis Polito on 12/18/23.
 //
 
-#ifndef ELECTROSYNTH2_TRACKTION_ATOMICWRAPPER_H
-#define ELECTROSYNTH2_TRACKTION_ATOMICWRAPPER_H
+#ifndef BITKLAVIER2_TRACKTION_ATOMICWRAPPER_H
+#define BITKLAVIER2_TRACKTION_ATOMICWRAPPER_H
 
 #include <atomic>
 #include <juce_core/juce_core.h>
@@ -35,7 +35,7 @@ struct DummyConstrainer
 //==============================================================================
 //==============================================================================
 /**
-    Wraps an atomic with an interface compatible with var so it can be used
+    Wraps an atomic with an interface compatible with juce::var so it can be used
     within CachedValues in a thread safe way.
     Optionally supply a Constrainer to limit the value in some way.
 */
@@ -79,7 +79,7 @@ struct AtomicWrapper
     }
 
     //==============================================================================
-    /** Returns the underlying value as a var. */
+    /** Returns the underlying value as a juce::var. */
     operator juce::var() const noexcept
     {
         return Constrainer::constrain (value.load());
@@ -98,4 +98,4 @@ private:
 }} // namespace tracktion { inline namespace engine
 
 
-#endif //ELECTROSYNTH2_TRACKTION_ATOMICWRAPPER_H
+#endif //BITKLAVIER2_TRACKTION_ATOMICWRAPPER_H

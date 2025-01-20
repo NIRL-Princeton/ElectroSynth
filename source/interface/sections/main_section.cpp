@@ -9,9 +9,8 @@
 #include "test_section.h"
 MainSection::MainSection(juce::ValueTree v, juce::UndoManager &um, OpenGlWrapper & open_gl, SynthGuiData* data, ModulationManager* modulation_manager) : SynthSection("main_section"), v(v), um(um)
 {
-    //constructionSite_ = std::make_unique<ConstructionSite>(v, um, open_gl, data);
-//    sound_interface = std::make_unique<SoundModuleSection>(v);
-//    addSubSection(sound_interface.get());
+    sound_interface = std::make_unique<SoundModuleSection>(v);
+    addSubSection(sound_interface.get());
     modulation_interface = std::make_unique<ModulationModuleSection>(v, modulation_manager);
     addSubSection(modulation_interface.get());
     //addAndMakeVisible(constructionPort);
@@ -23,8 +22,8 @@ MainSection::MainSection(juce::ValueTree v, juce::UndoManager &um, OpenGlWrapper
 //    v.addChild(t,-1, nullptr);
 
     //s->setAlwaysOnTop(true);
-    test_ = std::make_unique<TestSection>();
-    addSubSection(test_.get());
+//    test_ = std::make_unique<TestSection>();
+//    addSubSection(test_.get());
     setSkinOverride(Skin::kNone);
 }
 
@@ -56,9 +55,9 @@ void MainSection::resized()
     int right_x = width_left + padding;
 //    s->setBounds(0, 0, 100 *size_ratio_, 100* size_ratio_);
 //    button->setBounds(right_x, 100, 20, 20);
-   // sound_interface->setBounds(0, 0, width,height - 200);
-     test_->setBounds(0,0,width,height - 200);
-    modulation_interface->setBounds(0,test_->getBottom(), width, 200);
+    sound_interface->setBounds(0, 0, width,height - 200);
+//     test_->setBounds(0,0,width,height - 200);
+    modulation_interface->setBounds(0,sound_interface->getBottom(), width, 200);
 
     //constructionPort.setBounds(large_padding, 0,getDisplayScale()* width, getDisplayScale() * height);
     //constructionPort.setBounds(large_padding, 0,width, height);
@@ -72,8 +71,8 @@ void MainSection::resized()
 
 std::map<std::string, SynthSlider*> MainSection::getAllSliders()
 {
-    return test_->getAllSliders();
-    //return sound_interface->getAllSliders();
+//    return test_->getAllSliders();
+    return sound_interface->getAllSliders();
 }
 std::map<std::string, ModulationButton*> MainSection::getAllModulationButtons()
 {

@@ -6,7 +6,7 @@
 #define ELECTROSYNTH_SOUND_GENERATOR_SECTION_H
 #include "synth_section.h"
 #include "Identifiers.h"
-#include <tracktion_engine.h>
+#include "tracktion_ValueTreeUtilities.h"
 #include <functional>
 #include <map>
 #include <string>

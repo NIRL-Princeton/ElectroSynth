@@ -43,7 +43,7 @@ class MidiMessageCollector {
 #endif
 #include "Identifiers.h"
 #include <juce_data_structures/juce_data_structures.h>
-#include "tracktion_engine.h"
+#include "tracktion_ValueTreeUtilities.h"
 
 class SynthBase;
 

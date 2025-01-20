@@ -16,7 +16,7 @@
 
 #include "open_gl_multi_image.h"
 
-#include "../synthesis/framework/common.h"
+#include "common.h"
 #include "look_and_feel/shaders.h"
 
 OpenGlMultiImage::OpenGlMultiImage(int max_quads) : image_(nullptr), image_width_(0), image_height_(0),

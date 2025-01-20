@@ -2,8 +2,8 @@
 // Created by Davis Polito on 12/18/23.
 //
 
-#ifndef ELECTROSYNTH2_TRACKTION_CONSTRAINEDCACHEDVALUE_H
-#define ELECTROSYNTH2_TRACKTION_CONSTRAINEDCACHEDVALUE_H
+#ifndef BITKLAVIER2_TRACKTION_CONSTRAINEDCACHEDVALUE_H
+#define BITKLAVIER2_TRACKTION_CONSTRAINEDCACHEDVALUE_H
 /*
     ,--.                     ,--.     ,--.  ,--.
   ,-'  '-.,--.--.,--,--.,---.|  |,-.,-'  '-.`--' ,---. ,--,--,      Copyright 2018
@@ -21,7 +21,7 @@ namespace tracktion { inline namespace engine{
 
 //==============================================================================
 /**
-A CachedValue that can take a std::function to constrain its value.
+A juce::CachedValue that can take a std::function to constrain its value.
 */
 template <typename Type>
 class ConstrainedCachedValue    : private juce::ValueTree::Listener
@@ -29,32 +29,32 @@ class ConstrainedCachedValue    : private juce::ValueTree::Listener
 public:
     //==============================================================================
     /** Default constructor.
-Creates a default CachedValue not referring to any property. To initialise the
+Creates a default juce::CachedValue not referring to any property. To initialise the
 object, call one of the referTo() methods.
 */
     ConstrainedCachedValue();
 
     /** Constructor.
 
-Creates a CachedValue referring to a Value property inside a ValueTree.
+Creates a juce::CachedValue referring to a juce::Value property inside a juce::ValueTree.
 If you use this constructor, the fallback value will be a default-constructed
 instance of Type.
 
-@param tree          The ValueTree containing the property
+@param tree          The juce::ValueTree containing the property
 @param propertyID    The identifier of the property
-@param undoManager   The UndoManager to use when writing to the property
+@param undoManager   The juce::UndoManager to use when writing to the property
 */
     ConstrainedCachedValue (juce::ValueTree& tree, const juce::Identifier& propertyID,
         juce::UndoManager* undoManager);
 
     /** Constructor.
 
-Creates a default Cached Value referring to a Value property inside a ValueTree,
+Creates a default Cached juce::Value referring to a juce::Value property inside a juce::ValueTree,
 and specifies a fallback value to use if the property does not exist.
 
-@param tree          The ValueTree containing the property
+@param tree          The juce::ValueTree containing the property
 @param propertyID    The identifier of the property
-@param undoManager   The UndoManager to use when writing to the property
+@param undoManager   The juce::UndoManager to use when writing to the property
 @param defaultToUse  The fallback default value to use.
 */
     ConstrainedCachedValue (juce::ValueTree& tree, const juce::Identifier& propertyID,
@@ -99,10 +99,10 @@ is not equal to other.
     bool operator!= (const OtherType& other) const   { return cachedValue != other; }
 
     //==============================================================================
-    /** Returns the current property as a Value object. */
+    /** Returns the current property as a juce::Value object. */
     juce::Value getPropertyAsValue();
 
-    /** Returns true if the current property does not exist and the CachedValue is using
+    /** Returns true if the current property does not exist and the juce::CachedValue is using
 the fallback default value instead.
 */
     bool isUsingDefault() const;
@@ -111,18 +111,18 @@ the fallback default value instead.
     Type getDefault() const                          { return defaultValue; }
 
     //==============================================================================
-    /** Sets the property. This will actually modify the property in the referenced ValueTree. */
+    /** Sets the property. This will actually modify the property in the referenced juce::ValueTree. */
     ConstrainedCachedValue& operator= (const Type& newValue);
 
-    /** Sets the property. This will actually modify the property in the referenced ValueTree. */
+    /** Sets the property. This will actually modify the property in the referenced juce::ValueTree. */
     void setValue (const Type& newValue, juce::UndoManager* undoManagerToUse);
 
-    /** Removes the property from the referenced ValueTree and makes the CachedValue
+    /** Removes the property from the referenced juce::ValueTree and makes the juce::CachedValue
 return the fallback default value instead.
 */
     void resetToDefault();
 
-    /** Removes the property from the referenced ValueTree and makes the CachedValue
+    /** Removes the property from the referenced juce::ValueTree and makes the juce::CachedValue
 return the fallback default value instead.
 */
     void resetToDefault (juce::UndoManager* undoManagerToUse);
@@ -131,24 +131,24 @@ return the fallback default value instead.
     void setDefault (const Type& value)                { defaultValue = constrainer (value); }
 
     //==============================================================================
-    /** Makes the CachedValue refer to the specified property inside the given ValueTree. */
+    /** Makes the juce::CachedValue refer to the specified property inside the given juce::ValueTree. */
     void referTo (juce::ValueTree& tree, const juce::Identifier& property, juce::UndoManager*);
 
-    /** Makes the CachedValue refer to the specified property inside the given ValueTree,
+    /** Makes the juce::CachedValue refer to the specified property inside the given juce::ValueTree,
 and specifies a fallback value to use if the property does not exist.
 */
     void referTo (juce::ValueTree& tree, const juce::Identifier& property, juce::UndoManager*, const Type& defaultVal);
 
     /** Force an update in case the referenced property has been changed from elsewhere.
 
-Note: The CachedValue is a ValueTree::Listener and therefore will be informed of
+Note: The juce::CachedValue is a juce::ValueTree::Listener and therefore will be informed of
 changes of the referenced property anyway (and update itself). But this may happen
 asynchronously. forceUpdateOfCachedValue() forces an update immediately.
 */
     void forceUpdateOfCachedValue();
 
     //==============================================================================
-    /** Returns a reference to the ValueTree containing the referenced property. */
+    /** Returns a reference to the juce::ValueTree containing the referenced property. */
     juce::ValueTree& getValueTree() noexcept                { return targetTree; }
 
     /** Returns the property ID of the referenced property. */
@@ -308,4 +308,4 @@ inline void ConstrainedCachedValue<Type>::valueTreePropertyChanged (juce::ValueT
 
     }} // namespace tracktion { inline namespace engine
 
-#endif //ELECTROSYNTH2_TRACKTION_CONSTRAINEDCACHEDVALUE_H
+#endif //BITKLAVIER2_TRACKTION_CONSTRAINEDCACHEDVALUE_H

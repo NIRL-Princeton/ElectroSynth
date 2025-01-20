@@ -112,7 +112,7 @@ include(XcodePrettify)
 target_include_directories(SharedCode
         INTERFACE
         source/common
-        source/synthesis/sound_engine
+        source/synthesis/synth_engine
         source/synthesis
         source/synthesis/framework
         source/synthesis/framework/Processors
@@ -170,7 +170,7 @@ set(CHOWDSP_DEPENDENCIES
         chowdsp::chowdsp_sources
         chowdsp::chowdsp_plugin_utils
         chowdsp::chowdsp_gui
-        chowdsp::chowdsp_dsp_utils
+
         chowdsp::chowdsp_data_structures
 )
 set(JUCE_DEPENDENCIES
@@ -190,8 +190,9 @@ set(JUCE_DEPENDENCIES
 target_link_libraries(SharedCode
     INTERFACE
     Assets
-        ${CHOWDSP_DEPENDENCIES}
+
         ${JUCE_DEPENDENCIES}
+        ${CHOWDSP_DEPENDENCIES}
     melatonin_inspector
 
     juce::juce_recommended_config_flags

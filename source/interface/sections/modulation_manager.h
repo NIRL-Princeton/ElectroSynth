@@ -25,7 +25,7 @@
 
 #include "synth_section.h"
 #include "synth_slider.h"
-#include <tracktion_engine.h>
+#include <tracktion_ValueTreeUtilities.h>
 #include <set>
 
 class ExpandModulationButton;
