@@ -464,9 +464,9 @@ void SynthSection::addButton(OpenGlShapeButton* button, bool show) {
 
 
 void SynthSection::addSlider(SynthSlider* slider, bool show, bool listen) {
-    slider->setName(this->getName().toStdString() + "_" + slider->getName().toStdString());
-  slider_lookup_[slider->getName().toStdString()] = slider;
-  all_sliders_[slider->getName().toStdString()] = slider;
+    slider->setComponentID(this->getComponentID().toStdString() + "_" + slider->getComponentID().toStdString());
+  slider_lookup_[slider->getComponentID().toStdString()] = slider;
+  all_sliders_[slider->getComponentID().toStdString()] = slider;
   all_sliders_v.push_back(slider);
 //  if (listen)
 //    slider->addListener(this);
@@ -670,8 +670,9 @@ float SynthSection::getPadding() {
 //}
 
 void SynthSection::addModulationButton(std::shared_ptr<ModulationButton> button, bool show) {
-    modulation_buttons_[button->getName().toStdString()] = button.get();
-    all_modulation_buttons_[button->getName().toStdString()] = button.get();
+    button->setComponentID(this->getComponentID().toStdString() + "_" + button->getComponentID().toStdString());
+    modulation_buttons_[button->getComponentID().toStdString()] = button.get();
+    all_modulation_buttons_[button->getComponentID().toStdString()] = button.get();
     if (show)
         addOpenGlComponent(std::static_pointer_cast<OpenGlImageComponent>(button));
 }

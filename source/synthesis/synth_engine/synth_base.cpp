@@ -28,6 +28,7 @@
 #include "ModulationWrapper.h"
 #include "Processors/ProcessorBase.h"
 #include "constants.h"
+#include "parameterArrays.h"
 SynthBase::SynthBase(AudioDeviceManager * deviceManager) : expired_(false), manager(deviceManager) {
 
    self_reference_ = std::make_shared<SynthBase*>();
@@ -293,6 +294,7 @@ void SynthBase::processAudioAndMidi(juce::AudioBuffer<float>& audio_buffer, juce
    AudioThreadAction action;
    while (processorInitQueue.try_dequeue (action))
        action();
+   processMappingChanges();
 
    engine_->process(audio_buffer, midi_buffer);
 
@@ -497,20 +499,7 @@ std::vector<electrosynth::ModulationConnection*> SynthBase::getDestinationConnec
     }
     return connections;
 }
-std::unique_ptr<electrosynth::ModulationConnection> SynthBase::createConnection(const std::string& from, const std::string& to)
-{
-    leaf::tMapping newMapping;
 
-    tMapping_init(&newMapping, *this->getLeaf());
-    std::stringstream ss(from);
-    std::string proc_string;
-    std::getline(ss,proc_string,'_');
-
-    leaf::Processor* source = engine_->getLEAFProcessor(proc_string);
-    auto [dest, index] = engine_->getParameterInfo(to);
-
-
-}
 electrosynth::ModulationConnection* SynthBase::getConnection(const std::string& source, const std::string& destination) {
     for (auto& connection : mod_connections_) {
         if (connection->source_name == source && connection->destination_name == destination)
@@ -541,15 +530,46 @@ electrosynth::ModulationConnectionBank& SynthBase::getModulationBank() {
 }
 
 void SynthBase::connectModulation(electrosynth::ModulationConnection* connection) {
+
+//    std::stringstream ss(connection->destination_name);
+
+
+    //leaf::Processor* source = engine_->getLEAFProcessor(proc_string);
+    std::stringstream ss(connection->source_name);
+    std::string proc_string;
+    std::getline(ss,proc_string,'_');
+    auto [dest, index] = engine_->getParameterInfo(connection->destination_name);
+    auto source = engine_->getLEAFProcessorModulator(proc_string);
+
     if (false) {
         connection->destination_name = "";
         connection->source_name = "";
     }
     else if (mod_connections_.count(connection) == 0) {
         //change.disconnecting = false;
+        electrosynth::mapping_change change;
+        change.disconnecting = false;
+        change.connection = connection;
+        change.mapping = connection->mapping;
+        change.destination = connection->destination_name;
+        change.dest_param_index = index;
+        //change.source_uuid = source->processorUniqueID;
+        change._dest = dest;
+        change._source = source;
         mod_connections_.push_back(connection);
         //push wrapper to actual processors
-        //modulation_change_queue_.enqueue(change);
+        modulation_change_queue_.enqueue(change);
     }
     //mod_connections_.push_back()
+}
+void SynthBase::processMappingChanges()
+{
+    electrosynth::mapping_change change;
+    while (getNextModulationChange (change))
+    {
+        if (change.disconnecting)
+            engine_->disconnectMapping (change);
+        else
+            engine_->connectMapping (change);
+    }
 }

@@ -20,6 +20,8 @@
 #include "Modulators/ModulatorBase.h"
 #include "ModulationWrapper.h"
 #include "Processors/ProcessorBase.h"
+#include "parameterArrays.h"
+#include "ModulationConnection.h"
 namespace electrosynth {
 
   SoundEngine::SoundEngine() : /*voice_handler_(nullptr),*/
@@ -87,6 +89,14 @@ namespace electrosynth {
     last_sample_rate_ = sample_rate;
   }
 
+  void SoundEngine::processMappings()
+  {
+      for (auto mapping : mappings)
+      {
+          processMapping(&mapping->mapping);
+      }
+  }
+
   void SoundEngine::process(juce::AudioSampleBuffer &audio_buffer, juce::MidiBuffer& midi_buffer )
   {
     //VITAL_ASSERT(num_samples <= output()->buffer_size);
@@ -94,6 +104,9 @@ namespace electrosynth {
     audio_buffer.clear();
     bu.clear();
     //juce::MidiBuffer midimessages;
+    processMappings();
+
+
     for (int i = 0; i < audio_buffer.getNumSamples(); i++){
       for (auto proc_chain : processors)
       {
@@ -251,22 +264,93 @@ namespace electrosynth {
               });
 
           // Here you can cast the processor to leaf::Processor* if needed
-          return &(innerIt->get()->proc);
+          return (innerIt->get()->proc);
       }
 
   }
+
+  leaf::Processor* SoundEngine::getLEAFProcessorModulator (const std::string& proc_string) {
+
+      // Use find_if to search the outermost vector
+      auto outerIt = std::find_if(modSources.begin(), modSources.end(), [&](const std::vector<std::shared_ptr<ModulatorBase>>& innerVec) {
+          // Use find_if on the inner vector to look for the processor with the target name
+          auto innerIt = std::find_if(innerVec.begin(), innerVec.end(), [&](const std::shared_ptr<ModulatorBase>& processor) {
+              return processor->name ==  juce::String(proc_string);
+          });
+
+          // Return true if the processor was found in this inner vector
+          return innerIt != innerVec.end();
+      });
+
+      if (outerIt != modSources.end()) {
+          auto innerIt = std::find_if(outerIt->begin(), outerIt->end(),
+              [&](const std::shared_ptr<ModulatorBase>& processor) {
+                  return processor->name == juce::String(proc_string);
+              });
+
+          // Here you can cast the processor to leaf::Processor* if needed
+          return (innerIt->get()->proc);
+      }
+
+  }
+
   std::pair<leaf::Processor*, int> SoundEngine::getParameterInfo (const std::string& value) {
       std::stringstream ss(value);
       std::string proc_string;
       std::getline(ss,proc_string,'_');
 
       auto proc = getLEAFProcessor(proc_string);
-
+       int procID = proc->processorTypeID;
       std::string param_string;
       std::getline(ss,param_string,'_');
+      int index = -1;
+      auto it = std::find(paramsAllArray[procID].cbegin(), paramsAllArray[procID].cend(),param_string);
+      if (it != paramsAllArray[procID].cend()) {
+          // Calculate the index
+          index = static_cast<int>(std::distance(paramsAllArray[procID].cbegin(), it));
+      }
 
+      return {proc, index};
+  }
+
+//  leaf::tProcessor * SoundEngine::getLEAFProcessor (const std::string& proc_string) {
+//
+//  }
+
+  ProcessorBase* SoundEngine::getProcessorFromUUID (int uuid) {
 
   }
 
+  ModulatorBase* SoundEngine::getModulatorFromUUID (int uuid) {
+
+  }
+
+  leaf::tProcessor * SoundEngine::getLeafProcessorFromUUID (int uuid) {
+
+  }
+
+void SoundEngine::connectMapping (const electrosynth::mapping_change& change) {\
+    for (auto modulation : mappings)
+    {
+//        if(modulation->paramID == change.mapping->paramID)
+//        {
+//            DBG("need to do add stuff");
+//            return;
+//        }
+    }
+    int sourceIndex = 0;
+    auto it = std::find (change.mapping->procIndex.begin(),change.mapping->procIndex.end(),change.connection );
+    if (it != change.mapping->procIndex.end() )
+    {
+        sourceIndex = static_cast<int> (std::distance (change.mapping->procIndex.begin(), it));
+
+
+    }
+    tMappingAdd(&change.mapping->mapping, change._source, change._dest, change.dest_param_index, sourceIndex);
+
+
+    mappings.push_back(change.mapping);
+    DBG("added new modulatino") ;
+}
 
 } // namespace vital

@@ -8,7 +8,8 @@
 #include  "ModuleSections/ModuleSection.h"
 #include "synth_gui_interface.h"
 #include "Processors/ProcessorBase.h"
-SoundModuleSection::SoundModuleSection(ValueTree &v) : ModulesInterface<ModuleSection>(v)
+#include "modulation_manager.h"
+SoundModuleSection::SoundModuleSection(ValueTree &v, ModulationManager *m) : ModulesInterface<ModuleSection>(v)
 {
     scroll_bar_ = std::make_unique<OpenGlScrollBar>();
     scroll_bar_->setShrinkLeft(true);
@@ -17,7 +18,9 @@ SoundModuleSection::SoundModuleSection(ValueTree &v) : ModulesInterface<ModuleSe
     scroll_bar_->addListener(this);
     factory.registerType<OscillatorModuleProcessor, juce::ValueTree, LEAF*>("OscModule");
     factory.registerType<FilterModuleProcessor, juce::ValueTree, LEAF*>("FiltModule");
+    addListener(m);
 }
+
 SoundModuleSection::~SoundModuleSection()
 {
     freeObjects();

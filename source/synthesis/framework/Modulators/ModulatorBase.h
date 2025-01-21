@@ -21,7 +21,7 @@ public:
     ~ModulatorBase() override = default;
     LEAF* leaf;
     juce::ValueTree vt;
-    leaf::Processor proc;
+    leaf::Processor* proc;
     juce::String name;
     void getNextAudioBlock (const juce::AudioSourceChannelInfo &bufferToFill) override {}
     void prepareToPlay (int samplesPerBlock, double sampleRate ) override {}

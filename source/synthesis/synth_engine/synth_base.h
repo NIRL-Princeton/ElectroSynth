@@ -120,20 +120,28 @@ public:
    void clearActiveFile() { active_file_ = File(); }
    File getActiveFile() { return active_file_; }
    electrosynth::CircularQueue<electrosynth::ModulationConnection*> mod_connections_;
-   std::vector<MappingWrapper> mappings;
+   moodycamel::ConcurrentQueue<electrosynth::mapping_change > modulation_change_queue_;
+
    void disconnectModulation(electrosynth::ModulationConnection* connection) ;
 
    void disconnectModulation(const std::string& source, const std::string& destination) ;
 
-
-   int getNumModulations(const std::string& destination);
+   void  processMappingChanges();
+    int getNumModulations(const std::string& destination);
 protected:
 
    juce::ValueTree tree;
    juce::UndoManager um;
    virtual SynthGuiInterface* getGuiInterface() = 0;
 
-
+   inline bool getNextModulationChange(electrosynth::mapping_change& change) {
+       return modulation_change_queue_.try_dequeue_non_interleaved(change);
+   }
+   inline void clearModulationQueue() {
+      electrosynth::mapping_change change;
+       while (modulation_change_queue_.try_dequeue_non_interleaved(change))
+           ;
+   }
    bool loadFromValueTree(const ValueTree& state);
 
 
@@ -144,7 +152,6 @@ protected:
    void writeAudio(juce::AudioSampleBuffer* buffer, int channels, int samples, int offset);
    void processMidi(juce::MidiBuffer& buffer, int start_sample = 0, int end_sample = 0);
    void processKeyboardEvents(juce::MidiBuffer& buffer, int num_samples);
-   //void processModulationChanges();
    void updateMemoryOutput(int samples, const float* audio);
 
    std::unique_ptr<electrosynth::SoundEngine> engine_;

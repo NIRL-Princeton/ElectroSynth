@@ -10,9 +10,11 @@ namespace electrosynth {
         class BooleanParameterComponent : public juce::Component {
         public:
             BooleanParameterComponent(chowdsp::BoolParameter &param, chowdsp::ParameterListeners& listeners,SynthSection &parent)
-                    : button(param.paramID), attachment(param, listeners, button, nullptr) {
+                    : button(param.name), attachment(param, listeners, button, nullptr) {
+                button.setComponentID(param.paramID);
                 setLookAndFeel(DefaultLookAndFeel::instance());
                 parent.addButton(&button);
+
                 //parent.addGlComponent (button.getGlComponent());
                 //addAndMakeVisible(button);
             }
@@ -57,7 +59,8 @@ namespace electrosynth {
         class SliderParameterComponent : public juce::Component {
         public:
             SliderParameterComponent(chowdsp::FloatParameter &param, chowdsp::ParameterListeners& listeners, SynthSection &parent)
-                    : slider(param.paramID), attachment(param, listeners, slider, nullptr) {
+                    : slider(param.name), attachment(param, listeners, slider, nullptr) {
+                slider.setComponentID(param.paramID);
                 setLookAndFeel(DefaultLookAndFeel::instance());
                 slider.setScrollWheelEnabled(false);
                 addAndMakeVisible(slider);
@@ -184,6 +187,7 @@ namespace electrosynth {
     ParametersView::ParametersView(chowdsp::ParameterListeners& paramListeners, chowdsp::ParamHolder& params, String name)
             :  SynthSection(name)
     {
+        setComponentID(name);
               //pimpl(std::make_unique<Pimpl>(params, paramListeners, *this)){
 //        auto *viewport = pimpl->view.getViewport();
         params.doForAllParameterContainers(

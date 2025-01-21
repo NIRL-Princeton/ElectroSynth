@@ -41,7 +41,9 @@ FullInterface::FullInterface(SynthGuiData* synth_data) : SynthSection("full_inte
     ValueTree t(IDs::PIANO);
     t.setProperty(IDs::name, "default", nullptr);
 
+
     data->tree.addChild(t, -1, nullptr);
+
     modulation_manager = std::make_unique<ModulationManager>(t, synth_data->synth);
     modulation_manager->setOpaque(false);
     modulation_manager->setAlwaysOnTop(true);
@@ -50,10 +52,10 @@ FullInterface::FullInterface(SynthGuiData* synth_data) : SynthSection("full_inte
     modulation_manager->hideUnusedHoverModulations();
     modulation_manager->toFront(false);
 
+
     main_ = std::make_unique<MainSection>(data->tree.getChildWithName(IDs::PIANO), data->um, open_gl_, data, modulation_manager.get());
     addSubSection(main_.get());
     main_->addListener(this);
-
 
 
     header_ = std::make_unique<HeaderSection>();

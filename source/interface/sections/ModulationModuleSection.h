@@ -46,6 +46,8 @@ public:
      std::map<std::string, ModulationButton*> getAllModulationButtons() override;
      Factory<ModulatorBase> factory;
      ModulationManager* modulation_manager;
+
+
 };
 
 #endif //ELECTROSYNTH_ModulationMODULESECTION_H

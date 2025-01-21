@@ -119,7 +119,7 @@ class ModulationDestination : public juce::Component {
     ModulationDestination(SynthSlider* source) : destination_slider_(source), margin_(0), index_(0),
                                                  size_multiple_(1.0f),
                                                  active_(false), rectangle_(false), rotary_(true) {
-      setName(source->getName());
+      setComponentID(source->getComponentID());
     }
     ModulationDestination() = delete;
 
@@ -225,7 +225,7 @@ void ModulationAmountKnob::mouseDown(const juce::MouseEvent& e) {
 //    if (has_parameter_assignment_)
 //      options.addItem(kArmMidiLearn, "Learn MIDI Assignment");
 //
-//    if (has_parameter_assignment_ && synth_interface_->getSynth()->isMidiMapped(getName().toStdString()))
+//    if (has_parameter_assignment_ && synth_interface_->getSynth()->isMidiMapped(getComponentID().toStdString()))
 //      options.addItem(kClearMidiLearn, "Clear MIDI Assignment");
 
     options.addItem(kManualEntry, "Enter juce::Value");
@@ -467,12 +467,12 @@ ModulationManager::ModulationManager(ValueTree &tree, SynthBase* base
     selected_modulation_sliders_[i]->setDrawWhenNotVisible(true);
   }
 
-  v.addListener(this);
+
 }
 
 void ModulationManager::createModulationMeter(
                                               SynthSlider* slider, OpenGlMultiQuad* quads, int index) {
-  std::string name = slider->getName().toStdString();
+  std::string name = slider->getComponentID().toStdString();
 
   std::unique_ptr<ModulationMeter> meter = std::make_unique<ModulationMeter>(
                                                                              slider, quads, index);
@@ -584,8 +584,8 @@ void ModulationManager::updateModulationMeterLocations() {
 }
 
 void ModulationManager::modulationAmountChanged(SynthSlider* slider) {
-  std::string slider_name = slider->getName().toStdString();
-  std::string source_name = current_modulator_->getName().toStdString();
+  std::string slider_name = slider->getComponentID().toStdString();
+  std::string source_name = current_modulator_->getComponentID().toStdString();
   setModulationValues(source_name, slider_name,
                       slider->getModulationAmount(), slider->isModulationBipolar(),
                       slider->isModulationStereo(), slider->isModulationBypassed());
@@ -593,8 +593,8 @@ void ModulationManager::modulationAmountChanged(SynthSlider* slider) {
 }
 
 void ModulationManager::modulationRemoved(SynthSlider* slider) {
-  std::string slider_name = slider->getName().toStdString();
-  std::string source_name = current_modulator_->getName().toStdString();
+  std::string slider_name = slider->getComponentID().toStdString();
+  std::string source_name = current_modulator_->getComponentID().toStdString();
 
   removeModulation(source_name, slider_name);
   modulation_buttons_[source_name]->repaint();
@@ -643,7 +643,7 @@ bool ModulationManager::hasFreeConnection() {
   return false;
 }
 
-void 	ModulationManager::valueTreeChildAdded (ValueTree &parentTree, ValueTree &childWhichHasBeenAdded)
+void 	ModulationManager::componentAdded()
 {
     FullInterface* full = findParentComponentOfClass<FullInterface>();
     auto sliders = full->getAllSliders();
@@ -784,7 +784,7 @@ void 	ModulationManager::valueTreeChildAdded (ValueTree &parentTree, ValueTree &
 //        linear_indices[linear_destination_group.first] = 0;
 //
 //    SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
-//    //std::string source_name = source->getName().toStdString();
+//    //std::string source_name = source->getComponentID().toStdString();
 //    std::set<std::string> active_destinations;
 //    //  std::vector<electrosynth::ModulationConnection*> connections = parent->getSynth()->getSourceConnections(source_name);
 //    //  for (electrosynth::ModulationConnection* connection : connections)
@@ -793,7 +793,7 @@ void 	ModulationManager::valueTreeChildAdded (ValueTree &parentTree, ValueTree &
 //    for (auto& destination : destination_lookup_)
 //    {
 //        SynthSlider* model = slider_model_lookup_[destination.first];
-//        //bool should_show = model->isShowing() && model->getSectionParent()->isActive() && current_source_->getName() != juce::String (destination.first);
+//        //bool should_show = model->isShowing() && model->getSectionParent()->isActive() && current_source_->getComponentID() != juce::String (destination.first);
 //        juce::Viewport* viewport = model->findParentComponentOfClass<juce::Viewport>();
 //        destination.second->setVisible (1 /*should_show*/);
 //        destination.second->setActive (1 /*active_destinations.count(destination.first)*/);
@@ -861,7 +861,7 @@ void ModulationManager::startModulationMap(ModulationButton* source, const juce:
     linear_indices[linear_destination_group.first] = 0;
 
   SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
-  std::string source_name = source->getName().toStdString();
+  std::string source_name = source->getComponentID().toStdString();
   std::set<std::string> active_destinations;
   std::vector<electrosynth::ModulationConnection*> connections = parent->getSynth()->getSourceConnections(source_name);
   for (electrosynth::ModulationConnection* connection : connections)
@@ -870,7 +870,7 @@ void ModulationManager::startModulationMap(ModulationButton* source, const juce:
   for (auto& destination : destination_lookup_) {
     SynthSlider* model = slider_model_lookup_[destination.first];
     bool should_show = model->isShowing() && model->getSectionParent()->isActive() &&
-                       current_source_->getName() != juce::String(destination.first);
+                       current_source_->getComponentID() != juce::String(destination.first);
     juce::Viewport* viewport = model->findParentComponentOfClass<juce::Viewport>();
     destination.second->setVisible(should_show);
     destination.second->setActive(active_destinations.count(destination.first));
@@ -940,7 +940,7 @@ void ModulationManager::modulationDraggedToHoverSlider(ModulationAmountKnob* hov
     return;
 
   std::string name = hover_slider->getOriginalName().toStdString();
-  std::string source_name = current_modulator_->getName().toStdString();
+  std::string source_name = current_modulator_->getComponentID().toStdString();
   electrosynth::ModulationConnection* connection = getConnection(source_name, name);
   if (connection == nullptr) {
     float value = hover_slider->getValue() * 0.5f;
@@ -958,12 +958,14 @@ void ModulationManager::modulationDraggedToHoverSlider(ModulationAmountKnob* hov
 }
 
 void ModulationManager::modulationDraggedToComponent(juce::Component* component, bool bipolar) {
+    DBG("to0");
+    DBG("to0");
     if(component != nullptr)
-        DBG(component->getName() + component->getParentComponent()->getName());
-  if (component && current_modulator_ && destination_lookup_.count(component->getName().toStdString())) {
-    std::string name = component->getName().toStdString();
+        DBG(component->getComponentID() + component->getParentComponent()->getComponentID());
+  if (component && current_modulator_ && destination_lookup_.count(component->getComponentID().toStdString())) {
+    std::string name = component->getComponentID().toStdString();
 
-    if (getConnection(current_modulator_->getName().toStdString(), name) == nullptr) {
+    if (getConnection(current_modulator_->getComponentID().toStdString(), name) == nullptr) {
       ModulationDestination* destination = destination_lookup_[name];
       SynthSlider* slider = destination->getDestinationSlider();
 
@@ -976,7 +978,7 @@ void ModulationManager::modulationDraggedToComponent(juce::Component* component,
       temporarily_set_destination_ = destination;
       temporarily_set_synth_slider_ = slider_model_lookup_[name];
 
-      std::string source_name = current_modulator_->getName().toStdString();
+      std::string source_name = current_modulator_->getComponentID().toStdString();
       connectModulation(source_name, name);
       setModulationValues(source_name, name, modulation_amount, bipolar, false, false);
       destination->setActive(true);
@@ -1005,8 +1007,8 @@ void ModulationManager::setTemporaryModulationBipolar(juce::Component* component
   if (current_modulator_ == nullptr || component != temporarily_set_destination_ || component == nullptr)
     return;
 
-  std::string source_name = current_modulator_->getName().toStdString();
-  std::string name = component->getName().toStdString();
+  std::string source_name = current_modulator_->getComponentID().toStdString();
+  std::string name = component->getComponentID().toStdString();
   ModulationDestination* destination = destination_lookup_[name];
   SynthSlider* slider = destination->getDestinationSlider();
 
@@ -1027,8 +1029,8 @@ void ModulationManager::clearTemporaryModulation() {
     temporarily_set_destination_->setActive(false);
     setDestinationQuadBounds(temporarily_set_destination_);
     temporarily_set_destination_ = nullptr;
-    std::string source_name = current_modulator_->getName().toStdString();
-    removeModulation(source_name, temporarily_set_synth_slider_->getName().toStdString());
+    std::string source_name = current_modulator_->getComponentID().toStdString();
+    removeModulation(source_name, temporarily_set_synth_slider_->getComponentID().toStdString());
     temporarily_set_synth_slider_ = nullptr;
 
     hideModulationAmountOverlay();
@@ -1039,7 +1041,7 @@ void ModulationManager::clearTemporaryHoverModulation() {
   if (temporarily_set_hover_slider_ && current_modulator_) {
     std::string name = temporarily_set_hover_slider_->getOriginalName().toStdString();
 
-    std::string source_name = current_modulator_->getName().toStdString();
+    std::string source_name = current_modulator_->getComponentID().toStdString();
     removeModulation(source_name, temporarily_set_hover_slider_->getOriginalName().toStdString());
     temporarily_set_hover_slider_ = nullptr;
   }
@@ -1086,8 +1088,8 @@ void ModulationManager::modulationWheelMoved(const juce::MouseEvent& e, const ju
   juce::MouseEvent new_event(e.source, e.position, juce::ModifierKeys(), e.pressure, e.orientation, e.rotation,
                        e.tiltX, e.tiltY, e.eventComponent, e.originalComponent, e.eventTime, e.mouseDownPosition,
                        e.mouseDownTime, e.getNumberOfClicks(), e.mouseWasDraggedSinceMouseDown());
-  std::string source_name = current_modulator_->getName().toStdString();
-  std::string destination_name = temporarily_set_destination_->getName().toStdString();
+  std::string source_name = current_modulator_->getComponentID().toStdString();
+  std::string destination_name = temporarily_set_destination_->getComponentID().toStdString();
   int index = getModulationIndex(source_name, destination_name);
   if (index >= 0)
     selected_modulation_sliders_[index]->mouseWheelMove(new_event, wheel);
@@ -1216,7 +1218,7 @@ void ModulationManager::drawDraggingModulation(OpenGlWrapper& open_gl) {
   if (current_source_ == nullptr || temporarily_set_destination_ || temporarily_set_hover_slider_)
     return;
 
-  float mod_percent = 100.f; //modulation_source_readouts_[current_source_->getName().toStdString()]->value();
+  float mod_percent = 100.f; //modulation_source_readouts_[current_source_->getComponentID().toStdString()]->value();
   float draw_radius = kRadiusWidthRatio * getWidth();
   float radius_x = draw_radius / getWidth();
   float radius_y = draw_radius / getHeight();
@@ -1812,7 +1814,7 @@ void ModulationManager::makeCurrentModulatorAmountsVisible() {
   if (current_modulator_ == nullptr || parent == nullptr)
     return;
 
-  std::string source_name = current_modulator_->getName().toStdString();
+  std::string source_name = current_modulator_->getComponentID().toStdString();
   std::vector<electrosynth::ModulationConnection*> connections = parent->getSynth()->getSourceConnections(source_name);
   std::set<ModulationAmountKnob*> selected_modulation_sliders;
 
@@ -1876,7 +1878,7 @@ void ModulationManager::makeModulationsVisible(SynthSlider* destination, bool vi
   if (destination == nullptr || parent == nullptr || changing_hover_modulation_)
     return;
 
-  std::string name = destination->getName().toStdString();
+  std::string name = destination->getComponentID().toStdString();
   if (slider_model_lookup_[name] != destination)
     return;
 
@@ -1887,7 +1889,7 @@ void ModulationManager::makeModulationsVisible(SynthSlider* destination, bool vi
   for (electrosynth::ModulationConnection* connection : connections) {
     int index = connection->index_in_all_mods;
     ModulationAmountKnob* hover_slider = modulation_hover_sliders_[index].get();
-    if (current_modulator_ && current_modulator_->getName() == juce::String(connection->source_name))
+    if (current_modulator_ && current_modulator_->getComponentID() == juce::String(connection->source_name))
       current_modulation_showing = true;
     else
       modulation_hover_sliders.push_back(hover_slider);
@@ -2113,7 +2115,7 @@ void ModulationManager::positionModulationAmountSliders() {
     modulation_slider->setVisible(false);
 
   for (auto& modulation_button : modulation_buttons_) {
-    std::string name = modulation_button.second->getName().toStdString();
+    std::string name = modulation_button.second->getComponentID().toStdString();
     positionModulationAmountSliders(name);
   }
 }

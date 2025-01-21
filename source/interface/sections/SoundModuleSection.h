@@ -7,10 +7,11 @@
 #include "sound_generator_section.h"
 class ModuleSection;
 class ProcessorBase;
+class ModulationManager;
 class SoundModuleSection : public ModulesInterface<ModuleSection>
 {
 public:
-    explicit SoundModuleSection(juce::ValueTree &);
+    explicit SoundModuleSection(juce::ValueTree &, ModulationManager* m);
     virtual ~SoundModuleSection();
     ModuleSection* createNewObject(const juce::ValueTree& v) override;
     void deleteObject (ModuleSection* at) override;

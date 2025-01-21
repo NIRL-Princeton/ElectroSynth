@@ -8,10 +8,8 @@
 //
 // Created by Davis Polito on 11/19/24.
 //
-
-#ifndef ELECTROSYNTH_ENVPARAMS_H
-    #define ELECTROSYNTH_ENVPARAMS_H
     #include "PluginStateImpl_.h"
+#include "Identifiers.h"
 
 struct EnvParamHolder : public LEAFParams<_tEnvModule>
 {
@@ -83,7 +81,7 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
     };
 
 };
-#endif //ELECTROSYNTH_ENVPARAMS_H
+
 
 
 class EnvModuleProcessor : public ModulatorStateBase<PluginStateImpl_<EnvParamHolder, _tEnvModule >>
@@ -95,7 +93,7 @@ public:
     void releaseResources() override {}
     electrosynth::ParametersView* createEditor() override
     {
-        return new electrosynth::ParametersView(state, state.params, "");
+        return new electrosynth::ParametersView(state, state.params, vt.getProperty(IDs::type).toString() + vt.getProperty(IDs::uuid).toString());
     }
 };
 

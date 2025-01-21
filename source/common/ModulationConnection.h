@@ -8,10 +8,13 @@
 #include "Identifiers.h"
 
 #include "processors/mapping.h"
+#include "ModulationWrapper.h"
+
 namespace electrosynth {
+struct MappingWrapper;
     struct ModulationConnection {
         ModulationConnection(const std::string& from, const std::string& to, LEAF& leaf,  int index)
-            : mapping(mapping), source_name(from), destination_name(to),state(IDs::MODULATION),leaf(leaf)
+            : source_name(from), destination_name(to),state(IDs::MODULATION),leaf(leaf)
         {
             uuid = getNextUuid(&leaf);
             index_in_all_mods = index;
@@ -50,21 +53,42 @@ namespace electrosynth {
         int index_in_mapping;
         int uuid;
         LEAF &leaf;
-        leaf::Mapping* mapping;
+        leaf::tProcessor* sourceProc;
+        MappingWrapper* mapping;
     };
+
+    struct MappingWrapper
+    {
+        leaf::Mapping mapping;
+        std::vector<ModulationConnection*> procIndex;
+    };
+        typedef struct mapping_change
+        {
+            bool disconnecting;
+            MappingWrapper* mapping;
+            ModulationConnection* connection;
+            std::string destination;
+            std::string source;
+            int dest_param_index;
+            int source_param_uuid;
+            leaf::tProcessor * _source;
+            leaf::tProcessor * _dest;
+        }mapping_change;
+
 
     class ModulationConnectionBank {
     public:
         ModulationConnectionBank(LEAF &leaf);
         ~ModulationConnectionBank();
         ModulationConnection* createConnection(const std::string& from, const std::string& to);
-
+        MappingWrapper* createMapping( const std::string& to);
         ModulationConnection* atIndex(int index) { return all_connections_[index].get(); }
         size_t numConnections() { return all_connections_.size(); }
 
     private:
+        LEAF& leaf;
         std::vector<std::unique_ptr<ModulationConnection>> all_connections_;
-
+        std::map<std::string, std::unique_ptr<MappingWrapper>> mappings;
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ModulationConnectionBank)
     };
 }

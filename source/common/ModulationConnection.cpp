@@ -37,7 +37,7 @@ namespace electrosynth
         return kBipolarModulationSourcePrefixes.count (prefix) > 0;
     }
 
-    ModulationConnectionBank::ModulationConnectionBank (LEAF& leaf)
+    ModulationConnectionBank::ModulationConnectionBank (LEAF& _leaf) : leaf(_leaf)
     {
         for (int i = 0; i < kMaxModulationConnections; ++i)
         {
@@ -48,6 +48,23 @@ namespace electrosynth
 
     ModulationConnectionBank::~ModulationConnectionBank() {}
 
+    MappingWrapper* ModulationConnectionBank::createMapping(const std::string &to)
+    {
+        try
+        {
+           auto& mWrapper =  mappings.at(to);
+           return mWrapper.get();
+        }
+        catch(const std::out_of_range& ex)
+        {
+
+            mappings.emplace(to, std::make_unique<MappingWrapper>());
+            tMapping_init(&(mappings.at(to)->mapping), leaf);
+
+            return mappings.at(to).get();
+        }
+
+    }
     ModulationConnection* ModulationConnectionBank::createConnection (const std::string& from, const std::string& to)
     {
         int index = 1;
@@ -57,6 +74,9 @@ namespace electrosynth
             if (to != invalid_connection && isConnectionAvailable (connection.get()))
             {
                 connection->resetConnection (from, to);
+
+
+                connection->mapping = createMapping(to);
                 //connection->modulation_processor->setBipolar(ModulationConnection::isModulationSourceDefaultBipolar(from));
                 return connection.get();
             }

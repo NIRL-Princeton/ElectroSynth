@@ -49,7 +49,7 @@ namespace electrosynth {
 
       }
       void process(juce::AudioSampleBuffer&, juce::MidiBuffer &);
-
+      void processMappings();
       void releaseResources()
       {}
 
@@ -129,10 +129,17 @@ namespace electrosynth {
       void checkOversampling();
 
       leaf::Processor* getLEAFProcessor(const std::string&);
+      leaf::Processor* getLEAFProcessorModulator(const std::string&);
       std::pair<leaf::Processor*, int> getParameterInfo(const std::string&);
       std::vector<std::vector<std::shared_ptr<ProcessorBase>>> processors;
       std::vector<std::vector<std::shared_ptr<ModulatorBase>>> modSources;
-      std::vector<std::shared_ptr<MappingWrapper>> modulations;
+      std::vector<MappingWrapper*> mappings;
+      void disconnectMapping(const electrosynth::mapping_change& change) {}
+      void connectMapping (const electrosynth::mapping_change& change);
+      ProcessorBase* getProcessorFromUUID(int uuid);
+      ModulatorBase* getModulatorFromUUID(int uuid);
+
+      leaf::tProcessor * getLeafProcessorFromUUID(int uuid);
       char dummy_memory[32];
       juce::AudioSampleBuffer bu{2,1};
       LEAF leaf;

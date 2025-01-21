@@ -29,6 +29,7 @@ ModulationButton::ModulationButton(String name) : PlainShapeComponent(std::move(
                                                   draw_border_(false), active_modulation_(false), font_size_(12.0f),
                                                   show_drag_drop_(false), drag_drop_alpha_(0.0f),initialized(false) {
   setWantsKeyboardFocus(true);
+  setComponentID(getName());
   Path shape = Paths::dragDropArrows();
   shape.addLineSegment(Line<float>(-50.0f, -50.0f, -50.0f, -50.0f), 0.2f);
   setShape(Paths::dragDropArrows());

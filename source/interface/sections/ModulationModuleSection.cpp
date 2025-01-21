@@ -8,6 +8,7 @@
 #include "Modulators/EnvModuleProcessor.h"
 #include "synth_gui_interface.h"
 #include "Modulators/ModulatorBase.h"
+#include "modulation_manager.h"
 
 ModulationModuleSection::ModulationModuleSection(ValueTree &v, ModulationManager *modulation_manager) : ModulesInterface<ModulationSection>(v), modulation_manager(modulation_manager)
 {
@@ -21,6 +22,7 @@ ModulationModuleSection::ModulationModuleSection(ValueTree &v, ModulationManager
     setSkinValues(default_skin,false);
     viewport_.setScrollBarsShown(false, false, false, true);
     factory.registerType<EnvModuleProcessor, juce::ValueTree, LEAF*>("EnvModule");
+    addListener(modulation_manager);
 }
 
 ModulationModuleSection::~ModulationModuleSection()
@@ -136,7 +138,7 @@ ModulationSection* ModulationModuleSection::createNewObject (const juce::ValueTr
 //    try {
 
         auto proc = factory.create(v.getProperty(IDs::type).toString().toStdString(),std::make_tuple( v,leaf ));
-        auto *module_section = new ModulationSection(v.getProperty(IDs::type).toString(), v,(proc->createEditor()));
+        auto *module_section = new ModulationSection( v,(proc->createEditor()));
         container_->addSubSection(module_section);
         parent->tryEnqueueProcessorInitQueue(
             [this, proc] {
@@ -154,7 +156,9 @@ ModulationSection* ModulationModuleSection::createNewObject (const juce::ValueTr
 
 void ModulationModuleSection::newObjectAdded(ModulationSection* sect)
 {
-    sect->addModButtonListener(modulation_manager);
+    sect->addModButtonListener (modulation_manager);
+    for (Listener* listener : listeners_)
+        listener->added();
     resized();
 }
 

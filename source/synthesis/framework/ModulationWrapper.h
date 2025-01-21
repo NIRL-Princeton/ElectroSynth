@@ -6,12 +6,7 @@
 #define ELECTROSYNTH_MODULATIONWRAPPER_H
 #include "processors/mapping.h"
 #include <juce_data_structures/juce_data_structures.h>
-
-struct MappingWrapper
-    {
-       leaf::Mapping mapping;
-       std::string destination;
-    };
+#include "ModulationConnection.h"
 
 
 

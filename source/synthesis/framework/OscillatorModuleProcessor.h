@@ -52,8 +52,8 @@ constexpr std::array<const char*, 13> OscParamNames = {
     "",       // OscMidiPitch
     "harmonic",           // OscHarmonic
     "pitch",              // OscPitchOffset
-    "pitch_fine",         // OscPitchFine
-    "freq_offset",        // OscFreqOffset
+    "pitchfine",         // OscPitchFine
+    "freqoffset",        // OscFreqOffset
     "shape",              // OscShapeParam
     "amp",                // OscAmpParam
     "glide",              // OscGlide
@@ -62,7 +62,8 @@ constexpr std::array<const char*, 13> OscParamNames = {
     "",                   // OscSyncIn (undefined in your parameters)
     "oscType",            // OscType
     ""                    // OscNumParams (typically represents the count, no corresponding parameter)
-};enum class FlagOscTypes{
+};
+enum class FlagOscTypes{
     OscTypeSawSquare =1,
     OscTypeSineTri =2,
     OscTypeSaw =4,
@@ -107,7 +108,7 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
     };
 
     chowdsp::FloatParameter::Ptr pitchFine {
-        juce::ParameterID{"pitch_fine" , 100},
+        juce::ParameterID{"pitchfine" , 100},
         "Pitch Fine",
         chowdsp::ParamUtils::createNormalisableRange(-1.f, 1.f,0.f),
         0.f,
@@ -122,7 +123,7 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
 
     chowdsp::FloatParameter::Ptr freqOffset
         {
-        juce::ParameterID{"freq_offset" , 100},
+        juce::ParameterID{"freqoffset" , 100},
         "Freq Offset",
         chowdsp::ParamUtils::createNormalisableRange(-2000.f, 2000.f,0.f),
         0.0f,

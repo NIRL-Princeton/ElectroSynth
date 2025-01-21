@@ -27,7 +27,8 @@
 #include "synth_slider.h"
 #include <tracktion_ValueTreeUtilities.h>
 #include <set>
-
+#include "ModulationModuleSection.h"
+#include "SoundModuleSection.h"
 class ExpandModulationButton;
 class ModulationMatrix;
 class ModulationMeter;
@@ -170,7 +171,10 @@ class ModulationManager : public SynthSection,
                           public ModulationAmountKnob::Listener,
                           public SynthSlider::SliderListener,
                           public ModulationExpansionBox::Listener,
-                          public ValueTree::Listener/* tracktion::engine::ValueTreeObjectList<ModulationButton> */ {
+                          public ModulesInterface<ModulationSection>::Listener,
+                          public ModulesInterface<ModuleSection>::Listener
+
+{
   public:
     static constexpr int kIndicesPerMeter = 6;
     static constexpr float kDragImageWidthPercent = 0.018f;
@@ -263,14 +267,23 @@ class ModulationManager : public SynthSection,
     void addAuxConnection(int from_index, int to_index);
     void removeAuxDestinationConnection(int to_index);
     void removeAuxSourceConnection(int from_index);
+    juce::ValueTree v;
 
-    void 	valueTreePropertyChanged (ValueTree &treeWhosePropertyHasChanged, const Identifier &property) {}
-        void 	valueTreeChildAdded (ValueTree &parentTree, ValueTree &childWhichHasBeenAdded);
-        void 	valueTreeChildRemoved (ValueTree &parentTree, ValueTree &childWhichHasBeenRemoved, int indexFromWhichChildWasRemoved) {}
-             void 	valueTreeChildOrderChanged (ValueTree &parentTreeWhoseChildrenHaveMoved, int oldIndex, int newIndex) {}
-             void 	valueTreeParentChanged (ValueTree &treeWhoseParentHasChanged) {}
-             void 	valueTreeRedirected (ValueTree &treeWhichHasBeenChanged) {}
-             juce::ValueTree v;
+    // this will be called by both
+    //  ModulesInterface<ModulationSection>::Listener,
+    //    ModulesInterface<ModuleSection>::Listener
+    void added() override
+    {
+        componentAdded();
+    }
+    void removed() override
+    {
+        componentAdded();
+    }
+    void effectsMoved() override
+    {
+        return;
+    }
   private:
       CriticalSection open_gl_critical_section_;
     void setDestinationQuadBounds(ModulationDestination* destination);
@@ -287,7 +300,7 @@ class ModulationManager : public SynthSection,
     bool enteringHoverValue();
     void showModulationAmountOverlay(ModulationAmountKnob* slider);
     void hideModulationAmountOverlay();
-
+    void componentAdded();
 //    void addAllSliders
     std::unique_ptr<juce::Component> modulation_destinations_;
       std::map<juce::Viewport*, int> num_rotary_meters;

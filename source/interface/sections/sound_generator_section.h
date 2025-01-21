@@ -86,6 +86,8 @@ public:
     public:
         virtual ~Listener() { }
         virtual void effectsMoved() = 0;
+        virtual void added() =0;
+        virtual void removed() = 0;
     };
 //    T* createNewObject(const juce::ValueTree& v) override;
 //    void deleteObject (ModuleSection* at) override;
@@ -282,6 +284,10 @@ void ModulesInterface<T>::setScrollBarRange() {
 template<typename T>
 void ModulesInterface<T>::newObjectAdded (T*)
 {
+    for(auto listener : listeners_)
+    {
+        listener->added();
+    }
     resized();
 }
 

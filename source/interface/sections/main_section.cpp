@@ -9,7 +9,7 @@
 #include "test_section.h"
 MainSection::MainSection(juce::ValueTree v, juce::UndoManager &um, OpenGlWrapper & open_gl, SynthGuiData* data, ModulationManager* modulation_manager) : SynthSection("main_section"), v(v), um(um)
 {
-    sound_interface = std::make_unique<SoundModuleSection>(v);
+    sound_interface = std::make_unique<SoundModuleSection>(v, modulation_manager);
     addSubSection(sound_interface.get());
     modulation_interface = std::make_unique<ModulationModuleSection>(v, modulation_manager);
     addSubSection(modulation_interface.get());
