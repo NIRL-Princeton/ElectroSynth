@@ -468,8 +468,8 @@ void SynthSection::addSlider(SynthSlider* slider, bool show, bool listen) {
   slider_lookup_[slider->getComponentID().toStdString()] = slider;
   all_sliders_[slider->getComponentID().toStdString()] = slider;
   all_sliders_v.push_back(slider);
-//  if (listen)
-//    slider->addListener(this);
+  if (listen)
+    slider->addListener(this);
   if (show)
     addAndMakeVisible(slider);
   else

@@ -206,6 +206,8 @@ ModulationAmountKnob::ModulationAmountKnob(juce::String name, int index, const V
   showing_ = true;
   hovering_ = false;
   current_modulator_ = false;
+  setRange(0.f,1.f,0.f);
+
 }
 
 void ModulationAmountKnob::mouseDown(const juce::MouseEvent& e) {
@@ -388,23 +390,7 @@ ModulationManager::ModulationManager(ValueTree &tree, SynthBase* base
   temporarily_set_synth_slider_ = nullptr;
   temporarily_set_hover_slider_ = nullptr;
   temporarily_set_bipolar_ = false;
-//  num_voices_readout_ = nullptr;
 
-//  modulation_buttons_ = modulation_buttons;
-//  for (auto& modulation_button : modulation_buttons_) {
-//    modulation_button.second->addListener(this);
-//
-//    modulation_callout_buttons_[modulation_button.first] = std::make_unique<ExpandModulationButton>();
-//    addChildComponent(modulation_callout_buttons_[modulation_button.first].get());
-//    addOpenGlComponent(modulation_callout_buttons_[modulation_button.first]->getGlComponent());
-//    modulation_callout_buttons_[modulation_button.first]->addListener(this);
-//  }
-//
-//  modulation_source_meters_ = std::make_unique<BarRenderer>(modulation_buttons.size());
-//  modulation_source_meters_->setBarWidth(0.0f);
-//  addAndMakeVisible(modulation_source_meters_.get());
-//  modulation_source_meters_->setInterceptsMouseClicks(false, false);
-//
   setInterceptsMouseClicks(false, true);
 
   modulation_destinations_ = std::make_unique<juce::Component>();
@@ -445,14 +431,14 @@ ModulationManager::ModulationManager(ValueTree &tree, SynthBase* base
     std::string name = "modulation_" + std::to_string(i + 1) + "_amount";
     modulation_amount_sliders_[i] = std::make_unique<ModulationAmountKnob>(name, i, bank.atIndex(i)->state);
     modulation_amount_sliders_[i]->setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
-    addSlider(modulation_amount_sliders_[i].get());
+    addSlider(modulation_amount_sliders_[i].get(),true,false);
     modulation_amount_sliders_[i]->addSliderListener(this);
     modulation_amount_sliders_[i]->addModulationAmountListener(this);
     modulation_amount_lookup_[name] = modulation_amount_sliders_[i].get();
 
     modulation_hover_sliders_[i] = std::make_unique<ModulationAmountKnob>(name, i, bank.atIndex(i)->state);
     modulation_hover_sliders_[i]->setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
-    addSlider(modulation_hover_sliders_[i].get());
+    addSlider(modulation_hover_sliders_[i].get(),true,false);
     modulation_hover_sliders_[i]->setAlpha(0.0f, true);
     modulation_hover_sliders_[i]->addSliderListener(this);
     modulation_hover_sliders_[i]->addModulationAmountListener(this);
@@ -460,7 +446,7 @@ ModulationManager::ModulationManager(ValueTree &tree, SynthBase* base
 
     selected_modulation_sliders_[i] = std::make_unique<ModulationAmountKnob>(name, i, bank.atIndex(i)->state);
     selected_modulation_sliders_[i]->setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
-    addSlider(selected_modulation_sliders_[i].get());
+    addSlider(selected_modulation_sliders_[i].get(),true,true);
     selected_modulation_sliders_[i]->setAlpha(0.0f, true);
     selected_modulation_sliders_[i]->addSliderListener(this);
     selected_modulation_sliders_[i]->addModulationAmountListener(this);
@@ -1140,24 +1126,24 @@ void ModulationManager::disconnectModulation(ModulationAmountKnob* modulation_kn
 }
 
 void ModulationManager::setModulationSettings(ModulationAmountKnob* modulation_knob) {
-//  electrosynth::ModulationConnection* connection = getConnectionForModulationSlider(modulation_knob);
-//  float value = modulation_knob->getValue();
-//  bool bipolar = modulation_knob->isBipolar();
-//  bool stereo = modulation_knob->isStereo();
-//  bool bypass = modulation_knob->isBypass();
-//
-//  int index = modulation_knob->index();
-//  modulation_amount_sliders_[index]->setBipolar(bipolar);
-//  modulation_amount_sliders_[index]->setStereo(stereo);
-//  modulation_amount_sliders_[index]->setBypass(bypass);
-//  modulation_hover_sliders_[index]->setBipolar(bipolar);
-//  modulation_hover_sliders_[index]->setStereo(stereo);
-//  modulation_hover_sliders_[index]->setBypass(bypass);
-//  selected_modulation_sliders_[index]->setBipolar(bipolar);
-//  selected_modulation_sliders_[index]->setStereo(stereo);
-//  selected_modulation_sliders_[index]->setBypass(bypass);
-//
-//  setModulationValues(connection->source_name, connection->destination_name, value, bipolar, stereo, bypass);
+  electrosynth::ModulationConnection* connection = getConnectionForModulationSlider(modulation_knob);
+  float value = modulation_knob->getValue();
+  bool bipolar = 1; //modulation_knob->isBipolar();
+  bool stereo = 1; //modulation_knob->isStereo();
+  bool bypass = 0; //modulation_knob->isBypass();
+
+  int index = modulation_knob->index();
+  modulation_amount_sliders_[index]->setBipolar(bipolar);
+  modulation_amount_sliders_[index]->setStereo(stereo);
+  modulation_amount_sliders_[index]->setBypass(bypass);
+  modulation_hover_sliders_[index]->setBipolar(bipolar);
+  modulation_hover_sliders_[index]->setStereo(stereo);
+  modulation_hover_sliders_[index]->setBypass(bypass);
+  selected_modulation_sliders_[index]->setBipolar(bipolar);
+  selected_modulation_sliders_[index]->setStereo(stereo);
+  selected_modulation_sliders_[index]->setBypass(bypass);
+
+  setModulationValues(connection->source_name, connection->destination_name, value, bipolar, stereo, bypass);
 }
 
 void ModulationManager::setModulationBypass(ModulationAmountKnob* modulation_knob, bool bypass) {
@@ -1218,7 +1204,7 @@ void ModulationManager::drawDraggingModulation(OpenGlWrapper& open_gl) {
   if (current_source_ == nullptr || temporarily_set_destination_ || temporarily_set_hover_slider_)
     return;
 
-  float mod_percent = 100.f; //modulation_source_readouts_[current_source_->getComponentID().toStdString()]->value();
+  float mod_percent = 50.f; //modulation_source_readouts_[current_source_->getComponentID().toStdString()]->value();
   float draw_radius = kRadiusWidthRatio * getWidth();
   float radius_x = draw_radius / getWidth();
   float radius_y = draw_radius / getHeight();
@@ -1249,12 +1235,12 @@ void ModulationManager::renderOpenGlComponents(OpenGlWrapper& open_gl, bool anim
 //  juce::Colour first_color = findColour(Skin::kWidgetPrimary1, true);
 //  juce::Colour second_color = findColour(Skin::kWidgetPrimary2, true);
 //
-////  modulation_source_meters_->setAdditiveBlending(second_color.getBrightness() > 0.5f);
-////  modulation_source_meters_->setColor(second_color);
-////  renderSourceMeters(open_gl, 1);
-////  modulation_source_meters_->setAdditiveBlending(first_color.getBrightness() > 0.5f);
-////  modulation_source_meters_->setColor(first_color);
-////  renderSourceMeters(open_gl, 0);
+//  modulation_source_meters_->setAdditiveBlending(second_color.getBrightness() > 0.5f);
+//  modulation_source_meters_->setColor(second_color);
+//  renderSourceMeters(open_gl, 1);
+//  modulation_source_meters_->setAdditiveBlending(first_color.getBrightness() > 0.5f);
+//  modulation_source_meters_->setColor(first_color);
+//  renderSourceMeters(open_gl, 0);
 //  updateSmoothModValues();
 //
   editing_rotary_amount_quad_.render(open_gl, animate);
@@ -1509,14 +1495,14 @@ void ModulationManager::mouseDown(SynthSlider* slider) {
   if (modulation_expansion_box_->isVisible())
     return;
 
-//  electrosynth::ModulationConnection* connection = getConnectionForModulationSlider(slider);
-//  if (connection && !connection->source_name.empty() && !connection->destination_name.empty())
-//    modulationSelected(modulation_buttons_[connection->source_name]);
-//  else {
-//    clearModulationSource();
-//    hideModulationAmountOverlay();
-//    makeModulationsVisible(slider, true);
-//  }
+  electrosynth::ModulationConnection* connection = getConnectionForModulationSlider(slider);
+  if (connection && !connection->source_name.empty() && !connection->destination_name.empty())
+    modulationSelected(modulation_buttons_[connection->source_name]);
+  else {
+    clearModulationSource();
+    hideModulationAmountOverlay();
+    makeModulationsVisible(slider, true);
+  }
 }
 
 void ModulationManager::mouseUp(SynthSlider* slider) {
@@ -1556,14 +1542,14 @@ void ModulationManager::sliderValueChanged(juce::Slider* slider) {
     index = aux_connections_to_from_[index];
 
   electrosynth::ModulationConnection* connection = getConnection(index);
-//  bool bipolar = connection->modulation_processor->isBipolar();
-//  bool stereo = connection->modulation_processor->isStereo();
-//  bool bypass = connection->modulation_processor->isBypassed();
+  bool bipolar = 1;// connection->modulation_processor->isBipolar();
+  bool stereo = 1; //connection->modulation_processor->isStereo();
+  bool bypass = 0; //connection->modulation_processor->isBypassed();
 //
-//  setModulationValues(connection->source_name, connection->destination_name, scaled_value, bipolar, stereo, bypass);
-//  showModulationAmountOverlay(amount_knob);
+  setModulationValues(connection->source_name, connection->destination_name, scaled_value, bipolar, stereo, bypass);
+  showModulationAmountOverlay(amount_knob);
 //
-//  SynthSection::sliderValueChanged(modulation_amount_sliders_[index].get());
+  SynthSection::sliderValueChanged(modulation_amount_sliders_[index].get());
 }
 
 void ModulationManager::buttonClicked(juce::Button* button) {
@@ -1692,11 +1678,11 @@ void ModulationManager::setModulationValues(std::string source, std::string dest
   if (parent == nullptr || source.empty() || destination.empty())
     return;
 
-//  modifying_ = true;
+  modifying_ = true;
 //  parent->setModulationValues(source, destination, amount, bipolar, stereo, bypass);
-//  int index = getModulationIndex(source, destination);
+  int index = getModulationIndex(source, destination);
 //  parent->notifyModulationValueChanged(index);
-//  setModulationSliderValues(index, amount);
+  setModulationSliderValues(index, amount);
 //  setModulationSliderBipolar(index, bipolar);
 //
 //  modifying_ = false;
@@ -2137,23 +2123,23 @@ void ModulationManager::setModulationAmounts() {
   if (parent == nullptr || modifying_)
     return;
 
-//  electrosynth::ModulationConnectionBank& bank = parent->getSynth()->getModulationBank();
-//  for (int i = 0; i < electrosynth::kMaxModulationConnections; ++i) {
-//    electrosynth::ModulationConnection* connection = bank.atIndex(i);
-//    if (aux_connections_to_from_.count(i) == 0)
-//      setModulationSliderValues(i, connection->modulation_processor->currentBaseValue());
-//
-//    bool bipolar = connection->modulation_processor->isBipolar();
-//    bool stereo = connection->modulation_processor->isStereo();
-//    bool bypass = connection->modulation_processor->isBypassed();
-//    modulation_amount_sliders_[i]->setBipolar(bipolar);
-//    modulation_amount_sliders_[i]->setStereo(stereo);
-//    modulation_amount_sliders_[i]->setBypass(bypass);
-//
-//    modulation_hover_sliders_[i]->setBipolar(bipolar);
-//    modulation_hover_sliders_[i]->setStereo(stereo);
-//    modulation_hover_sliders_[i]->setBypass(bypass);
-//  }
+  electrosynth::ModulationConnectionBank& bank = parent->getSynth()->getModulationBank();
+  for (int i = 0; i < electrosynth::kMaxModulationConnections; ++i) {
+    electrosynth::ModulationConnection* connection = bank.atIndex(i);
+    if (aux_connections_to_from_.count(i) == 0)
+      setModulationSliderValues(i, 0); // connection->modulation_processor->currentBaseValue());
+
+    bool bipolar = 1; //connection->modulation_processor->isBipolar();
+    bool stereo = 1; //connection->modulation_processor->isStereo();
+    bool bypass = 0; //connection->modulation_processor->isBypassed();
+    modulation_amount_sliders_[i]->setBipolar(bipolar);
+    modulation_amount_sliders_[i]->setStereo(stereo);
+    modulation_amount_sliders_[i]->setBypass(bypass);
+
+    modulation_hover_sliders_[i]->setBipolar(bipolar);
+    modulation_hover_sliders_[i]->setStereo(stereo);
+    modulation_hover_sliders_[i]->setBypass(bypass);
+  }
 }
 
 void ModulationManager::setVisibleMeterBounds() {

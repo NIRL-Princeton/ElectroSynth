@@ -87,6 +87,10 @@ class ModulationAmountKnob : public SynthSlider {
     virtual juce::Colour getThumbColor() const override {
       return withBypassSaturation(SynthSlider::getThumbColor());
     }
+    void valueChanged() override {
+        //DBG("valuechanged");
+        SynthSlider::valueChanged();
+    }
 
     void setBypass(bool bypass) { bypass_ = bypass; setColors(); }
     void setStereo(bool stereo) { stereo_ = stereo; }
