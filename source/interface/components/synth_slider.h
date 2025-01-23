@@ -497,9 +497,9 @@ class SynthSlider : public OpenGlSlider, public juce::TextEditor::Listener {
     PopupItems createPopupMenu();
     void setRotaryTextEntryBounds();
     void setLinearTextEntryBounds();
-   /* void notifyModulationAmountChanged();
+    void notifyModulationAmountChanged();
     void notifyModulationRemoved();
-    void notifyModulationsChanged();*/
+    void notifyModulationsChanged();
 
     bool show_popup_on_hover_;
     juce::String popup_prefix_;

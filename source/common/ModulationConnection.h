@@ -54,6 +54,7 @@ struct MappingWrapper;
         int uuid;
         LEAF &leaf;
         leaf::tProcessor* sourceProc;
+        std::atomic<float>* scalingValue;
         MappingWrapper* mapping;
     };
 

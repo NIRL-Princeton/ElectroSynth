@@ -1545,6 +1545,7 @@ void ModulationManager::sliderValueChanged(juce::Slider* slider) {
   bool bipolar = 1;// connection->modulation_processor->isBipolar();
   bool stereo = 1; //connection->modulation_processor->isStereo();
   bool bypass = 0; //connection->modulation_processor->isBypassed();
+  *(connection->scalingValue) = scaled_value;
 //
   setModulationValues(connection->source_name, connection->destination_name, scaled_value, bipolar, stereo, bypass);
   showModulationAmountOverlay(amount_knob);

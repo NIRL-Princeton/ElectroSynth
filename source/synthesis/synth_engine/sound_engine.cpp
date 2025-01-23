@@ -343,10 +343,8 @@ void SoundEngine::connectMapping (const electrosynth::mapping_change& change) {\
     if (it != change.mapping->procIndex.end() )
     {
         sourceIndex = static_cast<int> (std::distance (change.mapping->procIndex.begin(), it));
-
-
     }
-    tMappingAdd(&change.mapping->mapping, change._source, change._dest, change.dest_param_index, sourceIndex);
+    change.connection->scalingValue = tMappingAdd(&change.mapping->mapping, change._source, change._dest, change.dest_param_index, sourceIndex, leaf);
 
 
     mappings.push_back(change.mapping);

@@ -690,7 +690,7 @@ void SynthSlider::showPopup(bool primary) {
 }
 
 void SynthSlider::hidePopup(bool primary) {
-  //parent_->hidePopupDisplay(primary);
+  parent_->hidePopupDisplay(primary);
 }
 
 juce::String SynthSlider::formatValue(float value) {
@@ -795,17 +795,17 @@ void SynthSlider::setLinearTextEntryBounds() {
   text_entry_->setBounds((getWidth() - text_width) / 2, (getHeight() - text_height) / 2, text_width, text_height);
 }
 
-//void SynthSlider::notifyModulationAmountChanged() {
-//  for (SynthSlider::SliderListener* listener : slider_listeners_)
-//    listener->modulationAmountChanged(this);
-//}
-//
-//void SynthSlider::notifyModulationRemoved() {
-//  for (SynthSlider::SliderListener* listener : slider_listeners_)
-//    listener->modulationRemoved(this);
-//}
-//
-//void SynthSlider::notifyModulationsChanged() {
-//  for (SynthSlider::SliderListener* listener : slider_listeners_)
-//    listener->modulationsChanged(getName().toStdString());
-//}
+void SynthSlider::notifyModulationAmountChanged() {
+  for (SynthSlider::SliderListener* listener : slider_listeners_)
+    listener->modulationAmountChanged(this);
+}
+
+void SynthSlider::notifyModulationRemoved() {
+  for (SynthSlider::SliderListener* listener : slider_listeners_)
+    listener->modulationRemoved(this);
+}
+
+void SynthSlider::notifyModulationsChanged() {
+  for (SynthSlider::SliderListener* listener : slider_listeners_)
+    listener->modulationsChanged(getName().toStdString());
+}
