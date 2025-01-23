@@ -122,7 +122,10 @@ class ModulationDestination : public juce::Component {
       setComponentID(source->getComponentID());
     }
     ModulationDestination() = delete;
-
+//    void mouseEnter(const juce::MouseEvent &e)
+//    {
+//        DBG("mosueenetere moddest");
+//    }
     virtual ~ModulationDestination() { }
 
     SynthSlider* getDestinationSlider() { return destination_slider_; }

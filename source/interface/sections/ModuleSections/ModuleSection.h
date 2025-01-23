@@ -23,6 +23,10 @@ public:
     //void sliderValueChanged(Slider* changed_slider) override;
     //void setAllValues(vital::control_map& controls) override;
     //void setFilterActive(bool active);
+//    void mouseEnter (const MouseEvent& event)
+//    {
+//        DBG("mouseenter doulesection");
+//    }
     juce::ValueTree state;
 private:
 

@@ -49,7 +49,9 @@
 
 class ModulesContainer : public SynthSection {
     public:
-        ModulesContainer(String name) : SynthSection(name) {  }
+        ModulesContainer(String name) : SynthSection(name) {
+            setInterceptsMouseClicks(false,true);
+        }
     void paintBackground(Graphics& g) override {
         g.fillAll(findColour(Skin::kBackground, true));
 paintChildrenShadows(g);
@@ -112,7 +114,7 @@ public:
     void paintChildrenShadows(juce::Graphics& g) override { }
     void resized() override;
     virtual void redoBackgroundImage();
-
+    void mouseDown (const juce::MouseEvent& e) override;
 
     void setFocus() { grabKeyboardFocus(); }
     virtual void setEffectPositions() = 0;
@@ -132,7 +134,7 @@ public:
         for (Listener* listener : listeners_)
             listener->effectsMoved();
     }
-    void mouseDown(const juce::MouseEvent&e);
+
     virtual PopupItems createPopupMenu() = 0;
     virtual void handlePopupResult(int result) = 0;
 protected:
@@ -158,15 +160,16 @@ ModulesInterface<T>::ModulesInterface(juce::ValueTree &v) : SynthSection("module
     viewport_.setViewedComponent(container_.get());
     viewport_.addListener(this);
     viewport_.setScrollBarsShown(false, false, true, false);
-
+    viewport_.setInterceptsMouseClicks(false,true);
+    //breaks sacling if true
     addSubSection(container_.get(), false);
 
-
-
+    container_->toFront(true);
+    container_->setInterceptsMouseClicks(false,true);
 
     setOpaque(false);
 
-    //setInterceptsMouseClicks(false, true);
+//    setInterceptsMouseClicks(false, true);
     ////    setSkinOverride(Skin::kAllEffects);
 }
 template<typename T>
@@ -228,6 +231,7 @@ void ModulesInterface<T>::mouseDown (const juce::MouseEvent& e)
         PopupItems options = createPopupMenu();
         showPopupSelector(this, e.getPosition(), options, [=](int selection) { handlePopupResult(selection); });
     }
+    juce::Component::mouseDown(e);
 }
 
 

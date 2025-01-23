@@ -28,6 +28,7 @@ SynthSection::SynthSection(const String& name) : Component(name), parent_(nullpt
                                                  skin_override_(Skin::kNone), size_ratio_(1.0f),
                                                  active_(true), sideways_heading_(true), background_(nullptr) {
   setWantsKeyboardFocus(true);
+
 }
 
 float SynthSection::findValue(Skin::ValueId value_id) const {

@@ -25,7 +25,7 @@
 namespace electrosynth {
 
   SoundEngine::SoundEngine() : /*voice_handler_(nullptr),*/
-                                last_oversampling_amount_(-1), last_sample_rate_(-1), bufferDebugger(std::make_unique<BufferDebugger>()), modulation_bank_((leaf))
+                                last_oversampling_amount_(-1), last_sample_rate_(-1), modulation_bank_((leaf))
   {
       LEAF_init(&leaf, 44100.0f, dummy_memory, 32, [](){return (float)rand()/RAND_MAX;});
       //processors.push_back(std::make_shared<OscillatorModuleProcessor> (&leaf));
@@ -126,7 +126,7 @@ namespace electrosynth {
     {
 
     }
-   bufferDebugger->capture("main out", audio_buffer.getReadPointer(0), audio_buffer.getNumSamples(), -20.f, 20.f);
+//   bufferDebugger->capture("main out", audio_buffer.getReadPointer(0), audio_buffer.getNumSamples(), -20.f, 20.f);
   }
 
 

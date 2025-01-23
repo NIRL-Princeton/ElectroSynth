@@ -223,7 +223,10 @@ class SynthSection : public Component, public Slider::Listener,
 
         void paintBackground(Graphics& g) override { }
     };
-
+//    void mouseEnter (const MouseEvent& event)
+//    {
+//        DBG("mouseenter " + getName());
+//    }
     SynthSection(const String& name);
     virtual ~SynthSection() = default;
 

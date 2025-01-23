@@ -117,6 +117,8 @@ ModuleSection* SoundModuleSection::createNewObject (const juce::ValueTree& v)
         auto proc = factory.create(v.getProperty(IDs::type).toString().toStdString(),std::make_tuple( v,leaf ));
         auto *module_section = new ModuleSection(v.getProperty(IDs::type).toString() + v.getProperty(IDs::uuid).toString() , v, (proc->createEditor()));
         container_->addSubSection(module_section);
+        module_section->setInterceptsMouseClicks(false,true);
+        parentHierarchyChanged();
         parent->tryEnqueueProcessorInitQueue(
             [this, proc] {
                 SynthGuiInterface* _parent = findParentComponentOfClass<SynthGuiInterface>();

@@ -234,7 +234,10 @@ class HeaderSection : public SynthSection, public LogoSection::Listener {
 
         virtual void showAboutSection() = 0;
     };
-
+    void mouseEnter (const MouseEvent& event)
+    {
+        DBG("mouseenter header");
+    }
     HeaderSection();
 
     void paintBackground(Graphics& g) override;

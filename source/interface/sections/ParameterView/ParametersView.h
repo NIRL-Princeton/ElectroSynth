@@ -32,6 +32,11 @@ namespace electrosynth {
                 drawLabelForComponent(g, slider->getName(), slider);
             }
         }
+
+        void mouseEnter (const MouseEvent& event)
+        {
+            DBG("mouseenter parameterview");
+        }
     private:
 //        struct Pimpl;
 //        std::unique_ptr<Pimpl> pimpl;

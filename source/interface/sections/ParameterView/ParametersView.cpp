@@ -63,8 +63,9 @@ namespace electrosynth {
                 slider.setComponentID(param.paramID);
                 setLookAndFeel(DefaultLookAndFeel::instance());
                 slider.setScrollWheelEnabled(false);
-                addAndMakeVisible(slider);
-                parent.addSlider(&slider, false);
+                //addAndMakeVisible(slider);
+                //setInterceptsMouseClicks(false, true);
+                parent.addSlider(&slider, true);
                 slider.parentHierarchyChanged();
                 slider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
                 _ASSERT(slider.getSectionParent() != nullptr);
@@ -78,7 +79,10 @@ namespace electrosynth {
 //                parent->getOpenGlWrapper()
 
              }
-
+             void mouseEnter (const MouseEvent& event)
+             {
+                 DBG("mouseentersliderparamacomp");
+             }
             void resized() override {
                 auto area = getBoundsInParent();
                 slider.setBounds(area);
@@ -188,6 +192,7 @@ namespace electrosynth {
             :  SynthSection(name)
     {
         setComponentID(name);
+        setInterceptsMouseClicks(false,true);
               //pimpl(std::make_unique<Pimpl>(params, paramListeners, *this)){
 //        auto *viewport = pimpl->view.getViewport();
         params.doForAllParameterContainers(

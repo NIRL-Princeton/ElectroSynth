@@ -358,13 +358,15 @@ void SynthSlider::mouseUp(const juce::MouseEvent& e) {
 }
 
 void SynthSlider::mouseEnter(const juce::MouseEvent &e) {
-  OpenGlSlider::mouseEnter(e);
+    DBG("mouseenter");
+    OpenGlSlider::mouseEnter(e);
+
   for (SliderListener* listener : slider_listeners_)
     listener->hoverStarted(this);
 
   if (show_popup_on_hover_)
     showPopup(true);
-
+  DBG("mouseenter");
   hovering_ = true;
   redoImage();
 }
