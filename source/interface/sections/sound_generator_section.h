@@ -166,7 +166,7 @@ ModulesInterface<T>::ModulesInterface(juce::ValueTree &v) : SynthSection("module
 
     setOpaque(false);
 
-
+    //setInterceptsMouseClicks(false, true);
     ////    setSkinOverride(Skin::kAllEffects);
 }
 template<typename T>

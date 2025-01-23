@@ -45,6 +45,17 @@ struct MappingWrapper;
             source_name = from;
             destination_name = to;
         }
+
+        float getCurrentBaseValue()
+        {
+            if(scalingValue != nullptr)
+            {
+                return scalingValue->load();
+            }
+            return 0.5f;
+        }
+
+
         static bool isModulationSourceDefaultBipolar(const std::string& source);
         std::string source_name;
         std::string destination_name;

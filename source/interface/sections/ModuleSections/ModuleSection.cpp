@@ -6,6 +6,7 @@
 ModuleSection::ModuleSection(juce::String name, const juce::ValueTree &v, electrosynth::ParametersView* editor) : SynthSection(name), state(v), _view(editor)
 {
     addSubSection(_view.get());
+    //setInterceptsMouseClicks(false, true);
 }
 
 ModuleSection::~ModuleSection() = default;

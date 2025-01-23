@@ -23,6 +23,7 @@ ModulationModuleSection::ModulationModuleSection(ValueTree &v, ModulationManager
     viewport_.setScrollBarsShown(false, false, false, true);
     factory.registerType<EnvModuleProcessor, juce::ValueTree, LEAF*>("EnvModule");
     addListener(modulation_manager);
+    //setInterceptsMouseClicks(false, true);
 }
 
 ModulationModuleSection::~ModulationModuleSection()

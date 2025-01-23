@@ -1525,6 +1525,7 @@ void ModulationManager::beginModulationEdit(SynthSlider* slider) {
   changing_hover_modulation_ = true;
 }
 
+
 void ModulationManager::endModulationEdit(SynthSlider* slider) {
   changing_hover_modulation_ = false;
 }
@@ -1812,7 +1813,7 @@ void ModulationManager::makeCurrentModulatorAmountsVisible() {
     selected_slider->setCurrentModulator(true);
     selected_modulation_sliders.insert(selected_slider);
     if (!selected_slider->hasAux()) {
-      selected_slider->setValue(0.5,/*connection->modulation_processor->currentBaseValue()*/ dontSendNotification);
+      selected_slider->setValue(connection->getCurrentBaseValue(), dontSendNotification);
       selected_slider->redoImage();
     }
     selected_slider->setSource(connection->source_name);
