@@ -54,7 +54,14 @@ struct MappingWrapper;
             }
             return 0.5f;
         }
-
+        void setScalingValue(float val)
+        {
+            if(scalingValue != nullptr)
+            {
+                scalingValue->store(val);
+            }
+            DBG(juce::String(val));
+        }
 
         static bool isModulationSourceDefaultBipolar(const std::string& source);
         std::string source_name;

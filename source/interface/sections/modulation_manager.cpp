@@ -432,21 +432,24 @@ ModulationManager::ModulationManager(ValueTree &tree, SynthBase* base
   electrosynth::ModulationConnectionBank & bank = base->getModulationBank();
   for (int i = 0; i < electrosynth::kMaxModulationConnections; ++i) {
     std::string name = "modulation_" + std::to_string(i + 1) + "_amount";
+    //purple mod circle on the button
     modulation_amount_sliders_[i] = std::make_unique<ModulationAmountKnob>(name, i, bank.atIndex(i)->state);
     modulation_amount_sliders_[i]->setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
-    addSlider(modulation_amount_sliders_[i].get(),true,false);
+    addSlider(modulation_amount_sliders_[i].get(),true,true);
     modulation_amount_sliders_[i]->addSliderListener(this);
     modulation_amount_sliders_[i]->addModulationAmountListener(this);
     modulation_amount_lookup_[name] = modulation_amount_sliders_[i].get();
 
+    //purple mod circle under slider
     modulation_hover_sliders_[i] = std::make_unique<ModulationAmountKnob>(name, i, bank.atIndex(i)->state);
     modulation_hover_sliders_[i]->setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
-    addSlider(modulation_hover_sliders_[i].get(),true,false);
+    addSlider(modulation_hover_sliders_[i].get(),true,true);
     modulation_hover_sliders_[i]->setAlpha(0.0f, true);
     modulation_hover_sliders_[i]->addSliderListener(this);
     modulation_hover_sliders_[i]->addModulationAmountListener(this);
     modulation_hover_sliders_[i]->setDrawWhenNotVisible(true);
 
+    //green modulatinocircel under the slider
     selected_modulation_sliders_[i] = std::make_unique<ModulationAmountKnob>(name, i, bank.atIndex(i)->state);
     selected_modulation_sliders_[i]->setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
     addSlider(selected_modulation_sliders_[i].get(),true,true);
@@ -947,10 +950,10 @@ void ModulationManager::modulationDraggedToHoverSlider(ModulationAmountKnob* hov
 }
 
 void ModulationManager::modulationDraggedToComponent(juce::Component* component, bool bipolar) {
-    DBG("to0");
-    DBG("to0");
-    if(component != nullptr)
-        DBG(component->getComponentID() + component->getParentComponent()->getComponentID());
+//    DBG("to0");
+//    DBG("to0");
+//    if(component != nullptr)
+//        DBG(component->getComponentID() + component->getParentComponent()->getComponentID());
   if (component && current_modulator_ && destination_lookup_.count(component->getComponentID().toStdString())) {
     std::string name = component->getComponentID().toStdString();
 
@@ -1402,13 +1405,21 @@ void ModulationManager::hoverStarted(SynthSlider* slider) {
 
   ModulationAmountKnob* amount_knob = dynamic_cast<ModulationAmountKnob*>(slider);
   if (amount_knob)
-    showModulationAmountOverlay(amount_knob);
+  {
+      DBG(amount_knob->getName() + juce::String((uint64)(void*)amount_knob));
+      showModulationAmountOverlay (amount_knob);
+  }
   else
     hideModulationAmountOverlay();
 }
 
 void ModulationManager::hoverEnded(SynthSlider* slider) {
   hideModulationAmountOverlay();
+  //cant make the modulation go away on destinatino hover end becuase then you can't ever get to the modualtion
+  //could iomplement with some sort of short timer ?
+//  if (changing_hover_modulation_)
+//      return;
+//  makeModulationsVisible(slider, false);
 }
 
 void ModulationManager::menuFinished(SynthSlider* slider) {
@@ -1549,7 +1560,7 @@ void ModulationManager::sliderValueChanged(juce::Slider* slider) {
   bool bipolar = 1;// connection->modulation_processor->isBipolar();
   bool stereo = 1; //connection->modulation_processor->isStereo();
   bool bypass = 0; //connection->modulation_processor->isBypassed();
-  *(connection->scalingValue) = scaled_value;
+  connection->setScalingValue(value);
 //
   setModulationValues(connection->source_name, connection->destination_name, scaled_value, bipolar, stereo, bypass);
   showModulationAmountOverlay(amount_knob);
@@ -1690,7 +1701,7 @@ void ModulationManager::setModulationValues(std::string source, std::string dest
   setModulationSliderValues(index, amount);
 //  setModulationSliderBipolar(index, bipolar);
 //
-//  modifying_ = false;
+  modifying_ = false;
 }
 
 void ModulationManager::initAuxConnections() {
@@ -1824,9 +1835,9 @@ void ModulationManager::makeCurrentModulatorAmountsVisible() {
 //    selected_slider->setBipolar(connection->modulation_processor->isBipolar());
 //    selected_slider->setStereo(connection->modulation_processor->isStereo());
 //    selected_slider->setBypass(connection->modulation_processor->isBypassed());
-        selected_slider->setBipolar(false);
-        selected_slider->setStereo(false);
-        selected_slider->setBypass(false);
+//        selected_slider->setBipolar(false);
+//        selected_slider->setStereo(false);
+//        selected_slider->setBypass(false);
 
     if (slider_model_lookup_.count(connection->destination_name) == 0)
       continue;
@@ -1885,7 +1896,7 @@ void ModulationManager::makeModulationsVisible(SynthSlider* destination, bool vi
     else
       modulation_hover_sliders.push_back(hover_slider);
     if (!hover_slider->hasAux()) {
-      hover_slider->setValue(0.5, dontSendNotification); //sould be an actualy value
+        hover_slider->setValue(connection->getCurrentBaseValue(), dontSendNotification); //sould be an actualy value
       hover_slider->redoImage();
     }
     hover_slider->setSource(connection->source_name);
@@ -2132,7 +2143,7 @@ void ModulationManager::setModulationAmounts() {
   for (int i = 0; i < electrosynth::kMaxModulationConnections; ++i) {
     electrosynth::ModulationConnection* connection = bank.atIndex(i);
     if (aux_connections_to_from_.count(i) == 0)
-      setModulationSliderValues(i, 0); // connection->modulation_processor->currentBaseValue());
+      setModulationSliderValues(i, connection->getCurrentBaseValue());
 
     bool bipolar = 1; //connection->modulation_processor->isBipolar();
     bool stereo = 1; //connection->modulation_processor->isStereo();

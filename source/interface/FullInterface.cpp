@@ -292,9 +292,9 @@ void FullInterface::resized() {
    }
 
    setSizeRatio(ratio);
-   DBG("");
-    DBG( "ratio: " + juce::String(ratio));
-    DBG("display scale" + juce::String(display_scale_));
+//   DBG("");
+//    DBG( "ratio: " + juce::String(ratio));
+//    DBG("display scale" + juce::String(display_scale_));
    int padding = getPadding();
    int voice_padding = findValue(Skin::kLargePadding);
 

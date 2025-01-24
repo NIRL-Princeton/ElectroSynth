@@ -183,7 +183,6 @@ void ModulationMeter::updateDrawing(bool use_poly) {
 }
 
 void ModulationMeter::setModulationAmountQuad(OpenGlQuad& quad, float amount, bool bipolar) {
-    DBG("amount" + juce::String(amount));
   float range = destination_->getMaximum() - destination_->getMinimum();
   float knob_percent = (destination_->getValue() - destination_->getMinimum()) / range;
 
