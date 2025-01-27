@@ -1,0 +1,673 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1,
+						5,
+						6,
+						7
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Debug-f5ebdc15457944623624.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.14"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						12,
+						13,
+						14
+					]
+				},
+				{
+					"build" : "JUCE",
+					"childIndexes" : 
+					[
+						2,
+						3
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-JUCE-Debug-2fb3f191c97d326a9efb.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.22"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 1,
+					"source" : "JUCE"
+				},
+				{
+					"build" : "JUCE/modules",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-JUCE.modules-Debug-67a7efd12c1e2886098c.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.22"
+					},
+					"parentIndex" : 1,
+					"projectIndex" : 1,
+					"source" : "JUCE/modules"
+				},
+				{
+					"build" : "JUCE/extras/Build",
+					"childIndexes" : 
+					[
+						4
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-JUCE.extras.Build-Debug-da8f8edfa979b2c5464a.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.22"
+					},
+					"parentIndex" : 1,
+					"projectIndex" : 1,
+					"source" : "JUCE/extras/Build"
+				},
+				{
+					"build" : "JUCE/extras/Build/juceaide",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-JUCE.extras.Build.juceaide-Debug-380b2f1d88ee7521b874.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.22"
+					},
+					"parentIndex" : 3,
+					"projectIndex" : 1,
+					"source" : "JUCE/extras/Build/juceaide"
+				},
+				{
+					"build" : "modules/melatonin_inspector",
+					"jsonFile" : "directory-modules.melatonin_inspector-Debug-87e05bf780aaa9b01929.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.20"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 2,
+					"source" : "modules/melatonin_inspector"
+				},
+				{
+					"build" : "third_party/chowdsp_utils",
+					"jsonFile" : "directory-third_party.chowdsp_utils-Debug-855d389629bd71e123ca.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.15"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 3,
+					"source" : "third_party/chowdsp_utils",
+					"targetIndexes" : 
+					[
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						15,
+						16,
+						17,
+						18,
+						19,
+						20,
+						21,
+						22,
+						23,
+						26,
+						27,
+						28,
+						29,
+						30,
+						31,
+						32,
+						33,
+						34,
+						35
+					]
+				},
+				{
+					"build" : "third_party/leaf_modules",
+					"childIndexes" : 
+					[
+						8,
+						12
+					],
+					"jsonFile" : "directory-third_party.leaf_modules-Debug-bd55d480e36f7cf2cecf.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.26.4"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 4,
+					"source" : "third_party/leaf_modules",
+					"targetIndexes" : 
+					[
+						25
+					]
+				},
+				{
+					"build" : "third_party/leaf_modules/LEAF/leaf",
+					"childIndexes" : 
+					[
+						9
+					],
+					"jsonFile" : "directory-third_party.leaf_modules.LEAF.leaf-Debug-409d5ff81694c7ba92c3.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.26"
+					},
+					"parentIndex" : 7,
+					"projectIndex" : 5,
+					"source" : "third_party/leaf_modules/LEAF/leaf",
+					"targetIndexes" : 
+					[
+						24
+					]
+				},
+				{
+					"build" : "third_party/leaf_modules/LEAF/leaf/test",
+					"childIndexes" : 
+					[
+						10
+					],
+					"jsonFile" : "directory-third_party.leaf_modules.LEAF.leaf.test-Debug-2d007e693f47609dcd24.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.26"
+					},
+					"parentIndex" : 8,
+					"projectIndex" : 5,
+					"source" : "third_party/leaf_modules/LEAF/leaf/test",
+					"targetIndexes" : 
+					[
+						37
+					]
+				},
+				{
+					"build" : "_deps/catch2-build",
+					"childIndexes" : 
+					[
+						11
+					],
+					"jsonFile" : "directory-_deps.catch2-build-Debug-aeba429efd33f27e61f4.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"parentIndex" : 9,
+					"projectIndex" : 6,
+					"source" : "out/Debug/_deps/catch2-src"
+				},
+				{
+					"build" : "_deps/catch2-build/src",
+					"jsonFile" : "directory-_deps.catch2-build.src-Debug-196def6fd793a5ffd08c.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"parentIndex" : 10,
+					"projectIndex" : 6,
+					"source" : "out/Debug/_deps/catch2-src/src",
+					"targetIndexes" : 
+					[
+						1,
+						2
+					]
+				},
+				{
+					"build" : "third_party/leaf_modules/processors",
+					"jsonFile" : "directory-third_party.leaf_modules.processors-Debug-ddeefc2fc78accfa64fd.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.28"
+					},
+					"parentIndex" : 7,
+					"projectIndex" : 7,
+					"source" : "third_party/leaf_modules/processors",
+					"targetIndexes" : 
+					[
+						36
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"childIndexes" : 
+					[
+						1,
+						2,
+						3,
+						4
+					],
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "ElectorSynth",
+					"targetIndexes" : 
+					[
+						0,
+						12,
+						13,
+						14
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						1,
+						2,
+						3,
+						4
+					],
+					"name" : "JUCE",
+					"parentIndex" : 0
+				},
+				{
+					"directoryIndexes" : 
+					[
+						5
+					],
+					"name" : "MelatoninInspector",
+					"parentIndex" : 0
+				},
+				{
+					"directoryIndexes" : 
+					[
+						6
+					],
+					"name" : "chowdsp_utils",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						15,
+						16,
+						17,
+						18,
+						19,
+						20,
+						21,
+						22,
+						23,
+						26,
+						27,
+						28,
+						29,
+						30,
+						31,
+						32,
+						33,
+						34,
+						35
+					]
+				},
+				{
+					"childIndexes" : 
+					[
+						5,
+						7
+					],
+					"directoryIndexes" : 
+					[
+						7
+					],
+					"name" : "LEAF_modules",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						25
+					]
+				},
+				{
+					"childIndexes" : 
+					[
+						6
+					],
+					"directoryIndexes" : 
+					[
+						8,
+						9
+					],
+					"name" : "LEAF",
+					"parentIndex" : 4,
+					"targetIndexes" : 
+					[
+						24,
+						37
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						10,
+						11
+					],
+					"name" : "Catch2",
+					"parentIndex" : 5,
+					"targetIndexes" : 
+					[
+						1,
+						2
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						12
+					],
+					"name" : "untitled",
+					"parentIndex" : 4,
+					"targetIndexes" : 
+					[
+						36
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "Assets::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Assets-Debug-616dd213d72a60b53aee.json",
+					"name" : "Assets",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 11,
+					"id" : "Catch2::@fa92aa50e9bf5e1a7206",
+					"jsonFile" : "target-Catch2-Debug-56633c83404b55f7ca79.json",
+					"name" : "Catch2",
+					"projectIndex" : 6
+				},
+				{
+					"directoryIndex" : 11,
+					"id" : "Catch2WithMain::@fa92aa50e9bf5e1a7206",
+					"jsonFile" : "target-Catch2WithMain-Debug-901fb8c5982be0df8a8e.json",
+					"name" : "Catch2WithMain",
+					"projectIndex" : 6
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "Continuous::@af2e9da99cf68acbe7d4",
+					"jsonFile" : "target-Continuous-Debug-ce69fe2fb9f1a4646277.json",
+					"name" : "Continuous",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "ContinuousBuild::@af2e9da99cf68acbe7d4",
+					"jsonFile" : "target-ContinuousBuild-Debug-f4aa3905dd96d8b5df8f.json",
+					"name" : "ContinuousBuild",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "ContinuousConfigure::@af2e9da99cf68acbe7d4",
+					"jsonFile" : "target-ContinuousConfigure-Debug-3c70fce7c7d76150889c.json",
+					"name" : "ContinuousConfigure",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "ContinuousCoverage::@af2e9da99cf68acbe7d4",
+					"jsonFile" : "target-ContinuousCoverage-Debug-2e64ccdd605f54c41098.json",
+					"name" : "ContinuousCoverage",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "ContinuousMemCheck::@af2e9da99cf68acbe7d4",
+					"jsonFile" : "target-ContinuousMemCheck-Debug-d5f56981e1cc6c75048d.json",
+					"name" : "ContinuousMemCheck",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "ContinuousStart::@af2e9da99cf68acbe7d4",
+					"jsonFile" : "target-ContinuousStart-Debug-fea3cbd194690670b1a9.json",
+					"name" : "ContinuousStart",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "ContinuousSubmit::@af2e9da99cf68acbe7d4",
+					"jsonFile" : "target-ContinuousSubmit-Debug-4cfd5ad24ffba8e5d5d5.json",
+					"name" : "ContinuousSubmit",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "ContinuousTest::@af2e9da99cf68acbe7d4",
+					"jsonFile" : "target-ContinuousTest-Debug-cb56fae4733b6c86b4d8.json",
+					"name" : "ContinuousTest",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "ContinuousUpdate::@af2e9da99cf68acbe7d4",
+					"jsonFile" : "target-ContinuousUpdate-Debug-817fa27b35ecaff67d91.json",
+					"name" : "ContinuousUpdate",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ElectorSynth::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ElectorSynth-Debug-b40cdebcf725a86d9e2f.json",
+					"name" : "ElectorSynth",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ElectorSynth_All::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ElectorSynth_All-Debug-7a6f6629fc75f6b17adb.json",
+					"name" : "ElectorSynth_All",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ElectorSynth_Standalone::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ElectorSynth_Standalone-Debug-dbcebea08841e59cf104.json",
+					"name" : "ElectorSynth_Standalone",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "Experimental::@af2e9da99cf68acbe7d4",
+					"jsonFile" : "target-Experimental-Debug-536272330789969926b5.json",
+					"name" : "Experimental",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "ExperimentalBuild::@af2e9da99cf68acbe7d4",
+					"jsonFile" : "target-ExperimentalBuild-Debug-e7d4c6e176225b3cbf08.json",
+					"name" : "ExperimentalBuild",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "ExperimentalConfigure::@af2e9da99cf68acbe7d4",
+					"jsonFile" : "target-ExperimentalConfigure-Debug-9af83c3adb7742241110.json",
+					"name" : "ExperimentalConfigure",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "ExperimentalCoverage::@af2e9da99cf68acbe7d4",
+					"jsonFile" : "target-ExperimentalCoverage-Debug-79a38242456ac9c8b941.json",
+					"name" : "ExperimentalCoverage",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "ExperimentalMemCheck::@af2e9da99cf68acbe7d4",
+					"jsonFile" : "target-ExperimentalMemCheck-Debug-46f7b39d523f4428b205.json",
+					"name" : "ExperimentalMemCheck",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "ExperimentalStart::@af2e9da99cf68acbe7d4",
+					"jsonFile" : "target-ExperimentalStart-Debug-943ff6bc35f441815035.json",
+					"name" : "ExperimentalStart",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "ExperimentalSubmit::@af2e9da99cf68acbe7d4",
+					"jsonFile" : "target-ExperimentalSubmit-Debug-96f8b3591f92a5bdf913.json",
+					"name" : "ExperimentalSubmit",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "ExperimentalTest::@af2e9da99cf68acbe7d4",
+					"jsonFile" : "target-ExperimentalTest-Debug-78b3379c4cd5cf640f30.json",
+					"name" : "ExperimentalTest",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "ExperimentalUpdate::@af2e9da99cf68acbe7d4",
+					"jsonFile" : "target-ExperimentalUpdate-Debug-cef8b19693fa932ebbef.json",
+					"name" : "ExperimentalUpdate",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 8,
+					"id" : "LEAF::@b6063b3ea5eea47344c3",
+					"jsonFile" : "target-LEAF-Debug-cf97c03c3aa6ce4de00b.json",
+					"name" : "LEAF",
+					"projectIndex" : 5
+				},
+				{
+					"directoryIndex" : 7,
+					"id" : "LEAF_modules::@be324896a3e3b1cb2acb",
+					"jsonFile" : "target-LEAF_modules-Debug-ac31c98f14626fdfb87a.json",
+					"name" : "LEAF_modules",
+					"projectIndex" : 4
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "Nightly::@af2e9da99cf68acbe7d4",
+					"jsonFile" : "target-Nightly-Debug-b025f21b5acae637c8f3.json",
+					"name" : "Nightly",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "NightlyBuild::@af2e9da99cf68acbe7d4",
+					"jsonFile" : "target-NightlyBuild-Debug-1568d7bb8bc1e580d07a.json",
+					"name" : "NightlyBuild",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "NightlyConfigure::@af2e9da99cf68acbe7d4",
+					"jsonFile" : "target-NightlyConfigure-Debug-6b524cecee6feadb6ec6.json",
+					"name" : "NightlyConfigure",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "NightlyCoverage::@af2e9da99cf68acbe7d4",
+					"jsonFile" : "target-NightlyCoverage-Debug-d52a618b7393347a84ba.json",
+					"name" : "NightlyCoverage",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "NightlyMemCheck::@af2e9da99cf68acbe7d4",
+					"jsonFile" : "target-NightlyMemCheck-Debug-a15fd6461b38ea834de6.json",
+					"name" : "NightlyMemCheck",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "NightlyMemoryCheck::@af2e9da99cf68acbe7d4",
+					"jsonFile" : "target-NightlyMemoryCheck-Debug-dac620b7a516359404a3.json",
+					"name" : "NightlyMemoryCheck",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "NightlyStart::@af2e9da99cf68acbe7d4",
+					"jsonFile" : "target-NightlyStart-Debug-7279e15107986529a4c6.json",
+					"name" : "NightlyStart",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "NightlySubmit::@af2e9da99cf68acbe7d4",
+					"jsonFile" : "target-NightlySubmit-Debug-7086a576843163589c7b.json",
+					"name" : "NightlySubmit",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "NightlyTest::@af2e9da99cf68acbe7d4",
+					"jsonFile" : "target-NightlyTest-Debug-7d9090266da3de705c34.json",
+					"name" : "NightlyTest",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "NightlyUpdate::@af2e9da99cf68acbe7d4",
+					"jsonFile" : "target-NightlyUpdate-Debug-c70303ff21dc5540f109.json",
+					"name" : "NightlyUpdate",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 12,
+					"id" : "procUtils::@4b0e42bc3b273dbe79cb",
+					"jsonFile" : "target-procUtils-Debug-8f64437f5606dc8cf2f1.json",
+					"name" : "procUtils",
+					"projectIndex" : 7
+				},
+				{
+					"directoryIndex" : 9,
+					"id" : "tests::@e0b80327f1398b8d2007",
+					"jsonFile" : "target-tests-Debug-47fcad926303d57e6f19.json",
+					"name" : "tests",
+					"projectIndex" : 5
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/Users/dp9443/documents/Princeton/ElectroSynthVST/out/Debug",
+		"source" : "/Users/dp9443/documents/Princeton/ElectroSynthVST"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 6
+	}
+}

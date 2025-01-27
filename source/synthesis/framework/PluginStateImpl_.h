@@ -18,61 +18,9 @@
 #include <functional>
 #include <new>
 #include <string_view>
-#include <tuple>
-#include <vector>
-#include "processors/funcmaps.h"
-#include <array>
-#include <type_traits>
+
 #include <iostream>
-// Helper struct to store type-value pairs
-template <typename T, int Value>
-struct TypeValuePair {
-    using type = T;
-    static constexpr int value = Value;
-};
-
-
-
-
-// Compile-time map implementation
-template <typename... Pairs>
-struct TypeMap {
-    // Constructor to initialize the TypeMap
-    constexpr TypeMap(Pairs...) {}
-
-    // Function to get value for type T
-    template <typename T>
-    static constexpr int get() {
-        return get_impl<T, Pairs...>();
-    }
-
-private:
-    // Recursively check the pairs and return the value if the type matches
-    template <typename T, typename Pair, typename... Rest>
-    static constexpr int get_impl() {
-        if constexpr (std::is_same_v<T, typename Pair::type>) {
-            return Pair::value;
-        } else {
-            return get_impl<T, Rest...>();
-        }
-    }
-
-    // Base case: type not found
-    template <typename T>
-    static constexpr int get_impl() {
-        static_assert(sizeof...(Pairs) > 0, "Type not found in map");
-        return -1; // This line is never reached
-    }
-};
-
-// Define your map using initializer syntax
-constexpr TypeMap map{
-    TypeValuePair<_tOscModule, 0>{},
-    TypeValuePair<_tFiltModule, 1>{},
-    TypeValuePair<_tEnvModule, 2>{},
-};
-const auto module_strings = std::to_array<std::string>({ "OscModule", "FiltModule", "EnvModule"});
-
+#include "module_type_info.h"
 constexpr std::array<float,MAX_NUM_PARAMS> createArray() {
     std::array<float, MAX_NUM_PARAMS> arr{};
     for (int i = 0; i < arr.size(); ++i) {
@@ -89,6 +37,9 @@ constexpr std::array< float,MAX_NUM_PARAMS> empty_params =createArray();
 //    return arr;
 //}
 //constexpr std::array< float,MAX_NUM_PARAMS> empty_params =createArray();
+
+//reinterepret_cast is undefined behavior as soo nas you do anyhting with it.
+//should change this to not use it
 template <typename T>
 struct LEAFParams : public chowdsp::ParamHolder
 {

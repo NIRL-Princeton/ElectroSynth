@@ -28,6 +28,7 @@
 #include "ModulationWrapper.h"
 #include "ModulationConnection.h"
 #include "circular_queue.h"
+#include "ModulationConnection.h"
 class ProcessorBase;
 class ModulatorBase;
 class SynthGuiInterface;
@@ -129,7 +130,8 @@ public:
    void  processMappingChanges();
     int getNumModulations(const std::string& destination);
 protected:
-
+    electrosynth::mapping_change createMappingChange(electrosynth::ModulationConnection* mod);
+    bool isInvalidConnection(const electrosynth::mapping_change & change) {return false;}
    juce::ValueTree tree;
    juce::UndoManager um;
    virtual SynthGuiInterface* getGuiInterface() = 0;

@@ -118,26 +118,6 @@ void SynthBase::presetChangedThroughMidi(File preset) {
 //}
 
 
-void SynthBase::disconnectModulation(electrosynth::ModulationConnection* connection) {
-    if (mod_connections_.count(connection) == 0)
-        return;
-
-    //vital::modulation_change change = createModulationChange(connection);
-    connection->source_name = "";
-    connection->destination_name = "";
-
-    mod_connections_.remove(connection);
-    //change.disconnecting = true;
-    //modulation_change_queue_.enqueue(change);
-}
-
-void SynthBase::disconnectModulation(const std::string& source, const std::string& destination) {
-    electrosynth::ModulationConnection* connection = getConnection(source, destination);
-    if (connection)
-        disconnectModulation(connection);
-}
-
-
 
 
 int SynthBase::getNumModulations(const std::string& destination) {
@@ -483,6 +463,35 @@ juce::UndoManager& SynthBase::getUndoManager()
 {
    return um;
 }
+/////////////////////// begin modulation and processor queue processing /////////
+
+electrosynth::ModulationConnectionBank& SynthBase::getModulationBank() {
+    return engine_->getModulationBank();
+}
+//this function does not set if it is disconnecting or not. you must do that outside this function
+electrosynth::mapping_change SynthBase::createMappingChange(electrosynth::ModulationConnection* connection)
+{
+    //leaf::Processor* source = engine_->getLEAFProcessor(proc_string);
+    std::stringstream ss(connection->source_name);
+    std::string proc_string;
+    std::getline(ss,proc_string,'_');
+    auto [dest, index] = engine_->getParameterInfo(connection->destination_name);
+    auto source = engine_->getLEAFProcessorModulator(proc_string);
+
+    electrosynth::mapping_change change;
+    change.connection = connection;
+    change.mapping = connection->mapping_;
+    change.destination = connection->destination_name;
+    change.dest_param_index = index;
+    //change.source_uuid = source->processorUniqueID;
+    change._dest = dest;
+    change._source = source;
+
+    return change;
+}
+
+
+
 std::vector<electrosynth::ModulationConnection*> SynthBase::getSourceConnections(const std::string& source) {
     std::vector<electrosynth::ModulationConnection*> connections;
     for (auto& connection : mod_connections_) {
@@ -515,53 +524,46 @@ bool SynthBase::connectModulation(const std::string& source, const std::string& 
         connection = getModulationBank().createConnection (source, destination);
         tree.appendChild(connection->state, nullptr);
     }
-
-
-       // mod_connections_.emplace_back(std::make_unique<electrosynth::ModulationConnection>(source,destination,*getLeaf(),v));
-        //make a call to processblock quque to actaully add or change the modulation
-
     if (connection)
         connectModulation(connection);
     return create;
 }
 
-electrosynth::ModulationConnectionBank& SynthBase::getModulationBank() {
-    return engine_->getModulationBank();
-}
-
 void SynthBase::connectModulation(electrosynth::ModulationConnection* connection) {
-
-//    std::stringstream ss(connection->destination_name);
-
-
-    //leaf::Processor* source = engine_->getLEAFProcessor(proc_string);
-    std::stringstream ss(connection->source_name);
-    std::string proc_string;
-    std::getline(ss,proc_string,'_');
-    auto [dest, index] = engine_->getParameterInfo(connection->destination_name);
-    auto source = engine_->getLEAFProcessorModulator(proc_string);
-
-    if (false) {
+electrosynth::mapping_change  change = createMappingChange(connection);
+    if (isInvalidConnection(change)) {
         connection->destination_name = "";
         connection->source_name = "";
     }
     else if (mod_connections_.count(connection) == 0) {
-        //change.disconnecting = false;
-        electrosynth::mapping_change change;
-        change.disconnecting = false;
-        change.connection = connection;
-        change.mapping = connection->mapping;
-        change.destination = connection->destination_name;
-        change.dest_param_index = index;
-        //change.source_uuid = source->processorUniqueID;
-        change._dest = dest;
-        change._source = source;
+       change.disconnecting = false;
         mod_connections_.push_back(connection);
+        connection->mapping_->all_connections_.push_back(connection);
         //push wrapper to actual processors
         modulation_change_queue_.enqueue(change);
     }
-    //mod_connections_.push_back()
 }
+//TODO remove from vcaluetress
+void SynthBase::disconnectModulation(electrosynth::ModulationConnection* connection) {
+    if (mod_connections_.count(connection) == 0)
+        return;
+
+   electrosynth::mapping_change change = createMappingChange(connection);
+    connection->source_name = "";
+    connection->destination_name = "";
+
+    mod_connections_.remove(connection);
+    change.disconnecting = true;
+    modulation_change_queue_.enqueue(change);
+}
+
+void SynthBase::disconnectModulation(const std::string& source, const std::string& destination) {
+    electrosynth::ModulationConnection* connection = getConnection(source, destination);
+    if (connection)
+        disconnectModulation(connection);
+}
+
+
 void SynthBase::processMappingChanges()
 {
     electrosynth::mapping_change change;

@@ -134,7 +134,7 @@ namespace electrosynth {
       std::vector<std::vector<std::shared_ptr<ProcessorBase>>> processors;
       std::vector<std::vector<std::shared_ptr<ModulatorBase>>> modSources;
       std::vector<MappingWrapper*> mappings;
-      void disconnectMapping(const electrosynth::mapping_change& change) {}
+      void disconnectMapping(const electrosynth::mapping_change& change);
       void connectMapping (const electrosynth::mapping_change& change);
       ProcessorBase* getProcessorFromUUID(int uuid);
       ModulatorBase* getModulatorFromUUID(int uuid);

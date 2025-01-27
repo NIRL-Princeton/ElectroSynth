@@ -271,7 +271,7 @@ class ModulationManager : public SynthSection,
     void addAuxConnection(int from_index, int to_index);
     void removeAuxDestinationConnection(int to_index);
     void removeAuxSourceConnection(int from_index);
-    juce::ValueTree v;
+
 
     // this will be called by both
     //  ModulesInterface<ModulationSection>::Listener,
@@ -289,7 +289,7 @@ class ModulationManager : public SynthSection,
         return;
     }
   private:
-      CriticalSection open_gl_critical_section_;
+
     void setDestinationQuadBounds(ModulationDestination* destination);
     void makeCurrentModulatorAmountsVisible();
     void makeModulationsVisible(SynthSlider* destination, bool visible);
@@ -305,10 +305,12 @@ class ModulationManager : public SynthSection,
     void showModulationAmountOverlay(ModulationAmountKnob* slider);
     void hideModulationAmountOverlay();
     void componentAdded();
-//    void addAllSliders
+
+    CriticalSection open_gl_critical_section_;
+    juce::ValueTree state_;
     std::unique_ptr<juce::Component> modulation_destinations_;
-      std::map<juce::Viewport*, int> num_rotary_meters;
-      std::map<juce::Viewport*, int> num_linear_meters;
+    std::map<juce::Viewport*, int> num_rotary_meters;
+    std::map<juce::Viewport*, int> num_linear_meters;
     ModulationButton* current_source_;
     ExpandModulationButton* current_expanded_modulation_;
     ModulationDestination* temporarily_set_destination_;
@@ -333,10 +335,8 @@ class ModulationManager : public SynthSection,
     ModulationButton* current_modulator_;
     std::map<std::string, ModulationButton*> modulation_buttons_;
     std::map<std::string, std::unique_ptr<ExpandModulationButton>> modulation_callout_buttons_;
-//    std::map<std::string, const vital::StatusOutput*> modulation_source_readouts_;
-//    std::map<std::string, vital::poly_float> smooth_mod_values_;
+
     std::map<std::string, bool> active_mod_values_;
-//    const vital::StatusOutput* num_voices_readout_;
     long long last_milliseconds_;
     std::unique_ptr<BarRenderer> modulation_source_meters_;
 

@@ -14,7 +14,7 @@ namespace electrosynth {
 struct MappingWrapper;
     struct ModulationConnection {
         ModulationConnection(const std::string& from, const std::string& to, LEAF& leaf,  int index)
-            : source_name(from), destination_name(to),state(IDs::MODULATION),leaf(leaf)
+            : source_name(from), destination_name(to),state(IDs::MODULATION),leaf_(leaf)
         {
             uuid = getNextUuid(&leaf);
             index_in_all_mods = index;
@@ -23,6 +23,7 @@ struct MappingWrapper;
         {
             //count--;
         }
+        static bool isModulationSourceDefaultBipolar(const std::string& source);
         void setSource(int uuid_from)
         {
             state.setProperty(IDs::src, uuid_from, nullptr);
@@ -48,38 +49,60 @@ struct MappingWrapper;
 
         float getCurrentBaseValue()
         {
-            if(scalingValue != nullptr)
+            if(scalingValue_ != nullptr)
             {
-                return scalingValue->load();
+                return scalingValue_->load();
             }
             return 0.5f;
         }
         void setScalingValue(float val)
         {
-            if(scalingValue != nullptr)
+            if(scalingValue_ != nullptr)
             {
-                scalingValue->store(val);
+                scalingValue_->store(val);
             }
             DBG(juce::String(val));
         }
 
-        static bool isModulationSourceDefaultBipolar(const std::string& source);
+        void setBypass(bool bypass) {}
+        void setStereo(bool stereo) {}
+        bool isBipolar() const { return bipolar_; }
+        bool isBypass() const {return bypass_; }
+        bool isStereo() const {return stereo_; }
+        void setBipolar(bool bipolar) {
+            bipolar_ = bipolar;
+            if(bipolarOffset != nullptr)
+            {
+                *bipolarOffset = bipolar_ ? 0.5f : 0.0f;
+            }
+
+        }
+
         std::string source_name;
-        std::string destination_name;
+        std::string destination_name;        //must be named state to be picked up by valuetreeobjectlist - dont know
+        // if i'll be using this for that or not
         juce::ValueTree state;
         int index_in_all_mods;
         int index_in_mapping;
         int uuid;
-        LEAF &leaf;
-        leaf::tProcessor* sourceProc;
-        std::atomic<float>* scalingValue;
-        MappingWrapper* mapping;
+        bool bipolar_;
+        bool bypass_;
+        bool stereo_;
+        LEAF &leaf_;
+        leaf::tProcessor* sourceProc_;
+        std::atomic<float>* scalingValue_;
+        std::atomic<float>* bipolarOffset;
+
+        MappingWrapper* mapping_;
     };
 
     struct MappingWrapper
     {
-        leaf::Mapping mapping;
-        std::vector<ModulationConnection*> procIndex;
+        leaf::Mapping mapping_;
+        std::vector<ModulationConnection*> all_connections_;
+        std::string dest_;
+
+        void reorderMapping();
     };
         typedef struct mapping_change
         {

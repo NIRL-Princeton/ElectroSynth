@@ -9,7 +9,7 @@
 ModulationSection::ModulationSection( const juce::ValueTree &v, electrosynth::ParametersView* editor) : SynthSection(editor->getName()), state(v), _view(editor),
 mod_button(new ModulationButton("mod"))
 {
-
+    setComponentID(editor->getName());
     addModulationButton(mod_button );
     addAndMakeVisible(mod_button.get());
     mod_button->setAlwaysOnTop(true);
@@ -34,7 +34,7 @@ void ModulationSection::resized()
     Rectangle<int> knobs_area = getDividedAreaBuffered(bounds, 2, 1, widget_margin);
     Rectangle<int> settings_area = getDividedAreaUnbuffered(bounds, 4, 0, widget_margin);
     _view->setBounds(getLocalBounds());
-    mod_button->setBounds(0,0,40,40);
+    mod_button->setBounds(_view->getRight() - 40, getY(),40,40);
     int knob_y2 =0;
     SynthSection::resized();
 }

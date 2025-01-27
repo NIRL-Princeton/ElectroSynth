@@ -6,8 +6,8 @@
 #include "ModulationModuleSection.h"
 #include "ModulationSection.h"
 #include "Modulators/EnvModuleProcessor.h"
+#include "Modulators/LFOModuleProcessor.h"
 #include "synth_gui_interface.h"
-#include "Modulators/ModulatorBase.h"
 #include "modulation_manager.h"
 
 ModulationModuleSection::ModulationModuleSection(ValueTree &v, ModulationManager *modulation_manager) : ModulesInterface<ModulationSection>(v), modulation_manager(modulation_manager)
@@ -21,7 +21,9 @@ ModulationModuleSection::ModulationModuleSection(ValueTree &v, ModulationManager
     Skin default_skin;
     setSkinValues(default_skin,false);
     viewport_.setScrollBarsShown(false, false, false, true);
-    factory.registerType<EnvModuleProcessor, juce::ValueTree, LEAF*>("EnvModule");
+    factory.registerType<EnvModuleProcessor, juce::ValueTree, LEAF*>("env");
+    factory.registerType<LFOModuleProcessor, juce::ValueTree, LEAF*>("lfo");
+
     addListener(modulation_manager);
     //setInterceptsMouseClicks(false, true);
 }
@@ -57,7 +59,13 @@ void ModulationModuleSection::handlePopupResult(int result) {
     if (result == 1 )
     {
         juce::ValueTree t(IDs::MODULATOR);
-        t.setProperty(IDs::type, "EnvModule", nullptr);
+        t.setProperty(IDs::type, "env", nullptr);
+        parent.appendChild(t,nullptr);
+    }
+    else if (result == 2 )
+    {
+        juce::ValueTree t(IDs::MODULATOR);
+        t.setProperty(IDs::type, "lfo", nullptr);
         parent.appendChild(t,nullptr);
     }
 //    {

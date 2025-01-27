@@ -93,7 +93,7 @@ namespace electrosynth {
   {
       for (auto mapping : mappings)
       {
-          processMapping(&mapping->mapping);
+          processMapping(&mapping->mapping_);
       }
   }
 
@@ -329,26 +329,84 @@ namespace electrosynth {
 
   }
 
-void SoundEngine::connectMapping (const electrosynth::mapping_change& change) {\
+void SoundEngine::connectMapping (const electrosynth::mapping_change& change) {
+    //check for mapping alread exists
     for (auto modulation : mappings)
     {
-//        if(modulation->paramID == change.mapping->paramID)
-//        {
-//            DBG("need to do add stuff");
-//            return;
-//        }
+        if(change.mapping == modulation)
+        {
+            DBG("adding modualtion:" + juce::String(change.source) +  " to " + juce::String(modulation->dest_) );
+            int sourceIndex = 0;
+            auto it = std::find (change.mapping->all_connections_.begin(),change.mapping->all_connections_.end(),change.connection );
+            if (it != change.mapping->all_connections_.end() )
+            {
+                sourceIndex = static_cast<int> (std::distance (change.mapping->all_connections_.begin(), it));
+            }
+            //set the scale value to point to the backend mapping scaling
+            change.connection->scalingValue_ = tMappingAdd(&change.mapping->mapping_, change._source, change._dest, change.dest_param_index, sourceIndex, leaf);
+            return;
+        }
     }
-    int sourceIndex = 0;
-    auto it = std::find (change.mapping->procIndex.begin(),change.mapping->procIndex.end(),change.connection );
-    if (it != change.mapping->procIndex.end() )
-    {
-        sourceIndex = static_cast<int> (std::distance (change.mapping->procIndex.begin(), it));
-    }
-    change.connection->scalingValue = tMappingAdd(&change.mapping->mapping, change._source, change._dest, change.dest_param_index, sourceIndex, leaf);
+
+
+//    int sourceIndex = 0;
+//    auto it = std::find (change.mapping->all_connections_.begin(),change.mapping->all_connections_.end(),change.connection );
+//    if (it != change.mapping->all_connections_.end() )
+//    {
+//        sourceIndex = static_cast<int> (std::distance (change.mapping->all_connections_.begin(), it));
+//    }
+
+    //otherwise this is a new mapping
+    //index will be 0 in the mapping
+    //set the scale value to point to the backend mapping scaling
+    change.connection->scalingValue_ = tMappingAdd(&change.mapping->mapping_, change._source, change._dest, change.dest_param_index, 0, leaf);
 
 
     mappings.push_back(change.mapping);
     DBG("added new modulatino") ;
 }
+
+
+//returns true if the mapping should be completely removd from process mappings
+void SoundEngine::disconnectMapping (const electrosynth::mapping_change& change) {
+    MappingWrapper* mappingToRemove = nullptr;
+    for (auto modulation : mappings)
+    {
+        if(change.mapping == modulation)
+        {
+            DBG("removing modualtion:" + juce::String(change.source) +  " from " + juce::String(modulation->dest_) );
+            int sourceIndex = 0;
+            auto it = std::find (change.mapping->all_connections_.begin(),change.mapping->all_connections_.end(),change.connection );
+            if (it != change.mapping->all_connections_.end() )
+            {
+                sourceIndex = static_cast<int> (std::distance (change.mapping->all_connections_.begin(), it));
+            }
+            modulation->mapping_.inSources[sourceIndex] = nullptr;
+            modulation->mapping_.scalingValues[sourceIndex] = 0.0f;
+            modulation->mapping_.inUUIDS[sourceIndex] = 0.0f;
+            //set the scale value to point to the backend mapping scaling
+            change.connection->scalingValue_ = nullptr;
+            //erase-remove idiom reorders array
+            modulation->all_connections_.erase(std::remove (modulation->all_connections_.begin(), modulation->all_connections_.end(), change.connection),modulation->all_connections_.end());
+            //use reordered array to update the now out of order mapping
+            modulation->reorderMapping();
+
+            if (modulation->mapping_.numUsedSources == 0)
+            {
+                mappingToRemove = modulation;
+            }
+            break;
+
+        }
+    }
+    if(mappingToRemove)
+    {
+        mappings.erase(std::remove(mappings.begin(), mappings.end(), mappingToRemove),mappings.end());
+    }
+//
+//    DBG("didnt find mapping");
+//    jassert(true);
+}
+
 
 } // namespace vital

@@ -1,0 +1,43 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"install"
+		],
+		"files" : 
+		[
+			"JUCE/extras/Build/juceaide/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 174,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "bin/JUCE-8.0.6",
+			"paths" : 
+			[
+				"out/Debug/JUCE/tools/extras/Build/juceaide/juceaide_artefacts/Debug/juceaide"
+			],
+			"type" : "file"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "JUCE/extras/Build/juceaide",
+		"source" : "JUCE/extras/Build/juceaide"
+	}
+}

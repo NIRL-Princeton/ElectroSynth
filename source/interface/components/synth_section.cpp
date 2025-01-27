@@ -27,6 +27,7 @@ SynthSection::SynthSection(const String& name) : Component(name), parent_(nullpt
                                                  preset_selector_(nullptr), preset_selector_half_width_(false),
                                                  skin_override_(Skin::kNone), size_ratio_(1.0f),
                                                  active_(true), sideways_heading_(true), background_(nullptr) {
+
   setWantsKeyboardFocus(true);
 
 }

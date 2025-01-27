@@ -24,12 +24,12 @@
 #include "synth_base.h"
 //#include "modulation_matrix.h"
 #include "synth_section.h"
-ModulationButton::ModulationButton(String name) : PlainShapeComponent(std::move(name)), parent_(nullptr),
+ModulationButton:: ModulationButton(String name) : PlainShapeComponent(std::move(name)), parent_(nullptr),
                                                   mouse_state_(kNone), selected_(false), connect_right_(false),
                                                   draw_border_(false), active_modulation_(false), font_size_(12.0f),
                                                   show_drag_drop_(false), drag_drop_alpha_(0.0f),initialized(false) {
   setWantsKeyboardFocus(true);
-  setComponentID(getName());
+  setComponentID("mod");
   Path shape = Paths::dragDropArrows();
   shape.addLineSegment(Line<float>(-50.0f, -50.0f, -50.0f, -50.0f), 0.2f);
   setShape(Paths::dragDropArrows());
@@ -216,6 +216,7 @@ bool ModulationButton::isInit()
 }
 
 void ModulationButton::mouseDown(const MouseEvent& e) {
+    DBG(getComponentID() + "currmode");
   if (e.mods.isPopupMenu()) {
     if (parent_ == nullptr)
       return;

@@ -16,8 +16,8 @@ SoundModuleSection::SoundModuleSection(ValueTree &v, ModulationManager *m) : Mod
     addAndMakeVisible(scroll_bar_.get());
     addOpenGlComponent(scroll_bar_->getGlComponent());
     scroll_bar_->addListener(this);
-    factory.registerType<OscillatorModuleProcessor, juce::ValueTree, LEAF*>("OscModule");
-    factory.registerType<FilterModuleProcessor, juce::ValueTree, LEAF*>("FiltModule");
+    factory.registerType<OscillatorModuleProcessor, juce::ValueTree, LEAF*>("osc");
+    factory.registerType<FilterModuleProcessor, juce::ValueTree, LEAF*>("filt");
     addListener(m);
 }
 
@@ -32,12 +32,12 @@ void SoundModuleSection::handlePopupResult(int result) {
     if (result == 1 )
     {
         juce::ValueTree t(IDs::MODULE);
-        t.setProperty(IDs::type, "OscModule", nullptr);
+        t.setProperty(IDs::type, "osc", nullptr);
         parent.appendChild(t,nullptr);
     } else if (result == 2)
     {
         juce::ValueTree t(IDs::MODULE);
-        t.setProperty(IDs::type, "FiltModule", nullptr);
+        t.setProperty(IDs::type, "filt", nullptr);
         parent.appendChild(t,nullptr);
     }
     //    if (result == kArmMidiLearn)

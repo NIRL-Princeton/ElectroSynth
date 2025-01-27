@@ -369,7 +369,7 @@ ModulationManager::ModulationManager(ValueTree &tree, SynthBase* base
                                           editing_rotary_amount_quad_(Shaders::kRotaryModulationFragment),
                                           editing_linear_amount_quad_(Shaders::kLinearModulationFragment),
                                           modifying_(false), dragging_(false), changing_hover_modulation_(false),
-                                          current_modulator_(nullptr), modulation_expansion_box_(std::make_shared<ModulationExpansionBox>()), v(tree){
+                                          current_modulator_(nullptr), modulation_expansion_box_(std::make_shared<ModulationExpansionBox>()), state_(tree){
   current_modulator_quad_.setQuad(0, -1.0f, -1.0f, 2.0f, 2.0f);
   drag_quad_.setTargetComponent(this);
   editing_rotary_amount_quad_.setTargetComponent(this);
@@ -1122,21 +1122,21 @@ void ModulationManager::clearModulationSource() {
 }
 
 void ModulationManager::disconnectModulation(ModulationAmountKnob* modulation_knob) {
-//  electrosynth::ModulationConnection* connection = getConnectionForModulationSlider(modulation_knob);
-//  while (connection && !connection->source_name.empty() && !connection->destination_name.empty()) {
-//    removeModulation(connection->source_name, connection->destination_name);
-////    connection = getConnectionForModulationSlider(modulation_knob);
-////  }
-////
-//  setModulationAmounts();
-}
 
+  electrosynth::ModulationConnection* connection = getConnectionForModulationSlider(modulation_knob);
+  while (connection && !connection->source_name.empty() && !connection->destination_name.empty()) {
+    removeModulation(connection->source_name, connection->destination_name);
+    connection = getConnectionForModulationSlider(modulation_knob);
+  }
+
+  setModulationAmounts();
+}
 void ModulationManager::setModulationSettings(ModulationAmountKnob* modulation_knob) {
   electrosynth::ModulationConnection* connection = getConnectionForModulationSlider(modulation_knob);
   float value = modulation_knob->getValue();
-  bool bipolar = 1; //modulation_knob->isBipolar();
-  bool stereo = 1; //modulation_knob->isStereo();
-  bool bypass = 0; //modulation_knob->isBypass();
+  bool bipolar = modulation_knob->isBipolar();
+  bool stereo = modulation_knob->isStereo();
+  bool bypass = modulation_knob->isBypass();
 
   int index = modulation_knob->index();
   modulation_amount_sliders_[index]->setBipolar(bipolar);
@@ -1557,9 +1557,9 @@ void ModulationManager::sliderValueChanged(juce::Slider* slider) {
     index = aux_connections_to_from_[index];
 
   electrosynth::ModulationConnection* connection = getConnection(index);
-  bool bipolar = 1;// connection->modulation_processor->isBipolar();
-  bool stereo = 1; //connection->modulation_processor->isStereo();
-  bool bypass = 0; //connection->modulation_processor->isBypassed();
+  bool bipolar = connection->isBipolar();
+  bool stereo = connection->isStereo();
+  bool bypass = connection->isBypass();
   connection->setScalingValue(value);
 //
   setModulationValues(connection->source_name, connection->destination_name, scaled_value, bipolar, stereo, bypass);
@@ -1699,7 +1699,7 @@ void ModulationManager::setModulationValues(std::string source, std::string dest
   int index = getModulationIndex(source, destination);
 //  parent->notifyModulationValueChanged(index);
   setModulationSliderValues(index, amount);
-//  setModulationSliderBipolar(index, bipolar);
+  setModulationSliderBipolar(index, bipolar);
 //
   modifying_ = false;
 }
@@ -2145,9 +2145,9 @@ void ModulationManager::setModulationAmounts() {
     if (aux_connections_to_from_.count(i) == 0)
       setModulationSliderValues(i, connection->getCurrentBaseValue());
 
-    bool bipolar = 1; //connection->modulation_processor->isBipolar();
-    bool stereo = 1; //connection->modulation_processor->isStereo();
-    bool bypass = 0; //connection->modulation_processor->isBypassed();
+    bool bipolar = connection->isBipolar();
+    bool stereo = connection->isStereo();
+    bool bypass = connection->isBypass();
     modulation_amount_sliders_[i]->setBipolar(bipolar);
     modulation_amount_sliders_[i]->setStereo(stereo);
     modulation_amount_sliders_[i]->setBypass(bypass);

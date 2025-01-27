@@ -45,7 +45,7 @@ project(${PROJECT_NAME} VERSION ${CURRENT_VERSION})
 # and later `git submodule update --remote --merge` to keep it up to date
 # On Github Actions, this is done as a part of actions/checkout
 add_subdirectory(JUCE)
-
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Add any other modules you want modules here, before the juce_add_plugin call
 # juce_add_module(modules/my_module)
 message("-- Adding juce modules")
