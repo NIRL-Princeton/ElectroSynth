@@ -134,6 +134,8 @@ PopupItems ModulationModuleSection::createPopupMenu()
 {
     PopupItems options;
     options.addItem(1, "add Env" );
+    options.addItem(2, "add lfo" );
+
     return options;
 }
 
