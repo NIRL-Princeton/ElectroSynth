@@ -10,3 +10,8 @@ EnvModuleProcessor::EnvModuleProcessor(juce::ValueTree& vt, LEAF* leaf)
    vt.setProperty(IDs::uuid, state.params.processor.processorUniqueID, nullptr);
    name = vt.getProperty(IDs::type).toString() + vt.getProperty(IDs::uuid).toString();
 }
+
+void EnvModuleProcessor::process()
+{
+    proc->tick(proc->object, nullptr);
+}

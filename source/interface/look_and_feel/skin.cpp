@@ -27,7 +27,7 @@ namespace {
         "Overlays",
         "Popup Browser",
         "Preset Browser",
-        "Modulation Drag Drop"
+        "Modulation Drag Drop",
         "Modulator Section"
   };
 

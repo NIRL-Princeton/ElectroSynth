@@ -47,8 +47,11 @@ namespace electrosynth
             //need to ensure we move the value over but also don't lose our previous values
             //this is not the best way to do this. should definitely update
             float scaleCurr = *connection->scalingValue_;
+            float bipolarOffset = *connection->bipolarOffset;
             connection->scalingValue_ = &mapping_.scalingValues[i];
+            connection->bipolarOffset = &mapping_.bipolarOffset[i];
             *connection->scalingValue_ = scaleCurr;
+            *connection->bipolarOffset = bipolarOffset;
             connection->index_in_mapping = i;
             mapping_.inSources[i] = &connection->sourceProc_->outParameters[0];
 
@@ -100,7 +103,7 @@ namespace electrosynth
 
 
                 connection->mapping_ = createMapping(to);
-                connection->setBipolar(ModulationConnection::isModulationSourceDefaultBipolar(from));
+                connection->setDefaultBipolar(ModulationConnection::isModulationSourceDefaultBipolar(from));
                 return connection.get();
             }
         }

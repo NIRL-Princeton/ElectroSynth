@@ -253,7 +253,7 @@ void ModulesInterface<T>::renderOpenGlComponents(OpenGlWrapper& open_gl, bool an
     OpenGlComponent::setViewPort(&viewport_, open_gl);
 
     float image_width = background_.getImageWidth(); //electrosynth::utils::nextPowerOfTwo(background_.getImageWidth());
-    float image_height =background_.getImageHeight();  electrosynth::utils::nextPowerOfTwo(background_.getImageHeight());
+    float image_height =background_.getImageHeight(); // electrosynth::utils::nextPowerOfTwo(background_.getImageHeight());
     int mult = juce::Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds())->scale;// getPixelMultiple();
     float width_ratio = image_width / (container_->getWidth() * mult);
     float height_ratio = image_height / (viewport_.getHeight() * mult);

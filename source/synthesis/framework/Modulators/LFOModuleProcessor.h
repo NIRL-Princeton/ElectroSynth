@@ -61,7 +61,8 @@ class LFOModuleProcessor: public ModulatorStateBase<PluginStateImpl_<LFOParamHol
 {
 public:
     LFOModuleProcessor(juce::ValueTree&, LEAF* leaf);
-    void getNextAudioBlock (const juce::AudioSourceChannelInfo &bufferToFill) override {}
+    void process() override;
+    void getNextAudioBlock (const juce::AudioSourceChannelInfo &bufferToFill) override;
     void prepareToPlay (int samplesPerBlock, double sampleRate ) override {}
     void releaseResources() override {}
     electrosynth::ParametersView* createEditor() override

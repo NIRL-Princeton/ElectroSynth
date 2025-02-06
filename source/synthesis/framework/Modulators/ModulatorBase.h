@@ -23,6 +23,7 @@ public:
     juce::ValueTree vt;
     leaf::Processor* proc;
     juce::String name;
+    virtual void process() =0;
     void getNextAudioBlock (const juce::AudioSourceChannelInfo &bufferToFill) override {}
     void prepareToPlay (int samplesPerBlock, double sampleRate ) override {}
     void releaseResources() override {}

@@ -59,7 +59,10 @@ struct MappingWrapper;
         {
             if(scalingValue_ != nullptr)
             {
-                scalingValue_->store(val);
+                if (isBipolar())
+                    scalingValue_->store(val *0.5f);
+                else
+                    scalingValue_->store(val);
             }
             DBG(juce::String(val));
         }
@@ -69,11 +72,20 @@ struct MappingWrapper;
         bool isBipolar() const { return bipolar_; }
         bool isBypass() const {return bypass_; }
         bool isStereo() const {return stereo_; }
+        bool setDefaultBipolar (bool val)
+        {
+            defaultBipolar = val;
+            setBipolar(val);
+        }
         void setBipolar(bool bipolar) {
             bipolar_ = bipolar;
-            if(bipolarOffset != nullptr)
+            if(bipolarOffset != nullptr && !defaultBipolar)
             {
                 *bipolarOffset = bipolar_ ? 0.5f : 0.0f;
+            }
+            if(bipolarOffset != nullptr && defaultBipolar)
+            {
+                *bipolarOffset = bipolar_ ? 0.0f : 0.5f;
             }
 
         }
@@ -88,6 +100,7 @@ struct MappingWrapper;
         bool bipolar_;
         bool bypass_;
         bool stereo_;
+        bool defaultBipolar;
         LEAF &leaf_;
         leaf::tProcessor* sourceProc_;
         std::atomic<float>* scalingValue_;

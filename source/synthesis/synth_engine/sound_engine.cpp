@@ -104,10 +104,16 @@ namespace electrosynth {
     audio_buffer.clear();
     bu.clear();
     //juce::MidiBuffer midimessages;
-    processMappings();
-
 
     for (int i = 0; i < audio_buffer.getNumSamples(); i++){
+        processMappings();
+        for (auto modulator_chain : modSources)
+        {
+            for(auto modulator : modulator_chain)
+            {
+                modulator->process();
+            }
+        }
       for (auto proc_chain : processors)
       {
           for (auto proc : proc_chain)
@@ -344,6 +350,7 @@ void SoundEngine::connectMapping (const electrosynth::mapping_change& change) {
             }
             //set the scale value to point to the backend mapping scaling
             change.connection->scalingValue_ = tMappingAdd(&change.mapping->mapping_, change._source, change._dest, change.dest_param_index, sourceIndex, leaf);
+            change.connection->bipolarOffset = &change.mapping->mapping_.bipolarOffset[sourceIndex];
             return;
         }
     }
@@ -360,6 +367,7 @@ void SoundEngine::connectMapping (const electrosynth::mapping_change& change) {
     //index will be 0 in the mapping
     //set the scale value to point to the backend mapping scaling
     change.connection->scalingValue_ = tMappingAdd(&change.mapping->mapping_, change._source, change._dest, change.dest_param_index, 0, leaf);
+    change.connection->bipolarOffset = &change.mapping->mapping_.bipolarOffset[0];
 
 
     mappings.push_back(change.mapping);

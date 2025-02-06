@@ -88,6 +88,7 @@ class EnvModuleProcessor : public ModulatorStateBase<PluginStateImpl_<EnvParamHo
 {
 public:
     EnvModuleProcessor(juce::ValueTree&, LEAF* leaf);
+    void process() override;
     void getNextAudioBlock (const juce::AudioSourceChannelInfo &bufferToFill) override {}
     void prepareToPlay (int samplesPerBlock, double sampleRate ) override {}
     void releaseResources() override {}
