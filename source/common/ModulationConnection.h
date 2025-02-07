@@ -14,10 +14,11 @@ namespace electrosynth {
 struct MappingWrapper;
     struct ModulationConnection {
         ModulationConnection(const std::string& from, const std::string& to, LEAF& leaf,  int index)
-            : source_name(from), destination_name(to),state(IDs::MODULATION),leaf_(leaf)
+            : source_name(from), destination_name(to),state(IDs::MODULATION),leaf_(leaf),scalingValue_ (nullptr), bipolarOffset (nullptr)
         {
             uuid = getNextUuid(&leaf);
             index_in_all_mods = index;
+
         }
         ~ModulationConnection()
         {

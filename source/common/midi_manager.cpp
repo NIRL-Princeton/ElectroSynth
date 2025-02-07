@@ -53,6 +53,8 @@ MidiManager::MidiManager(MidiKeyboardState* keyboard_state, AudioDeviceManager* 
    {
        manager->addMidiInputDeviceCallback(obj->identifier, this);
    }
+
+    midi_sysex_out_ = MidiOutput::createNewDevice ("electrosynth sysex");
 }
 
 MidiManager::~MidiManager() {

@@ -1,5 +1,5 @@
 #pragma once
-#include <PluginProcessor.h>
+//#include <PluginProcessor.h>
 
 /* This is a helper function to run tests within the context of a plugin editor.
  *
@@ -19,14 +19,14 @@
    });
 
  */
-[[maybe_unused]] void runWithinPluginEditor (const std::function<void (PluginProcessor& plugin)>& testCode)
-{
-    PluginProcessor plugin;
-    auto gui = juce::ScopedJuceInitialiser_GUI {};
-    auto editor = plugin.createEditorIfNeeded();
+//[[maybe_unused]] void runWithinPluginEditor (const std::function<void (PluginProcessor& plugin)>& testCode)
+//{
+ //   PluginProcessor plugin;
+ //   auto gui = juce::ScopedJuceInitialiser_GUI {};
+  //  auto editor = plugin.createEditorIfNeeded();
 
-    testCode (plugin);
+  //  testCode (plugin);
 
-    plugin.editorBeingDeleted (editor);
-    delete editor;
-}
+  //  plugin.editorBeingDeleted (editor);
+  //  delete editor;
+//}

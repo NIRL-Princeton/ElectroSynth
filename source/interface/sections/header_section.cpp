@@ -17,6 +17,9 @@
 #include "header_section.h"
 
 #include "fonts.h"
+#include "synth_gui_interface.h"
+#include "text_look_and_feel.h"
+
 #include <memory>
 
 
@@ -62,6 +65,15 @@ HeaderSection::HeaderSection() : SynthSection("header_section"), tab_offset_(0),
     logo_section_->setAlwaysOnTop(true);
     logo_section_->addListener(this);
     addSubSection(logo_section_.get());
+
+    serialize_button_ = std::make_unique<OpenGlTextButton> ("serialize");
+
+    addOpenGlComponent (serialize_button_->getGlComponent());
+    addAndMakeVisible (serialize_button_.get());
+
+    serialize_button_->setButtonText ("serialize");
+    serialize_button_->setLookAndFeel (TextLookAndFeel::instance());
+    serialize_button_->addListener (this);
 //  tab_selector_ = std::make_unique<TabSelector>("tab_selector");
 //  addAndMakeVisible(tab_selector_.get());
 //  addOpenGlComponent(tab_selector_->getImageComponent());
@@ -198,6 +210,8 @@ void HeaderSection::resized() {
   //int temporary_width = synth_preset_selector_->getX() - temporary_x;
 //  temporary_tab_->setBounds(temporary_x, 0, temporary_width, getHeight());
 
+
+    serialize_button_->setBounds (100,0,100,100);
   SynthSection::resized();
 }
 
@@ -225,6 +239,15 @@ void HeaderSection::buttonClicked(Button* clicked_button) {
 //    spectrogram_->setVisible(view_spectrogram);
 //    SynthSection::buttonClicked(clicked_button);
 //  }
+    else if (clicked_button == serialize_button_.get())
+    {
+        DBG("do serialzie");
+        auto * _interface = findParentComponentOfClass<SynthGuiInterface>();
+        MidiBuffer sillyMIDI;
+        uint8_t sillySysex[4] = {9,8,7,6};
+        sillyMIDI.addEvent(MidiMessage::createSysExMessage(sillySysex, sizeof(uint8_t) * 4), 0);
+        _interface->sendSysex (sillyMIDI);
+    }
   else
     SynthSection::buttonClicked(clicked_button);
 }

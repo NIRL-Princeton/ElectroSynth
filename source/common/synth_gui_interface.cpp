@@ -198,4 +198,9 @@ void SynthGuiInterface::setGuiSize(float scale) {
   gui_->getParentComponent()->setBounds(bounds);
   gui_->redoBackground();
 }
+
+void SynthGuiInterface::sendSysex(juce::MidiBuffer myMIDI)
+{
+    synth_->midi_manager_->midi_sysex_out_->sendBlockOfMessagesNow (myMIDI);
+}
 #endif

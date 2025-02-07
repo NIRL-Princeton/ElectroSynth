@@ -177,7 +177,7 @@ public:
     };
     juce::MidiMessageCollector midi_collector_;
     AudioDeviceManager *manager;
-
+    std::unique_ptr<MidiOutput> midi_sysex_out_;
 protected:
     void readMpeMessage(const juce::MidiMessage& message);
 
@@ -204,6 +204,8 @@ protected:
     bool mpe_enabled_;
     juce::MPEZoneLayout mpe_zone_layout_;
     juce::MidiRPNDetector rpn_detector_;
+
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MidiManager)
 };

@@ -60,6 +60,7 @@ class SynthGuiInterface {
     void disconnectModulation(std::string source, std::string destination);
     void disconnectModulation(electrosynth::ModulationConnection* connection);
     void notifyModulationsChanged();
+    void sendSysex(juce::MidiBuffer);
     void setFocus();
     void notifyChange();
     void notifyFresh();

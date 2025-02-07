@@ -140,7 +140,7 @@ namespace electrosynth {
       ModulatorBase* getModulatorFromUUID(int uuid);
 
       leaf::tProcessor * getLeafProcessorFromUUID(int uuid);
-      char dummy_memory[32];
+      char dummy_memory[128000];
       juce::AudioSampleBuffer bu{2,1};
       LEAF leaf;
     private:

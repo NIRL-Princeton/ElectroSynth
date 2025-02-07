@@ -129,6 +129,7 @@ public:
 
    void  processMappingChanges();
     int getNumModulations(const std::string& destination);
+    std::unique_ptr<MidiManager> midi_manager_;
 protected:
     electrosynth::mapping_change createMappingChange(electrosynth::ModulationConnection* mod);
     bool isInvalidConnection(const electrosynth::mapping_change & change) {return false;}
@@ -157,7 +158,7 @@ protected:
    void updateMemoryOutput(int samples, const float* audio);
 
    std::unique_ptr<electrosynth::SoundEngine> engine_;
-   std::unique_ptr<MidiManager> midi_manager_;
+
    std::unique_ptr<juce::MidiKeyboardState> keyboard_state_;
 
    std::shared_ptr<SynthBase*> self_reference_;

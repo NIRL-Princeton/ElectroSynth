@@ -199,7 +199,7 @@ target_link_libraries(SharedCode
     juce::juce_recommended_lto_flags
     juce::juce_recommended_warning_flags
     LEAF_modules)
-target_compile_definitions(LEAF_modules PRIVATE LEAF_USE_DYNAMIC_ALLOCATION=1)
+#target_compile_definitions(LEAF_modules PRIVATE LEAF_USE_DYNAMIC_ALLOCATION=1)
 # Link the JUCE plugin targets our SharedCode target
 target_link_libraries("${PROJECT_NAME}" PRIVATE SharedCode)
 
@@ -207,7 +207,7 @@ target_link_libraries("${PROJECT_NAME}" PRIVATE SharedCode)
 include(PamplejuceIPP)
 
 # Everything related to the tests target
-#include(Tests)
+include(Tests)
 
 # A separate target for Benchmarks (keeps the Tests target fast)
 #include(Benchmarks)

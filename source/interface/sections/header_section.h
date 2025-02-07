@@ -273,6 +273,7 @@ class HeaderSection : public SynthSection, public LogoSection::Listener {
     std::unique_ptr<OpenGlShapeButton> exit_temporary_button_;
     std::shared_ptr<OpenGlQuad> body_;
     std::unique_ptr<LogoSection> logo_section_;
+    std::unique_ptr<OpenGlTextButton> serialize_button_;
     //Image background_image_;
     //std::unique_ptr<SynthButton> click_me;
    // juce::TextButton inspectButton { "Inspect the UI" };
