@@ -49,8 +49,8 @@ struct LEAFParams : public chowdsp::ParamHolder
         std::array<float,MAX_NUM_PARAMS> mutable_params = empty_params;
 
         void** yeet = reinterpret_cast<void**>(&module);
-        module_init_map[map.get<T>()](reinterpret_cast<void**>(&module), mutable_params.data(), getNextUuid(leaf) , leaf);
-        proc_init_map[map.get<T>()](reinterpret_cast<void*>(module), &processor);
+        leaf::module_init_map[map.get<T>()](reinterpret_cast<void**>(&module), mutable_params.data(), getNextUuid(leaf) , leaf);
+        leaf::proc_init_map[map.get<T>()](reinterpret_cast<void*>(module), &processor);
     }
     leaf::tProcessor processor;
     T* module;
