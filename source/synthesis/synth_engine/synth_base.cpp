@@ -27,7 +27,6 @@
 #include "Modulators/ModulatorBase.h"
 #include "ModulationWrapper.h"
 #include "Processors/ProcessorBase.h"
-#include "constants.h"
 #include "parameterArrays.h"
 SynthBase::SynthBase(AudioDeviceManager * deviceManager) : expired_(false), manager(deviceManager) {
 

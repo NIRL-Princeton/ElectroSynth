@@ -47,6 +47,7 @@ namespace electrosynth {
     constexpr int kCentsPerNote = 100;
     constexpr int kCentsPerOctave = kNotesPerOctave * kCentsPerNote;
 
+    constexpr int kMaxModulationConnections = 64;
     constexpr int kPpq = 960; // Pulses per quarter note.
     constexpr float kVoiceKillTime = 0.05f;
     constexpr int kNumChannels = 2;

@@ -18,12 +18,9 @@
 
 #include "bar_renderer.h"
 #include "skin.h"
-//#include "modulation_connection_processor.h"
-//#include "modulation_matrix.h"
 #include "modulation_meter.h"
 #include "shaders.h"
 #include "synth_gui_interface.h"
-#include "constants.h"
 #include <juce_gui_basics/juce_gui_basics.h>
 #include "ModulationConnection.h"
 #include "FullInterface.h"

@@ -25,7 +25,7 @@ set(PROJECT_NAME "ElectorSynth")
 #   set(PROJECT_NAME "MyPlugin_v${MAJOR_VERSION}")
 # Doing so enables major versions to show up in IDEs and DAWs as separate plugins
 # allowing you to change parameters and behavior without breaking existing user projects
-set(PRODUCT_NAME "ElectorSynth")
+set(PRODUCT_NAME "ElectroSynth")
 
 # Change me! Used for the MacOS bundle name and Installers
 set(COMPANY_NAME "snyderphones")
@@ -207,7 +207,7 @@ target_link_libraries("${PROJECT_NAME}" PRIVATE SharedCode)
 include(PamplejuceIPP)
 
 # Everything related to the tests target
-#include(Tests)
+include(Tests)
 
 # A separate target for Benchmarks (keeps the Tests target fast)
 #include(Benchmarks)
