@@ -26,3 +26,6 @@
 	path = modules/melatonin_audio_sparklines
 	url = https://github.com/sudara/melatonin_audio_sparklines.git
 	update = merge
+[submodule "third_party/rtmidi"]
+	path = third_party/rtmidi
+	url = git@github.com:thestk/rtmidi.git
