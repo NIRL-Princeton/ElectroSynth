@@ -84,7 +84,7 @@ namespace electrosynth
         {
 
             mappings.emplace(to, std::make_unique<MappingWrapper>());
-            tMapping_init(&(mappings.at(to)->mapping_), leaf);
+//            tMapping_init(&(mappings.at(to)->mapping_), leaf);
             mappings.at(to)->dest_ = to;
             return mappings.at(to).get();
         }
