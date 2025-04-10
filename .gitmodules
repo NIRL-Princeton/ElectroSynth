@@ -13,10 +13,6 @@
 	url = git@github.com:JoshuaWarner22/MappingandProcessors.git
 	branch = cpp_atomic
 	update = merge
-[submodule "JUCE"]
-	path = JUCE
-	url = git@github.com:davispolito/JUCELeaf.git
-	update = merge
 [submodule "third_party/chowdsp_utils"]
 	path = third_party/chowdsp_utils
 	url = git@github.com:davispolito/chowdsp_utilsLEAF.git

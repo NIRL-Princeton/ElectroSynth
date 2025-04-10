@@ -38,3 +38,5 @@ TEST_CASE ("Boot performance")
         });
     };
 }
+
+
