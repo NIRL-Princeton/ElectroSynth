@@ -7,7 +7,6 @@ TEST_CASE ("one is equal to one", "[dummy]")
 {
     REQUIRE (1 == 1);
 }
-
 TEST_CASE ("Plugin instance", "[instance]")
 {
     PluginProcessor testPlugin;

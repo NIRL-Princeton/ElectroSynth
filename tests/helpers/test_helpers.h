@@ -9,6 +9,7 @@
  *
   runWithinPluginEditor ([&] (PluginProcessor& plugin) {
     auto snapshot = plugin.getActiveEditor()->createComponentSnapshot (plugin.getActiveEditor()->getLocalBounds(), true, 2.0f);
+    auto snapshot = plugin.getActiveEditor()->createComponentSnapshot (plugin.getActiveEditor()->getLocalBounds(), true, 2.0f);
     auto file = juce::File::getSpecialLocation (juce::File::SpecialLocationType::userDocumentsDirectory).getChildFile ("snapshot.jpeg");
     file.deleteFile();
     juce::FileOutputStream stream (file);

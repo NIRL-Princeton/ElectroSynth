@@ -25,3 +25,6 @@
 [submodule "third_party/rtmidi"]
 	path = third_party/rtmidi
 	url = git@github.com:thestk/rtmidi.git
+[submodule "JUCE"]
+	path = JUCE
+	url = git@github.com:juce-framework/JUCE.git
