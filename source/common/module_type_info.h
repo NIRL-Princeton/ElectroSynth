@@ -56,7 +56,7 @@ constexpr TypeMap map{
     TypeValuePair<_tEnvModule, 2>{},
     TypeValuePair<_tLFOModule, 3>{},
 };
-constexpr auto module_strings = std::to_array<std::string>({ "osc", "filt", "env", "lfo"});
+const std::array<std::string, 4> module_strings = { "osc", "filt", "env", "lfo"};
 
 
 #endif //ELECTORSYNTH_MODULE_TYPE_INFO_H

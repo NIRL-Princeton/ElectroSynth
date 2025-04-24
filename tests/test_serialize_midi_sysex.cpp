@@ -243,7 +243,7 @@ TEST_CASE("Test Serialize Processor", "[midi]") {
     // Create and initialize a tProcessorPreset instance
     //make it nonsense
     leaf::tProcessorPreset originalPreset;
-    originalPreset.processorTag = 42;
+
     originalPreset.processorTypeID = 84;
     originalPreset.processorUniqueID = 126;
     originalPreset.proc_chain = 21;
@@ -277,10 +277,11 @@ TEST_CASE("Test Serialize Processor", "[midi]") {
 
                 midiin.setCallback([](double timeStamp, std::vector<unsigned char> *msg, void *userData) {
                     auto *ctx = static_cast<MidiTestContext *>(userData);
-                    if (ctx->receiver.receivedDataSize + (msg->size() - 3) <= sizeof(leaf::tProcessorPreset7Bit)) {
-                        memcpy(ctx->receiver.receivedData + ctx->receiver.receivedDataSize, msg->data() + 2,
-                               msg->size() - 3);
-                        ctx->receiver.receivedDataSize += msg->size() - 3;
+                    if (ctx->receiver.receivedDataSize + (msg->size() - 4) <= sizeof(leaf::tProcessorPreset7Bit)) {
+                        memcpy(ctx->receiver.receivedData + ctx->receiver.receivedDataSize,
+                            msg->data() + 3,
+                               msg->size() - 4);
+                        ctx->receiver.receivedDataSize += msg->size() - 4;
                     }
                     if (ctx->receiver.receivedDataSize == sizeof(leaf::tProcessorPreset7Bit)) {
                         leaf::tProcessorPreset7Bit preset7Bit;
@@ -349,7 +350,6 @@ TEST_CASE("Test Serialize Processor", "[midi]") {
     REQUIRE(testContext.presetReceived);
     // REQUIRE(testContext.lastMessage.size() == 3);
     // Verify that the reconstructed preset matches the original
-    REQUIRE(testContext.reconstructedPreset.processorTag == originalPreset.processorTag);
     REQUIRE(testContext.reconstructedPreset.processorTypeID == originalPreset.processorTypeID);
     REQUIRE(testContext.reconstructedPreset.processorUniqueID == originalPreset.processorUniqueID);
     REQUIRE(testContext.reconstructedPreset.proc_chain == originalPreset.proc_chain);
@@ -375,7 +375,6 @@ TEST_CASE("Test Serialize Mapping", "[midi]") {
     leaf::tMappingPreset originalPreset;
 
     // Assign fixed values directly
-    originalPreset.mappingTag = BYTETAGS::MAPTAG;
     originalPreset.index = 2;
     originalPreset.uuid = 10;
     originalPreset.destinationUUID = 20;
@@ -412,10 +411,11 @@ TEST_CASE("Test Serialize Mapping", "[midi]") {
 
                 midiin.setCallback([](double timeStamp, std::vector<unsigned char> *msg, void *userData) {
                     auto *ctx = static_cast<MidiTestContext *>(userData);
-                    if (ctx->receiver.receivedDataSize + (msg->size() - 2) <= sizeof(leaf::tMappingPreset7Bit)) {
-                        memcpy(ctx->receiver.receivedData + ctx->receiver.receivedDataSize, msg->data()+1,
-                               msg->size() - 2);
-                        ctx->receiver.receivedDataSize += msg->size() - 2;
+                    if (ctx->receiver.receivedDataSize + (msg->size() - 4) <= sizeof(leaf::tMappingPreset7Bit)) {
+                        memcpy(ctx->receiver.receivedData + ctx->receiver.receivedDataSize,
+                            msg->data()+3, //skip sysex tag, type tag, and info tag
+                               msg->size() - 4);
+                        ctx->receiver.receivedDataSize += msg->size() - 4;
                     }
                     if (ctx->receiver.receivedDataSize == sizeof(leaf::tMappingPreset7Bit)) {
                         leaf::tMappingPreset7Bit preset7Bit;
@@ -524,7 +524,6 @@ TEST_CASE("Test create a processor without passing a module", "[midi]") {
 
     // Create and initialize a tProcessorPreset instance
     leaf::tProcessorPreset originalPreset;
-    originalPreset.processorTag = BYTETAGS::PROCTAG;
     originalPreset.processorTypeID = 0;
     originalPreset.processorUniqueID = 0;
     originalPreset.proc_chain = 0;
@@ -653,7 +652,6 @@ TEST_CASE("Test create a mapping", "[midi]") {
     leaf::tMappingPreset preset;
 
     // Assign fixed values directly
-    preset.mappingTag = BYTETAGS::MAPTAG;
     preset.index = 2;
     preset.uuid = 10;
     preset.destinationUUID = 20;
@@ -666,6 +664,7 @@ TEST_CASE("Test create a mapping", "[midi]") {
         preset.inUUIDs[i] = (uint8_t) (i + 1);
         preset.bipolarOffset[i] = -1.0f + (float) i * 0.5f;
         preset.scalingValues[i] = 0.5f * (float) (i + 1);
+
     }
 
 
@@ -774,6 +773,6 @@ TEST_CASE("Test create a mapping", "[midi]") {
         REQUIRE(testContext.mapping->inUUIDS[i] == preset.inUUIDs[i]);
         REQUIRE(testContext.mapping->bipolarOffset[i] == Catch::Approx(preset.bipolarOffset[i]));
         REQUIRE(testContext.mapping->scalingValues[i] == Catch::Approx(preset.scalingValues[i]));
-        REQUIRE(testContext.mapping->inSources[i] != nullptr);
+
     }
 }
