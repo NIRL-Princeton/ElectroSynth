@@ -32,6 +32,11 @@ namespace {
 } // namespace
 void sendPresetOverMidi(const leaf::tProcessorPreset7Bit& preset, size_t maxChunkSize, juce::MidiOutput* midi_output)
 {
+    if(maxChunkSize > 62)
+    {
+        jassertfalse;
+        return;
+    }
     static std::array<std::byte, sizeof(leaf::tProcessorPreset7Bit)> buffer{};
     std::memcpy(buffer.data(), &preset, sizeof(preset));
 
@@ -83,6 +88,11 @@ void sendPresetOverMidi(const leaf::tProcessorPreset7Bit& preset, size_t maxChun
 }
 void sendPresetOverMidi(const leaf::tMappingPreset7Bit& preset, size_t maxChunkSize, juce::MidiOutput* midi_output)
 {
+    if(maxChunkSize > 62)
+    {
+        jassertfalse;
+        return;
+    }
     static std::array<std::byte, sizeof(leaf::tMappingPreset7Bit) + 2> buffer{};
     std::memcpy(buffer.data() + 2, &preset, sizeof(preset));
 

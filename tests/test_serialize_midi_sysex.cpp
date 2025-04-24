@@ -333,7 +333,7 @@ TEST_CASE("Test Serialize Processor", "[midi]") {
             leaf::tProcessorPreset7Bit preset7Bit;
             // Split the original preset
             splitProcessorPreset(&originalPreset, &preset7Bit);
-            uint16_t sizeOfSysexChunk = 64;
+            uint16_t sizeOfSysexChunk = 62;
             sendPresetOverMidi(preset7Bit, sizeOfSysexChunk, midi_output.get());
             // for (auto chunk : splitPresetIntoSpans(preset7Bit, sizeOfSysexChunk)) {
             //     midi_output->sendMessageNow(juce::MidiMessage::createSysExMessage(chunk));
@@ -467,7 +467,7 @@ TEST_CASE("Test Serialize Mapping", "[midi]") {
             leaf::tMappingPreset7Bit preset7Bit;
             // Split the original preset
             splitMappingPreset(&originalPreset, &preset7Bit);
-            uint16_t sizeOfSysexChunk = 64;
+            uint16_t sizeOfSysexChunk = 62;
             sendPresetOverMidi(preset7Bit, sizeOfSysexChunk, midi_output.get());
             // Sleep to allow time for the MIDI callback to be triggered.
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -614,7 +614,7 @@ TEST_CASE("Test create a processor without passing a module", "[midi]") {
             leaf::tProcessorPreset7Bit preset7Bit;
             // Split the original preset
             splitProcessorPreset(&originalPreset, &preset7Bit);
-            uint16_t sizeOfSysexChunk = 64;
+            uint16_t sizeOfSysexChunk = 62;
             sendPresetOverMidi(preset7Bit, sizeOfSysexChunk, midi_output.get());
             // Sleep to allow time for the MIDI callback to be triggered.
             std::this_thread::sleep_for(std::chrono::milliseconds(1500));
@@ -746,7 +746,7 @@ TEST_CASE("Test create a mapping", "[midi]") {
             leaf::tMappingPreset7Bit preset7Bit;
             // Split the original preset
             splitMappingPreset(&preset, &preset7Bit);
-            uint16_t sizeOfSysexChunk = 64;
+            uint16_t sizeOfSysexChunk = 62;
             sendPresetOverMidi(preset7Bit, sizeOfSysexChunk, midi_output.get());
             // Sleep to allow time for the MIDI callback to be triggered.
             std::this_thread::sleep_for(std::chrono::milliseconds(1500));
@@ -757,6 +757,175 @@ TEST_CASE("Test create a mapping", "[midi]") {
     });
 
     midi_in_thread.join();
+
+    REQUIRE(testContext.presetReceived);
+    REQUIRE(testContext.mapping != nullptr);
+
+    // Verify top-level parameters
+    REQUIRE(testContext.mapping->uuid == preset.uuid);
+    REQUIRE(testContext.mapping->index == preset.index);
+    REQUIRE(testContext.mapping->destinationProcessorUniqueID == preset.destinationUUID);
+    REQUIRE(testContext.mapping->paramID == preset.destParamID);
+    REQUIRE(testContext.mapping->numUsedSources == preset.numUsedSources);
+
+    // Verify source-related fields
+    for (int i = 0; i < testContext.mapping->numUsedSources; ++i) {
+        REQUIRE(testContext.mapping->inUUIDS[i] == preset.inUUIDs[i]);
+        REQUIRE(testContext.mapping->bipolarOffset[i] == Catch::Approx(preset.bipolarOffset[i]));
+        REQUIRE(testContext.mapping->scalingValues[i] == Catch::Approx(preset.scalingValues[i]));
+
+    }
+}
+
+TEST_CASE("Simulate SPI splitting", "[midi]") {
+    std::mutex mtx;
+    std::mutex mtx_;
+    std::condition_variable cv;
+    std::condition_variable c_;
+    bool message_sent = false;
+    bool midi_ready = false;
+
+
+    leaf::tMappingPreset preset;
+
+    // Assign fixed values directly
+    preset.index = 2;
+    preset.uuid = 10;
+    preset.destinationUUID = 20;
+    preset.destParamID = 1;
+
+    preset.numUsedSources = 3;
+
+    // Fill the source arrays with fixed values
+    for (int i = 0; i < preset.numUsedSources; i++) {
+        preset.inUUIDs[i] = (uint8_t) (i + 1);
+        preset.bipolarOffset[i] = -1.0f + (float) i * 0.5f;
+        preset.scalingValues[i] = 0.5f * (float) (i + 1);
+
+    }
+
+
+    // Reconstruct the preset from the 7-bit data
+    // leaf::tProcessorPreset reconstructedPreset;
+
+    //unsplitProcessorPreset(&preset7Bit, &reconstructedPreset);
+    std::atomic<bool> keepRunning = true;
+    struct MidiTestContext {
+        uint8_t spi_0[32];
+        uint8_t spi_1[32];
+
+        leaf::tMappingReceiver receiver;
+        leaf::tMapping *mapping;
+        LEAF leaf;
+        std::vector<unsigned char> lastMessage;
+        std::atomic<bool> presetReceived{false};
+        double timestamp = 0.0;
+    };
+
+    MidiTestContext testContext;
+    //testContext.processor = nullptr;
+    testContext.receiver.receivedDataSize = 0;
+
+    char dummy_memory[65536];
+    LEAF_init(&testContext.leaf, 44100.0f, dummy_memory, 65536, []() { return (float) rand() / RAND_MAX; });
+
+    std::thread midi_in_thread([&]() {
+        try {
+            RtMidiIn midiin; {
+                std::lock_guard<std::mutex> lock(mtx_);
+
+                midiin.openVirtualPort();
+
+                midiin.setCallback([](double timeStamp, std::vector<unsigned char> *msg, void *userData) {
+                    auto *ctx = static_cast<MidiTestContext *>(userData);
+                    ctx->spi_0[0] = 20 + 0;
+                    ctx->spi_0[31] = 253;
+                    ctx->spi_1[0] = 20 + 1;
+                    ctx->spi_1[31] = 253;
+                    memcpy (&ctx->spi_0[1], msg->data(), sizeof(uint8_t) * 30);
+                    memcpy (&ctx->spi_1[1], msg->data() + 30, sizeof(uint8_t) * 30);
+                    //leaf::receiveMappingPreset(&ctx->receiver, &ctx->mapping, msg->data(), msg->size(), &ctx->leaf);
+                    ctx->presetReceived = true;
+                }, &testContext);
+                // Don't ignore sysex, timing, or active sensing messages.
+                midiin.ignoreTypes(false, false, false);
+                midi_ready = true;
+            }
+            c_.notify_one();
+            std::unique_lock<std::mutex> lock(mtx);
+            cv.wait(lock, [&] { return message_sent; });
+            // Validate message content
+        } catch (RtMidiError &error) {
+            // Handle the exception here
+            error.printMessage();
+        }
+    });
+
+    juce::Thread::launch([&] {
+        {
+            std::unique_lock<std::mutex> lock(mtx_);
+            c_.wait(lock, [&] { return midi_ready; }); // Wait until MIDI setup is ready
+        }
+
+        juce::MessageManager::getInstance()->setCurrentThreadAsMessageThread();
+
+        auto devices = juce::MessageManager::callSync([] {
+            return juce::MidiOutput::getAvailableDevices();
+        });
+        std::unique_ptr<juce::MidiOutput> midi_output;
+        for (auto &device: *devices) {
+            if (device.name == "RtMidi Input") {
+                midi_output = juce::MidiOutput::openDevice(device.identifier);
+                break;
+            }
+        }
+        REQUIRE(midi_output != nullptr);
+        if (midi_output != nullptr) {
+            // Initialize the 7-bit struct to store the split data
+            leaf::tMappingPreset7Bit preset7Bit;
+            // Split the original preset
+            splitMappingPreset(&preset, &preset7Bit);
+            uint16_t sizeOfSysexChunk = 62;
+            sendPresetOverMidi(preset7Bit, sizeOfSysexChunk, midi_output.get());
+            // Sleep to allow time for the MIDI callback to be triggered.
+            std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+        }
+
+        message_sent = true;
+        cv.notify_one();
+    });
+
+    midi_in_thread.join();
+    //ignore the first byte for now and we've already checked the sysex byte tag
+    uint8_t data[64];
+    size_t size = 0;
+    REQUIRE (testContext.spi_0[0] == 20 + 0);
+    REQUIRE (testContext.spi_0[1] == 0xF0);
+    for (int i = 0; i < 30; i++)
+    {
+        data[i] = testContext.spi_0[i + 1];
+        if(testContext.spi_0[i + 1] == 0xF7)
+        {
+            size = ++i;
+            //memcpy(&data, &testContext.spi_0[2], sizeof(uint8_t)*size);
+            break;
+        }
+    }
+    REQUIRE (testContext.spi_0[31] == 253);
+    if(size == 0)
+    {
+        for (int i = 0; i < 30; i++)
+        {
+            data[i+32] = testContext.spi_1[i+1];
+            if(testContext.spi_1[i+1] == 0xF7)
+            {
+                size = (i+1) + 30;
+                break;
+            }
+        }
+    }
+
+    leaf::receiveMappingPreset(&testContext.receiver, &testContext.mapping, &data[0], size, &testContext.leaf);
 
     REQUIRE(testContext.presetReceived);
     REQUIRE(testContext.mapping != nullptr);
