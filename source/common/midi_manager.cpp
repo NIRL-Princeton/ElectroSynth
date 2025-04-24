@@ -30,6 +30,81 @@ namespace {
        return ((msb << kMidiControlBits) + lsb) / kHighResolutionMax;
    }
 } // namespace
+void sendPresetOverMidi(const leaf::tProcessorPreset7Bit& preset, size_t maxChunkSize, juce::MidiOutput* midi_output)
+{
+    static std::array<std::byte, sizeof(leaf::tProcessorPreset7Bit)> buffer{};
+    std::memcpy(buffer.data(), &preset, sizeof(preset));
+
+    std::vector<juce::Span<std::byte>> spans;
+
+    const size_t totalSize = sizeof(leaf::tProcessorPreset7Bit);
+    constexpr size_t headerSize =  sizeof(leaf::tProcessorPreset7Bit) - (5 *MAX_NUM_PARAMS);
+    const size_t paramBytes = totalSize - headerSize;
+    // Check that the header fits into a sysex with our tag and the sysex tags on the beginning and end
+    if (headerSize + 3 > maxChunkSize)
+    {
+        // Invalid: header cannot fit
+        jassertfalse;
+        return;
+    }
+    // Create a new buffer for the header span, prepending the tag
+    std::vector<std::byte> headerSpan(headerSize + 1);
+    headerSpan[0] = std::byte{0x01};  // Tag for header
+    std::memcpy(headerSpan.data() + 1, buffer.data(), headerSize);
+    // Add first span: just the header
+    spans.emplace_back(headerSpan.begin(), headerSpan.size());
+
+    // Add param spans, chunked up to maxChunkSize
+    size_t offset = headerSize;
+    size_t remaining = paramBytes;
+    // a span is a non-owning view into a contiguous bit of memory.
+    // thus the vector must exist for the lifetime of the span in order for it
+    // to hold state
+    std::vector<std::vector<std::byte>> paramSpans;
+
+    while (remaining > 0)
+    {
+        const size_t numParamsInChunk = std::min((maxChunkSize-3)/5, (remaining+3)/5); //don't split floats
+        const size_t chunkSize = numParamsInChunk * 5;
+        // Create a new buffer for the param span, prepending the tag
+        paramSpans.emplace_back(chunkSize + 1);
+        paramSpans.back()[0] = std::byte{0x02};  // Tag for params
+        std::memcpy(paramSpans.back().data() + 1, buffer.data() + offset, chunkSize);
+        spans.emplace_back(paramSpans.back().begin(),paramSpans.back().size());
+        offset += chunkSize;
+        remaining -= chunkSize;
+    }
+    for (auto chunk : spans) {
+        midi_output->sendMessageNow(juce::MidiMessage::createSysExMessage(chunk));
+    }
+
+}
+void sendPresetOverMidi(const leaf::tMappingPreset7Bit& preset, size_t maxChunkSize, juce::MidiOutput* midi_output)
+{
+    static std::array<std::byte, sizeof(leaf::tMappingPreset7Bit)> buffer{};
+    std::memcpy(buffer.data(), &preset, sizeof(preset));
+
+    constexpr size_t paramBytes = (2*(5 *MAX_NUM_SOURCES) + (2*MAX_NUM_SOURCES));
+    constexpr size_t headerSize =  sizeof(leaf::tMappingPreset7Bit) - paramBytes;
+
+    // Check that the header fits into a sysex with our tag and the sysex tags on the beginning and end
+    if (headerSize + 3 > maxChunkSize)
+    {
+        // Invalid: header cannot fit
+        jassertfalse;
+        return;
+    }
+    if ( headerSize + paramBytes > maxChunkSize) {
+        //mapping chunking is made to send in one chunk right now.
+        //if MAX_NUM_SOURCES expands beyond 6 (assuming headerSize does not expand
+        // beyond 6 variables i.e. 12 8 bit chunks) we will need to change how mappings are sent
+        jassertfalse;
+        return;
+    }
+
+    midi_output->sendMessageNow(juce::MidiMessage::createSysExMessage(buffer.data(), headerSize + paramBytes));
+
+}
 
 MidiManager::MidiManager(MidiKeyboardState* keyboard_state, AudioDeviceManager* manager, const ValueTree &v,
    Listener* listener) : tracktion::engine::ValueTreeObjectList<electrosynth::MidiDeviceWrapper>(v),

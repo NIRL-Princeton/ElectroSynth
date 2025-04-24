@@ -19,7 +19,7 @@
 #include <cmath>
 #define MAX_SYSEX_MSG_SIZE 64  // Maximum size of a single SysEx message chunk
 
-TEST_CASE("Test Serialize", "[midi]") {
+TEST_CASE("Test Ssebd to electrobass", "[midi]") {
     //RtMidiIn *midiin = 0;
     std::mutex mtx;
     std::mutex mtx_;
@@ -81,6 +81,7 @@ TEST_CASE("Test Serialize", "[midi]") {
                     ctx->lastMessage = *msg;
                     ctx->presetReceived = true;
                 }, &testContext);
+
                 // Don't ignore sysex, timing, or active sensing messages.
                 midiin.ignoreTypes(false, false, false);
                 midi_ready = true;
