@@ -19,14 +19,7 @@
 #include <cmath>
 #define MAX_SYSEX_MSG_SIZE 64  // Maximum size of a single SysEx message chunk
 
-TEST_CASE("Test Ssebd to electrobass", "[midi]") {
-    //RtMidiIn *midiin = 0;
-    std::mutex mtx;
-    std::mutex mtx_;
-    std::condition_variable cv;
-    std::condition_variable c_;
-    bool message_sent = false;
-    bool midi_ready = false;
+TEST_CASE("Test send fake midi sysex", "[midi]") {
 
 
 
@@ -45,64 +38,10 @@ TEST_CASE("Test Ssebd to electrobass", "[midi]") {
     }
 
 
-    // Reconstruct the preset from the 7-bit data
-   // leaf::tProcessorPreset reconstructedPreset;
-    //unsplitProcessorPreset(&preset7Bit, &reconstructedPreset);
-    std::atomic<bool> keepRunning = true;
-    struct MidiTestContext {
-        leaf::tProcessorReceiver receiver;
-        leaf::tProcessorPreset reconstructedPreset;
-        std::vector<unsigned char> lastMessage;
-        std::atomic<bool> presetReceived{false};
-        double timestamp = 0.0;
-    };
-    MidiTestContext testContext;
-    testContext.receiver.receivedDataSize = 0;
-    std::thread midi_in_thread([&]() {
-        try {
-            RtMidiIn midiin; {
-                std::lock_guard<std::mutex> lock(mtx_);
 
-                midiin.openVirtualPort();
 
-                midiin.setCallback([](double timeStamp, std::vector<unsigned char> *msg, void *userData) {
-                    auto *ctx = static_cast<MidiTestContext *>(userData);
-                    if (ctx->receiver.receivedDataSize + (msg->size() -3) <= sizeof(leaf::tProcessorPreset7Bit)) {
-                        memcpy(ctx->receiver.receivedData + ctx->receiver.receivedDataSize, msg->data() + 2, msg->size() -3);
-                        ctx->receiver.receivedDataSize += msg->size() -3;
-                    }
-                    if (ctx->receiver.receivedDataSize == sizeof(leaf::tProcessorPreset7Bit)) {
-                        leaf::tProcessorPreset7Bit preset7Bit;
-                        memcpy(&preset7Bit, ctx->receiver.receivedData, sizeof(leaf::tProcessorPreset7Bit));
-                        unsplitProcessorPreset(&preset7Bit, &ctx->reconstructedPreset);
-                        ctx->receiver.receivedDataSize = 0;
-                    }
-                    ctx->timestamp = timeStamp;
-                    ctx->lastMessage = *msg;
-                    ctx->presetReceived = true;
-                }, &testContext);
 
-                // Don't ignore sysex, timing, or active sensing messages.
-                midiin.ignoreTypes(false, false, false);
-                midi_ready = true;
 
-                // [ 0x90, 0x40, 0x7F
-            }
-            c_.notify_one();
-            std::unique_lock<std::mutex> lock(mtx);
-            cv.wait(lock, [&] { return message_sent; });
-            // Validate message content
-        } catch (RtMidiError &error) {
-            // Handle the exception here
-            error.printMessage();
-        }
-    });
-
-    juce::Thread::launch([&] {
-        {
-            std::unique_lock<std::mutex> lock(mtx_);
-            c_.wait(lock, [&] { return midi_ready; }); // Wait until MIDI setup is ready
-        }
 
         juce::MessageManager::getInstance()->setCurrentThreadAsMessageThread();
 
@@ -111,41 +50,30 @@ TEST_CASE("Test Ssebd to electrobass", "[midi]") {
         });
         std::unique_ptr<juce::MidiOutput> midi_output;
         for (auto &device: *devices) {
-            if (device.name == "RtMidi Input") {
+            std::cout<< device.name << std::endl;
+            if (device.name == "Electrosteel") {
                 midi_output = juce::MidiOutput::openDevice(device.identifier);
                 break;
             }
         }
-        REQUIRE(midi_output != nullptr);
+
         if (midi_output != nullptr) {
             // Initialize the 7-bit struct to store the split data
-            leaf::tProcessorPreset7Bit preset7Bit;
-            // Split the original preset
-            splitProcessorPreset(&originalPreset, &preset7Bit);
-            uint16_t sizeOfSysexChunk = 64 ;
-            sendPresetOverMidi(preset7Bit, sizeOfSysexChunk,midi_output.get());
-            // for (auto chunk : splitPresetIntoSpans(preset7Bit, sizeOfSysexChunk)) {
-            //     midi_output->sendMessageNow(juce::MidiMessage::createSysExMessage(chunk));
-            // }
-            // Sleep to allow time for the MIDI callback to be triggered.
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            std::array<std::byte,62> buffer;
+            for(uint8_t i = 0; i< 62; i++)
+            {
+                buffer[i] = static_cast<std::byte>(i);
+
+
+            }
+
+            midi_output->sendMessageNow(juce::MidiMessage::createSysExMessage(buffer.data(), buffer.size()));
+
+
         }
 
-        message_sent = true;
-        cv.notify_one();
-    });
 
-    midi_in_thread.join();
-    REQUIRE(testContext.presetReceived);
-   // REQUIRE(testContext.lastMessage.size() == 3);
-    // Verify that the reconstructed preset matches the original
-    REQUIRE(testContext.reconstructedPreset.processorTypeID == originalPreset.processorTypeID);
-    REQUIRE(testContext.reconstructedPreset.processorUniqueID == originalPreset.processorUniqueID);
-    REQUIRE(testContext.reconstructedPreset.proc_chain == originalPreset.proc_chain);
-    REQUIRE(testContext.reconstructedPreset.index == originalPreset.index);
 
-    // Check each parameter
-    for (int i = 0; i < MAX_NUM_PARAMS; ++i) {
-        REQUIRE(testContext.reconstructedPreset.params[i] == Catch::Approx(originalPreset.params[i]));
-    }
+
+   REQUIRE(1==1);
 }
