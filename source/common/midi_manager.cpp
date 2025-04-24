@@ -32,6 +32,11 @@ namespace {
 } // namespace
 void sendPresetOverMidi(const leaf::tProcessorPreset7Bit& preset, size_t maxChunkSize, juce::MidiOutput* midi_output)
 {
+    if(maxChunkSize > 62)
+    {
+        jassertfalse;
+        return;
+    }
     static std::array<std::byte, sizeof(leaf::tProcessorPreset7Bit)> buffer{};
     std::memcpy(buffer.data(), &preset, sizeof(preset));
 
@@ -41,16 +46,17 @@ void sendPresetOverMidi(const leaf::tProcessorPreset7Bit& preset, size_t maxChun
     constexpr size_t headerSize =  sizeof(leaf::tProcessorPreset7Bit) - (5 *MAX_NUM_PARAMS);
     const size_t paramBytes = totalSize - headerSize;
     // Check that the header fits into a sysex with our tag and the sysex tags on the beginning and end
-    if (headerSize + 3 > maxChunkSize)
+    if (headerSize + 4 > maxChunkSize)
     {
         // Invalid: header cannot fit
         jassertfalse;
         return;
     }
     // Create a new buffer for the header span, prepending the tag
-    std::vector<std::byte> headerSpan(headerSize + 1);
-    headerSpan[0] = std::byte{0x01};  // Tag for header
-    std::memcpy(headerSpan.data() + 1, buffer.data(), headerSize);
+    std::vector<std::byte> headerSpan(headerSize + 2);
+    headerSpan[0] = std::byte{BYTETAGS::PROCTAG};  // Tag for header
+    headerSpan[1] = std::byte{0x00};
+    std::memcpy(headerSpan.data() + 2, buffer.data(), headerSize);
     // Add first span: just the header
     spans.emplace_back(headerSpan.begin(), headerSpan.size());
 
@@ -64,12 +70,13 @@ void sendPresetOverMidi(const leaf::tProcessorPreset7Bit& preset, size_t maxChun
 
     while (remaining > 0)
     {
-        const size_t numParamsInChunk = std::min((maxChunkSize-3)/5, (remaining+3)/5); //don't split floats
+        const size_t numParamsInChunk = std::min((maxChunkSize-4)/5, (remaining+4)/5); //don't split floats
         const size_t chunkSize = numParamsInChunk * 5;
         // Create a new buffer for the param span, prepending the tag
-        paramSpans.emplace_back(chunkSize + 1);
-        paramSpans.back()[0] = std::byte{0x02};  // Tag for params
-        std::memcpy(paramSpans.back().data() + 1, buffer.data() + offset, chunkSize);
+        paramSpans.emplace_back(chunkSize + 2);
+        paramSpans.back()[0] = std::byte{BYTETAGS::PROCTAG};  // Tag for params
+        paramSpans.back()[0] = std::byte{0x01};
+        std::memcpy(paramSpans.back().data() + 2, buffer.data() + offset, chunkSize);
         spans.emplace_back(paramSpans.back().begin(),paramSpans.back().size());
         offset += chunkSize;
         remaining -= chunkSize;
@@ -81,14 +88,19 @@ void sendPresetOverMidi(const leaf::tProcessorPreset7Bit& preset, size_t maxChun
 }
 void sendPresetOverMidi(const leaf::tMappingPreset7Bit& preset, size_t maxChunkSize, juce::MidiOutput* midi_output)
 {
-    static std::array<std::byte, sizeof(leaf::tMappingPreset7Bit)> buffer{};
-    std::memcpy(buffer.data(), &preset, sizeof(preset));
+    if(maxChunkSize > 62)
+    {
+        jassertfalse;
+        return;
+    }
+    static std::array<std::byte, sizeof(leaf::tMappingPreset7Bit) + 2> buffer{};
+    std::memcpy(buffer.data() + 2, &preset, sizeof(preset));
 
     constexpr size_t paramBytes = (2*(5 *MAX_NUM_SOURCES) + (2*MAX_NUM_SOURCES));
     constexpr size_t headerSize =  sizeof(leaf::tMappingPreset7Bit) - paramBytes;
 
     // Check that the header fits into a sysex with our tag and the sysex tags on the beginning and end
-    if (headerSize + 3 > maxChunkSize)
+    if (headerSize + 4 > maxChunkSize)
     {
         // Invalid: header cannot fit
         jassertfalse;
@@ -101,8 +113,10 @@ void sendPresetOverMidi(const leaf::tMappingPreset7Bit& preset, size_t maxChunkS
         jassertfalse;
         return;
     }
+    buffer[0] = std::byte{BYTETAGS::MAPTAG};
+    buffer[1] = std::byte{0x0};
 
-    midi_output->sendMessageNow(juce::MidiMessage::createSysExMessage(buffer.data(), headerSize + paramBytes));
+    midi_output->sendMessageNow(juce::MidiMessage::createSysExMessage(buffer.data(), headerSize + paramBytes + 2));
 
 }
 

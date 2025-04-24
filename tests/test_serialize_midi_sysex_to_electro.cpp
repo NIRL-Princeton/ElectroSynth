@@ -33,7 +33,7 @@ TEST_CASE("Test Ssebd to electrobass", "[midi]") {
 
     // Create and initialize a tProcessorPreset instance
     leaf::tProcessorPreset originalPreset;
-    originalPreset.processorTag = 42;
+
     originalPreset.processorTypeID = 84;
     originalPreset.processorUniqueID = 126;
     originalPreset.proc_chain = 21;
@@ -139,7 +139,6 @@ TEST_CASE("Test Ssebd to electrobass", "[midi]") {
     REQUIRE(testContext.presetReceived);
    // REQUIRE(testContext.lastMessage.size() == 3);
     // Verify that the reconstructed preset matches the original
-    REQUIRE(testContext.reconstructedPreset.processorTag == originalPreset.processorTag);
     REQUIRE(testContext.reconstructedPreset.processorTypeID == originalPreset.processorTypeID);
     REQUIRE(testContext.reconstructedPreset.processorUniqueID == originalPreset.processorUniqueID);
     REQUIRE(testContext.reconstructedPreset.proc_chain == originalPreset.proc_chain);

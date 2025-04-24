@@ -349,7 +349,7 @@ void SoundEngine::connectMapping (const electrosynth::mapping_change& change) {
                 sourceIndex = static_cast<int> (std::distance (change.mapping->all_connections_.begin(), it));
             }
             //set the scale value to point to the backend mapping scaling
-            change.connection->scalingValue_ = tMappingAdd(&change.mapping->mapping_, change._source, change._dest, change.dest_param_index, sourceIndex, leaf);
+            change.connection->scalingValue_ = tMappingAdd(&change.mapping->mapping_, change._source, change._dest, change.dest_param_index, sourceIndex, &leaf);
             change.connection->bipolarOffset = &change.mapping->mapping_.bipolarOffset[sourceIndex];
             return;
         }
@@ -366,7 +366,7 @@ void SoundEngine::connectMapping (const electrosynth::mapping_change& change) {
     //otherwise this is a new mapping
     //index will be 0 in the mapping
     //set the scale value to point to the backend mapping scaling
-    change.connection->scalingValue_ = tMappingAdd(&change.mapping->mapping_, change._source, change._dest, change.dest_param_index, 0, leaf);
+    change.connection->scalingValue_ = tMappingAdd(&change.mapping->mapping_, change._source, change._dest, change.dest_param_index, 0, &leaf);
     change.connection->bipolarOffset = &change.mapping->mapping_.bipolarOffset[0];
 
 
