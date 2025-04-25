@@ -214,4 +214,4 @@ target_link_libraries(Tests PRIVATE rtmidi)
 include(Benchmarks)
 
 # Output some config for CI (like our PRODUCT_NAME)
-#include(GitHubENV)
+include(GitHubENV)
