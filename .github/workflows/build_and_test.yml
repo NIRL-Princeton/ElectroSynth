@@ -1,4 +1,4 @@
-name: Pamplejuce
+name: ElectroSynth
 
 on:
   workflow_dispatch: # lets you run a build from the UI
@@ -16,6 +16,7 @@ env:
   DISPLAY: :0 # linux pluginval needs this
   HOMEBREW_NO_INSTALL_CLEANUP: 1
   SCCACHE_GHA_ENABLED: true
+  SCCACHE_CACHE_MULTIARCH: 1
   IPP_DIR: C:\Program Files (x86)\Intel\oneAPI\ipp\latest\lib\cmake\ipp
 
 defaults:
@@ -102,7 +103,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          submodules: true # Get JUCE populated
+          submodules: recursive # Get JUCE populated and LEAF
 
       - name: Cache the build
         uses: mozilla-actions/sccache-action@v0.0.9
