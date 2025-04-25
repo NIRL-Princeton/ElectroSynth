@@ -1,22 +1,18 @@
 [submodule "modules/melatonin_inspector"]
 	path = modules/melatonin_inspector
 	url = https://github.com/sudara/melatonin_inspector.git
-	branch = main
 	update = merge
 [submodule "cmake"]
 	path = cmake
 	url = https://github.com/sudara/cmake-includes.git
-	branch = main
 	update = merge
 [submodule "third_party/leaf_modules"]
 	path = third_party/leaf_modules
 	url = git@github.com:JoshuaWarner22/MappingandProcessors.git
-	branch = cpp_atomic
 	update = merge
 [submodule "third_party/chowdsp_utils"]
 	path = third_party/chowdsp_utils
 	url = git@github.com:davispolito/chowdsp_utilsLEAF.git
-	branch = leaf
 	update = merge
 [submodule "modules/melatonin_audio_sparklines"]
 	path = modules/melatonin_audio_sparklines

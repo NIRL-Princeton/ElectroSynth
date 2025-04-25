@@ -842,6 +842,7 @@ TEST_CASE("Simulate SPI splitting", "[midi]") {
                     ctx->spi_0[31] = 253;
                     ctx->spi_1[0] = 20 + 1;
                     ctx->spi_1[31] = 253;
+                    //only 30 bytes of preset are in each thing
                     memcpy (&ctx->spi_0[1], msg->data(), sizeof(uint8_t) * 30);
                     memcpy (&ctx->spi_1[1], msg->data() + 30, sizeof(uint8_t) * 30);
                     //leaf::receiveMappingPreset(&ctx->receiver, &ctx->mapping, msg->data(), msg->size(), &ctx->leaf);
@@ -896,9 +897,18 @@ TEST_CASE("Simulate SPI splitting", "[midi]") {
     });
 
     midi_in_thread.join();
+    leaf::tMappingPreset7Bit preset7Bit;
+    splitMappingPreset(&preset, &preset7Bit);
+    uint8_t _data[sizeof (leaf::tMappingPreset7Bit)+4];
+    std::memcpy(&_data[0] + 3, &preset7Bit, sizeof(preset7Bit));
+
+    uint16_t sizeOfSysexChunk = 62;
     //ignore the first byte for now and we've already checked the sysex byte tag
     uint8_t data[64];
     size_t size = 0;
+    for (int i = 0; i < 64;i++) {
+        data[i] = 0xFF;
+    }
     REQUIRE (testContext.spi_0[0] == 20 + 0);
     REQUIRE (testContext.spi_0[1] == 0xF0);
     for (int i = 0; i < 30; i++)
@@ -916,7 +926,7 @@ TEST_CASE("Simulate SPI splitting", "[midi]") {
     {
         for (int i = 0; i < 30; i++)
         {
-            data[i+32] = testContext.spi_1[i+1];
+            data[i+30] = testContext.spi_1[i+1];
             if(testContext.spi_1[i+1] == 0xF7)
             {
                 size = (i+1) + 30;
