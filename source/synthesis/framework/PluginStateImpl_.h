@@ -47,13 +47,18 @@ struct LEAFParams : public chowdsp::ParamHolder
     {
         //reinterpret_cast<T> allows for type unsafe casting
         std::array<float,MAX_NUM_PARAMS> mutable_params = empty_params;
-
-        void** yeet = reinterpret_cast<void**>(&module);
-        leaf::module_init_map[map.get<T>()](reinterpret_cast<void**>(&module), mutable_params.data(), getNextUuid(leaf) , leaf);
-        leaf::proc_init_map[map.get<T>()](reinterpret_cast<void*>(module), &processor);
+        int uuid = getNextUuid(leaf);
+        for (int i = 0; i < MAX_NUM_VOICES; ++i) {
+            leaf::module_init_map[map.get<T>()](reinterpret_cast<void**>(&modules[i]), mutable_params.data(), uuid, leaf);
+            leaf::proc_init_map[map.get<T>()](reinterpret_cast<void*>(modules[i]), &processors[i]);
+            for (int j = 0 ;j< MAX_NUM_PARAMS; j++) {
+                all_params[j][i] = &processors[i].inParameters[j];
+            }
+        }
     }
-    leaf::tProcessor processor;
-    T* module;
+    std::array<std::array<std::atomic<float>**,MAX_NUM_VOICES>,MAX_NUM_PARAMS> all_params;
+    leaf::tProcessor processors[MAX_NUM_VOICES];
+    T* modules[MAX_NUM_VOICES];
 };
     /**
  * Template type to hold a plugin's state.

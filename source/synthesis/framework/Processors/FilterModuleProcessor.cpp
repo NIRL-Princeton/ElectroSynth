@@ -29,7 +29,7 @@ FilterModuleProcessor::FilterModuleProcessor(const juce::ValueTree &v, LEAF *lea
 {
    //tOscModule_init(static_cast<void*>(module), {0, 0}, id, leaf)
     //tFiltModule_processorInit(state.params.module, &processor);
-   vt.setProperty(IDs::uuid, state.params.processor.processorUniqueID, nullptr);
+   vt.setProperty(IDs::uuid, state.params.processors[0].processorUniqueID, nullptr);
 }
 
 void FilterModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer&)
@@ -41,7 +41,7 @@ void FilterModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     auto* R = buffer.getWritePointer(1);
     for (int i = 0; i < numSamples; i++)
     {
-        tFiltModule_tick(state.params.module, L);
+        tFiltModule_tick(state.params.modules[0], L);
 
         R[i] = L[i];
     }

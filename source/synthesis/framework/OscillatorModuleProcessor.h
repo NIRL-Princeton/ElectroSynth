@@ -78,16 +78,19 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
     {
        add(harmonic, pitchOffset, pitchFine, freqOffset, glide, shape, harmonicstepped, amp, oscType);
         //add(pitchOffset);
+
     }
     chowdsp::FloatParameter::Ptr harmonic {
         juce::ParameterID{"harmonic" , 100},
         "Harmonic",
         chowdsp::ParamUtils::createNormalisableRange(-16.f, 16.f, 0.f),
         0.f,
-        &module->params[OscParams::OscHarmonic],
+        all_params[OscParams::OscHarmonic],
         [this](float val)
-        {module->setterFunctions[OscParams::OscHarmonic](this->module,val);
-        DBG("harm [0 - 1]" + juce::String(val) + " .. .  harm actual Val" + juce::String(this->module->harmonicMultiplier));
+        {
+            for (auto mod : modules)
+                mod->setterFunctions[OscParams::OscHarmonic](mod,val);
+        DBG("harm [0 - 1]" + juce::String(val) + " .. .  harm actual Val" + juce::String(modules[0]->harmonicMultiplier));
         },
         &electrosynth::utils::harmonicValToString,
         &electrosynth::utils::stringToHarmonicVal
@@ -97,10 +100,11 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
         "Pitch",
         chowdsp::ParamUtils::createNormalisableRange(-12.f, 12.f, 0.f,1.f),
         0.0f,
-        &module->params[OscParams::OscPitchOffset],
+        all_params[OscParams::OscPitchOffset],
         [this](float val)
-        {module->setterFunctions[OscParams::OscPitchOffset](this->module,val);
-        DBG("pitch [0 - 1] " + juce::String(val)  + " ... pitch actual " + juce::String(this->module->pitchOffset));
+        { for (auto mod : modules)
+            mod->setterFunctions[OscParams::OscPitchOffset](mod,val);
+        DBG("pitch [0 - 1] " + juce::String(val)  + " ... pitch actual " + juce::String(modules[0]->pitchOffset));
        },
 
         &chowdsp::ParamUtils::floatValToString,
@@ -112,10 +116,11 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
         "Pitch Fine",
         chowdsp::ParamUtils::createNormalisableRange(-1.f, 1.f,0.f),
         0.f,
-        &module->params[OscParams::OscPitchFine],
+        all_params[OscParams::OscPitchFine],
         [this]( float val)
-        {module->setterFunctions[OscParams::OscPitchFine](this->module,val);
-        DBG("fine [0 - 1] " + juce::String(val) + " ..... fine actual " + juce::String(this->module->fine));
+        {for (auto mod : modules)
+            mod->setterFunctions[OscParams::OscPitchFine](mod,val);
+        DBG("fine [0 - 1] " + juce::String(val) + " ..... fine actual " + juce::String(modules[0]->fine));
     },
         &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal
@@ -127,10 +132,11 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
         "Freq Offset",
         chowdsp::ParamUtils::createNormalisableRange(-2000.f, 2000.f,0.f),
         0.0f,
-        &module->params[OscParams::OscFreqOffset],
+        all_params[OscParams::OscFreqOffset],
         [this]( float val)
-        {module->setterFunctions[OscParams::OscFreqOffset](this->module,val);
-            DBG("freq [0 - 1] " + juce::String(val) + " .... freq actual Val" + juce::String(this->module->freqOffset));},
+        {for (auto mod : modules)
+            mod->setterFunctions[OscParams::OscFreqOffset](mod,val);
+            DBG("freq [0 - 1] " + juce::String(val) + " .... freq actual Val" + juce::String(modules[0]->freqOffset));},
         &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal
     };
@@ -141,10 +147,11 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
         "Freq Glide",
         chowdsp::ParamUtils::createNormalisableRange(0.f, 1.f,0.5f),
         0.0f,
-        &module->params[OscParams::OscGlide],
+        all_params[OscParams::OscGlide],
         [this]( float val)
-        {module->setterFunctions[OscParams::OscGlide](this->module,val);
-            //DBG("freq [0 - 1] " + juce::String(val) + " .... glide actual Val" + juce::String(this->module->glide));
+        {for (auto mod : modules)
+            mod->setterFunctions[OscParams::OscGlide](mod,val);
+            //DBG("freq [0 - 1] " + juce::String(val) + " .... glide actual Val" + juce::String(mod->glide));
         },
         &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal
@@ -155,11 +162,13 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
             "Shape",
             chowdsp::ParamUtils::createNormalisableRange(0.0f, 1.f ,0.5f),
             0.5f,
-            &module->params[OscParams::OscShapeParam],
+            all_params[OscParams::OscShapeParam],
             [this]( float val)
-            {module->setterFunctions[OscParams::OscShapeParam](this->module->theOsc,val);
+            {
+                for (auto mod : modules)
+                    mod->setterFunctions[OscParams::OscShapeParam](mod->theOsc,val);
             DBG("sghape [0 - 1]" + juce::String(val) + ".... cant see actual val");
-   },
+            },
             &chowdsp::ParamUtils::floatValToString,
             &chowdsp::ParamUtils::stringToFloatVal
         };
@@ -169,10 +178,11 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
             "amplitude",
             chowdsp::ParamUtils::createNormalisableRange(0.0f, 2.f ,1.f),
             0.8f,
-            &module->params[OscParams::OscAmpParam],
+            all_params[OscParams::OscAmpParam],
             [this]( float val)
-            {module->setterFunctions[OscParams::OscAmpParam](this->module,val);
-            DBG("amp [0 - 1] " + juce::String(val) + ".. .... amp actual " + juce::String(this->module->amp));
+            {for (auto mod : modules)
+                mod->setterFunctions[OscParams::OscAmpParam](mod,val);
+            DBG("amp [0 - 1] " + juce::String(val) + ".. .... amp actual " + juce::String(modules[0]->amp));
             },
             &chowdsp::ParamUtils::floatValToString,
             &chowdsp::ParamUtils::stringToFloatVal
@@ -182,11 +192,12 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
         juce::ParameterID{"harmonicStepped" , 100},
         "Harmonic stepped",
         0.0,
-        &module->params[OscParams::OscSteppedHarmonic],
+        all_params[OscParams::OscSteppedHarmonic],
         [this]( float val)
-        {module->setterFunctions[OscParams::OscSteppedHarmonic](this->module,val);
+        {for (auto mod : modules)
+            mod->setterFunctions[OscParams::OscSteppedHarmonic](mod,val);
             //harmonic->range.interval = val;
-            DBG("amp [0 - 1] " + juce::String(val) + ".. .... stepped harmonic actual " + juce::String(this->module->hStepped));
+            DBG("amp [0 - 1] " + juce::String(val) + ".. .... stepped harmonic actual " + juce::String(modules[0]->hStepped));
         }
     };
 
@@ -194,10 +205,10 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
         juce::ParameterID{"oscType" , 100},
         "Oscillator Type",
         FlagOscTypes::OscTypePulse,
-        &module->params[OscParams::OscType],
+        all_params[OscParams::OscType],
         [this](float val){
-        //{module->setterFunctions[OscParams::OscType](this->module,val);
-           // DBG("harm [0 - 1]" + juce::String(val) + " .. .  harm actual Val" + juce::String(this->module->harmonicMultiplier));
+        //{module->setterFunctions[OscParams::OscType](mod,val);
+           // DBG("harm [0 - 1]" + juce::String(val) + " .. .  harm actual Val" + juce::String(mod->harmonicMultiplier));
         }
     };
     chowdsp::BoolParameter::Ptr pitchStepped
@@ -205,11 +216,12 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
     juce::ParameterID{"pitchStepped" , 100},
     "Harmonic stepped",
     0.0,
-    &module->params[OscParams::OscSteppedPitch],
+    all_params[OscParams::OscSteppedPitch],
     [this]( float val)
-    {module->setterFunctions[OscParams::OscSteppedPitch](this->module,val);
+    {for (auto mod : modules)
+        mod->setterFunctions[OscParams::OscSteppedPitch](mod,val);
         //harmonic->range.interval = val;
-        DBG("amp [0 - 1] " + juce::String(val) + ".. .... stepped pitch actual " + juce::String(this->module->pStepped));
+        DBG("amp [0 - 1] " + juce::String(val) + ".. .... stepped pitch actual " + juce::String(modules[0]->pStepped));
     }
 };
 

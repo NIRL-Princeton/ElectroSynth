@@ -31,9 +31,9 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
             "Attack",
             chowdsp::ParamUtils::createNormalisableRange (0.0f, 10000.0f, 500.0f),
             1.0f,
-            &module->params[EnvParams::EnvAttack],
+            all_params[EnvParams::EnvAttack],
             [this] (float val) {
-                module->setterFunctions[EnvParams::EnvAttack](this->module, val);
+                for (auto mod: modules) mod->setterFunctions[EnvParams::EnvAttack](mod, val);
             }
     };
 
@@ -47,9 +47,9 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
         "Decay",
         chowdsp::ParamUtils::createNormalisableRange (0.0f, 1000.0f, 500.0f),
         0.0f,
-        &module->params[EnvParams::EnvDecay],
+        all_params[EnvParams::EnvDecay],
         [this] (float val) {
-            module->setterFunctions[EnvParams::EnvDecay](this->module, val);
+            for (auto mod: modules) mod->setterFunctions[EnvParams::EnvDecay](mod, val);
         }
     };
 
@@ -60,9 +60,9 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
         "Sustain",
         chowdsp::ParamUtils::createNormalisableRange (0.0f, 1.0f, 0.5f),
         1.0f,
-        &module->params[EnvParams::EnvSustain],
+        all_params[EnvParams::EnvSustain],
         [this] (float val) {
-            module->setterFunctions[EnvParams::EnvSustain](this->module, val);
+            for (auto mod: modules) mod->setterFunctions[EnvParams::EnvSustain](mod, val);
         },
         &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal
@@ -74,9 +74,9 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
         "Release",
         chowdsp::ParamUtils::createNormalisableRange (0.0f, 10000.0f, 500.0f),
         50.0f,
-        &module->params[EnvParams::EnvRelease],
+        all_params[EnvParams::EnvRelease],
         [this] (float val) {
-            module->setterFunctions[EnvParams::EnvRelease](this->module, val);
+            for (auto mod: modules) mod->setterFunctions[EnvParams::EnvRelease](mod, val);
         }
     };
 

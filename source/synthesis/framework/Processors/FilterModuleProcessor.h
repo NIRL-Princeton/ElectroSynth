@@ -29,10 +29,11 @@ struct FilterParams : public LEAFParams<_tFiltModule >
         "Cutoff",
         chowdsp::ParamUtils::createNormalisableRange(0.0f, 127.f, 60.f),
         60.f,
-        &module->params[FiltParams::FiltCutoff],
+        all_params[FiltParams::FiltCutoff],
         [this](float val)
-        {processor.setterFunctions[FiltParams::FiltCutoff](this->module,val);
-        DBG("Filt [0 - 1]" + juce::String(val) + " .. .  Filt actual Val" + juce::String(this->module->cutoffKnob));
+        {
+            for (auto mod: modules) mod->setterFunctions[FiltParams::FiltCutoff](mod,val);
+        DBG("Filt [0 - 1]" + juce::String(val) + " .. .  Filt actual Val" + juce::String(modules[0]->cutoffKnob));
         }
     };
 
@@ -41,9 +42,9 @@ struct FilterParams : public LEAFParams<_tFiltModule >
         "Q",
         chowdsp::ParamUtils::createNormalisableRange(0.1f, 1.0f, 0.5f),
         1.f,
-        &module->params[FiltParams::FiltResonance],
+        all_params[FiltParams::FiltResonance],
         [this](float val)
-        {processor.setterFunctions[FiltParams::FiltResonance](this->module,val);
+        {for (auto mod: modules) mod->setterFunctions[FiltParams::FiltResonance](mod,val);
                                            },
         &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal
@@ -53,9 +54,9 @@ struct FilterParams : public LEAFParams<_tFiltModule >
         "amp",
         chowdsp::ParamUtils::createNormalisableRange(0.0f, 2.0f, 1.0f),
         1.f,
-        &module->params[FiltParams::FiltGain],
+        all_params[FiltParams::FiltGain],
         [this](float val)
-        {processor.setterFunctions[FiltParams::FiltGain](this->module,val);
+        {for (auto mod: modules) mod->setterFunctions[FiltParams::FiltGain](mod,val);
                                             },
     };
 

@@ -22,9 +22,9 @@ struct LFOParamHolder : public LEAFParams<_tLFOModule>
         "Rate",
         chowdsp::ParamUtils::createNormalisableRange (0.0f,30.f,15.f),
         15.0f,
-        &module->params[LFOParams::LFORateParam],
+        all_params[LFOParams::LFORateParam],
         [this] (float val) {
-            module->setterFunctions[LFOParams::LFORateParam](this->module, val);
+            for (auto mod: modules) mod->setterFunctions[LFOParams::LFORateParam](mod, val);
         }
     };
 
@@ -34,9 +34,9 @@ struct LFOParamHolder : public LEAFParams<_tLFOModule>
         "Shape",
         chowdsp::ParamUtils::createNormalisableRange (0.0f,1.f,0.5f),
         0.5f,
-        &module->params[LFOParams::LFOShapeParam],
+        all_params[LFOParams::LFOShapeParam],
         [this] (float val) {
-            module->setterFunctions[LFOParams::LFOShapeParam](this->module, val);
+            for (auto mod: modules) mod->setterFunctions[LFOParams::LFOShapeParam](mod, val);
         },
         &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal
@@ -47,9 +47,9 @@ struct LFOParamHolder : public LEAFParams<_tLFOModule>
         "Phase",
         chowdsp::ParamUtils::createNormalisableRange (0.0f,1.0f,0.5f),
         0.0f,
-        &module->params[LFOParams::LFOShapeParam],
+        all_params[LFOParams::LFOShapeParam],
         [this] (float val) {
-            module->setterFunctions[LFOParams::LFOShapeParam](this->module, val);
+            for (auto mod: modules) mod->setterFunctions[LFOParams::LFOShapeParam](mod, val);
         },
         &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal

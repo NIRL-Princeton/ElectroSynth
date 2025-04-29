@@ -33,14 +33,19 @@ OscillatorModuleProcessor::OscillatorModuleProcessor(const juce::ValueTree &v, L
         state.addParameterListener (*state.params.oscType, chowdsp::ParameterListenerThread::AudioThread, [this] {
             auto theType = state.params.oscType.get();
             float val =  (float)theType->getIndex() / (float)OscTypes::OscNumTypes;
-            state.params.module->setterFunctions[OscParams::OscType](state.params.module,val);
+            for (auto mod: state.params.modules) {
+                mod->setterFunctions[OscParams::OscType](mod,val);
+                mod->setterFunctions[OscParams::OscShapeParam](mod->theOsc, *mod->params[OscShapeParam]);
             //also need to update the shape since the new oscillator type will default to its initial shape instead
-            state.params.module->setterFunctions[OscParams::OscShapeParam](state.params.module->theOsc, state.params.module->params[OscShapeParam]);
+            }
+
+
+
         })
     };
-    vt.setProperty(IDs::uuid, state.params.processor.processorUniqueID, nullptr);
+    vt.setProperty(IDs::uuid, state.params.processors[0].processorUniqueID, nullptr);
     name = vt.getProperty(IDs::type).toString() + vt.getProperty(IDs::uuid).toString();
-    proc = &state.params.processor;
+    proc = state.params.processors;
 
    //tOscModule_init(static_cast<void*>(module), {0, 0}, id, leaf)
     //tOscModule_processorInit(state.params.module, &processor);
@@ -57,8 +62,9 @@ void OscillatorModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     auto* R = buffer.getWritePointer(1);
     for (int i = 0; i < numSamples; i++)
     {
-        tOscModule_tick(state.params.module,L);
-        L[i] += state.params.module->outputs[0];
+
+        tOscModule_tick(state.params.modules[0],L);
+        L[i] += state.params.modules[0]->outputs[0];
         R[i] = L[i];
     }
 
