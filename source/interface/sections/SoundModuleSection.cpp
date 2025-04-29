@@ -9,6 +9,7 @@
 #include "synth_gui_interface.h"
 #include "Processors/ProcessorBase.h"
 #include "modulation_manager.h"
+#include "StringModuleProcessor.h"
 SoundModuleSection::SoundModuleSection(ValueTree &v, ModulationManager *m) : ModulesInterface<ModuleSection>(v)
 {
     scroll_bar_ = std::make_unique<OpenGlScrollBar>();
@@ -18,6 +19,7 @@ SoundModuleSection::SoundModuleSection(ValueTree &v, ModulationManager *m) : Mod
     scroll_bar_->addListener(this);
     factory.registerType<OscillatorModuleProcessor, juce::ValueTree, LEAF*>("osc");
     factory.registerType<FilterModuleProcessor, juce::ValueTree, LEAF*>("filt");
+    factory.registerType<StringModuleProcessor, juce::ValueTree, LEAF*>("string");
     addListener(m);
 }
 
@@ -39,7 +41,12 @@ void SoundModuleSection::handlePopupResult(int result) {
         juce::ValueTree t(IDs::MODULE);
         t.setProperty(IDs::type, "filt", nullptr);
         parent.appendChild(t,nullptr);
+    } else if (result == 3) {
+        juce::ValueTree t(IDs::MODULE);
+        t.setProperty(IDs::type, "string", nullptr);
+        parent.appendChild(t,nullptr);
     }
+
     //    if (result == kArmMidiLearn)
     //        synth->armMidiLearn(getName().toStdString());
     //    else if (result == kClearMidiLearn)
@@ -102,6 +109,7 @@ PopupItems SoundModuleSection::createPopupMenu()
     PopupItems options;
     options.addItem(1, "add osc" );
     options.addItem(2, "add filt");
+    options.addItem(3, "add string");
     return options;
 }
 
