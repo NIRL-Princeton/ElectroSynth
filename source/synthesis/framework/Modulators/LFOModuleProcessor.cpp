@@ -3,8 +3,8 @@
 //
 
 #include "LFOModuleProcessor.h"
-LFOModuleProcessor::LFOModuleProcessor(juce::ValueTree& vt, LEAF* leaf)
-    :ModulatorStateBase<PluginStateImpl_<LFOParamHolder, _tLFOModule>>(leaf,vt )
+LFOModuleProcessor::LFOModuleProcessor(electrosynth::SoundEngine* engine,juce::ValueTree& vt, LEAF* leaf)
+    :ModulatorStateBase<PluginStateImpl_<LFOParamHolder, _tLFOModule>>(engine,leaf,vt )
 {
     procArray = &state.params.processors[0];
     vt.setProperty(IDs::uuid, state.params.processors[0].processorUniqueID, nullptr);
@@ -12,10 +12,6 @@ LFOModuleProcessor::LFOModuleProcessor(juce::ValueTree& vt, LEAF* leaf)
 }
 
 void LFOModuleProcessor::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill)
-{
-    //proc->tick(proc->object, nullptr);
-}
-void LFOModuleProcessor::process()
 {
     //proc->tick(proc->object, nullptr);
 }

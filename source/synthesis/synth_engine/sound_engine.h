@@ -144,7 +144,6 @@ namespace electrosynth {
 
       leaf::tProcessor * getLeafProcessorFromUUID(int uuid);
       char memory[16777216];
-      juce::AudioSampleBuffer bu{2,1};
       LEAF leaf;
 
       int numVoicesActive = 1;
@@ -154,6 +153,7 @@ namespace electrosynth {
             tSimplePoly voices[MAX_NUM_VOICES];
             bool voiceIsSounding[MAX_NUM_VOICES];
             bool mpeMode;
+            int numVoicesActive;
             tEventEmitter eventEmitter;
       };
 
@@ -163,6 +163,7 @@ namespace electrosynth {
       int last_sample_rate_;
       int buffer_size;
       int curr_sample_rate;
+      juce::AudioBuffer<float> temp_voice_buffer{MAX_NUM_VOICES*2,1};
 //      Value* oversampling_;
 //      Value* bps_;
 //      Value* legato_;

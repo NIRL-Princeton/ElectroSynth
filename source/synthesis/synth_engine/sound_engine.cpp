@@ -33,10 +33,13 @@ namespace electrosynth {
       tSimplePoly_init(&voiceHandler.voices[0], MAX_NUM_VOICES, &leaf);
       tSimplePoly_setNumVoices(voiceHandler.voices[0], (uint8_t)numVoicesActive);
        voiceHandler.voiceNote[0] = 0;
+      voiceHandler.numVoicesActive = MAX_NUM_VOICES;
        for (uint8_t i = 1; i < MAX_NUM_VOICES; i++)
        {
             tSimplePoly_init(&voiceHandler.voices[i], MAX_NUM_VOICES, &leaf);
-
+           voiceHandler.voices[i] = 0;
+           voiceHandler.voiceIsSounding[i] = false;
+           voiceHandler.voicePrevBend[i] = 0.0f;
        }
 
   }
@@ -110,7 +113,7 @@ namespace electrosynth {
       //VITAL_ASSERT(num_samples <= output()->buffer_size);
       juce::FloatVectorOperations::disableDenormalisedNumberSupport();
       audio_buffer.clear();
-      bu.clear();
+      temp_voice_buffer.clear();
       //juce::MidiBuffer midimessages;
 
       for (int i = 0; i < audio_buffer.getNumSamples(); i++){
@@ -126,12 +129,12 @@ namespace electrosynth {
           {
               for (auto proc : proc_chain)
               {
-                  proc->processBlock (bu, empty);
+                  proc->processBlock (temp_voice_buffer, empty);
 
               }
-              audio_buffer.addSample(0,i,bu.getSample(0,0));
-              audio_buffer.addSample(1,i,bu.getSample(1,0));
-              bu.clear();
+              audio_buffer.addSample(0,i,temp_voice_buffer.getSample(0,0));
+              audio_buffer.addSample(1,i,temp_voice_buffer.getSample(1,0));
+              temp_voice_buffer.clear();
           }
 
       }
@@ -147,7 +150,7 @@ namespace electrosynth {
     //VITAL_ASSERT(num_samples <= output()->buffer_size);
     juce::FloatVectorOperations::disableDenormalisedNumberSupport();
     audio_buffer.clear();
-    bu.clear();
+    temp_voice_buffer.clear();
     //juce::MidiBuffer midimessages;
 
     for (int i = 0; i < audio_buffer.getNumSamples(); i++){
@@ -163,12 +166,12 @@ namespace electrosynth {
       {
           for (auto proc : proc_chain)
           {
-              proc->processBlock (bu, midi_buffer);
+              proc->processBlock (temp_voice_buffer, midi_buffer);
 
           }
-          audio_buffer.addSample(0,i,bu.getSample(0,0));
-          audio_buffer.addSample(1,i,bu.getSample(1,0));
-          bu.clear();
+          audio_buffer.addSample(0,i,temp_voice_buffer.getSample(0,0));
+          audio_buffer.addSample(1,i,temp_voice_buffer.getSample(1,0));
+          temp_voice_buffer.clear();
       }
 
   }
@@ -234,7 +237,8 @@ namespace electrosynth {
                                                     (voiceHandler.eventEmitter.listeners[v][i].object,kNoteOn);
 
               }
-             // float norm = key / float(midiKeyMax - midiKeyMin);
+              voiceHandler.voiceIsSounding[v] = true;
+             // float norm = key / float(mkkkidiKeyMax - midiKeyMin);
 
           }
       }

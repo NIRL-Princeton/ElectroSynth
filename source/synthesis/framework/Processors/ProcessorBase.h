@@ -7,12 +7,14 @@
 #include "PluginStateImpl_.h"
 #include "leaf.h"
 #include "ParameterView/ParametersView.h"
-
+namespace electrosynth {
+    class SoundEngine;
+}
 class ProcessorBase : public juce::AudioSource
 {
 public:
-    explicit ProcessorBase( LEAF* leaf,const juce::ValueTree& tree, juce::UndoManager* um = nullptr) :
-
+    explicit ProcessorBase(electrosynth::SoundEngine* engine, LEAF* leaf,const juce::ValueTree& tree, juce::UndoManager* um = nullptr) :
+        engine(engine),
         leaf(leaf),
         vt(tree)
     {
@@ -23,20 +25,20 @@ public:
     juce::ValueTree vt;
     leaf::Processor* procArray;
     juce::String name;
-    virtual void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) = 0;
+    virtual void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&);
     void getNextAudioBlock (const juce::AudioSourceChannelInfo &bufferToFill) override {}
     void prepareToPlay (int samplesPerBlock, double sampleRate ) override {}
     void releaseResources() override {}
     virtual electrosynth::ParametersView* createEditor() = 0;
-
+    electrosynth::SoundEngine* engine;
 };
 
 
 template <typename PluginStateType>
 class ProcessorStateBase : public ProcessorBase{
 public :
-    ProcessorStateBase(LEAF* leaf, const juce::ValueTree& tree, juce::UndoManager* um = nullptr)
-    : ProcessorBase(leaf, tree, um),
+    ProcessorStateBase(electrosynth::SoundEngine* engine,LEAF* leaf, const juce::ValueTree& tree, juce::UndoManager* um = nullptr)
+    : ProcessorBase(engine,leaf, tree, um),
           state(leaf)
     {
 

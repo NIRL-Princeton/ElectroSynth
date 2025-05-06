@@ -9,6 +9,11 @@
 #include "Modulators/LFOModuleProcessor.h"
 #include "synth_gui_interface.h"
 #include "modulation_manager.h"
+#include "synth_base.h"
+
+namespace electrosynth {
+    class SoundEngine;
+}
 
 ModulationModuleSection::ModulationModuleSection(ValueTree &v, ModulationManager *modulation_manager) : ModulesInterface<ModulationSection>(v), modulation_manager(modulation_manager)
 {
@@ -21,8 +26,8 @@ ModulationModuleSection::ModulationModuleSection(ValueTree &v, ModulationManager
     Skin default_skin;
     setSkinValues(default_skin,false);
     viewport_.setScrollBarsShown(false, false, false, true);
-    factory.registerType<EnvModuleProcessor, juce::ValueTree, LEAF*>("env");
-    factory.registerType<LFOModuleProcessor, juce::ValueTree, LEAF*>("lfo");
+    factory.registerType<EnvModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*>("env");
+    factory.registerType<LFOModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*>("lfo");
 
     addListener(modulation_manager);
     //setInterceptsMouseClicks(false, true);
@@ -144,11 +149,11 @@ ModulationSection* ModulationModuleSection::createNewObject (const juce::ValueTr
 {
     auto parent = findParentComponentOfClass<SynthGuiInterface>();
     LEAF* leaf = parent->getLEAF();
-    std::any args = std::make_tuple( v,leaf );
+    std::any args = std::make_tuple( parent->getSynth()->getEngine(),v,leaf );
 
 //    try {
 
-        auto proc = factory.create(v.getProperty(IDs::type).toString().toStdString(),std::make_tuple( v,leaf ));
+        auto proc = factory.create(v.getProperty(IDs::type).toString().toStdString(),args);
         auto *module_section = new ModulationSection( v,(proc->createEditor()));
         container_->addSubSection(module_section);
         parent->tryEnqueueProcessorInitQueue(

@@ -7,12 +7,14 @@
 #include "PluginStateImpl_.h"
 #include "leaf.h"
 #include "ParameterView/ParametersView.h"
-
+namespace electrosynth {
+    class SoundEngine;
+}
 class ModulatorBase : public juce::AudioSource
 {
 public:
-    explicit ModulatorBase( LEAF* leaf,juce::ValueTree& tree, juce::UndoManager* um = nullptr) :
-
+    explicit ModulatorBase( electrosynth::SoundEngine* engine,LEAF* leaf,juce::ValueTree& tree, juce::UndoManager* um = nullptr) :
+        engine(engine),
         leaf(leaf),
         vt(tree)
     {
@@ -23,20 +25,20 @@ public:
     juce::ValueTree vt;
     leaf::Processor* procArray;
     juce::String name;
-    virtual void process() =0;
+    virtual void process();
     void getNextAudioBlock (const juce::AudioSourceChannelInfo &bufferToFill) override {}
     void prepareToPlay (int samplesPerBlock, double sampleRate ) override {}
     void releaseResources() override {}
     virtual electrosynth::ParametersView* createEditor() = 0;
-
+    electrosynth::SoundEngine* engine;
 };
 
 
 template <typename PluginStateType>
 class ModulatorStateBase : public ModulatorBase{
 public :
-    ModulatorStateBase(LEAF* leaf, juce::ValueTree& tree, juce::UndoManager* um = nullptr)
-    : ModulatorBase(leaf, tree, um),
+    ModulatorStateBase(electrosynth::SoundEngine* engine, LEAF* leaf, juce::ValueTree& tree, juce::UndoManager* um = nullptr)
+    : ModulatorBase(engine, leaf, tree, um),
           state(leaf)
     {
 

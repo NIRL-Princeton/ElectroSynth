@@ -10,6 +10,7 @@
 #include "Processors/ProcessorBase.h"
 #include "modulation_manager.h"
 #include "../../synthesis/framework/Processors/StringModuleProcessor.h"
+#include "synth_base.h"
 SoundModuleSection::SoundModuleSection(ValueTree &v, ModulationManager *m) : ModulesInterface<ModuleSection>(v)
 {
     scroll_bar_ = std::make_unique<OpenGlScrollBar>();
@@ -17,9 +18,9 @@ SoundModuleSection::SoundModuleSection(ValueTree &v, ModulationManager *m) : Mod
     addAndMakeVisible(scroll_bar_.get());
     addOpenGlComponent(scroll_bar_->getGlComponent());
     scroll_bar_->addListener(this);
-    factory.registerType<OscillatorModuleProcessor, juce::ValueTree, LEAF*>("osc");
-    factory.registerType<FilterModuleProcessor, juce::ValueTree, LEAF*>("filt");
-    factory.registerType<StringModuleProcessor, juce::ValueTree, LEAF*>("string");
+    factory.registerType<OscillatorModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*>("osc");
+    factory.registerType<FilterModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*>("filt");
+    factory.registerType<StringModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*>("string");
     addListener(m);
 }
 
@@ -118,11 +119,11 @@ ModuleSection* SoundModuleSection::createNewObject (const juce::ValueTree& v)
 {
     auto parent = findParentComponentOfClass<SynthGuiInterface>();
     LEAF* leaf = parent->getLEAF();
-    std::any args = std::make_tuple( v,leaf );
+    std::any args = std::make_tuple(parent->getSynth()->getEngine(), v,leaf );
 
     try {
 
-        auto proc = factory.create(v.getProperty(IDs::type).toString().toStdString(),std::make_tuple( v,leaf ));
+        auto proc = factory.create(v.getProperty(IDs::type).toString().toStdString(),args);
         auto *module_section = new ModuleSection(v.getProperty(IDs::type).toString() + v.getProperty(IDs::uuid).toString() , v, (proc->createEditor()));
         container_->addSubSection(module_section);
         module_section->setInterceptsMouseClicks(false,true);

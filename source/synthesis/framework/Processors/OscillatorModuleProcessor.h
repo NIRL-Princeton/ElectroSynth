@@ -247,7 +247,7 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
 class OscillatorModuleProcessor : public ProcessorStateBase<PluginStateImpl_<OscillatorParams, _tOscModule>>
 {
 public:
-    OscillatorModuleProcessor(const juce::ValueTree&, LEAF* leaf);
+    OscillatorModuleProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree&, LEAF* leaf);
 
     void getNextAudioBlock (const juce::AudioSourceChannelInfo &bufferToFill) override {}
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;

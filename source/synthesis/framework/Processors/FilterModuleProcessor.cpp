@@ -25,7 +25,7 @@
 //    else
 //        return juce::String(harmonic);
 //}
-FilterModuleProcessor::FilterModuleProcessor(const juce::ValueTree &v, LEAF *leaf) : ProcessorStateBase<PluginStateImpl_<FilterParams, _tFiltModule>>(leaf,v)
+FilterModuleProcessor::FilterModuleProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree &v, LEAF *leaf) : ProcessorStateBase<PluginStateImpl_<FilterParams, _tFiltModule>>(engine,leaf,v)
 {
    //tOscModule_init(static_cast<void*>(module), {0, 0}, id, leaf)
     //tFiltModule_processorInit(state.params.module, &processor);
@@ -42,7 +42,7 @@ void FilterModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     auto* R = buffer.getWritePointer(1);
     for (int i = 0; i < numSamples; i++)
     {
-        tFiltModule_tick(state.params.modules[0], L);
+        (state.params.modules[0], L);
 
         R[i] = L[i];
     }

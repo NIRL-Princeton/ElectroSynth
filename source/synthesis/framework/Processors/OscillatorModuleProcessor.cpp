@@ -4,6 +4,7 @@
 
 #include "OscillatorModuleProcessor.h"
 #include "Identifiers.h"
+#include "sound_engine.h"
 float electrosynth::utils::stringToHarmonicVal(const juce::String &s){
     if(!s.contains("/"))
     {
@@ -24,7 +25,7 @@ juce::String electrosynth::utils::harmonicValToString(float harmonic)
     else
         return juce::String(round(harmonic));
 }
-OscillatorModuleProcessor::OscillatorModuleProcessor(const juce::ValueTree &v, LEAF *leaf) :ProcessorStateBase<PluginStateImpl_<OscillatorParams, _tOscModule>>(leaf,v)
+OscillatorModuleProcessor::OscillatorModuleProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree &v, LEAF *leaf) :ProcessorStateBase<PluginStateImpl_<OscillatorParams, _tOscModule>>(engine,leaf,v)
 
 
 {
@@ -51,21 +52,23 @@ OscillatorModuleProcessor::OscillatorModuleProcessor(const juce::ValueTree &v, L
     //tOscModule_processorInit(state.params.module, &processor);
 }
 
-void OscillatorModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer&)
+void OscillatorModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midi)
 {
     state.getParameterListeners().callAudioThreadBroadcasters();
     int numSamples = buffer.getNumSamples();
     //buffer.clear();
 
-//    auto* samplesL = buffer.getReadPointer(0);
-    auto* L = buffer.getWritePointer(0);
-    auto* R = buffer.getWritePointer(1);
-    for (int i = 0; i < numSamples; i++)
-    {
-
-        tOscModule_tick(state.params.modules[0],L);
-        L[i] += state.params.modules[0]->outputs[0];
-        R[i] = L[i];
+    //    auto* samplesL = buffer.getReadPointer(0);
+    for (int v = 0; v < engine->numVoicesActive; v++) {
+        if (!engine->voiceHandler.voiceIsSounding[v]) continue;
+        auto* L = buffer.getWritePointer(0);
+        auto* R = buffer.getWritePointer(1);
+        for (int i = 0; i < numSamples; i++)
+        {
+            procArray[v].tick(procArray[v].object,L);
+            L[i] += procArray[v].outParameters[0];
+            R[i] = L[i];
+        }
     }
-
+    // ProcessorBase::processBlock(buffer,midi);
 }

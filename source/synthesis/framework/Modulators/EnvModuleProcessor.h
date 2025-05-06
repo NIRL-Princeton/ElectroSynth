@@ -99,8 +99,7 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
 class EnvModuleProcessor : public ModulatorStateBase<PluginStateImpl_<EnvParamHolder, _tEnvModule >>
 {
 public:
-    EnvModuleProcessor(juce::ValueTree&, LEAF* leaf);
-    void process() override;
+    EnvModuleProcessor(electrosynth::SoundEngine* engine,juce::ValueTree&, LEAF* leaf);
     void getNextAudioBlock (const juce::AudioSourceChannelInfo &bufferToFill) override {}
     void prepareToPlay (int samplesPerBlock, double sampleRate ) override {}
     void releaseResources() override {}
