@@ -22,7 +22,19 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
             );
     }
 
-
+    // Sustain param
+    chowdsp::FloatParameter::Ptr envwatchparam {
+        juce::ParameterID { "watch", 100 },
+        "watch",
+        chowdsp::ParamUtils::createNormalisableRange (0.0f, 1.0f, 0.5f),
+        1.0f,
+        all_params[EnvEventWatchFlag],
+        [this] (float val) {
+           // for (auto mod: modules) mod->setterFunctions[EnvParams::EnvSustain](mod, val);
+        },
+        &chowdsp::ParamUtils::floatValToString,
+        &chowdsp::ParamUtils::stringToFloatVal
+    };
 
     // Attack param
     chowdsp::TimeMsParameter::Ptr attackParam

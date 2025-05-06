@@ -49,7 +49,9 @@ namespace electrosynth {
 
 
       }
+      juce::MidiBuffer empty;
       void process(juce::AudioSampleBuffer&, juce::MidiBuffer &);
+      void process(juce::AudioSampleBuffer&);
       void processMappings();
       void releaseResources()
       {}

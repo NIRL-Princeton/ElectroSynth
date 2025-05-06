@@ -51,9 +51,9 @@ struct LEAFParams : public chowdsp::ParamHolder
         for (int i = 0; i < MAX_NUM_VOICES; ++i) {
             leaf::module_init_map[map.get<T>()](reinterpret_cast<void**>(&modules[i]), mutable_params.data(), uuid, leaf);
             leaf::proc_init_map[map.get<T>()](reinterpret_cast<void*>(modules[i]), &processors[i]);
-            for (int i = 0; i < MAX_NUM_PARAMS; ++i) {
-                &processors[i].inParameters
-            }
+            // for (int i = 0; i < MAX_NUM_PARAMS; ++i) {
+            //     &processors[i].inParameters
+            // }
             for (int j = 0 ;j< MAX_NUM_PARAMS; j++) {
                 all_params[j][i] = &processors[i].inParameters[j];
             }

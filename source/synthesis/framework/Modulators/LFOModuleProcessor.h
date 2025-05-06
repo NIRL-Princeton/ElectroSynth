@@ -15,7 +15,19 @@ struct LFOParamHolder : public LEAFParams<_tLFOModule>
         add(rateParam);
     }
 
-
+    //add env watch param so that it isnt null
+    chowdsp::FloatParameter::Ptr envwatchparam {
+        juce::ParameterID { "watch", 100 },
+        "watch",
+        chowdsp::ParamUtils::createNormalisableRange (0.0f, 1.0f, 0.5f),
+        1.0f,
+        all_params[0],
+        [this] (float val) {
+            // for (auto mod: modules) mod->setterFunctions[EnvParams::EnvSustain](mod, val);
+        },
+        &chowdsp::ParamUtils::floatValToString,
+        &chowdsp::ParamUtils::stringToFloatVal
+    };
     // Release param
     chowdsp::FreqHzParameter::Ptr rateParam {
         juce::ParameterID { "rate", 100 },

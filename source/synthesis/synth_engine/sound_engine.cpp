@@ -105,7 +105,43 @@ namespace electrosynth {
           processMapping(&mapping->mapping_);
       }
   }
+    void SoundEngine::process(juce::AudioSampleBuffer &audio_buffer )
+  {
+      //VITAL_ASSERT(num_samples <= output()->buffer_size);
+      juce::FloatVectorOperations::disableDenormalisedNumberSupport();
+      audio_buffer.clear();
+      bu.clear();
+      //juce::MidiBuffer midimessages;
 
+      for (int i = 0; i < audio_buffer.getNumSamples(); i++){
+          processMappings();
+          for (auto modulator_chain : modSources)
+          {
+              for(auto modulator : modulator_chain)
+              {
+                  modulator->process();
+              }
+          }
+          for (auto proc_chain : processors)
+          {
+              for (auto proc : proc_chain)
+              {
+                  proc->processBlock (bu, empty);
+
+              }
+              audio_buffer.addSample(0,i,bu.getSample(0,0));
+              audio_buffer.addSample(1,i,bu.getSample(1,0));
+              bu.clear();
+          }
+
+      }
+      //melatonin::printSparkline (audio_buffer);
+      if (getNumActiveVoices() == 0)
+      {
+
+      }
+      //   bufferDebugger->capture("main out", audio_buffer.getReadPointer(0), audio_buffer.getNumSamples(), -20.f, 20.f);
+  }
   void SoundEngine::process(juce::AudioSampleBuffer &audio_buffer, juce::MidiBuffer& midi_buffer )
   {
     //VITAL_ASSERT(num_samples <= output()->buffer_size);

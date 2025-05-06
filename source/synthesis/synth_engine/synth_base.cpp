@@ -180,7 +180,7 @@ void SynthBase::addModulationSource(std::shared_ptr<ModulatorBase> modulationSou
     modulationSource->prepareToPlay(engine_->getBufferSize(), engine_->getSampleRate());
     engine_->modSources.emplace_back(std::initializer_list<std::shared_ptr<ModulatorBase>>{static_cast<const std::shared_ptr<ModulatorBase>> (modulationSource)});
     leaf::tProcessor* proc0 = &modulationSource->procArray[0];
-    float watchParameter = *proc0->inParameters[EVENT_WATCH_INDEX];
+    std::atomic<float>* watchParameter = proc0->inParameters[EVENT_WATCH_INDEX];
     if (*proc0->inParameters[EVENT_WATCH_INDEX] == 1) {
         for (int i = 0; i < MAX_NUM_VOICES; i++)
             engine_->voiceHandler.eventEmitter.listeners[i][engine_->voiceHandler.eventEmitter.numListeners] = modulationSource->procArray[i];
@@ -269,10 +269,9 @@ void SynthBase::processAudio(AudioSampleBuffer* buffer, int channels, int sample
    AudioThreadAction action;
    while (processorInitQueue.try_dequeue (action))
        action();
-   AudioThreadAction action_;
-   while (modulationInitQueue.try_dequeue (action_))
-       action();//engine_->process(samples, *buffer);
-   writeAudio(buffer, channels, samples, offset);
+    processMappingChanges();
+    engine_->process(*buffer);
+   //writeAudio(buffer, channels, samples, offset);
 }
 void SynthBase::processAudioAndMidi(juce::AudioBuffer<float>& audio_buffer, juce::MidiBuffer& midi_buffer) //, int channels, int samples, int offset, int start_sample = 0, int end_sample = 0)
 {
