@@ -5,10 +5,10 @@
 #ifndef ELECTROSYNTH_STRINGMODULEPROCESSOR_H
 #define ELECTROSYNTH_STRINGMODULEPROCESSOR_H
 #include "StringModule.h"
-#include "PluginStateImpl_.h"
+#include "../PluginStateImpl_.h"
 #include "ParameterView/ParametersView.h"
 #include "Identifiers.h"
-#include "Processors/ProcessorBase.h"
+#include "ProcessorBase.h"
 namespace electrosynth{
     namespace utils
     {
@@ -182,7 +182,7 @@ public:
     {
         vt.setProperty(IDs::uuid, state.params.processors[0].processorUniqueID, nullptr);
         name = vt.getProperty(IDs::type).toString() + vt.getProperty(IDs::uuid).toString();
-        proc = state.params.processors;
+        procArray = &state.params.processors[0];
     }
 
     void processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midi) override;

@@ -3,13 +3,13 @@
 //
 
 #include "SoundModuleSection.h"
-#include "OscillatorModuleProcessor.h"
+#include "../../synthesis/framework/Processors/OscillatorModuleProcessor.h"
 #include "FilterModuleProcessor.h"
 #include  "ModuleSections/ModuleSection.h"
 #include "synth_gui_interface.h"
 #include "Processors/ProcessorBase.h"
 #include "modulation_manager.h"
-#include "StringModuleProcessor.h"
+#include "../../synthesis/framework/Processors/StringModuleProcessor.h"
 SoundModuleSection::SoundModuleSection(ValueTree &v, ModulationManager *m) : ModulesInterface<ModuleSection>(v)
 {
     scroll_bar_ = std::make_unique<OpenGlScrollBar>();

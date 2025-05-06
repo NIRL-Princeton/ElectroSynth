@@ -5,10 +5,10 @@
 #ifndef ELECTROSYNTH_OSCILLATORMODULEPROCESSOR_H
 #define ELECTROSYNTH_OSCILLATORMODULEPROCESSOR_H
 #include "SimpleOscModule.h"
-#include "PluginStateImpl_.h"
+#include "../PluginStateImpl_.h"
 #include "ParameterView/ParametersView.h"
 #include "Identifiers.h"
-#include "Processors/ProcessorBase.h"
+#include "ProcessorBase.h"
 namespace electrosynth{
     namespace utils
     {

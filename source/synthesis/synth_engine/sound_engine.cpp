@@ -15,7 +15,7 @@
  */
 
 #include "sound_engine.h"
-#include "OscillatorModuleProcessor.h"
+#include "../framework/Processors/OscillatorModuleProcessor.h"
 #include "melatonin_audio_sparklines/melatonin_audio_sparklines.h"
 #include "Modulators/ModulatorBase.h"
 #include "ModulationWrapper.h"
@@ -30,6 +30,15 @@ namespace electrosynth {
       LEAF_init(&leaf, 44100.0f, memory, 16777216, [](){return (float)rand()/RAND_MAX;});
       //processors.push_back(std::make_shared<OscillatorModuleProcessor> (&leaf));
     //SoundEngine::init();
+      tSimplePoly_init(&voiceHandler.voices[0], MAX_NUM_VOICES, &leaf);
+      tSimplePoly_setNumVoices(voiceHandler.voices[0], (uint8_t)numVoicesActive);
+       voiceHandler.voiceNote[0] = 0;
+       for (uint8_t i = 1; i < MAX_NUM_VOICES; i++)
+       {
+            tSimplePoly_init(&voiceHandler.voices[i], MAX_NUM_VOICES, &leaf);
+
+       }
+
   }
 
   SoundEngine::~SoundEngine() {
@@ -162,6 +171,37 @@ namespace electrosynth {
 
   void SoundEngine::noteOn(int note, float velocity, int sample, int channel) {
 //    voice_handler_->noteOn(note, velocity, sample, channel);
+      enum MidiMainType {
+          kNoteOff = 0x80,
+          kNoteOn = 0x90,
+          kAftertouch = 0xa0,
+          kController = 0xb0,
+          kProgramChange = 0xc0,
+          kChannelPressure = 0xd0,
+          kPitchWheel = 0xe0,
+      };
+      int i = voiceHandler.mpeMode ? channel : 0;
+      if (i < 0) return;
+      if (!velocity) noteOff(note, velocity, sample, channel);
+      else
+      {
+          int v = tSimplePoly_noteOn(voiceHandler.voices[i], note, velocity * 127.f);
+          if (!voiceHandler.mpeMode) i = v;
+
+          if (v >= 0)
+          {
+              velocity = ((0.007685533519034f*velocity*127.f) + 0.0239372430f);
+              velocity = velocity * velocity;
+              //note -= midiKeyMin;
+              for (int i = 0; i < voiceHandler.eventEmitter.numListeners; i++) {
+                  voiceHandler.eventEmitter.listeners[v][i].setterFunctions[EVENT_WATCH_INDEX]
+                                                    (voiceHandler.eventEmitter.listeners[v][i].object,kNoteOn);
+
+              }
+             // float norm = key / float(midiKeyMax - midiKeyMin);
+
+          }
+      }
   }
 
   void SoundEngine::noteOff(int note, float lift, int sample, int channel) {
@@ -270,7 +310,7 @@ namespace electrosynth {
               });
 
           // Here you can cast the processor to leaf::Processor* if needed
-          return (innerIt->get()->proc);
+          return (innerIt->get()->procArray);
       }
 
   }
@@ -295,7 +335,7 @@ namespace electrosynth {
               });
 
           // Here you can cast the processor to leaf::Processor* if needed
-          return (innerIt->get()->proc);
+          return (innerIt->get()->procArray);
       }
 
   }

@@ -20,6 +20,7 @@
 #include <leaf.h>
 #include <leaf-config.h>
 //#include "buffer_debugger.h"
+#include "event_emitter.h"
 #include "processors/processor.h"
 #include "ModulationConnection.h"
 class MappingWrapper;
@@ -143,7 +144,18 @@ namespace electrosynth {
       char memory[16777216];
       juce::AudioSampleBuffer bu{2,1};
       LEAF leaf;
-    private:
+
+      int numVoicesActive = 1;
+      struct VoiceHandler {
+            float voiceNote[MAX_NUM_VOICES];
+            float voicePrevBend[MAX_NUM_VOICES];
+            tSimplePoly voices[MAX_NUM_VOICES];
+            bool voiceIsSounding[MAX_NUM_VOICES];
+            bool mpeMode;
+            tEventEmitter eventEmitter;
+      };
+
+      VoiceHandler voiceHandler;
       void setOversamplingAmount(int oversampling_amount, int sample_rate);
       int last_oversampling_amount_;
       int last_sample_rate_;

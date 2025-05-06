@@ -27,6 +27,7 @@
 #include "Modulators/ModulatorBase.h"
 #include "ModulationWrapper.h"
 #include "Processors/ProcessorBase.h"
+#include <chowdsp_dsp_data_structures/chowdsp_dsp_data_structures.h>
 #include "parameterArrays.h"
 SynthBase::SynthBase(AudioDeviceManager * deviceManager) : expired_(false), manager(deviceManager) {
 
@@ -42,10 +43,11 @@ SynthBase::SynthBase(AudioDeviceManager * deviceManager) : expired_(false), mana
 
    keyboard_state_ = std::make_unique<MidiKeyboardState>();
    ValueTree v;
-   midi_manager_ = std::make_unique<MidiManager>( keyboard_state_.get(),manager, v ,this);
+   midi_manager_ = std::make_unique<MidiManager>( this->getEngine(),keyboard_state_.get(),manager, v ,this);
 
    last_played_note_ = 0.0f;
    last_num_pressed_ = 0;
+
 
 
 
@@ -177,6 +179,13 @@ void SynthBase::addModulationSource(std::shared_ptr<ModulatorBase> modulationSou
 {
     modulationSource->prepareToPlay(engine_->getBufferSize(), engine_->getSampleRate());
     engine_->modSources.emplace_back(std::initializer_list<std::shared_ptr<ModulatorBase>>{static_cast<const std::shared_ptr<ModulatorBase>> (modulationSource)});
+    leaf::tProcessor* proc0 = &modulationSource->procArray[0];
+    float watchParameter = *proc0->inParameters[EVENT_WATCH_INDEX];
+    if (*proc0->inParameters[EVENT_WATCH_INDEX] == 1) {
+        for (int i = 0; i < MAX_NUM_VOICES; i++)
+            engine_->voiceHandler.eventEmitter.listeners[i][engine_->voiceHandler.eventEmitter.numListeners] = modulationSource->procArray[i];
+    }
+    engine_->voiceHandler.eventEmitter.numListeners++;
 }
 
 bool SynthBase::loadFromValueTree(const ValueTree& state)

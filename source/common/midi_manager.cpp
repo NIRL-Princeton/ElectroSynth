@@ -15,8 +15,7 @@
 */
 
 #include "midi_manager.h"
-
-
+#include "sound_engine.h"
 
 namespace {
    constexpr int kMidiControlBits = 7;
@@ -120,12 +119,11 @@ void sendPresetOverMidi(const leaf::tMappingPreset7Bit& preset, size_t maxChunkS
 
 }
 
-MidiManager::MidiManager(MidiKeyboardState* keyboard_state, AudioDeviceManager* manager, const ValueTree &v,
-   Listener* listener) : tracktion::engine::ValueTreeObjectList<electrosynth::MidiDeviceWrapper>(v),
-                         keyboard_state_(keyboard_state),
-                         listener_(listener), armed_value_(nullptr),
-                         msb_pressure_values_(), msb_slide_values_() , manager(manager){
-   //engine_ = synth_->get//engine();
+MidiManager::MidiManager(electrosynth::SoundEngine* engine,MidiKeyboardState* keyboard_state, AudioDeviceManager* manager, const ValueTree &v,
+                         Listener* listener) : tracktion::engine::ValueTreeObjectList<electrosynth::MidiDeviceWrapper>(v),
+                                               keyboard_state_(keyboard_state),
+                                               listener_(listener), armed_value_(nullptr),
+                                               msb_pressure_values_(), msb_slide_values_() , manager(manager),engine_(engine){
    current_bank_ = -1;
    current_folder_ = -1;
    current_preset_ = -1;
@@ -163,7 +161,7 @@ void MidiManager::cancelMidiLearn() {
 //    if (controls.second.count(name)) {
 //      midi_learn_map_[controls.first].erase(name);
 //      LoadSave::saveMidiMapConfig(this);
-//    }
+//    }sd()
 //  }
 //}
 
@@ -328,15 +326,15 @@ void MidiManager::processMidiMessage(const MidiMessage& midi_message, int sample
            return;
        case kNoteOn: {
            uint8 velocity = midi_message.getVelocity();
-           //  if (velocity)
-           //engine_->noteOn(midi_message.getNoteNumber(), velocity / kControlMax, sample_position, channel);
-           //  else
-           //engine_->noteOff(midi_message.getNoteNumber(), velocity / kControlMax, sample_position, channel);
+             if (velocity)
+           engine_->noteOn(midi_message.getNoteNumber(), velocity / kControlMax, sample_position, channel);
+             else
+           engine_->noteOff(midi_message.getNoteNumber(), velocity / kControlMax, sample_position, channel);
            return;
        }
        case kNoteOff: {
            float velocity = midi_message.getVelocity() / kControlMax;
-           //engine_->noteOff(midi_message.getNoteNumber(), velocity, sample_position, channel);
+           engine_->noteOff(midi_message.getNoteNumber(), velocity, sample_position, channel);
            return;
        }
        case kAftertouch: {
@@ -384,7 +382,7 @@ void MidiManager::processMidiMessage(const MidiMessage& midi_message, int sample
                    break;
                case kModWheel: {
                    float percent = (1.0f * midi_message.getControllerValue()) / kControlMax;
-                   //engine_->setModWheel(percent, channel);
+                   engine_->setModWheel(percent, channel);
                    listener_->modWheelMidiChanged(percent);
                    break;
                }

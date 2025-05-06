@@ -30,6 +30,7 @@ FilterModuleProcessor::FilterModuleProcessor(const juce::ValueTree &v, LEAF *lea
    //tOscModule_init(static_cast<void*>(module), {0, 0}, id, leaf)
     //tFiltModule_processorInit(state.params.module, &processor);
    vt.setProperty(IDs::uuid, state.params.processors[0].processorUniqueID, nullptr);
+    procArray = &state.params.processors[0];
 }
 
 void FilterModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer&)

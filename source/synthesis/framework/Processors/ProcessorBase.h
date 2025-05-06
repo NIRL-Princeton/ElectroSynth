@@ -21,7 +21,7 @@ public:
     ~ProcessorBase() override = default;
     LEAF* leaf;
     juce::ValueTree vt;
-    leaf::Processor* proc;
+    leaf::Processor* procArray;
     juce::String name;
     virtual void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) = 0;
     void getNextAudioBlock (const juce::AudioSourceChannelInfo &bufferToFill) override {}

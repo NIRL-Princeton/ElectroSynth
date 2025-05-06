@@ -130,6 +130,7 @@ public:
    void  processMappingChanges();
     int getNumModulations(const std::string& destination);
 protected:
+
     electrosynth::mapping_change createMappingChange(electrosynth::ModulationConnection* mod);
     bool isInvalidConnection(const electrosynth::mapping_change & change) {return false;}
    juce::ValueTree tree;

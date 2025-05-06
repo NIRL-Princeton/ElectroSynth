@@ -45,7 +45,7 @@ OscillatorModuleProcessor::OscillatorModuleProcessor(const juce::ValueTree &v, L
     };
     vt.setProperty(IDs::uuid, state.params.processors[0].processorUniqueID, nullptr);
     name = vt.getProperty(IDs::type).toString() + vt.getProperty(IDs::uuid).toString();
-    proc = state.params.processors;
+    procArray = &state.params.processors[0];
 
    //tOscModule_init(static_cast<void*>(module), {0, 0}, id, leaf)
     //tOscModule_processorInit(state.params.module, &processor);

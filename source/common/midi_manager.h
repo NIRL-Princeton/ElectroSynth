@@ -15,34 +15,32 @@
  */
 
 #pragma once
-#include <juce_audio_basics/juce_audio_basics.h>
-#include <juce_audio_devices/juce_audio_devices.h>
 #include "common.h"
 
 #include <map>
 
 #include <string>
-#if !defined(JUCE_AUDIO_DEVICES_H_INCLUDED)
-
-class MidiInput {};
-
-class MidiInputCallback {
-  public:
-    virtual ~MidiInputCallback() = default;
-    virtual void handleIncomingMidiMessage(MidiInput *source, const juce::MidiMessage &midi_message) { }
-    virtual void 	handlePartialSysexMessage (MidiInput *source, const uint *messageData, int numBytesSoFar, double timestamp) { }
-};
-
-class MidiMessageCollector {
-  public:
-    void reset(int sample_rate) { }
-    void removeNextBlockOfMessages(juce::MidiBuffer& buffer, int num_samples) { }
-    void addMessageToQueue(const juce::MidiMessage &midi_message) { }
-};
-
-#endif
+// #if !defined(JUCE_AUDIO_DEVICES_H_INCLUDED)
+//
+// class MidiInput {};
+//
+// class MidiInputCallback {
+//   public:
+//     virtual ~MidiInputCallback() = default;
+//     virtual void handleIncomingMidiMessage(MidiInput *source, const juce::MidiMessage &midi_message) { }
+//     virtual void 	handlePartialSysexMessage (MidiInput *source, const uint *messageData, int numBytesSoFar, double timestamp) { }
+// };
+//
+// class MidiMessageCollector {
+//   public:
+//     void reset(int sample_rate) { }
+//     void removeNextBlockOfMessages(juce::MidiBuffer& buffer, int num_samples) { }
+//     void addMessageToQueue(const juce::MidiMessage &midi_message) { }
+// };
+//
+// #endif
 #include "Identifiers.h"
-#include <juce_data_structures/juce_data_structures.h>
+#include "juce_audio_devices/juce_audio_devices.h"
 #include "tracktion_ValueTreeUtilities.h"
 #include "processors/mapping.h"
 class SynthBase;
@@ -103,8 +101,8 @@ public:
         virtual void presetChangedThroughMidi(juce::File preset) = 0;
     };
 
-    MidiManager( juce::MidiKeyboardState* keyboard_state, AudioDeviceManager *manager, const ValueTree &v={},
-        Listener* listener = nullptr);
+    MidiManager(electrosynth::SoundEngine* synth, juce::MidiKeyboardState* keyboard_state, AudioDeviceManager *manager, const ValueTree &v={},
+                Listener* listener = nullptr);
     virtual ~MidiManager() override;
     electrosynth::MidiDeviceWrapper* createNewObject(const juce::ValueTree& v) override
     {
@@ -183,8 +181,7 @@ public:
 protected:
     void readMpeMessage(const juce::MidiMessage& message);
 
-    //    SynthBase* synth_;
-    //    electrosynth::SoundEngine* engine_;
+    electrosynth::SoundEngine* engine_;
     juce::MidiKeyboardState* keyboard_state_;
 
 
