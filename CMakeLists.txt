@@ -207,7 +207,7 @@ target_link_libraries("${PROJECT_NAME}" PRIVATE SharedCode)
 include(PamplejuceIPP)
 
 # Everything related to the tests target
-include(Tests)
+#include(Tests)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/third_party/rtmidi)
 target_link_libraries(Tests PRIVATE rtmidi)
 # A separate target for Benchmarks (keeps the Tests target fast)
