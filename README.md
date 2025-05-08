@@ -25,6 +25,7 @@ build structure
 
 ### third_party
 
+
 this folder is third party libraries that are included without the `juce_add_submodule` command.
 The usual way these libraries are added is with
 [add_subdirectory](https://cmake.org/cmake/help/latest/command/add_subdirectory.html) 
