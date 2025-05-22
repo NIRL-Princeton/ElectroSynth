@@ -25,7 +25,7 @@ juce::String electrosynth::utils::harmonicValToString(float harmonic)
     else
         return juce::String(round(harmonic));
 }
-OscillatorModuleProcessor::OscillatorModuleProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree &v, LEAF *leaf) :ProcessorStateBase<PluginStateImpl_<OscillatorParams, _tOscModule>>(engine,leaf,v)
+OscillatorModuleProcessor::OscillatorModuleProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree &v, LEAF *leaf) :ProcessorStateBase(engine,leaf,v)
 
 
 {
@@ -59,10 +59,11 @@ void OscillatorModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     //buffer.clear();
 
     //    auto* samplesL = buffer.getReadPointer(0);
-    for (int v = 0; v < engine->numVoicesActive; v++) {
+    for (int v = 0; v < engine->voiceHandler.numVoicesActive; v++) {
         if (!engine->voiceHandler.voiceIsSounding[v]) continue;
-        auto* L = buffer.getWritePointer(0);
-        auto* R = buffer.getWritePointer(1);
+        procArray[v].setterFunctions[OscParams::OscMidiPitch](procArray[v].object,engine->voiceHandler.voiceNote[v]/127.f);
+        auto* L = buffer.getWritePointer(v*2);
+        auto* R = buffer.getWritePointer(v*2+1);
         for (int i = 0; i < numSamples; i++)
         {
             procArray[v].tick(procArray[v].object,L);

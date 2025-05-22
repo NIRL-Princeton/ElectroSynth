@@ -63,6 +63,9 @@ struct LEAFParams : public chowdsp::ParamHolder
     leaf::tProcessor processors[MAX_NUM_VOICES];
     T* modules[MAX_NUM_VOICES];
 };
+
+// Trait to detect whether a type derives from LEAFParams<T> for any T
+
     /**
  * Template type to hold a plugin's state.
  *
@@ -70,10 +73,10 @@ struct LEAFParams : public chowdsp::ParamHolder
  * @tparam NonParameterState    Struct containing all of the plugin's non-parameter state as StateValue objects.
  * @tparam Serializer           A type that implements chowdsp::BaseSerializer (JSONSerializer by default)
  */
-    template <typename ParameterState, typename Module,  typename NonParameterState = chowdsp::NonParamState, typename Serializer = chowdsp::XMLSerializer>
+    template <typename ParameterState, typename NonParameterState = chowdsp::NonParamState, typename Serializer = chowdsp::XMLSerializer>
 class PluginStateImpl_ : public chowdsp::PluginState
     {
-        static_assert (std::is_base_of_v<LEAFParams<Module>, ParameterState>, "ParameterState must be a chowdsp::ParamHolder!");
+        static_assert (std::is_base_of_v<chowdsp::ParamHolder,ParameterState>, "ParameterState must be a chowdsp::ParamHolder!");
         static_assert (std::is_base_of_v<chowdsp::NonParamState, NonParameterState>, "NonParameterState must be a chowdsp::NonParamState!");
 
     public:
@@ -112,26 +115,26 @@ class PluginStateImpl_ : public chowdsp::PluginState
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginStateImpl_)
     };
 
-    template <typename ParameterState,typename Module, typename NonParameterState, typename Serializer>
-    PluginStateImpl_<ParameterState, Module, NonParameterState, Serializer>::PluginStateImpl_ (LEAF* leaf, juce::UndoManager* um) : params(leaf)
+    template <typename ParameterState, typename NonParameterState, typename Serializer>
+    PluginStateImpl_<ParameterState,  NonParameterState, Serializer>::PluginStateImpl_ (LEAF* leaf, juce::UndoManager* um) : params(leaf)
     {
         initialise (params, nullptr, um);
     }
 
-    template <typename ParameterState,typename Module, typename NonParameterState, typename Serializer>
-    PluginStateImpl_<ParameterState, Module, NonParameterState, Serializer>::PluginStateImpl_ ( LEAF* leaf, juce::AudioProcessor& proc, juce::UndoManager* um) : params(leaf)
+    template <typename ParameterState, typename NonParameterState, typename Serializer>
+    PluginStateImpl_<ParameterState,  NonParameterState, Serializer>::PluginStateImpl_ ( LEAF* leaf, juce::AudioProcessor& proc, juce::UndoManager* um) : params(leaf)
     {
         initialise (params, &proc, um);
     }
 
-    template <typename ParameterState, typename Module,typename NonParameterState, typename Serializer>
-    void PluginStateImpl_<ParameterState, Module, NonParameterState, Serializer>::serialize (juce::MemoryBlock& data) const
+    template <typename ParameterState, typename NonParameterState, typename Serializer>
+    void PluginStateImpl_<ParameterState,  NonParameterState, Serializer>::serialize (juce::MemoryBlock& data) const
     {
         chowdsp::Serialization::serialize<Serializer> (*this, data);
     }
 
-    template <typename ParameterState, typename Module,typename NonParameterState, typename Serializer>
-    void PluginStateImpl_<ParameterState, Module, NonParameterState, Serializer>::deserialize (const juce::MemoryBlock& data)
+    template <typename ParameterState, typename NonParameterState, typename Serializer>
+    void PluginStateImpl_<ParameterState,  NonParameterState, Serializer>::deserialize (const juce::MemoryBlock& data)
     {
         callOnMainThread (
             [this, data]
@@ -150,18 +153,18 @@ class PluginStateImpl_ : public chowdsp::PluginState
     }
 
     /** Serializer */
-    template <typename ParameterState,typename Module, typename NonParameterState, typename Serializer>
+    template <typename ParameterState, typename NonParameterState, typename Serializer>
     template <typename>
-    typename Serializer::SerializedType PluginStateImpl_<ParameterState, Module, NonParameterState, Serializer>::serialize (const PluginStateImpl_& object)
+    typename Serializer::SerializedType PluginStateImpl_<ParameterState,  NonParameterState, Serializer>::serialize (const PluginStateImpl_& object)
     {
         auto serial = Serializer::template serialize<Serializer, chowdsp::ParamHolder> (object.params);
         return serial;
     }
 
     /** Deserializer */
-    template <typename ParameterState, typename Module,typename NonParameterState, typename Serializer>
+    template <typename ParameterState, typename NonParameterState, typename Serializer>
     template <typename>
-    void PluginStateImpl_<ParameterState, Module, NonParameterState, Serializer>::deserialize (typename Serializer::DeserializedType serial, PluginStateImpl_& object)
+    void PluginStateImpl_<ParameterState,  NonParameterState, Serializer>::deserialize (typename Serializer::DeserializedType serial, PluginStateImpl_& object)
     {
         enum
         {
@@ -190,14 +193,14 @@ class PluginStateImpl_ : public chowdsp::PluginState
         Serializer::template deserialize<Serializer, chowdsp::ParamHolder> (Serializer::getChildElement (serial, paramStateChildIndex), object.params);
     }
 
-    template <typename ParameterState, typename Module,typename NonParameterState, typename Serializer>
-    chowdsp::NonParamState& PluginStateImpl_<ParameterState, Module, NonParameterState, Serializer>::getNonParameters()
+    template <typename ParameterState, typename NonParameterState, typename Serializer>
+    chowdsp::NonParamState& PluginStateImpl_<ParameterState,  NonParameterState, Serializer>::getNonParameters()
     {
         return nonParams;
     }
 
-    template <typename ParameterState, typename Module,typename NonParameterState, typename Serializer>
-    const chowdsp::NonParamState& PluginStateImpl_<ParameterState, Module, NonParameterState, Serializer>::getNonParameters() const
+    template <typename ParameterState, typename NonParameterState, typename Serializer>
+    const chowdsp::NonParamState& PluginStateImpl_<ParameterState,  NonParameterState, Serializer>::getNonParameters() const
     {
         return nonParams;
     }

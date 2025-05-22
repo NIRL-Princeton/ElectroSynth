@@ -29,6 +29,7 @@
 #include "Processors/ProcessorBase.h"
 #include <chowdsp_dsp_data_structures/chowdsp_dsp_data_structures.h>
 #include "parameterArrays.h"
+#include "Modulators/EnvModuleProcessor.h"
 SynthBase::SynthBase(AudioDeviceManager * deviceManager) : expired_(false), manager(deviceManager) {
 
    self_reference_ = std::make_shared<SynthBase*>();
@@ -54,8 +55,11 @@ SynthBase::SynthBase(AudioDeviceManager * deviceManager) : expired_(false), mana
 
 
    Startup::doStartupChecks();
+
    tree = ValueTree(IDs::GALLERY);
+    tree.appendChild(engine_->MasterVoiceEnvelopeProcessor->vt,nullptr);
    tree.addListener(this);
+
 }
 
 SynthBase::~SynthBase() {
@@ -270,7 +274,7 @@ void SynthBase::processAudio(AudioSampleBuffer* buffer, int channels, int sample
    while (processorInitQueue.try_dequeue (action))
        action();
     processMappingChanges();
-    engine_->process(*buffer);
+    engine_->process(*buffer, channels,samples,offset);
    //writeAudio(buffer, channels, samples, offset);
 }
 void SynthBase::processAudioAndMidi(juce::AudioBuffer<float>& audio_buffer, juce::MidiBuffer& midi_buffer) //, int channels, int samples, int offset, int start_sample = 0, int end_sample = 0)

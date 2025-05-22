@@ -23,9 +23,11 @@
 #include "event_emitter.h"
 #include "processors/processor.h"
 #include "ModulationConnection.h"
+#include "BenchMarkProcessBlock.h"
 class MappingWrapper;
 class ProcessorBase;
 class ModulatorBase;
+class EnvModuleProcessor;
 namespace electrosynth {
     using AudioGraphIOProcessor = juce::AudioProcessorGraph::AudioGraphIOProcessor;
     using Node = juce::AudioProcessorGraph::Node;
@@ -51,7 +53,7 @@ namespace electrosynth {
       }
       juce::MidiBuffer empty;
       void process(juce::AudioSampleBuffer&, juce::MidiBuffer &);
-      void process(juce::AudioSampleBuffer&);
+      void process(juce::AudioSampleBuffer&,int channels, int samples, int offset);
       void processMappings();
       void releaseResources()
       {}
@@ -146,7 +148,6 @@ namespace electrosynth {
       char memory[16777216];
       LEAF leaf;
 
-      int numVoicesActive = 1;
       struct VoiceHandler {
             float voiceNote[MAX_NUM_VOICES];
             float voicePrevBend[MAX_NUM_VOICES];
@@ -156,7 +157,7 @@ namespace electrosynth {
             int numVoicesActive;
             tEventEmitter eventEmitter;
       };
-
+      std::unique_ptr<EnvModuleProcessor> MasterVoiceEnvelopeProcessor;
       VoiceHandler voiceHandler;
       void setOversamplingAmount(int oversampling_amount, int sample_rate);
       int last_oversampling_amount_;
@@ -164,6 +165,7 @@ namespace electrosynth {
       int buffer_size;
       int curr_sample_rate;
       juce::AudioBuffer<float> temp_voice_buffer{MAX_NUM_VOICES*2,1};
+      benchmark::ProcessBlock benchmark;
 //      Value* oversampling_;
 //      Value* bps_;
 //      Value* legato_;

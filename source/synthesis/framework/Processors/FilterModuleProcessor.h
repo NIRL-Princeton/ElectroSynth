@@ -77,7 +77,7 @@ struct FilterParams : public LEAFParams<_tFiltModule >
 
 
 
-class FilterModuleProcessor : public ProcessorStateBase<PluginStateImpl_<FilterParams, _tFiltModule>>
+class FilterModuleProcessor : public ProcessorStateBase<PluginStateImpl_<FilterParams>>
 {
 public:
     FilterModuleProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree&, LEAF* leaf);

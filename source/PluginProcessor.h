@@ -41,6 +41,7 @@ public:
     const CriticalSection& getCriticalSection() override;
     void pauseProcessing(bool pause) override;
     SynthGuiInterface* getGuiInterface() override;
+    double current_time_;
 
 
 private:

@@ -69,7 +69,7 @@ struct LFOParamHolder : public LEAFParams<_tLFOModule>
 
 };
 
-class LFOModuleProcessor: public ModulatorStateBase<PluginStateImpl_<LFOParamHolder, _tLFOModule >>
+class LFOModuleProcessor: public ModulatorStateBase<PluginStateImpl_<LFOParamHolder >>
 {
 public:
     LFOModuleProcessor(electrosynth::SoundEngine* engine,juce::ValueTree&, LEAF* leaf);

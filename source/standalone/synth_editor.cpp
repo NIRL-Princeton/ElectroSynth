@@ -29,6 +29,7 @@
 #include <memory>
 
 
+#include "melatonin_audio_sparklines/melatonin_audio_sparklines.h"
 SynthEditor::SynthEditor(bool use_gui) : SynthGuiInterface(this, use_gui) {
   static constexpr int kHeightBuffer = 50;
 #if PERFETTO
@@ -104,7 +105,7 @@ void SynthEditor::getNextAudioBlock(const AudioSourceChannelInfo& buffer) {
 
   int num_samples = buffer.buffer->getNumSamples();
   int synth_samples = std::min(num_samples, electrosynth::kMaxBufferSize);
-
+  buffer.buffer->clear();
   //processModulationChanges();
   MidiBuffer midi_messages;
   midi_manager_->removeNextBlockOfMessages(midi_messages, num_samples);
@@ -119,6 +120,9 @@ void SynthEditor::getNextAudioBlock(const AudioSourceChannelInfo& buffer) {
     processAudio(buffer.buffer, electrosynth::kNumChannels, current_samples, b);
     current_time_ += current_samples * sample_time;
   }
+  AudioSampleBuffer& buff = *buffer.buffer;
+  melatonin::printSparkline (buff,false);
+
     //processAudioAndMidi(*buffer.buffer, midi_messages);
 }
 

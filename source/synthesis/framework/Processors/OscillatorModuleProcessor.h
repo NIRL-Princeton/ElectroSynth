@@ -244,7 +244,7 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
 
 
 };
-class OscillatorModuleProcessor : public ProcessorStateBase<PluginStateImpl_<OscillatorParams, _tOscModule>>
+class OscillatorModuleProcessor : public ProcessorStateBase<PluginStateImpl_<OscillatorParams>>
 {
 public:
     OscillatorModuleProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree&, LEAF* leaf);

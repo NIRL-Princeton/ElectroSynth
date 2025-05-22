@@ -15,6 +15,8 @@
  */
 
 #include "sound_engine.h"
+
+#include "MasterVoiceProcessor.h"
 #include "../framework/Processors/OscillatorModuleProcessor.h"
 #include "melatonin_audio_sparklines/melatonin_audio_sparklines.h"
 #include "Modulators/ModulatorBase.h"
@@ -22,18 +24,20 @@
 #include "Processors/ProcessorBase.h"
 #include "parameterArrays.h"
 #include "ModulationConnection.h"
+#include "Modulators/EnvModuleProcessor.h"
+
 namespace electrosynth {
 
   SoundEngine::SoundEngine() : /*voice_handler_(nullptr),*/
-                                last_oversampling_amount_(-1), last_sample_rate_(-1), modulation_bank_((leaf))
+    last_oversampling_amount_(-1), last_sample_rate_(-1), modulation_bank_((leaf))
   {
       LEAF_init(&leaf, 44100.0f, memory, 16777216, [](){return (float)rand()/RAND_MAX;});
       //processors.push_back(std::make_shared<OscillatorModuleProcessor> (&leaf));
     //SoundEngine::init();
       tSimplePoly_init(&voiceHandler.voices[0], MAX_NUM_VOICES, &leaf);
-      tSimplePoly_setNumVoices(voiceHandler.voices[0], (uint8_t)numVoicesActive);
-       voiceHandler.voiceNote[0] = 0;
       voiceHandler.numVoicesActive = MAX_NUM_VOICES;
+      tSimplePoly_setNumVoices(voiceHandler.voices[0], (uint8_t)voiceHandler.numVoicesActive);
+       voiceHandler.voiceNote[0] = 0;
        for (uint8_t i = 1; i < MAX_NUM_VOICES; i++)
        {
             tSimplePoly_init(&voiceHandler.voices[i], MAX_NUM_VOICES, &leaf);
@@ -41,7 +45,11 @@ namespace electrosynth {
            voiceHandler.voiceIsSounding[i] = false;
            voiceHandler.voicePrevBend[i] = 0.0f;
        }
-
+      MasterVoiceEnvelopeProcessor  = std::make_unique<EnvModuleProcessor>(this, juce::ValueTree (IDs::MODULATOR).setProperty(IDs::type, "env", nullptr),&leaf);
+      MasterVoiceEnvelopeProcessor->state.params.attackParam->setParameterValue(0.1);
+      MasterVoiceEnvelopeProcessor->state.params.decayParam->setParameterValue(0.01);
+      MasterVoiceEnvelopeProcessor->state.params.releaseParam->setParameterValue(0.001);
+      //temp_voice_buffer.set
   }
 
   SoundEngine::~SoundEngine() {
@@ -108,15 +116,80 @@ namespace electrosynth {
           processMapping(&mapping->mapping_);
       }
   }
-    void SoundEngine::process(juce::AudioSampleBuffer &audio_buffer )
+    void SoundEngine::process(juce::AudioSampleBuffer &audio_buffer , int channels, int samples, int offset)
   {
       //VITAL_ASSERT(num_samples <= output()->buffer_size);
+      benchmark();
       juce::FloatVectorOperations::disableDenormalisedNumberSupport();
-      audio_buffer.clear();
       temp_voice_buffer.clear();
       //juce::MidiBuffer midimessages;
+      int mpe = voiceHandler.mpeMode ? 1 : 0;
+      int impe = 1-mpe;
+      for (int i = offset; i < samples + offset; i++){
+          for (int v = 0; v < voiceHandler.numVoicesActive; ++v)
+        {
 
-      for (int i = 0; i < audio_buffer.getNumSamples(); i++){
+            float tempNote = (float)tSimplePoly_getPitch(voiceHandler.voices[v*mpe],(uint8_t) (v*impe));
+
+
+            //added this check because if there is no active voice "getPitch" returns -1
+            if (tempNote >= 0.0f)
+            {
+                //freeze pitch bend data on voices where a note off has happened and we are in the release phase
+                if (tSimplePoly_isOn(voiceHandler.voices[v*mpe], (uint8_t)(v*impe)))
+                {
+                    //tempNote += pitchBend;
+                   // voicePrevBend[v] = pitchBend;
+                }
+                else
+                {
+                    //tempNote += voicePrevBend[v];
+                }
+                if ((tempNote >= 0.0f) && (tempNote < 127.0f))
+                {
+                    int tempNoteIntPart = (int)tempNote;
+                    float tempNoteFloatPart = tempNote - (float)tempNoteIntPart;
+                    //int tempPitchClassIntPart =tempNoteIntPart % 12;
+                    //float dev1 = (centsDeviation[tempNoteIntPart] * (1.0f - tempNoteFloatPart));
+                    //float dev2 =  (centsDeviation[(tempNoteIntPart+1)] * tempNoteFloatPart);
+                    //float tunedNote = ( dev1  + dev2);
+                    voiceHandler.voiceNote[v] = tempNote;
+                }
+                else //otherwise, assume octave equivalency and get offsets, then get midinote back
+                    //not going to work for non-octave tunings
+                {
+                    if (!isnan(tempNote) && !isinf(tempNote))
+                    {
+                        // int octaveUp = 0;
+                        // int octaveDown = 0;
+                        //
+                        //
+                        // while(tempNote >= 127.0f)
+                        // {
+                        //     tempNote -= 12.0f;
+                        //     octaveDown++;
+                        // }
+                        // while(tempNote < 0.0f)
+                        // {
+                        //     tempNote += 12.0f;
+                        //     octaveUp++;
+                        // }
+                        //
+                        // int tempNoteIntPart = (int)tempNote;
+                        // float tempNoteFloatPart = tempNote - (float)tempNoteIntPart;
+                        // float dev1 = (centsDeviation[tempNoteIntPart] * (1.0f - tempNoteFloatPart));
+                        // float dev2 =  (centsDeviation[(tempNoteIntPart+1)] * tempNoteFloatPart);
+                        // float tunedNote = ( dev1  + dev2);
+                        // voiceNote[v] = tunedNote + (octaveDown*12) - (octaveUp*12);
+                        voiceHandler.voiceNote[v] = tempNote;
+                    }
+                }
+                //DBG("Tuned note" + String(tunedNote));
+            }
+            //samples[0][v] = 0.f;
+            //samples[1][v] = 0.f;
+        }
+          auto amp_vals = MasterVoiceEnvelopeProcessor->processMasterEnvelope();
           processMappings();
           for (auto modulator_chain : modSources)
           {
@@ -132,13 +205,19 @@ namespace electrosynth {
                   proc->processBlock (temp_voice_buffer, empty);
 
               }
-              audio_buffer.addSample(0,i,temp_voice_buffer.getSample(0,0));
-              audio_buffer.addSample(1,i,temp_voice_buffer.getSample(1,0));
-              temp_voice_buffer.clear();
+              for ( int v = 0; v < voiceHandler.numVoicesActive; ++v) {
+                      // audio_buffer.addSample(0, i, temp_voice_buffer.getSample(v*2, 0));
+                      // audio_buffer.addSample(1, i, temp_voice_buffer.getSample(v*2+1, 0));
+                      audio_buffer.addSample(0, i, amp_vals->getSample(v*2, 0) * temp_voice_buffer.getSample(v*2, 0));
+                     audio_buffer.addSample(1, i, amp_vals->getSample(v*2+1, 0) * temp_voice_buffer.getSample(v*2+1, 0));
+              }
           }
+          temp_voice_buffer.clear();
+
+
 
       }
-      //melatonin::printSparkline (audio_buffer);
+      //melatonin::printSparkline (audio_buffer,false);
       if (getNumActiveVoices() == 0)
       {
 
@@ -147,40 +226,7 @@ namespace electrosynth {
   }
   void SoundEngine::process(juce::AudioSampleBuffer &audio_buffer, juce::MidiBuffer& midi_buffer )
   {
-    //VITAL_ASSERT(num_samples <= output()->buffer_size);
-    juce::FloatVectorOperations::disableDenormalisedNumberSupport();
-    audio_buffer.clear();
-    temp_voice_buffer.clear();
-    //juce::MidiBuffer midimessages;
 
-    for (int i = 0; i < audio_buffer.getNumSamples(); i++){
-        processMappings();
-        for (auto modulator_chain : modSources)
-        {
-            for(auto modulator : modulator_chain)
-            {
-                modulator->process();
-            }
-        }
-      for (auto proc_chain : processors)
-      {
-          for (auto proc : proc_chain)
-          {
-              proc->processBlock (temp_voice_buffer, midi_buffer);
-
-          }
-          audio_buffer.addSample(0,i,temp_voice_buffer.getSample(0,0));
-          audio_buffer.addSample(1,i,temp_voice_buffer.getSample(1,0));
-          temp_voice_buffer.clear();
-      }
-
-  }
-  //melatonin::printSparkline (audio_buffer);
-    if (getNumActiveVoices() == 0)
-    {
-
-    }
-//   bufferDebugger->capture("main out", audio_buffer.getReadPointer(0), audio_buffer.getNumSamples(), -20.f, 20.f);
   }
 
 
@@ -226,17 +272,19 @@ namespace electrosynth {
       {
           int v = tSimplePoly_noteOn(voiceHandler.voices[i], note, velocity * 127.f);
           if (!voiceHandler.mpeMode) i = v;
+          DBG("note on" + String(i) + " " + String(v));
 
           if (v >= 0)
           {
               velocity = ((0.007685533519034f*velocity*127.f) + 0.0239372430f);
               velocity = velocity * velocity;
               //note -= midiKeyMin;
-              for (int i = 0; i < voiceHandler.eventEmitter.numListeners; i++) {
-                  voiceHandler.eventEmitter.listeners[v][i].setterFunctions[EVENT_WATCH_INDEX]
-                                                    (voiceHandler.eventEmitter.listeners[v][i].object,kNoteOn);
-
+              for (int j = 0; j < voiceHandler.eventEmitter.numListeners; j++) {
+                  voiceHandler.eventEmitter.listeners[v][j].setterFunctions[EVENT_WATCH_INDEX]
+                                                    (voiceHandler.eventEmitter.listeners[v][j].object,velocity);
               }
+
+              MasterVoiceEnvelopeProcessor->state.params.modules[v]->setterFunctions[EVENT_WATCH_INDEX](MasterVoiceEnvelopeProcessor->state.params.modules[v],velocity);
               voiceHandler.voiceIsSounding[v] = true;
              // float norm = key / float(mkkkidiKeyMax - midiKeyMin);
 
@@ -244,8 +292,41 @@ namespace electrosynth {
       }
   }
 
-  void SoundEngine::noteOff(int note, float lift, int sample, int channel) {
+  void SoundEngine::noteOff(int note, float velocity, int sample, int channel) {
 //    voice_handler_->noteOff(note, lift, sample, channel);
+      int i = voiceHandler.mpeMode ? channel : 0;
+
+      if (i < 0) return;
+
+      int v = tSimplePoly_markPendingNoteOff(voiceHandler.voices[i], note);
+
+      //If stack_IsNOTEmpty
+      if ((v != -1) && (tStack_getSize(voiceHandler.voices[i]->stack) >= voiceHandler.numVoicesActive)) {
+          if (voiceHandler.voices[0]->voices[v][0] == -2)
+          {
+
+              tSimplePoly_deactivateVoice(voiceHandler.voices[0], v);
+              voiceHandler.voiceIsSounding[v] = true;
+          }
+          return;
+      }
+      if (voiceHandler.mpeMode) v = i;
+      DBG("noteoff" + String(i) + " " + String(v));
+
+      if (v >= 0)
+      {
+
+          //note -= midiKeyMin;
+          for (uint8_t j = 0; j < voiceHandler.eventEmitter.numListeners; j++) {
+              voiceHandler.eventEmitter.listeners[v][j].setterFunctions[EVENT_WATCH_INDEX]
+                                                (voiceHandler.eventEmitter.listeners[v][j].object,0.f);
+          }
+
+          MasterVoiceEnvelopeProcessor->state.params.modules[v]->setterFunctions[EVENT_WATCH_INDEX](MasterVoiceEnvelopeProcessor->state.params.modules[v],0.f);
+          voiceHandler.voiceIsSounding[v] = true;
+          // float norm = key / float(mkkkidiKeyMax - midiKeyMin);
+
+      }
   }
 
   void SoundEngine::setModWheel(float value, int channel) {

@@ -186,7 +186,7 @@ struct StringParams : public LEAFParams<_tStringModule>
 };
 
 
-class StringModuleProcessor : public ProcessorStateBase<PluginStateImpl_<StringParams, _tStringModule>>
+class StringModuleProcessor : public ProcessorStateBase<PluginStateImpl_<StringParams>>
 {
 public:
     StringModuleProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree& _vt, LEAF* leaf)

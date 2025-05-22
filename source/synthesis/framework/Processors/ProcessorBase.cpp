@@ -12,7 +12,7 @@ void ProcessorBase::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuf
     //buffer.clear();
 
     //    auto* samplesL = buffer.getReadPointer(0);
-    for (int v = 0; v < engine->numVoicesActive; v++) {
+    for (int v = 0; v < engine->voiceHandler.numVoicesActive; v++) {
         auto* L = buffer.getWritePointer(0);
         auto* R = buffer.getWritePointer(1);
         for (int i = 0; i < numSamples; i++)

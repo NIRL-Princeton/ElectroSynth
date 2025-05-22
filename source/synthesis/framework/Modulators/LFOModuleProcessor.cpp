@@ -4,7 +4,7 @@
 
 #include "LFOModuleProcessor.h"
 LFOModuleProcessor::LFOModuleProcessor(electrosynth::SoundEngine* engine,juce::ValueTree& vt, LEAF* leaf)
-    :ModulatorStateBase<PluginStateImpl_<LFOParamHolder, _tLFOModule>>(engine,leaf,vt )
+    :ModulatorStateBase(engine,leaf,vt )
 {
     procArray = &state.params.processors[0];
     vt.setProperty(IDs::uuid, state.params.processors[0].processorUniqueID, nullptr);

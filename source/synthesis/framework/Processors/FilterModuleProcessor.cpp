@@ -25,7 +25,7 @@
 //    else
 //        return juce::String(harmonic);
 //}
-FilterModuleProcessor::FilterModuleProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree &v, LEAF *leaf) : ProcessorStateBase<PluginStateImpl_<FilterParams, _tFiltModule>>(engine,leaf,v)
+FilterModuleProcessor::FilterModuleProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree &v, LEAF *leaf) : ProcessorStateBase(engine,leaf,v)
 {
    //tOscModule_init(static_cast<void*>(module), {0, 0}, id, leaf)
     //tFiltModule_processorInit(state.params.module, &processor);

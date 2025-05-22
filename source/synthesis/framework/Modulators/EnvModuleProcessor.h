@@ -30,7 +30,6 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
         1.0f,
         all_params[EnvEventWatchFlag],
         [this] (float val) {
-           // for (auto mod: modules) mod->setterFunctions[EnvParams::EnvSustain](mod, val);
         },
         &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal
@@ -84,7 +83,7 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
     chowdsp::TimeMsParameter::Ptr releaseParam {
         juce::ParameterID { "release", 100 },
         "Release",
-        chowdsp::ParamUtils::createNormalisableRange (0.0f, 10000.0f, 500.0f),
+        chowdsp::ParamUtils::createNormalisableRange (0.0f, 1000.0f, 500.0f),
         50.0f,
         all_params[EnvParams::EnvRelease],
         [this] (float val) {
@@ -96,13 +95,14 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
 
 
 
-class EnvModuleProcessor : public ModulatorStateBase<PluginStateImpl_<EnvParamHolder, _tEnvModule >>
+class EnvModuleProcessor : public ModulatorStateBase<PluginStateImpl_<EnvParamHolder>>
 {
 public:
     EnvModuleProcessor(electrosynth::SoundEngine* engine,juce::ValueTree&, LEAF* leaf);
     void getNextAudioBlock (const juce::AudioSourceChannelInfo &bufferToFill) override {}
     void prepareToPlay (int samplesPerBlock, double sampleRate ) override {}
     void releaseResources() override {}
+    juce::AudioBuffer<float>* processMasterEnvelope();
     electrosynth::ParametersView* createEditor() override
     {
         return new electrosynth::ParametersView(state, state.params, vt.getProperty(IDs::type).toString() + vt.getProperty(IDs::uuid).toString());

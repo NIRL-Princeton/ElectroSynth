@@ -62,6 +62,7 @@ SynthGuiInterface::SynthGuiInterface(SynthBase* synth, bool use_gui) : synth_(sy
     gui_ = std::make_unique<FullInterface>(&synth_data);
   }
 
+
 }
 
 SynthGuiInterface::~SynthGuiInterface() { }
