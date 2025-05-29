@@ -121,7 +121,7 @@ void SynthEditor::getNextAudioBlock(const AudioSourceChannelInfo& buffer) {
     current_time_ += current_samples * sample_time;
   }
   AudioSampleBuffer& buff = *buffer.buffer;
-  melatonin::printSparkline (buff,false);
+//  melatonin::printSparkline (buff,false);
 
     //processAudioAndMidi(*buffer.buffer, midi_messages);
 }

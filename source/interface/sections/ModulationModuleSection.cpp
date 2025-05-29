@@ -18,14 +18,16 @@ namespace electrosynth {
 ModulationModuleSection::ModulationModuleSection(ValueTree &v, ModulationManager *modulation_manager) : ModulesInterface<ModulationSection>(v), modulation_manager(modulation_manager)
 {
     scroll_bar_ = std::make_unique<OpenGlScrollBar>(false);
-//    scroll_bar_->setShrinkLeft(true);
+//    scroll_bar_->setShrinkLeft(true)
     addAndMakeVisible(scroll_bar_.get());
     addOpenGlComponent(scroll_bar_->getGlComponent());
     scroll_bar_->addListener(this);
     setSkinOverride(Skin::kModulationSection);
     Skin default_skin;
     setSkinValues(default_skin,false);
+    viewport_.setScrollBarPosition(false,true);
     viewport_.setScrollBarsShown(false, false, false, true);
+
     factory.registerType<EnvModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*>("env");
     factory.registerType<LFOModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*>("lfo");
 
@@ -117,15 +119,15 @@ void ModulationModuleSection::setEffectPositions() {
     int y = 0;
     int x = 0;
     juce::Point<int> position = viewport_.getViewPosition();
-    DBG("position viewport: x: " + juce::String(position.getX()) + "y: " + juce::String(position.getY()));
-    DBG("shadwo width: " + String(shadow_width));
+    //DBG("position viewport: x: " + juce::String(position.getX()) + "y: " + juce::String(position.getY()));
+  //  DBG("shadwo width: " + String(shadow_width));
     for(auto& section : objects)
     {
         section->setBounds(x, shadow_width, effect_width, effect_height);
         x += effect_width + padding;
     }
 
-    container_->setBounds(0, 0, x - padding,viewport_.getHeight());
+    container_->setBounds(0, 0, x - padding + effect_width * 2,viewport_.getHeight());
     viewport_.setViewPosition(position);
 
     for (Listener* listener : listeners_)
@@ -188,14 +190,16 @@ void ModulationModuleSection::deleteObject (ModulationSection* at)
 
 void ModulationModuleSection::scrollBarMoved(ScrollBar* scroll_bar, double range_start) {
     viewport_.setViewPosition(juce::Point<int>(range_start,0));
+    DBG(range_start);
 }
 
 void ModulationModuleSection::setScrollBarRange() {
-    scroll_bar_->setRangeLimits(0.0, container_->getWidth());
+    scroll_bar_->setRangeLimits(0.0, container_->getWidth() );
     scroll_bar_->setCurrentRange(scroll_bar_->getCurrentRangeStart(), viewport_.getWidth(), dontSendNotification);
-    DBG("container width " + String(container_->getWidth()));
-    DBG("viewport wdith " + String(viewport_.getWidth()));
-    DBG("scrollbar range: " + String(scroll_bar_->getCurrentRangeStart()) );
+    //DBG("container width " + String(container_->getWidth()));
+   // DBG("viewport wdith " + String(viewport_.getWidth()));
+
+   // DBG("scrollbar range: " + String(scroll_bar_->getCurrentRangeStart()) );
 }
 void ModulationModuleSection::renderOpenGlComponents(OpenGlWrapper& open_gl, bool animate) {
     ScopedLock lock(open_gl_critical_section_);

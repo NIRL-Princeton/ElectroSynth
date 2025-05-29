@@ -119,7 +119,7 @@ namespace electrosynth {
     void SoundEngine::process(juce::AudioSampleBuffer &audio_buffer , int channels, int samples, int offset)
   {
       //VITAL_ASSERT(num_samples <= output()->buffer_size);
-      benchmark();
+      // benchmark();
       juce::FloatVectorOperations::disableDenormalisedNumberSupport();
       temp_voice_buffer.clear();
       //juce::MidiBuffer midimessages;

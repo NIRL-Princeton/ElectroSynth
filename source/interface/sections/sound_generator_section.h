@@ -61,6 +61,7 @@ paintChildrenBackgrounds(g);
 
 class EffectsViewport : public juce::Viewport {
 public:
+
     class Listener {
     public:
         virtual ~Listener() { }
@@ -69,8 +70,12 @@ public:
 
     void addListener(Listener* listener) { listeners_.push_back(listener); }
     void visibleAreaChanged(const juce::Rectangle<int>& visible_area) override {
-        for (Listener* listener : listeners_)
-            listener->effectsScrolled(visible_area.getY());
+        for (Listener* listener : listeners_) {
+            if (isVerticalScrollbarOnTheRight())
+                listener->effectsScrolled(visible_area.getY());
+            else
+                listener->effectsScrolled(visible_area.getX());
+        }
 
         Viewport::visibleAreaChanged(visible_area);
     }
@@ -130,7 +135,7 @@ public:
     void effectsScrolled(int position) override {
         setScrollBarRange();
         scroll_bar_->setCurrentRange(position, viewport_.getHeight());
-
+        DBG("position: " + String(position));
         for (Listener* listener : listeners_)
             listener->effectsMoved();
     }
@@ -157,6 +162,7 @@ ModulesInterface<T>::ModulesInterface(juce::ValueTree &v) : SynthSection("module
     container_ = std::make_unique<ModulesContainer>("container");
 
     addAndMakeVisible(viewport_);
+    viewport_.setScrollBarPosition(true,false);//use this to determine viewport scroll type in effectsviewport
     viewport_.setViewedComponent(container_.get());
     viewport_.addListener(this);
     viewport_.setScrollBarsShown(false, false, true, false);
@@ -275,14 +281,15 @@ void ModulesInterface<T>::destroyOpenGlComponents(OpenGlWrapper& open_gl) {
 template<typename T>
 void ModulesInterface<T>::scrollBarMoved(ScrollBar* scroll_bar, double range_start) {
     viewport_.setViewPosition(juce::Point<int>(0, range_start));
+    DBG(range_start);
 }
 template<typename T>
 void ModulesInterface<T>::setScrollBarRange() {
     scroll_bar_->setRangeLimits(0.0, container_->getHeight());
     scroll_bar_->setCurrentRange(scroll_bar_->getCurrentRangeStart(), viewport_.getHeight(), dontSendNotification);
-    DBG("container height: " + String(container_->getHeight()));
-    DBG("viewport height: " + String(viewport_.getHeight()));
-    DBG("scrollbar range: " + String(scroll_bar_->getCurrentRangeStart()) );
+ //   DBG("container height: " + String(container_->getHeight()));
+  //  DBG("viewport height: " + String(viewport_.getHeight()));
+   // DBG("scrollbar range: " + String(scroll_bar_->getCurrentRangeStart()) );
 }
 
 template<typename T>

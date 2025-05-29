@@ -20,451 +20,422 @@
 
 #include <mutex>
 
-class OpenGlMultiQuad : public OpenGlComponent
-{
+class OpenGlMultiQuad : public OpenGlComponent {
 public:
-  static constexpr int kNumVertices = 4;
-  static constexpr int kNumFloatsPerVertex = 10;
-  static constexpr int kNumFloatsPerQuad = kNumVertices * kNumFloatsPerVertex;
-  static constexpr int kNumIndicesPerQuad = 6;
-  static constexpr float kThicknessDecay = 0.4f;
-  static constexpr float kAlphaInc = 0.2f;
+    static constexpr int kNumVertices = 4;
+    static constexpr int kNumFloatsPerVertex = 10;
+    static constexpr int kNumFloatsPerQuad = kNumVertices * kNumFloatsPerVertex;
+    static constexpr int kNumIndicesPerQuad = 6;
+    static constexpr float kThicknessDecay = 0.4f;
+    static constexpr float kAlphaInc = 0.2f;
 
-  OpenGlMultiQuad(int max_quads, Shaders::FragmentShader shader = Shaders::kColorFragment, juce::String name = "");
-  virtual ~OpenGlMultiQuad();
+    OpenGlMultiQuad(int max_quads, Shaders::FragmentShader shader = Shaders::kColorFragment, juce::String name = "");
 
-  virtual void init(OpenGlWrapper &open_gl) override;
-  virtual void render(OpenGlWrapper &open_gl, bool animate) override;
-  virtual void destroy(OpenGlWrapper &open_gl) override;
-  virtual bool isInit() override;
-  void paintBackground(juce::Graphics &g) override {}
-  void resized() override
-  {
-    OpenGlComponent::resized();
-    dirty_ = true;
-  }
+    virtual ~OpenGlMultiQuad();
 
-  void markDirty()
-  {
-    dirty_ = true;
-  }
+    virtual void init(OpenGlWrapper &open_gl) override;
 
-  void setFragmentShader(Shaders::FragmentShader shader) { fragment_shader_ = shader; }
+    virtual void render(OpenGlWrapper &open_gl, bool animate) override;
 
-  void setNumQuads(int num_quads)
-  {
-    _ASSERT(num_quads <= max_quads_);
-    num_quads_ = num_quads;
-    dirty_ = true;
-  }
+    virtual void destroy(OpenGlWrapper &open_gl) override;
 
-  force_inline void setColor(juce::Colour color)
-  {
-    color_ = color;
-  }
+    virtual bool isInit() override;
 
-  force_inline juce::Colour getColor()
-  {
-    return color_;
-  }
-
-  force_inline void setAltColor(juce::Colour color)
-  {
-    alt_color_ = color;
-  }
-
-  force_inline void setModColor(juce::Colour color)
-  {
-    mod_color_ = color;
-  }
-
-  force_inline void setThumbColor(juce::Colour color)
-  {
-    thumb_color_ = color;
-  }
-
-  force_inline void setThumbAmount(float amount)
-  {
-    thumb_amount_ = amount;
-  }
-
-  force_inline void setStartPos(float pos)
-  {
-    start_pos_ = pos;
-  }
-
-  force_inline void setMaxArc(float max_arc)
-  {
-    max_arc_ = max_arc;
-  }
-
-  force_inline float getMaxArc()
-  {
-    return max_arc_;
-  }
-
-  force_inline float getQuadX(int i) const
-  {
-    int index = kNumFloatsPerQuad * i;
-    return data_[index];
-  }
-
-  force_inline float getQuadY(int i) const
-  {
-    int index = kNumFloatsPerQuad * i;
-    return data_[index + 1];
-  }
-
-  force_inline float getQuadWidth(int i) const
-  {
-    int index = kNumFloatsPerQuad * i;
-    return data_[2 * kNumFloatsPerVertex + index] - data_[index];
-  }
-
-  force_inline float getQuadHeight(int i) const
-  {
-    int index = kNumFloatsPerQuad * i;
-    return data_[kNumFloatsPerVertex + index + 1] - data_[index + 1];
-  }
-
-  float *getVerticesData(int i)
-  {
-    int index = kNumFloatsPerQuad * i;
-    return data_.get() + index;
-  }
-
-  void setRotatedCoordinates(int i, float x, float y, float w, float h)
-  {
-    _ASSERT(i < max_quads_);
-    int index = i * kNumFloatsPerQuad;
-
-    data_[index + 4] = x;
-    data_[index + 5] = y + h;
-    data_[kNumFloatsPerVertex + index + 4] = x + w;
-    data_[kNumFloatsPerVertex + index + 5] = y + h;
-    data_[2 * kNumFloatsPerVertex + index + 4] = x + w;
-    data_[2 * kNumFloatsPerVertex + index + 5] = y;
-    data_[3 * kNumFloatsPerVertex + index + 4] = x;
-    data_[3 * kNumFloatsPerVertex + index + 5] = y;
-  }
-
-  void setCoordinates(int i, float x, float y, float w, float h)
-  {
-    _ASSERT(i < max_quads_);
-    int index = i * kNumFloatsPerQuad;
-
-    data_[index + 4] = x;
-    data_[index + 5] = y;
-    data_[kNumFloatsPerVertex + index + 4] = x;
-    data_[kNumFloatsPerVertex + index + 5] = y + h;
-    data_[2 * kNumFloatsPerVertex + index + 4] = x + w;
-    data_[2 * kNumFloatsPerVertex + index + 5] = y + h;
-    data_[3 * kNumFloatsPerVertex + index + 4] = x + w;
-    data_[3 * kNumFloatsPerVertex + index + 5] = y;
-  }
-
-  void setShaderValue(int i, float shader_value, int value_index = 0)
-  {
-    _ASSERT(i < max_quads_);
-    int index = i * kNumFloatsPerQuad + 6 + value_index;
-    data_[index] = shader_value;
-    data_[kNumFloatsPerVertex + index] = shader_value;
-    data_[2 * kNumFloatsPerVertex + index] = shader_value;
-    data_[3 * kNumFloatsPerVertex + index] = shader_value;
-    dirty_ = true;
-  }
-
-  void setDimensions(int i, float quad_width, float quad_height, float full_width, float full_height)
-  {
-    int index = i * kNumFloatsPerQuad;
-    float w = quad_width * full_width / 2.0f;
-    float h = quad_height * full_height / 2.0f;
-
-    data_[index + 2] = w;
-    data_[index + 3] = h;
-    data_[kNumFloatsPerVertex + index + 2] = w;
-    data_[kNumFloatsPerVertex + index + 3] = h;
-    data_[2 * kNumFloatsPerVertex + index + 2] = w;
-    data_[2 * kNumFloatsPerVertex + index + 3] = h;
-    data_[3 * kNumFloatsPerVertex + index + 2] = w;
-    data_[3 * kNumFloatsPerVertex + index + 3] = h;
-  }
-
-  void setQuadHorizontal(int i, float x, float w)
-  {
-    _ASSERT(i < max_quads_);
-    int index = i * kNumFloatsPerQuad;
-    data_[index] = x;
-    data_[kNumFloatsPerVertex + index] = x;
-    data_[2 * kNumFloatsPerVertex + index] = x + w;
-    data_[3 * kNumFloatsPerVertex + index] = x + w;
-
-    dirty_ = true;
-  }
-
-  void setQuadVertical(int i, float y, float h)
-  {
-    _ASSERT(i < max_quads_);
-    int index = i * kNumFloatsPerQuad;
-    data_[index + 1] = y;
-    data_[kNumFloatsPerVertex + index + 1] = y + h;
-    data_[2 * kNumFloatsPerVertex + index + 1] = y + h;
-    data_[3 * kNumFloatsPerVertex + index + 1] = y;
-
-    dirty_ = true;
-  }
-
-  void setQuad(int i, float x, float y, float w, float h)
-  {
-    _ASSERT(i < max_quads_);
-    int index = i * kNumFloatsPerQuad;
-    data_[index] = x;
-    data_[index + 1] = y;
-    data_[kNumFloatsPerVertex + index] = x;
-    data_[kNumFloatsPerVertex + index + 1] = y + h;
-    data_[2 * kNumFloatsPerVertex + index] = x + w;
-    data_[2 * kNumFloatsPerVertex + index + 1] = y + h;
-    data_[3 * kNumFloatsPerVertex + index] = x + w;
-    data_[3 * kNumFloatsPerVertex + index + 1] = y;
-
-    dirty_ = true;
-  }
-
-  void setActive(bool active)
-  {
-    active_ = active;
-  }
-
-  void setThickness(float thickness, bool reset = false)
-  {
-    thickness_ = thickness;
-    if (reset)
-      current_thickness_ = thickness_;
-  }
-
-  void setRounding(float rounding)
-  {
-    float adjusted = 2.0f * rounding;
-    if (adjusted != rounding_)
-    {
-      dirty_ = true;
-      rounding_ = adjusted;
+    void paintBackground(juce::Graphics &g) override {
     }
-  }
 
-  void setTargetComponent(juce::Component *target_component)
-  {
-    target_component_ = target_component;
-  }
+    void resized() override {
+        OpenGlComponent::resized();
+        dirty_ = true;
+    }
 
-  void setScissorComponent(juce::Component *scissor_component)
-  {
-    scissor_component_ = scissor_component;
-  }
+    void markDirty() {
+        dirty_ = true;
+    }
 
-  juce::OpenGLShaderProgram *shader() { return shader_; }
+    void setFragmentShader(Shaders::FragmentShader shader) { fragment_shader_ = shader; }
 
-  void setAdditive(bool additive) { additive_blending_ = additive; }
-  void setAlpha(float alpha, bool reset = false)
-  {
-    alpha_mult_ = alpha;
-    if (reset)
-      current_alpha_mult_ = alpha;
-  }
+    void setNumQuads(int num_quads) {
+        _ASSERT(num_quads <= max_quads_);
+        num_quads_ = num_quads;
+        dirty_ = true;
+    }
 
-  void setDrawWhenNotVisible(bool draw) { draw_when_not_visible_ = draw; }
+    force_inline void setColor(juce::Colour color) {
+        color_ = color;
+    }
+
+    force_inline juce::Colour getColor() {
+        return color_;
+    }
+
+    force_inline void setAltColor(juce::Colour color) {
+        alt_color_ = color;
+    }
+
+    force_inline void setModColor(juce::Colour color) {
+        mod_color_ = color;
+    }
+
+    force_inline void setThumbColor(juce::Colour color) {
+        thumb_color_ = color;
+    }
+
+    force_inline void setThumbAmount(float amount) {
+        thumb_amount_ = amount;
+    }
+
+    force_inline void setStartPos(float pos) {
+        start_pos_ = pos;
+    }
+
+    force_inline void setMaxArc(float max_arc) {
+        max_arc_ = max_arc;
+    }
+
+    force_inline float getMaxArc() {
+        return max_arc_;
+    }
+
+    force_inline float getQuadX(int i) const {
+        int index = kNumFloatsPerQuad * i;
+        return data_[index];
+    }
+
+    force_inline float getQuadY(int i) const {
+        int index = kNumFloatsPerQuad * i;
+        return data_[index + 1];
+    }
+
+    force_inline float getQuadWidth(int i) const {
+        int index = kNumFloatsPerQuad * i;
+        return data_[2 * kNumFloatsPerVertex + index] - data_[index];
+    }
+
+    force_inline float getQuadHeight(int i) const {
+        int index = kNumFloatsPerQuad * i;
+        return data_[kNumFloatsPerVertex + index + 1] - data_[index + 1];
+    }
+
+    float *getVerticesData(int i) {
+        int index = kNumFloatsPerQuad * i;
+        return data_.get() + index;
+    }
+
+    void setRotatedCoordinates(int i, float x, float y, float w, float h) {
+        _ASSERT(i < max_quads_);
+        int index = i * kNumFloatsPerQuad;
+
+        data_[index + 4] = x;
+        data_[index + 5] = y + h;
+        data_[kNumFloatsPerVertex + index + 4] = x + w;
+        data_[kNumFloatsPerVertex + index + 5] = y + h;
+        data_[2 * kNumFloatsPerVertex + index + 4] = x + w;
+        data_[2 * kNumFloatsPerVertex + index + 5] = y;
+        data_[3 * kNumFloatsPerVertex + index + 4] = x;
+        data_[3 * kNumFloatsPerVertex + index + 5] = y;
+    }
+
+    void setCoordinates(int i, float x, float y, float w, float h) {
+        _ASSERT(i < max_quads_);
+        int index = i * kNumFloatsPerQuad;
+
+        data_[index + 4] = x;
+        data_[index + 5] = y;
+        data_[kNumFloatsPerVertex + index + 4] = x;
+        data_[kNumFloatsPerVertex + index + 5] = y + h;
+        data_[2 * kNumFloatsPerVertex + index + 4] = x + w;
+        data_[2 * kNumFloatsPerVertex + index + 5] = y + h;
+        data_[3 * kNumFloatsPerVertex + index + 4] = x + w;
+        data_[3 * kNumFloatsPerVertex + index + 5] = y;
+    }
+
+    void setShaderValue(int i, float shader_value, int value_index = 0) {
+        _ASSERT(i < max_quads_);
+        int index = i * kNumFloatsPerQuad + 6 + value_index;
+        data_[index] = shader_value;
+        data_[kNumFloatsPerVertex + index] = shader_value;
+        data_[2 * kNumFloatsPerVertex + index] = shader_value;
+        data_[3 * kNumFloatsPerVertex + index] = shader_value;
+        dirty_ = true;
+    }
+
+    void setDimensions(int i, float quad_width, float quad_height, float full_width, float full_height) {
+        int index = i * kNumFloatsPerQuad;
+        float w = quad_width * full_width / 2.0f;
+        float h = quad_height * full_height / 2.0f;
+
+        data_[index + 2] = w;
+        data_[index + 3] = h;
+        data_[kNumFloatsPerVertex + index + 2] = w;
+        data_[kNumFloatsPerVertex + index + 3] = h;
+        data_[2 * kNumFloatsPerVertex + index + 2] = w;
+        data_[2 * kNumFloatsPerVertex + index + 3] = h;
+        data_[3 * kNumFloatsPerVertex + index + 2] = w;
+        data_[3 * kNumFloatsPerVertex + index + 3] = h;
+    }
+
+    void setQuadHorizontal(int i, float x, float w) {
+        _ASSERT(i < max_quads_);
+        int index = i * kNumFloatsPerQuad;
+        data_[index] = x;
+        data_[kNumFloatsPerVertex + index] = x;
+        data_[2 * kNumFloatsPerVertex + index] = x + w;
+        data_[3 * kNumFloatsPerVertex + index] = x + w;
+
+        dirty_ = true;
+    }
+
+    void setQuadVertical(int i, float y, float h) {
+        _ASSERT(i < max_quads_);
+        int index = i * kNumFloatsPerQuad;
+        data_[index + 1] = y;
+        data_[kNumFloatsPerVertex + index + 1] = y + h;
+        data_[2 * kNumFloatsPerVertex + index + 1] = y + h;
+        data_[3 * kNumFloatsPerVertex + index + 1] = y;
+
+        dirty_ = true;
+    }
+
+    void setQuad(int i, float x, float y, float w, float h) {
+        _ASSERT(i < max_quads_);
+        int index = i * kNumFloatsPerQuad;
+        data_[index] = x;
+        data_[index + 1] = y;
+        data_[kNumFloatsPerVertex + index] = x;
+        data_[kNumFloatsPerVertex + index + 1] = y + h;
+        data_[2 * kNumFloatsPerVertex + index] = x + w;
+        data_[2 * kNumFloatsPerVertex + index + 1] = y + h;
+        data_[3 * kNumFloatsPerVertex + index] = x + w;
+        data_[3 * kNumFloatsPerVertex + index + 1] = y;
+
+        dirty_ = true;
+    }
+
+    void setActive(bool active) {
+        active_ = active;
+    }
+
+    void setThickness(float thickness, bool reset = false) {
+        thickness_ = thickness;
+        if (reset)
+            current_thickness_ = thickness_;
+    }
+
+    void setRounding(float rounding) {
+        float adjusted = 2.0f * rounding;
+        if (adjusted != rounding_) {
+            dirty_ = true;
+            rounding_ = adjusted;
+        }
+    }
+
+    void setTargetComponent(juce::Component *target_component) {
+        target_component_ = target_component;
+    }
+
+    void setScissorComponent(juce::Component *scissor_component) {
+        scissor_component_ = scissor_component;
+    }
+
+    juce::OpenGLShaderProgram *shader() { return shader_; }
+
+    void setAdditive(bool additive) { additive_blending_ = additive; }
+
+    void setAlpha(float alpha, bool reset = false) {
+        alpha_mult_ = alpha;
+        if (reset)
+            current_alpha_mult_ = alpha;
+    }
+
+    void setDrawWhenNotVisible(bool draw) { draw_when_not_visible_ = draw; }
 
 protected:
-  juce::Component *target_component_;
-  juce::Component *scissor_component_;
-  Shaders::FragmentShader fragment_shader_;
-  int max_quads_;
-  int num_quads_;
+    juce::Component *target_component_;
+    juce::Component *scissor_component_;
+    Shaders::FragmentShader fragment_shader_;
+    int max_quads_;
+    int num_quads_;
 
-  bool draw_when_not_visible_;
-  bool active_;
-  bool dirty_;
-  juce::Colour color_;
-  juce::Colour alt_color_;
-  juce::Colour mod_color_;
-  juce::Colour thumb_color_;
-  float max_arc_;
-  float thumb_amount_;
-  float start_pos_;
-  float current_alpha_mult_;
-  float alpha_mult_;
-  bool additive_blending_;
-  float current_thickness_;
-  float thickness_;
-  float rounding_;
+    bool draw_when_not_visible_;
+    bool active_;
+    bool dirty_;
+    juce::Colour color_;
+    juce::Colour alt_color_;
+    juce::Colour mod_color_;
+    juce::Colour thumb_color_;
+    float max_arc_;
+    float thumb_amount_;
+    float start_pos_;
+    float current_alpha_mult_;
+    float alpha_mult_;
+    bool additive_blending_;
+    float current_thickness_;
+    float thickness_;
+    float rounding_;
 
-  std::unique_ptr<float[]> data_;
-  std::unique_ptr<int[]> indices_;
+    std::unique_ptr<float[]> data_;
+    std::unique_ptr<int[]> indices_;
 
-  juce::OpenGLShaderProgram *shader_;
-  std::unique_ptr<juce::OpenGLShaderProgram::Uniform> color_uniform_;
-  std::unique_ptr<juce::OpenGLShaderProgram::Uniform> alt_color_uniform_;
-  std::unique_ptr<juce::OpenGLShaderProgram::Uniform> mod_color_uniform_;
-  std::unique_ptr<juce::OpenGLShaderProgram::Uniform> background_color_uniform_;
-  std::unique_ptr<juce::OpenGLShaderProgram::Uniform> thumb_color_uniform_;
-  std::unique_ptr<juce::OpenGLShaderProgram::Uniform> thickness_uniform_;
-  std::unique_ptr<juce::OpenGLShaderProgram::Uniform> rounding_uniform_;
-  std::unique_ptr<juce::OpenGLShaderProgram::Uniform> max_arc_uniform_;
-  std::unique_ptr<juce::OpenGLShaderProgram::Uniform> thumb_amount_uniform_;
-  std::unique_ptr<juce::OpenGLShaderProgram::Uniform> start_pos_uniform_;
-  std::unique_ptr<juce::OpenGLShaderProgram::Uniform> alpha_mult_uniform_;
-  std::unique_ptr<juce::OpenGLShaderProgram::Attribute> position_;
-  std::unique_ptr<juce::OpenGLShaderProgram::Attribute> dimensions_;
-  std::unique_ptr<juce::OpenGLShaderProgram::Attribute> coordinates_;
-  std::unique_ptr<juce::OpenGLShaderProgram::Attribute> shader_values_;
+    juce::OpenGLShaderProgram *shader_;
+    std::unique_ptr<juce::OpenGLShaderProgram::Uniform> color_uniform_;
+    std::unique_ptr<juce::OpenGLShaderProgram::Uniform> alt_color_uniform_;
+    std::unique_ptr<juce::OpenGLShaderProgram::Uniform> mod_color_uniform_;
+    std::unique_ptr<juce::OpenGLShaderProgram::Uniform> background_color_uniform_;
+    std::unique_ptr<juce::OpenGLShaderProgram::Uniform> thumb_color_uniform_;
+    std::unique_ptr<juce::OpenGLShaderProgram::Uniform> thickness_uniform_;
+    std::unique_ptr<juce::OpenGLShaderProgram::Uniform> rounding_uniform_;
+    std::unique_ptr<juce::OpenGLShaderProgram::Uniform> max_arc_uniform_;
+    std::unique_ptr<juce::OpenGLShaderProgram::Uniform> thumb_amount_uniform_;
+    std::unique_ptr<juce::OpenGLShaderProgram::Uniform> start_pos_uniform_;
+    std::unique_ptr<juce::OpenGLShaderProgram::Uniform> alpha_mult_uniform_;
+    std::unique_ptr<juce::OpenGLShaderProgram::Attribute> position_;
+    std::unique_ptr<juce::OpenGLShaderProgram::Attribute> dimensions_;
+    std::unique_ptr<juce::OpenGLShaderProgram::Attribute> coordinates_;
+    std::unique_ptr<juce::OpenGLShaderProgram::Attribute> shader_values_;
 
-  GLuint vertex_buffer_;
-  GLuint indices_buffer_;
+    GLuint vertex_buffer_;
+    GLuint indices_buffer_;
 
-  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OpenGlMultiQuad)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OpenGlMultiQuad)
 };
 
-class OpenGlQuad : public OpenGlMultiQuad
-{
+class OpenGlQuad : public OpenGlMultiQuad {
 public:
-  OpenGlQuad(Shaders::FragmentShader shader, juce::String name) : OpenGlMultiQuad(1, shader, name)
-  {
-    setQuad(0, -1.0f, -1.0f, 2.0f, 2.0f);
-  }
-  explicit OpenGlQuad(Shaders::FragmentShader shader) : OpenGlMultiQuad(1, shader)
-  {
-    setQuad(0, -1.0f, -1.0f, 2.0f, 2.0f);
-  }
-};
-
-class OpenGlScrollQuad : public OpenGlQuad
-{
-public:
-  OpenGlScrollQuad() : OpenGlQuad(Shaders::kRoundedRectangleFragment), scroll_bar_(nullptr),
-                       hover_(false), shrink_left_(false), hover_amount_(-1.0f) {}
-
-  virtual void render(OpenGlWrapper &open_gl, bool animate) override
-  {
-    static constexpr float kHoverChange = 0.2f;
-    float last_hover = hover_amount_;
-    if (hover_)
-      hover_amount_ = std::min(1.0f, hover_amount_ + kHoverChange);
-    else
-      hover_amount_ = std::max(0.0f, hover_amount_ - kHoverChange);
-
-    if (last_hover != hover_amount_)
-    {
-      if (shrink_left_)
-        setQuadHorizontal(0, -1.0f, 1.0f + hover_amount_);
-      else
-        setQuadHorizontal(0, 0.0f - hover_amount_, 1.0f + hover_amount_);
+    OpenGlQuad(Shaders::FragmentShader shader, juce::String name) : OpenGlMultiQuad(1, shader, name) {
+        setQuad(0, -1.0f, -1.0f, 2.0f, 2.0f);
     }
 
-    juce::Range<double> range = scroll_bar_->getCurrentRange();
-    juce::Range<double> total_range = scroll_bar_->getRangeLimit();
-    float start_ratio = (range.getStart() - total_range.getStart()) / total_range.getLength();
-    float end_ratio = (range.getEnd() - total_range.getStart()) / total_range.getLength();
-    setQuadVertical(0, 1.0f - 2.0f * end_ratio, 2.0f * (end_ratio - start_ratio));
-
-    OpenGlQuad::render(open_gl, animate);
-  }
-
-  void setHover(bool hover) { hover_ = hover; }
-  void setShrinkLeft(bool shrink_left) { shrink_left_ = shrink_left; }
-  void setScrollBar(juce::ScrollBar *scroll_bar) { scroll_bar_ = scroll_bar; }
-
-private:
-  juce::ScrollBar *scroll_bar_;
-  bool hover_;
-  bool shrink_left_;
-  float hover_amount_;
+    explicit OpenGlQuad(Shaders::FragmentShader shader) : OpenGlMultiQuad(1, shader) {
+        setQuad(0, -1.0f, -1.0f, 2.0f, 2.0f);
+    }
 };
 
-class OpenGlScrollBar : public juce::ScrollBar
-{
+class OpenGlScrollQuad : public OpenGlQuad {
 public:
-  OpenGlScrollBar(bool isVertical=true) : juce::ScrollBar(isVertical), bar_(new OpenGlScrollQuad())
-  {
-    bar_->setTargetComponent(this);
-    addAndMakeVisible(bar_.get());
-    bar_->setScrollBar(this);
-  }
+    OpenGlScrollQuad() : OpenGlQuad(Shaders::kRoundedRectangleFragment), scroll_bar_(nullptr),
+                         hover_(false), shrink_left_(false), hover_amount_(-1.0f) {
+    }
 
-  std::shared_ptr<OpenGlQuad> getGlComponent() { return bar_; }
+    virtual void render(OpenGlWrapper &open_gl, bool animate) override {
+        static constexpr float kHoverChange = 0.2f;
+        bool scroll_bar_vertical = scroll_bar_->isVertical();
+        float last_hover = hover_amount_;
+        if (hover_)
+            hover_amount_ = std::min(1.0f, hover_amount_ + kHoverChange);
+        else
+            hover_amount_ = std::max(0.0f, hover_amount_ - kHoverChange);
 
-  void resized() override
-  {
-    juce::ScrollBar::resized();
-    bar_->setBounds(getLocalBounds());
-    bar_->setRounding(getWidth() * 0.25f);
-  }
+        if (last_hover != hover_amount_) {
+            if (scroll_bar_vertical) {
+                if (shrink_left_)
+                    setQuadHorizontal(0, -1.0f, 1.0f + hover_amount_);
+                else
+                    setQuadHorizontal(0, 0.0f - hover_amount_, 1.0f + hover_amount_);
+            } else {
+                if (shrink_left_)
+                    setQuadVertical(0, -1.0f, 1.0f + hover_amount_);
+                else
+                    setQuadVertical(0, 0.0f - hover_amount_, 1.0f + hover_amount_);
+            }
+        }
 
-  void mouseEnter(const juce::MouseEvent &e) override
-  {
-    juce::ScrollBar::mouseEnter(e);
-    bar_->setHover(true);
-  }
+        juce::Range<double> range = scroll_bar_->getCurrentRange();
+        juce::Range<double> total_range = scroll_bar_->getRangeLimit();
+        float start_ratio = (range.getStart() - total_range.getStart()) / total_range.getLength();
+        float end_ratio = (range.getEnd() - total_range.getStart()) / total_range.getLength();
+        if (scroll_bar_vertical)
+            setQuadVertical(0, 1.0f - 2.0f * end_ratio, 2.0f * (end_ratio - start_ratio));
+        else
+            setQuadHorizontal(0, 1.0f - 2.0f * end_ratio, 2.0f * (end_ratio - start_ratio));
+        OpenGlQuad::render(open_gl, animate);
+    }
 
-  void mouseExit(const juce::MouseEvent &e) override
-  {
-    juce::ScrollBar::mouseExit(e);
-    bar_->setHover(false);
-  }
-
-  void mouseDown(const juce::MouseEvent &e) override
-  {
-    juce::ScrollBar::mouseDown(e);
-    bar_->setColor(color_.overlaidWith(color_));
-  }
-
-  void mouseUp(const juce::MouseEvent &e) override
-  {
-    juce::ScrollBar::mouseDown(e);
-    bar_->setColor(color_);
-  }
-
-  void setColor(juce::Colour color)
-  {
-    color_ = color;
-    bar_->setColor(color);
-  }
-  void setShrinkLeft(bool shrink_left) { bar_->setShrinkLeft(shrink_left); }
+    void setHover(bool hover) { hover_ = hover; }
+    void setShrinkLeft(bool shrink_left) { shrink_left_ = shrink_left; }
+    void setScrollBar(juce::ScrollBar *scroll_bar) { scroll_bar_ = scroll_bar; }
 
 private:
-  juce::Colour color_;
-  std::shared_ptr<OpenGlScrollQuad> bar_;
+    juce::ScrollBar *scroll_bar_;
+    bool hover_;
+    bool shrink_left_;
+    float hover_amount_;
 };
 
-class OpenGlCorners : public OpenGlMultiQuad
-{
+class OpenGlScrollBar : public juce::ScrollBar {
 public:
-  OpenGlCorners() : OpenGlMultiQuad(4, Shaders::kRoundedCornerFragment)
-  {
-    setCoordinates(0, 1.0f, 1.0f, -1.0f, -1.0f);
-    setCoordinates(1, 1.0f, 0.0f, -1.0f, 1.0f);
-    setCoordinates(2, 0.0f, 0.0f, 1.0f, 1.0f);
-    setCoordinates(3, 0.0f, 1.0f, 1.0f, -1.0f);
-  }
+    OpenGlScrollBar(bool isVertical = true) : juce::ScrollBar(isVertical), bar_(new OpenGlScrollQuad()) {
+        bar_->setTargetComponent(this);
+        addAndMakeVisible(bar_.get());
+        bar_->setScrollBar(this);
+    }
 
-  void setCorners(juce::Rectangle<int> bounds, float rounding)
-  {
-    float width = rounding / bounds.getWidth() * 2.0f;
-    float height = rounding / bounds.getHeight() * 2.0f;
+    std::shared_ptr<OpenGlQuad> getGlComponent() { return bar_; }
 
-    setQuad(0, -1.0f, -1.0f, width, height);
-    setQuad(1, -1.0f, 1.0f - height, width, height);
-    setQuad(2, 1.0f - width, 1.0f - height, width, height);
-    setQuad(3, 1.0f - width, -1.0f, width, height);
-  }
+    void resized() override {
+        juce::ScrollBar::resized();
+        bar_->setBounds(getLocalBounds());
+        bar_->setRounding(getWidth() * 0.25f);
+    }
 
-  void setBottomCorners(juce::Rectangle<int> bounds, float rounding)
-  {
-    float width = rounding / bounds.getWidth() * 2.0f;
-    float height = rounding / bounds.getHeight() * 2.0f;
+    void mouseEnter(const juce::MouseEvent &e) override {
+        juce::ScrollBar::mouseEnter(e);
+        bar_->setHover(true);
+    }
 
-    setQuad(0, -1.0f, -1.0f, width, height);
-    setQuad(1, -2.0f, -2.0f, 0.0f, 0.0f);
-    setQuad(2, -2.0f, -2.0f, 0.0f, 0.0f);
-    setQuad(3, 1.0f - width, -1.0f, width, height);
-  }
+    void mouseExit(const juce::MouseEvent &e) override {
+        juce::ScrollBar::mouseExit(e);
+        bar_->setHover(false);
+    }
+
+    void mouseDown(const juce::MouseEvent &e) override {
+        juce::ScrollBar::mouseDown(e);
+        bar_->setColor(color_.overlaidWith(color_));
+    }
+
+    void mouseUp(const juce::MouseEvent &e) override {
+        juce::ScrollBar::mouseDown(e);
+        bar_->setColor(color_);
+    }
+
+    void setColor(juce::Colour color) {
+        color_ = color;
+        bar_->setColor(color);
+    }
+
+    void setShrinkLeft(bool shrink_left) { bar_->setShrinkLeft(shrink_left); }
+
+private:
+    juce::Colour color_;
+    std::shared_ptr<OpenGlScrollQuad> bar_;
+};
+
+class OpenGlCorners : public OpenGlMultiQuad {
+public:
+    OpenGlCorners() : OpenGlMultiQuad(4, Shaders::kRoundedCornerFragment) {
+        setCoordinates(0, 1.0f, 1.0f, -1.0f, -1.0f);
+        setCoordinates(1, 1.0f, 0.0f, -1.0f, 1.0f);
+        setCoordinates(2, 0.0f, 0.0f, 1.0f, 1.0f);
+        setCoordinates(3, 0.0f, 1.0f, 1.0f, -1.0f);
+    }
+
+    void setCorners(juce::Rectangle<int> bounds, float rounding) {
+        float width = rounding / bounds.getWidth() * 2.0f;
+        float height = rounding / bounds.getHeight() * 2.0f;
+
+        setQuad(0, -1.0f, -1.0f, width, height);
+        setQuad(1, -1.0f, 1.0f - height, width, height);
+        setQuad(2, 1.0f - width, 1.0f - height, width, height);
+        setQuad(3, 1.0f - width, -1.0f, width, height);
+    }
+
+    void setBottomCorners(juce::Rectangle<int> bounds, float rounding) {
+        float width = rounding / bounds.getWidth() * 2.0f;
+        float height = rounding / bounds.getHeight() * 2.0f;
+
+        setQuad(0, -1.0f, -1.0f, width, height);
+        setQuad(1, -2.0f, -2.0f, 0.0f, 0.0f);
+        setQuad(2, -2.0f, -2.0f, 0.0f, 0.0f);
+        setQuad(3, 1.0f - width, -1.0f, width, height);
+    }
 };
