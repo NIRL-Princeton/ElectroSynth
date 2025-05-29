@@ -13,8 +13,8 @@ void ProcessorBase::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuf
 
     //    auto* samplesL = buffer.getReadPointer(0);
     for (int v = 0; v < engine->voiceHandler.numVoicesActive; v++) {
-        auto* L = buffer.getWritePointer(0);
-        auto* R = buffer.getWritePointer(1);
+        auto* L = buffer.getWritePointer(v*2);
+        auto* R = buffer.getWritePointer(v * 2 + 1);
         for (int i = 0; i < numSamples; i++)
         {
             procArray[v].tick(procArray[v].object,L);

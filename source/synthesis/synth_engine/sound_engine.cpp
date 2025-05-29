@@ -200,17 +200,20 @@ namespace electrosynth {
           }
           for (auto proc_chain : processors)
           {
+
               for (auto proc : proc_chain)
               {
                   proc->processBlock (temp_voice_buffer, empty);
 
               }
+              //at end of given processor chain
               for ( int v = 0; v < voiceHandler.numVoicesActive; ++v) {
                       // audio_buffer.addSample(0, i, temp_voice_buffer.getSample(v*2, 0));
                       // audio_buffer.addSample(1, i, temp_voice_buffer.getSample(v*2+1, 0));
                       audio_buffer.addSample(0, i, amp_vals->getSample(v*2, 0) * temp_voice_buffer.getSample(v*2, 0));
                      audio_buffer.addSample(1, i, amp_vals->getSample(v*2+1, 0) * temp_voice_buffer.getSample(v*2+1, 0));
               }
+
           }
           temp_voice_buffer.clear();
 
