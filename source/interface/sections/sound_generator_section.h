@@ -162,10 +162,8 @@ ModulesInterface<T>::ModulesInterface(juce::ValueTree &v) : SynthSection("module
     container_ = std::make_unique<ModulesContainer>("container");
 
     addAndMakeVisible(viewport_);
-    viewport_.setScrollBarPosition(true,false);//use this to determine viewport scroll type in effectsviewport
     viewport_.setViewedComponent(container_.get());
     viewport_.addListener(this);
-    viewport_.setScrollBarsShown(false, false, true, false);
     viewport_.setInterceptsMouseClicks(false,true);
     //breaks sacling if true
     addSubSection(container_.get(), false);

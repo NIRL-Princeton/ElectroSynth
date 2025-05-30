@@ -14,10 +14,12 @@
 SoundModuleSection::SoundModuleSection(ValueTree &v, ModulationManager *m) : ModulesInterface<ModuleSection>(v)
 {
     scroll_bar_ = std::make_unique<OpenGlScrollBar>();
-    scroll_bar_->setShrinkLeft(true);
     addAndMakeVisible(scroll_bar_.get());
     addOpenGlComponent(scroll_bar_->getGlComponent());
     scroll_bar_->addListener(this);
+    viewport_.setScrollBarPosition(true,false);//use this to determine viewport scroll type in effectsviewport
+    viewport_.setScrollBarsShown(false, false, true, false);
+
     factory.registerType<OscillatorModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*>("osc");
     factory.registerType<FilterModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*>("filt");
     factory.registerType<StringModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*>("string");
@@ -100,7 +102,8 @@ void SoundModuleSection::setEffectPositions() {
 
     for (Listener* listener : listeners_)
         listener->effectsMoved();
-
+    DBG("container Height " + String(container_->getHeight()));
+    DBG("viewport Height " + String(viewport_.getWidth()));
     container_->setScrollWheelEnabled(container_->getHeight() <= viewport_.getHeight());
     setScrollBarRange();
     repaintBackground();

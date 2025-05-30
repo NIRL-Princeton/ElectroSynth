@@ -257,3 +257,41 @@ void OpenGlMultiQuad::render(OpenGlWrapper &open_gl, bool animate)
   juce::gl::glDisable(juce::gl::GL_BLEND);
   juce::gl::glDisable(juce::gl::GL_SCISSOR_TEST);
 }
+
+void OpenGlScrollQuad::render(OpenGlWrapper &open_gl, bool animate)
+  {
+    static constexpr float kHoverChange = 0.2f;
+    bool scroll_bar_vertical = scroll_bar_->isVertical();
+    float last_hover = hover_amount_;
+    if (hover_)
+      hover_amount_ = std::min(1.0f, hover_amount_ + kHoverChange);
+    else
+      hover_amount_ = std::max(0.0f, hover_amount_ - kHoverChange);
+
+    if (last_hover != hover_amount_) {
+      if (scroll_bar_vertical) {
+        if (shrink_left_)
+          setQuadHorizontal(0, -1.0f, 1.0f + hover_amount_);
+        else
+          setQuadHorizontal(0, 0.0f - hover_amount_, 1.0f + hover_amount_);
+      } else {
+        if (shrink_left_)
+          setQuadVertical(0, -1.0f, 1.0f + hover_amount_);
+        else
+          setQuadVertical(0, 0.0f - hover_amount_, 1.0f + hover_amount_);
+      }
+    }
+
+    juce::Range<double> range = scroll_bar_->getCurrentRange();
+    juce::Range<double> total_range = scroll_bar_->getRangeLimit();
+    float start_ratio = (range.getStart() - total_range.getStart()) / total_range.getLength();
+    float end_ratio = (range.getEnd() - total_range.getStart()) / total_range.getLength();
+    // juce y coordinate system is inverted from opengl so calculate the position using the end ratior
+    // juce x coordinates are not inverted so use the start ratio
+    if (scroll_bar_vertical)
+      setQuadVertical(0, 1.0f - 2.0f * end_ratio, 2.0f * (end_ratio - start_ratio));
+    else
+      setQuadHorizontal(0, -1.0f + 2.0f * start_ratio , 2.0f * (end_ratio - start_ratio));
+    OpenGlQuad::render(open_gl, animate);
+  }
+

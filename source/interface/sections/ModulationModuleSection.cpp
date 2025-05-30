@@ -22,9 +22,9 @@ ModulationModuleSection::ModulationModuleSection(ValueTree &v, ModulationManager
     addAndMakeVisible(scroll_bar_.get());
     addOpenGlComponent(scroll_bar_->getGlComponent());
     scroll_bar_->addListener(this);
-    setSkinOverride(Skin::kModulationSection);
-    Skin default_skin;
-    setSkinValues(default_skin,false);
+    //setSkinOverride(Skin::kModulationSection);
+    //Skin default_skin;
+    //setSkinValues(default_skin,false);
     viewport_.setScrollBarPosition(false,true);
     viewport_.setScrollBarsShown(false, false, false, true);
 
@@ -55,7 +55,7 @@ void ModulationModuleSection::resized()
     viewport_.setBounds(viewport_x, 0, viewport_width, getHeight());
     setEffectPositions();
 
-    scroll_bar_->setBounds(0, 10, getWidth(), large_padding - 2);
+    scroll_bar_->setBounds(0, 0, getWidth(), large_padding - 2);
     scroll_bar_->setColor(findColour(Skin::kLightenScreen, true));
 
     SynthSection::resized();
@@ -190,7 +190,7 @@ void ModulationModuleSection::deleteObject (ModulationSection* at)
 
 void ModulationModuleSection::scrollBarMoved(ScrollBar* scroll_bar, double range_start) {
     viewport_.setViewPosition(juce::Point<int>(range_start,0));
-    DBG(range_start);
+    DBG("rangestart "  + juce::String(range_start));
 }
 
 void ModulationModuleSection::setScrollBarRange() {
@@ -211,7 +211,7 @@ void ModulationModuleSection::renderOpenGlComponents(OpenGlWrapper& open_gl, boo
     OpenGlComponent::setViewPort(&viewport_, open_gl);
 
     float image_width = background_.getImageWidth(); //electrosynth::utils::nextPowerOfTwo(background_.getImageWidth());
-    float image_height =background_.getImageHeight();  electrosynth::utils::nextPowerOfTwo(background_.getImageHeight());
+    float image_height =background_.getImageHeight(); // electrosynth::utils::nextPowerOfTwo(background_.getImageHeight());
     int mult = juce::Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds())->scale;// getPixelMultiple();
     float width_ratio = image_width / (viewport_.getWidth() * mult);
     float height_ratio = image_height / (container_->getHeight() * mult);
@@ -231,7 +231,7 @@ void ModulationModuleSection::redoBackgroundImage() {
     Colour background = findColour(Skin::kBackground, true);
 
     int width = std::max(container_->getWidth(), getWidth());
-    int mult = juce::Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds())->scale;// getPixelMultiple();
+    auto mult = juce::Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds())->scale;// getPixelMultiple();
     Image background_image = Image(Image::ARGB, width * mult,  container_->getHeight() * mult, true);
 
     Graphics background_graphics(background_image);

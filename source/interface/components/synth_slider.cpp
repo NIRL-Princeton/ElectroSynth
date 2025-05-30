@@ -151,12 +151,12 @@ void OpenGlSlider:: redoImage(bool skip_image) {
     slider_quad_->setThumbAmount(handle_width);
   }
   if (!skip_image) {
-//      juce::Image _image(juce::Image::SingleChannel, getWidth(), getHeight(), true);
-//      juce::Graphics g(_image);
-//      g.setColour(findColour(Skin::kRotaryBody,true));
-//      g.fillAll();
-//      image_component_.image().setOwnImage(_image);
-//    image_component_.draw_image_ = std::make_unique<juce::Image>(_image);
+      juce::Image _image(juce::Image::SingleChannel, getWidth(), getHeight(), true);
+      juce::Graphics g(_image);
+      g.setColour(findColour(Skin::kRotaryBody,true));
+      g.fillAll();
+      image_component_->image().setOwnImage(_image);
+    image_component_->draw_image_ = std::make_unique<juce::Image>(_image);
     image_component_->setActive(true);
     image_component_->redrawImage(true, false);
   }
