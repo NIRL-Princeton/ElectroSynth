@@ -96,7 +96,6 @@ void SoundModuleSection::setEffectPositions() {
         section->setBounds(shadow_width, y, effect_width, effect_height);
         y += effect_height + padding;
     }
-
     container_->setBounds(0, 0, viewport_.getWidth(), y - padding + effect_height * 2);
     viewport_.setViewPosition(position);
 

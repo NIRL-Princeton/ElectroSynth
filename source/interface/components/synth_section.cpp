@@ -346,7 +346,7 @@ void SynthSection::initOpenGlComponents(OpenGlWrapper& open_gl) {
 
 void SynthSection::renderOpenGlComponents(OpenGlWrapper& open_gl, bool animate) {
   for (auto& sub_section : sub_sections_) {
-      if (sub_section->isVisible() && !sub_section->isAlwaysOnTop())
+      if (sub_section != nullptr && sub_section->isVisible() && !sub_section->isAlwaysOnTop())
       sub_section->renderOpenGlComponents(open_gl, animate);
   }
 

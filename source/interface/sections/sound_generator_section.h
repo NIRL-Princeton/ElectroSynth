@@ -66,9 +66,20 @@ public:
     public:
         virtual ~Listener() { }
         virtual void effectsScrolled(int position) = 0;
+        virtual void startScroll() = 0;
+        virtual void endScroll() = 0;
     };
 
     void addListener(Listener* listener) { listeners_.push_back(listener); }
+    void mouseWheelMove(const MouseEvent &e, const MouseWheelDetails &wheel) override {
+        for (Listener* listener : listeners_)
+            listener->startScroll();
+
+        Viewport::mouseWheelMove(e, wheel);
+
+        for (Listener* listener : listeners_)
+            listener->endScroll();
+    }
     void visibleAreaChanged(const juce::Rectangle<int>& visible_area) override {
         for (Listener* listener : listeners_) {
             if (isVerticalScrollbarOnTheRight())
@@ -138,6 +149,12 @@ public:
         DBG("position: " + String(position));
         for (Listener* listener : listeners_)
             listener->effectsMoved();
+    }
+    void startScroll() override {
+
+    }
+    void endScroll() override {
+
     }
 
     virtual PopupItems createPopupMenu() = 0;
@@ -262,7 +279,10 @@ void ModulesInterface<T>::renderOpenGlComponents(OpenGlWrapper& open_gl, bool an
     float width_ratio = image_width / (container_->getWidth() * mult);
     float height_ratio = image_height / (viewport_.getHeight() * mult);
     float y_offset = (2.0f * viewport_.getViewPositionY()) / getHeight();
-
+    DBG("soundgen width" + juce::String(width_ratio));
+    DBG("soundgen height" + juce::String(height_ratio));
+    DBG("soundgen yoff" + juce::String(y_offset));
+    DBG("soundgen ypos" + juce::String(viewport_.getViewPositionY()));
     background_.setTopLeft(-1.0f, 1.0f + y_offset);
     background_.setTopRight(-1.0 + 2.0f * width_ratio, 1.0f + y_offset);
     background_.setBottomLeft(-1.0f, 1.0f - 2.0f * height_ratio + y_offset);

@@ -52,7 +52,7 @@ void ModulationModuleSection::resized()
     int shadow_width = getComponentShadowWidth();
     int viewport_x = 0 + large_padding - shadow_width;
     int viewport_width = getWidth() - viewport_x - large_padding + 2 * shadow_width;
-    viewport_.setBounds(viewport_x, 0, viewport_width, getHeight());
+    viewport_.setBounds(0, 0, getWidth(), getHeight());
     setEffectPositions();
 
     scroll_bar_->setBounds(0, 0, getWidth(), large_padding - 2);
@@ -196,6 +196,7 @@ void ModulationModuleSection::scrollBarMoved(ScrollBar* scroll_bar, double range
 void ModulationModuleSection::setScrollBarRange() {
     scroll_bar_->setRangeLimits(0.0, container_->getWidth() );
     scroll_bar_->setCurrentRange(scroll_bar_->getCurrentRangeStart(), viewport_.getWidth(), dontSendNotification);
+    // repaintBackground();
     //DBG("container width " + String(container_->getWidth()));
    // DBG("viewport wdith " + String(viewport_.getWidth()));
 
@@ -216,11 +217,15 @@ void ModulationModuleSection::renderOpenGlComponents(OpenGlWrapper& open_gl, boo
     float width_ratio = image_width / (viewport_.getWidth() * mult);
     float height_ratio = image_height / (container_->getHeight() * mult);
     float x_offset = (-2.0f * viewport_.getViewPositionX()) / getWidth();
-
+    DBG("modulation width" + juce::String(width_ratio));
+    DBG("modulation height" + juce::String(height_ratio));
+    DBG("modulation xoff" + juce::String(x_offset));
+    DBG("modulation xpos" + juce::String(viewport_.getViewPositionX()));
     background_.setTopLeft(-1.0f  + x_offset, 1.0f);
     background_.setTopRight(-1.0 + 2.0f * width_ratio +  x_offset, 1.0f);
     background_.setBottomLeft(-1.0f  + x_offset, 1.0f - 2.0f * height_ratio);
     background_.setBottomRight(-1.0 + 2.0f * width_ratio + x_offset, 1.0f - 2.0f * height_ratio);
+
     background_.setColor(Colours::white);
     background_.drawImage(open_gl);
 
