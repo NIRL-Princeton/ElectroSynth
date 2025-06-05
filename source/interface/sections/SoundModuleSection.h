@@ -8,31 +8,26 @@
 class ModuleSection;
 class ProcessorBase;
 class ModulationManager;
-class SoundModuleSection : public ModulesInterface<ModuleSection>
+#include "ModuleList.h"
+class SoundModuleSection : public ModulesInterface<ProcessorBase>
 {
 public:
-    explicit SoundModuleSection(juce::ValueTree &, ModulationManager* m);
+    explicit SoundModuleSection(const juce::ValueTree &, ModulationManager* m, ModuleList<ProcessorBase> &);
     virtual ~SoundModuleSection();
-    ModuleSection* createNewObject(const juce::ValueTree& v) override;
-    void deleteObject (ModuleSection* at) override;
 
-
-    // void reset() override;
-//    void newObjectAdded (ModuleSection*) override;
-    void objectRemoved (ModuleSection*) override     { resized();}//resized(); }
-    void objectOrderChanged() override              {resized(); }//resized(); }
-    void valueTreeParentChanged (juce::ValueTree&) override{};
-//    void valueTreeRedirected (juce::ValueTree&) override;
-    bool isSuitableType (const juce::ValueTree& v) const override
-    {
-        return v.hasType (IDs::MODULE);
-    }
     void setEffectPositions() override;
 
     PopupItems createPopupMenu() override;
     void handlePopupResult(int result) override;
-    Factory<ProcessorBase> factory;
+
     std::map<std::string, SynthSlider*> getAllSliders() override;
+    std::vector<ModuleSection*> module_sections;
+    void moduleAdded(ProcessorBase* newModule) override;
+
+
+    void removeModule(ProcessorBase* newModule)   override;
+void moduleListChanged() ;
+
 
 };
 

@@ -16,13 +16,13 @@ public:
     explicit ProcessorBase(electrosynth::SoundEngine* engine, LEAF* leaf,const juce::ValueTree& tree, juce::UndoManager* um = nullptr) :
         engine(engine),
         leaf(leaf),
-        vt(tree)
+        state(tree)
     {
 
     }
     ~ProcessorBase() override = default;
     LEAF* leaf;
-    juce::ValueTree vt;
+    juce::ValueTree state;
     leaf::Processor* procArray;
     juce::String name;
     virtual void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&);
@@ -39,11 +39,11 @@ class ProcessorStateBase : public ProcessorBase{
 public :
     ProcessorStateBase(electrosynth::SoundEngine* engine,LEAF* leaf, const juce::ValueTree& tree, juce::UndoManager* um = nullptr)
     : ProcessorBase(engine,leaf, tree, um),
-          state(leaf)
+          state_(leaf)
     {
 
     }
-    PluginStateType state;
+    PluginStateType state_;
 };
 
 #endif //ELECTROSYNTH_PROCESSORBASE_H

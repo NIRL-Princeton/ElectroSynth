@@ -55,10 +55,7 @@ SynthEditor::SynthEditor(bool use_gui) : SynthGuiInterface(this, use_gui) {
     }
   }
 
-  current_midi_ins_ = StringArray(juce::MidiInput::getDevices());
 
-  for (const String& midi_in : current_midi_ins_)
-    deviceManager.setMidiInputDeviceEnabled(midi_in, true);
 
   deviceManager.addMidiInputDeviceCallback("", static_cast<juce::MidiInputCallback*>(midi_manager_.get()));
 
@@ -83,7 +80,7 @@ SynthEditor::SynthEditor(bool use_gui) : SynthGuiInterface(this, use_gui) {
     setOpaque(true);
   }
 
-  startTimer(500);
+
 }
 
 SynthEditor::~SynthEditor() {
@@ -141,17 +138,6 @@ void SynthEditor::resized() {
 
     //gui_->setBounds (getBounds());
   }
-}
-
-void SynthEditor::timerCallback() {
-  StringArray midi_ins(MidiInput::getDevices());
-
-  for (int i = 0; i < midi_ins.size(); ++i) {
-    if (!current_midi_ins_.contains(midi_ins[i]))
-      deviceManager.setMidiInputEnabled(midi_ins[i], true);
-  }
-
-  current_midi_ins_ = midi_ins;
 }
 
 void SynthEditor::animate(bool animate) {

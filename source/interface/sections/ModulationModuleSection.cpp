@@ -15,7 +15,7 @@ namespace electrosynth {
     class SoundEngine;
 }
 
-ModulationModuleSection::ModulationModuleSection(ValueTree &v, ModulationManager *modulation_manager) : ModulesInterface<ModulationSection>(v), modulation_manager(modulation_manager)
+ModulationModuleSection::ModulationModuleSection(const juce::ValueTree &v, ModulationManager *modulation_manager,ModuleList<ModulatorBase>& module_list) : ModulesInterface(v,module_list), modulation_manager(modulation_manager)
 {
     scroll_bar_ = std::make_unique<OpenGlScrollBar>(false);
 //    scroll_bar_->setShrinkLeft(true)
@@ -28,8 +28,7 @@ ModulationModuleSection::ModulationModuleSection(ValueTree &v, ModulationManager
     viewport_.setScrollBarPosition(false,true);
     viewport_.setScrollBarsShown(false, false, false, true);
 
-    factory.registerType<EnvModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*>("env");
-    factory.registerType<LFOModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*>("lfo");
+
 
     addListener(modulation_manager);
     //setInterceptsMouseClicks(false, true);
@@ -37,7 +36,7 @@ ModulationModuleSection::ModulationModuleSection(ValueTree &v, ModulationManager
 
 ModulationModuleSection::~ModulationModuleSection()
 {
-    freeObjects();
+
 }
 void ModulationModuleSection::resized()
 {
@@ -67,40 +66,15 @@ void ModulationModuleSection::handlePopupResult(int result) {
     {
         juce::ValueTree t(IDs::MODULATOR);
         t.setProperty(IDs::type, "env", nullptr);
-        parent.appendChild(t,nullptr);
+        list.appendChild(t,nullptr);
     }
     else if (result == 2 )
     {
         juce::ValueTree t(IDs::MODULATOR);
         t.setProperty(IDs::type, "lfo", nullptr);
-        parent.appendChild(t,nullptr);
+        list.appendChild(t,nullptr);
     }
-//    {
-//        juce::ValueTree t(IDs::MODULE);
-//        t.setProperty(IDs::type, "FiltModule", nullptr);
-//        parent.appendChild(t,nullptr);
-//    }
-    //    if (result == kArmMidiLearn)
-    //        synth->armMidiLearn(getName().toStdString());
-    //    else if (result == kClearMidiLearn)
-    //        synth->clearMidiLearn(getName().toStdString());
-    //    else if (result == kDefaultValue)
-    //        setValue(getDoubleClickReturnValue());
-    //    else if (result == kManualEntry)
-    //        showTextEntry();
-    //    else if (result == kClearModulations) {
-    //        for (vital::ModulationConnection* connection : connections) {
-    //            std::string source = connection->source_name;
-    //            synth_interface_->disconnectModulation(connection);
-    //        }
-    //        notifyModulationsChanged();
-    //    }
-    //    else if (result >= kModulationList) {
-    //        int connection_index = result - kModulationList;
-    //        std::string source = connections[connection_index]->source_name;
-    //        synth_interface_->disconnectModulation(connections[connection_index]);
-    //        notifyModulationsChanged();
-    //    }
+
 }
 
 
@@ -121,7 +95,7 @@ void ModulationModuleSection::setEffectPositions() {
     juce::Point<int> position = viewport_.getViewPosition();
     //DBG("position viewport: x: " + juce::String(position.getX()) + "y: " + juce::String(position.getY()));
   //  DBG("shadwo width: " + String(shadow_width));
-    for(auto& section : objects)
+    for(auto& section : modulation_sections)
     {
         section->setBounds(x, shadow_width, effect_width, effect_height);
         x += effect_width + padding;
@@ -145,49 +119,6 @@ PopupItems ModulationModuleSection::createPopupMenu()
 
     return options;
 }
-
-ModulationSection* ModulationModuleSection::createNewObject (const juce::ValueTree& v)
-
-{
-    auto parent = findParentComponentOfClass<SynthGuiInterface>();
-    LEAF* leaf = parent->getLEAF();
-    std::any args = std::make_tuple( parent->getSynth()->getEngine(),v,leaf );
-
-//    try {
-
-        auto proc = factory.create(v.getProperty(IDs::type).toString().toStdString(),args);
-        auto *module_section = new ModulationSection( v,(proc->createEditor()));
-        container_->addSubSection(module_section);
-        parent->tryEnqueueProcessorInitQueue(
-            [this, proc] {
-                SynthGuiInterface* _parent = findParentComponentOfClass<SynthGuiInterface>();
-                _parent->addModulationSource(proc, 0);
-            });
-        return module_section;
-//    } catch (const std::bad_any_cast& e) {
-//        std::cerr << "Error during object creation: " << e.what() << std::endl;
-//    }
-
-
-    return nullptr;
-}
-
-void ModulationModuleSection::newObjectAdded(ModulationSection* sect)
-{
-    sect->addModButtonListener (modulation_manager);
-    for (Listener* listener : listeners_)
-        listener->added();
-    resized();
-}
-
-void ModulationModuleSection::deleteObject (ModulationSection* at)
-{
-    auto parent = findParentComponentOfClass<SynthGuiInterface>();
-    at->destroyOpenGlComponents(*parent->getOpenGlWrapper());
-    delete at;
-}
-
-
 void ModulationModuleSection::scrollBarMoved(ScrollBar* scroll_bar, double range_start) {
     viewport_.setViewPosition(juce::Point<int>(range_start,0));
     DBG("rangestart "  + juce::String(range_start));
@@ -217,10 +148,7 @@ void ModulationModuleSection::renderOpenGlComponents(OpenGlWrapper& open_gl, boo
     float width_ratio = image_width / (viewport_.getWidth() * mult);
     float height_ratio = image_height / (container_->getHeight() * mult);
     float x_offset = (-2.0f * viewport_.getViewPositionX()) / getWidth();
-    DBG("modulation width" + juce::String(width_ratio));
-    DBG("modulation height" + juce::String(height_ratio));
-    DBG("modulation xoff" + juce::String(x_offset));
-    DBG("modulation xpos" + juce::String(viewport_.getViewPositionX()));
+
     background_.setTopLeft(-1.0f  + x_offset, 1.0f);
     background_.setTopRight(-1.0 + 2.0f * width_ratio +  x_offset, 1.0f);
     background_.setBottomLeft(-1.0f  + x_offset, 1.0f - 2.0f * height_ratio);
@@ -250,3 +178,24 @@ std::map<std::string, ModulationButton*> ModulationModuleSection::getAllModulati
     //test_->getAllSliders();
     return container_->getAllModulationButtons();
 }
+void ModulationModuleSection::moduleAdded(ModulatorBase *newModule) {
+    auto *module_section = new ModulationSection( newModule->state, (newModule->createEditor()));
+    container_->addSubSection(module_section);
+    module_section->setInterceptsMouseClicks(false,true);
+    parentHierarchyChanged();
+    modulation_sections.emplace_back(std::move(module_section));
+    for(auto listener : listeners_)
+    {
+        listener->added();
+    }
+    resized();
+}
+void ModulationModuleSection::moduleListChanged() {
+
+
+}
+
+void ModulationModuleSection::removeModule(ModulatorBase *newModule) {
+
+}
+

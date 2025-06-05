@@ -189,12 +189,12 @@ struct StringParams : public LEAFParams<_tStringModule>
 class StringModuleProcessor : public ProcessorStateBase<PluginStateImpl_<StringParams>>
 {
 public:
-    StringModuleProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree& _vt, LEAF* leaf)
-        : ProcessorStateBase(engine,leaf,_vt)
+    StringModuleProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree& _state, LEAF* leaf)
+        : ProcessorStateBase(engine,leaf,_state)
     {
-        vt.setProperty(IDs::uuid, state.params.processors[0].processorUniqueID, nullptr);
-        name = vt.getProperty(IDs::type).toString() + vt.getProperty(IDs::uuid).toString();
-        procArray = &state.params.processors[0];
+        state.setProperty(IDs::uuid, state_.params.processors[0].processorUniqueID, nullptr);
+        name = state.getProperty(IDs::type).toString() + state.getProperty(IDs::uuid).toString();
+        procArray = &state_.params.processors[0];
     }
 
     void processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midi) override;
@@ -209,9 +209,9 @@ public:
     electrosynth::ParametersView* createEditor() override
     {
         return new electrosynth::ParametersView(
-            state,
-            state.params,
-            vt.getProperty(IDs::type).toString() + vt.getProperty(IDs::uuid).toString()
+            state_,
+            state_.params,
+            state.getProperty(IDs::type).toString() + state.getProperty(IDs::uuid).toString()
         );
     }
 

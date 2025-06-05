@@ -140,6 +140,10 @@ MidiManager::MidiManager(electrosynth::SoundEngine* engine,MidiKeyboardState* ke
    {
        manager->addMidiInputDeviceCallback(obj->identifier, this);
    }
+    juce::StringArray current_midi_ins_ = StringArray(juce::MidiInput::getDevices());
+
+    // for (const String& midi_in : current_midi_ins_)
+    //     manager->setMidiInputDeviceEnabled(midi_in, true);
 }
 
 MidiManager::~MidiManager() {

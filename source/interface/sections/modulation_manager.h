@@ -175,8 +175,8 @@ class ModulationManager : public SynthSection,
                           public ModulationAmountKnob::Listener,
                           public SynthSlider::SliderListener,
                           public ModulationExpansionBox::Listener,
-                          public ModulesInterface<ModulationSection>::Listener,
-                          public ModulesInterface<ModuleSection>::Listener
+                          public ModulesInterface<ProcessorBase>::Listener,
+                          public ModulesInterface<ModulatorBase>::Listener
 
 {
   public:

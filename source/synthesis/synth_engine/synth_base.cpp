@@ -30,7 +30,12 @@
 #include <chowdsp_dsp_data_structures/chowdsp_dsp_data_structures.h>
 #include "parameterArrays.h"
 #include "Modulators/EnvModuleProcessor.h"
-SynthBase::SynthBase(AudioDeviceManager * deviceManager) : expired_(false), manager(deviceManager) {
+SynthBase::SynthBase(AudioDeviceManager * deviceManager) : tree(ValueTree(IDs::GALLERY)), manager(deviceManager),
+processors_(std::make_unique<ModuleList<ProcessorBase>>(this)),
+modulators_(std::make_unique<ModuleList<ModulatorBase>>(this))
+
+    {
+
 
    self_reference_ = std::make_shared<SynthBase*>();
    *self_reference_ = this;
@@ -57,9 +62,9 @@ SynthBase::SynthBase(AudioDeviceManager * deviceManager) : expired_(false), mana
    Startup::doStartupChecks();
 
    tree = ValueTree(IDs::GALLERY);
-    tree.appendChild(engine_->MasterVoiceEnvelopeProcessor->vt,nullptr);
+    tree.appendChild(engine_->MasterVoiceEnvelopeProcessor->state,nullptr);
    tree.addListener(this);
-
+startTimer(500);
 }
 
 SynthBase::~SynthBase() {
@@ -161,7 +166,7 @@ void SynthBase::setMpeEnabled(bool enabled) {
 }
 
 
-void SynthBase::addProcessor(std::shared_ptr<ProcessorBase> processor, int voice_index)
+void SynthBase::addProcessor(std::shared_ptr<ProcessorBase> processor, int chain_index)
 {
    processor->prepareToPlay(engine_->getSampleRate(), engine_->getBufferSize());
 
@@ -169,12 +174,12 @@ void SynthBase::addProcessor(std::shared_ptr<ProcessorBase> processor, int voice
 //   {   ///this is a crazy fucking line. i hope it's doing what i want
 //       engine_->processors.emplace_back(std::initializer_list<std::shared_ptr<ProcessorBase>>{static_cast<const std::shared_ptr<ProcessorBase>> (processor)});
 //   }
-    if(engine_->processors.empty() || engine_->processors[voice_index].empty())
+    if(engine_->processors.empty() || engine_->processors[chain_index].empty())
    {
        engine_->processors.emplace_back(std::initializer_list<std::shared_ptr<ProcessorBase>>{static_cast<const std::shared_ptr<ProcessorBase>> (processor)});
    }else
    {
-       engine_->processors[voice_index].push_back(processor);
+       engine_->processors[chain_index].push_back(processor);
    }
 
 }
@@ -268,8 +273,7 @@ bool SynthBase::saveToActiveFile() {
 
 
 void SynthBase::processAudio(AudioSampleBuffer* buffer, int channels, int samples, int offset) {
-   if (expired_)
-       return;
+
    AudioThreadAction action;
    while (processorInitQueue.try_dequeue (action))
        action();
@@ -280,8 +284,7 @@ void SynthBase::processAudio(AudioSampleBuffer* buffer, int channels, int sample
 void SynthBase::processAudioAndMidi(juce::AudioBuffer<float>& audio_buffer, juce::MidiBuffer& midi_buffer) //, int channels, int samples, int offset, int start_sample = 0, int end_sample = 0)
 {
 
-   if (expired_)
-       return;
+
    AudioThreadAction action;
    while (processorInitQueue.try_dequeue (action))
        action();
@@ -295,8 +298,7 @@ void SynthBase::processAudioAndMidi(juce::AudioBuffer<float>& audio_buffer, juce
 }
 void SynthBase::processAudioWithInput(AudioSampleBuffer* buffer, const float* input_buffer,
    int channels, int samples, int offset) {
-   if (expired_)
-       return;
+
 
    engine_->processWithInput(input_buffer, samples);
    writeAudio(buffer, channels, samples, offset);
@@ -584,5 +586,20 @@ void SynthBase::processMappingChanges()
             engine_->disconnectMapping (change);
         else
             engine_->connectMapping (change);
+    }
+}
+
+
+//handle deletion
+void SynthBase::timerCallback() {
+    DeleteThreadAction action;
+    bool succeeded = true;
+    while (succeeded) {
+        auto * front = processorDeleteQueue.peek();
+        if (front!=nullptr && (*front)()) {
+            succeeded = processorDeleteQueue.try_dequeue(action);
+        }else {
+            succeeded = false;
+        }
     }
 }

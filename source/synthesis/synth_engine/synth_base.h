@@ -29,13 +29,14 @@
 #include "ModulationConnection.h"
 #include "circular_queue.h"
 #include "ModulationConnection.h"
+#include "ModuleList.h"
 class ProcessorBase;
 class ModulatorBase;
 class SynthGuiInterface;
 template<typename T>
 class BKSamplerSound;
 
-class SynthBase : public MidiManager::Listener, public juce::ValueTree::Listener {
+class SynthBase : public MidiManager::Listener, public juce::ValueTree::Listener, public Timer {
 public:
    static constexpr float kOutputWindowMinNote = 16.0f;
    static constexpr float kOutputWindowMaxNote = 128.0f;
@@ -114,7 +115,9 @@ public:
    juce::UndoManager& getUndoManager();
    static constexpr size_t actionSize = 64; // sizeof ([this, i = index] { callMessageThreadBroadcaster (i); })
    using AudioThreadAction = juce::dsp::FixedSizeFunction<actionSize, void()>;
+    using DeleteThreadAction    = juce::dsp::FixedSizeFunction<actionSize, bool()>;
    moodycamel::ReaderWriterQueue<AudioThreadAction> processorInitQueue { 10 };
+   moodycamel::ReaderWriterQueue<DeleteThreadAction> processorDeleteQueue { 10 };
     moodycamel::ReaderWriterQueue<AudioThreadAction> modulationInitQueue { 10 };
    bool saveToFile(File preset);
    bool saveToActiveFile();
@@ -129,12 +132,17 @@ public:
 
    void  processMappingChanges();
     int getNumModulations(const std::string& destination);
+    void timerCallback() override;
+    juce::ValueTree tree;
+    juce::UndoManager um;
+    std::unique_ptr<ModuleList<ProcessorBase>> processors_;
+    std::unique_ptr<ModuleList<ModulatorBase>> modulators_;
 protected:
 
     electrosynth::mapping_change createMappingChange(electrosynth::ModulationConnection* mod);
     bool isInvalidConnection(const electrosynth::mapping_change & change) {return false;}
-   juce::ValueTree tree;
-   juce::UndoManager um;
+
+
    virtual SynthGuiInterface* getGuiInterface() = 0;
 
    inline bool getNextModulationChange(electrosynth::mapping_change& change) {
@@ -170,7 +178,7 @@ protected:
    float memory_reset_period_;
    float memory_input_offset_;
    int memory_index_;
-   bool expired_;
+
 
    std::map<std::string, String> save_info_;
 

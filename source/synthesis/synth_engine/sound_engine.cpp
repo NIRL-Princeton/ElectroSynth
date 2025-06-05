@@ -46,9 +46,9 @@ namespace electrosynth {
            voiceHandler.voicePrevBend[i] = 0.0f;
        }
       MasterVoiceEnvelopeProcessor  = std::make_unique<EnvModuleProcessor>(this, juce::ValueTree (IDs::MODULATOR).setProperty(IDs::type, "env", nullptr),&leaf);
-      MasterVoiceEnvelopeProcessor->state.params.attackParam->setParameterValue(0.1);
-      MasterVoiceEnvelopeProcessor->state.params.decayParam->setParameterValue(0.01);
-      MasterVoiceEnvelopeProcessor->state.params.releaseParam->setParameterValue(0.001);
+      MasterVoiceEnvelopeProcessor->state_.params.attackParam->setParameterValue(0.1);
+      MasterVoiceEnvelopeProcessor->state_.params.decayParam->setParameterValue(0.01);
+      MasterVoiceEnvelopeProcessor->state_.params.releaseParam->setParameterValue(0.001);
       //temp_voice_buffer.set
   }
 
@@ -287,7 +287,7 @@ namespace electrosynth {
                                                     (voiceHandler.eventEmitter.listeners[v][j].object,velocity);
               }
 
-              MasterVoiceEnvelopeProcessor->state.params.modules[v]->setterFunctions[EVENT_WATCH_INDEX](MasterVoiceEnvelopeProcessor->state.params.modules[v],velocity);
+              MasterVoiceEnvelopeProcessor->state_.params.modules[v]->setterFunctions[EVENT_WATCH_INDEX](MasterVoiceEnvelopeProcessor->state_.params.modules[v],velocity);
               voiceHandler.voiceIsSounding[v] = true;
              // float norm = key / float(mkkkidiKeyMax - midiKeyMin);
 
@@ -325,7 +325,7 @@ namespace electrosynth {
                                                 (voiceHandler.eventEmitter.listeners[v][j].object,0.f);
           }
 
-          MasterVoiceEnvelopeProcessor->state.params.modules[v]->setterFunctions[EVENT_WATCH_INDEX](MasterVoiceEnvelopeProcessor->state.params.modules[v],0.f);
+          MasterVoiceEnvelopeProcessor->state_.params.modules[v]->setterFunctions[EVENT_WATCH_INDEX](MasterVoiceEnvelopeProcessor->state_.params.modules[v],0.f);
           voiceHandler.voiceIsSounding[v] = true;
           // float norm = key / float(mkkkidiKeyMax - midiKeyMin);
 

@@ -6,12 +6,13 @@
 #include "synth_slider.h"
 #include "SoundModuleSection.h"
 #include "ModulationModuleSection.h"
+#include "synth_base.h"
 #include "test_section.h"
-MainSection::MainSection(juce::ValueTree v, juce::UndoManager &um, OpenGlWrapper & open_gl, SynthGuiData* data, ModulationManager* modulation_manager) : SynthSection("main_section"), v(v), um(um)
+MainSection::MainSection(const juce::ValueTree& v, juce::UndoManager &um, OpenGlWrapper & open_gl, SynthGuiData* data, ModulationManager* modulation_manager) : SynthSection("main_section"), v(v), um(um)
 {
-    sound_interface = std::make_unique<SoundModuleSection>(v, modulation_manager);
+    sound_interface = std::make_unique<SoundModuleSection>(v, modulation_manager,*data->synth->processors_);
     addSubSection(sound_interface.get());
-    modulation_interface = std::make_unique<ModulationModuleSection>(v, modulation_manager);
+    modulation_interface = std::make_unique<ModulationModuleSection>(v, modulation_manager,*data->synth->modulators_);
     addSubSection(modulation_interface.get());
     //addAndMakeVisible(constructionPort);
 //    ValueTree t(IDs::PREPARATION);

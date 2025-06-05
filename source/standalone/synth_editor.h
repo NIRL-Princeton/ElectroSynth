@@ -23,7 +23,7 @@
 //#include <melatonin_perfetto/melatonin_perfetto.h>
 //class SynthComputerKeyboard;
 
-class SynthEditor : public AudioAppComponent, public SynthBase, public SynthGuiInterface, public Timer {
+class SynthEditor : public AudioAppComponent, public SynthBase, public SynthGuiInterface {
   public:
     SynthEditor(bool use_gui = true);
     ~SynthEditor();
@@ -45,14 +45,12 @@ class SynthEditor : public AudioAppComponent, public SynthBase, public SynthGuiI
 
     AudioDeviceManager* getAudioDeviceManager() override { return &deviceManager; }
 
-    void timerCallback() override;
-    
+
     void animate(bool animate);
 
   private:
     //std::unique_ptr<SynthComputerKeyboard> computer_keyboard_;
     CriticalSection critical_section_;
-    StringArray current_midi_ins_;
     double current_time_;
 #if PERFETTO
     std::unique_ptr<perfetto::TracingSession> tracingSession;

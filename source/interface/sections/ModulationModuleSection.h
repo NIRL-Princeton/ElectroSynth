@@ -5,30 +5,16 @@
 #ifndef ELECTROSYNTH_ModulationMODULESECTION_H
 #define ELECTROSYNTH_ModulationMODULESECTION_H
 #include "sound_generator_section.h"
+#include "ModuleList.h"
 class ModulatorBase;
 class ModulationSection;
 class ModulationManager;
-class ModulationModuleSection : public ModulesInterface<ModulationSection>
+class ModulationModuleSection : public ModulesInterface<ModulatorBase>
 {
 public:
-    ModulationModuleSection(juce::ValueTree &, ModulationManager* );
+    ModulationModuleSection(const juce::ValueTree &, ModulationManager*,ModuleList<ModulatorBase>& );
     virtual ~ModulationModuleSection();
-    ModulationSection* createNewObject(const juce::ValueTree& v) override;
-    void deleteObject (ModulationSection* at) override;
 
-    void scrollBarMoved(ScrollBar* scroll_bar, double range_start) override;
-    void setScrollBarRange() override;
-    // void reset() override;
-
-    void newObjectAdded (ModulationSection*);
-
-    void objectRemoved (ModulationSection*) override     { resized();}//resized(); }
-    void objectOrderChanged() override              {resized(); }//resized(); }
-    void valueTreeParentChanged (juce::ValueTree&) override{};
-    bool isSuitableType (const juce::ValueTree& v) const override
-    {
-        return v.hasType (IDs::MODULATOR);
-     }
      void effectsScrolled(int position) override {
          setScrollBarRange();
          scroll_bar_->setCurrentRange(position, viewport_.getWidth());
@@ -42,12 +28,17 @@ public:
     void resized() override;
      PopupItems createPopupMenu() override;
      void handlePopupResult(int result) override;
-
+     void scrollBarMoved(ScrollBar *scrollBarThatHasMoved, double newRangeStart) override;
+    void setScrollBarRange() override;
      std::map<std::string, ModulationButton*> getAllModulationButtons() override;
-     Factory<ModulatorBase> factory;
+
      ModulationManager* modulation_manager;
+     std::vector<ModulationSection*> modulation_sections;
+ void moduleAdded(ModulatorBase* newModule) override;
 
 
+ void removeModule(ModulatorBase* newModule)   override;
+ void moduleListChanged() ;
 };
 
 #endif //ELECTROSYNTH_ModulationMODULESECTION_H

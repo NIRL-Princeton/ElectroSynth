@@ -3,8 +3,9 @@
 //
 
 #include "ModuleSection.h"
-ModuleSection::ModuleSection(juce::String name, const juce::ValueTree &v, electrosynth::ParametersView* editor) : SynthSection(name), state(v), _view(editor)
+ModuleSection::ModuleSection(const juce::ValueTree &v, electrosynth::ParametersView* editor) : SynthSection(editor->getName()), state(v), _view(editor)
 {
+    setComponentID(editor->getName());
     addSubSection(_view.get());
     setInterceptsMouseClicks(false, true);
 }

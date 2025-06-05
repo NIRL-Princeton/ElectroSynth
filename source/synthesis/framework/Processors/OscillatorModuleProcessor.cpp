@@ -31,10 +31,10 @@ OscillatorModuleProcessor::OscillatorModuleProcessor(electrosynth::SoundEngine* 
 {
 
     callbacks += {
-        state.addParameterListener (*state.params.oscType, chowdsp::ParameterListenerThread::AudioThread, [this] {
-            auto theType = state.params.oscType.get();
+        state_.addParameterListener (*state_.params.oscType, chowdsp::ParameterListenerThread::AudioThread, [this] {
+            auto theType = state_.params.oscType.get();
             float val =  (float)theType->getIndex() / (float)OscTypes::OscNumTypes;
-            for (auto mod: state.params.modules) {
+            for (auto mod: state_.params.modules) {
                 mod->setterFunctions[OscParams::OscType](mod,val);
                 mod->setterFunctions[OscParams::OscShapeParam](mod->theOsc, *mod->params[OscShapeParam]);
             //also need to update the shape since the new oscillator type will default to its initial shape instead
@@ -44,17 +44,17 @@ OscillatorModuleProcessor::OscillatorModuleProcessor(electrosynth::SoundEngine* 
 
         })
     };
-    vt.setProperty(IDs::uuid, state.params.processors[0].processorUniqueID, nullptr);
-    name = vt.getProperty(IDs::type).toString() + vt.getProperty(IDs::uuid).toString();
-    procArray = &state.params.processors[0];
+    state.setProperty(IDs::uuid, state_.params.processors[0].processorUniqueID, nullptr);
+    name = state.getProperty(IDs::type).toString() + state.getProperty(IDs::uuid).toString();
+    procArray = &state_.params.processors[0];
 
    //tOscModule_init(static_cast<void*>(module), {0, 0}, id, leaf)
-    //tOscModule_processorInit(state.params.module, &processor);
+    //tOscModule_processorInit(state_.params.module, &processor);
 }
 
 void OscillatorModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midi)
 {
-    state.getParameterListeners().callAudioThreadBroadcasters();
+    state_.getParameterListeners().callAudioThreadBroadcasters();
     int numSamples = buffer.getNumSamples();
     //buffer.clear();
 

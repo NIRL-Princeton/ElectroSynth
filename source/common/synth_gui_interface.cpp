@@ -25,8 +25,7 @@ SynthGuiData::SynthGuiData(SynthBase* synth_base) : synth(synth_base),
                                                      tree(synth_base->getValueTree()),
                                                      um(synth_base->getUndoManager())
 {
-    //tree = synth->getValueTree();
-//    um = synth_base->getUndoManager();
+
 }
 #if HEADLESS
 

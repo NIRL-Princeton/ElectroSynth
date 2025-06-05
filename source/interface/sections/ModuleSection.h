@@ -8,10 +8,13 @@
 #include "PluginStateImpl_.h"
 #include "ParameterView/ParametersView.h"
 #include <juce_gui_basics/juce_gui_basics.h>
+
+#include "ProcessorBase.h"
+
 class ModuleSection : public SynthSection
 {
 public:
-    ModuleSection(juce::String name, const juce::ValueTree &, electrosynth::ParametersView* editor);
+    ModuleSection(const juce::ValueTree &, electrosynth::ParametersView* editor);
 
     virtual ~ModuleSection();
 
@@ -29,7 +32,7 @@ public:
 //    }
     juce::ValueTree state;
 private:
-
+    ProcessorBase* processor;
     std::unique_ptr<electrosynth::ParametersView> _view;
 
 

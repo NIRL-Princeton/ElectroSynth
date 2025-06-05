@@ -15,7 +15,7 @@ class ModulationManager;
 class ModulationSection : public SynthSection
 {
 public:
-    ModulationSection( const juce::ValueTree &, electrosynth::ParametersView* editor);
+    ModulationSection(  const juce::ValueTree &, electrosynth::ParametersView* editor);
 
     virtual ~ModulationSection();
 

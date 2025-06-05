@@ -23,7 +23,7 @@ public:
         //virtual void showAboutSection() = 0;
     };
 
-    MainSection(juce::ValueTree v, juce::UndoManager &um, OpenGlWrapper &open_gl, SynthGuiData * data, ModulationManager* );
+    MainSection(const juce::ValueTree& v, juce::UndoManager &um, OpenGlWrapper &open_gl, SynthGuiData * data, ModulationManager* );
 
     void paintBackground(Graphics& g) override;
     void resized() override;

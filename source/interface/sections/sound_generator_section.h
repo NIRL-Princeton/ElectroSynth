@@ -7,44 +7,10 @@
 #include "synth_section.h"
 #include "Identifiers.h"
 #include "tracktion_ValueTreeUtilities.h"
-#include <functional>
-#include <map>
 #include <string>
-#include <iostream>
-#include "Factory.h"
-//template <class Base>
-//class Factory {
-//public:
-//    using CreateFunction = std::function<Base*(std::any)>;
-//
-//    template <typename T, typename... Args>
-//    void registerType(const std::string& typeName) {
-//        creators[typeName] = [](std::any args) -> Base* {
-//            try {
-//                auto tupleArgs = std::any_cast<std::tuple<Args...>>(args); // Unpack std::any into tuple
-//                return std::apply([](auto&&... unpackedArgs) {
-//                    return new T(std::forward<decltype(unpackedArgs)>(unpackedArgs)...);  // Forward arguments to constructor
-//                }, tupleArgs);  // Apply the arguments
-//            } catch (const std::bad_any_cast& e) {
-//                std::cerr << "std::bad_any_cast: " << e.what() << " (expected tuple)" << std::endl;
-//                return nullptr;
-//            }
-//        };
-//    }
-//
-//    // Create object with arguments wrapped in std::any
-//    Base* create(const std::string& typeName, std::any args) const {
-//        auto it = creators.find(typeName);
-//        if (it != creators.end()) {
-//            return it->second(args);  // Call the creation function with arguments
-//        }
-//        return nullptr;  // Type not found
-//    }
-//
-//
-//private:
-//    std::map<std::string, CreateFunction> creators;
-//};
+
+#include "ModuleList.h"
+#include "public.sdk/source/vst/hosting/module.h"
 
 
 class ModulesContainer : public SynthSection {
@@ -97,7 +63,8 @@ private:
 template<typename T>
 class ModulesInterface : public SynthSection,
                          public juce::ScrollBar::Listener, EffectsViewport::Listener,
-     public tracktion::engine::ValueTreeObjectList<T>
+                        public ModuleList<T>::Listener
+
 {
 public:
     class Listener {
@@ -111,19 +78,8 @@ public:
 //    void deleteObject (ModuleSection* at) override;
 
 
-    // void reset() override;
-    void newObjectAdded (T*) override;
-    void objectRemoved (T*) override     { resized();}//resized(); }
-    void objectOrderChanged() override              {resized(); }//resized(); }
-    void valueTreeParentChanged (juce::ValueTree&) override{};
-    void valueTreeRedirected (juce::ValueTree&) override;
-    bool isSuitableType (const juce::ValueTree& v) const override
-    {
-        return true;
-    }
 
-
-    ModulesInterface(juce::ValueTree &);
+    ModulesInterface(const juce::ValueTree &,ModuleList<T> &);
     virtual ~ModulesInterface();
 
     void paintBackground(juce::Graphics& g) override;
@@ -159,7 +115,10 @@ public:
 
     virtual PopupItems createPopupMenu() = 0;
     virtual void handlePopupResult(int result) = 0;
+
 protected:
+    ModuleList<T>& list;
+    juce::ValueTree parent;
     std::vector<Listener*> listeners_;
     EffectsViewport viewport_;
     std::unique_ptr<ModulesContainer> container_;
@@ -175,7 +134,7 @@ protected:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ModulesInterface)
 };
 template<typename T>
-ModulesInterface<T>::ModulesInterface(juce::ValueTree &v) : SynthSection("modules"), tracktion::engine::ValueTreeObjectList<T>(v) {
+ModulesInterface<T>::ModulesInterface(const juce::ValueTree &v, ModuleList<T>& list_) : SynthSection("modules") ,list(list_),parent(v) {
     container_ = std::make_unique<ModulesContainer>("container");
 
     addAndMakeVisible(viewport_);
@@ -189,9 +148,9 @@ ModulesInterface<T>::ModulesInterface(juce::ValueTree &v) : SynthSection("module
     container_->setInterceptsMouseClicks(false,true);
 
     setOpaque(false);
+    list.addListener(this);
 
-//    setInterceptsMouseClicks(false, true);
-    ////    setSkinOverride(Skin::kAllEffects);
+
 }
 template<typename T>
 ModulesInterface<T>::~ModulesInterface() {
@@ -279,10 +238,7 @@ void ModulesInterface<T>::renderOpenGlComponents(OpenGlWrapper& open_gl, bool an
     float width_ratio = image_width / (container_->getWidth() * mult);
     float height_ratio = image_height / (viewport_.getHeight() * mult);
     float y_offset = (2.0f * viewport_.getViewPositionY()) / getHeight();
-    DBG("soundgen width" + juce::String(width_ratio));
-    DBG("soundgen height" + juce::String(height_ratio));
-    DBG("soundgen yoff" + juce::String(y_offset));
-    DBG("soundgen ypos" + juce::String(viewport_.getViewPositionY()));
+
     background_.setTopLeft(-1.0f, 1.0f + y_offset);
     background_.setTopRight(-1.0 + 2.0f * width_ratio, 1.0f + y_offset);
     background_.setBottomLeft(-1.0f, 1.0f - 2.0f * height_ratio + y_offset);
@@ -310,19 +266,4 @@ void ModulesInterface<T>::setScrollBarRange() {
    // DBG("scrollbar range: " + String(scroll_bar_->getCurrentRangeStart()) );
 }
 
-template<typename T>
-void ModulesInterface<T>::newObjectAdded (T*)
-{
-    for(auto listener : listeners_)
-    {
-        listener->added();
-    }
-    resized();
-}
-
-template<typename T>
-void ModulesInterface<T>::valueTreeRedirected (juce::ValueTree&)
-{
-
-}
 #endif //ELECTROSYNTH_SOUND_GENERATOR_SECTION_H

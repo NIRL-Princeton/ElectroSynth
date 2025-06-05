@@ -16,13 +16,13 @@ public:
     explicit ModulatorBase( electrosynth::SoundEngine* engine,LEAF* leaf,juce::ValueTree& tree, juce::UndoManager* um = nullptr) :
         engine(engine),
         leaf(leaf),
-        vt(tree)
+        state(tree)
     {
 
     }
     ~ModulatorBase() override = default;
     LEAF* leaf;
-    juce::ValueTree vt;
+    juce::ValueTree state;
     leaf::Processor* procArray;
     juce::String name;
     virtual void process();
@@ -39,11 +39,11 @@ class ModulatorStateBase : public ModulatorBase{
 public :
     ModulatorStateBase(electrosynth::SoundEngine* engine, LEAF* leaf, juce::ValueTree& tree, juce::UndoManager* um = nullptr)
     : ModulatorBase(engine, leaf, tree, um),
-          state(leaf)
+          state_(leaf)
     {
 
     }
-    PluginStateType state;
+    PluginStateType state_;
 };
 
 #endif //ELECTROSYNTH_MODULATORBASE_H

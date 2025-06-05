@@ -5,13 +5,13 @@
 #include "SoundModuleSection.h"
 #include "../../synthesis/framework/Processors/OscillatorModuleProcessor.h"
 #include "FilterModuleProcessor.h"
-#include  "ModuleSections/ModuleSection.h"
+#include "ModuleSection.h"
 #include "synth_gui_interface.h"
 #include "Processors/ProcessorBase.h"
 #include "modulation_manager.h"
 #include "../../synthesis/framework/Processors/StringModuleProcessor.h"
 #include "synth_base.h"
-SoundModuleSection::SoundModuleSection(ValueTree &v, ModulationManager *m) : ModulesInterface<ModuleSection>(v)
+SoundModuleSection::SoundModuleSection(const juce::ValueTree &v, ModulationManager *m,ModuleList<ProcessorBase> & module_list) : ModulesInterface(v,module_list)
 {
     scroll_bar_ = std::make_unique<OpenGlScrollBar>();
     addAndMakeVisible(scroll_bar_.get());
@@ -20,15 +20,13 @@ SoundModuleSection::SoundModuleSection(ValueTree &v, ModulationManager *m) : Mod
     viewport_.setScrollBarPosition(true,false);//use this to determine viewport scroll type in effectsviewport
     viewport_.setScrollBarsShown(false, false, true, false);
 
-    factory.registerType<OscillatorModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*>("osc");
-    factory.registerType<FilterModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*>("filt");
-    factory.registerType<StringModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*>("string");
+
     addListener(m);
 }
 
 SoundModuleSection::~SoundModuleSection()
 {
-    freeObjects();
+
 }
 
 void SoundModuleSection::handlePopupResult(int result) {
@@ -36,16 +34,16 @@ void SoundModuleSection::handlePopupResult(int result) {
     //std::vector<vital::ModulationConnection*> connections = getConnections();
     if (result == 1 )
     {
-        juce::ValueTree t(IDs::MODULE);
+        juce::ValueTree t(IDs::SOUNDMODULE);
         t.setProperty(IDs::type, "osc", nullptr);
-        parent.appendChild(t,nullptr);
+        list.appendChild(t,nullptr);
     } else if (result == 2)
     {
-        juce::ValueTree t(IDs::MODULE);
+        juce::ValueTree t(IDs::SOUNDMODULE);
         t.setProperty(IDs::type, "filt", nullptr);
-        parent.appendChild(t,nullptr);
+        list.appendChild(t,nullptr);
     } else if (result == 3) {
-        juce::ValueTree t(IDs::MODULE);
+        juce::ValueTree t(IDs::SOUNDMODULE);
         t.setProperty(IDs::type, "string", nullptr);
         parent.appendChild(t,nullptr);
     }
@@ -91,7 +89,7 @@ void SoundModuleSection::setEffectPositions() {
     juce::Point<int> position = viewport_.getViewPosition();
    // DBG("position viewport: x: " + juce::String(position.getX()) + "y: " + juce::String(position.getY()));
     //DBG("shadwo width: " + String(shadow_width));
-    for(auto& section : objects)
+    for(auto& section : module_sections)
     {
         section->setBounds(shadow_width, y, effect_width, effect_height);
         y += effect_height + padding;
@@ -116,41 +114,42 @@ PopupItems SoundModuleSection::createPopupMenu()
     return options;
 }
 
-ModuleSection* SoundModuleSection::createNewObject (const juce::ValueTree& v)
 
-{
-    auto parent = findParentComponentOfClass<SynthGuiInterface>();
-    LEAF* leaf = parent->getLEAF();
-    std::any args = std::make_tuple(parent->getSynth()->getEngine(), v,leaf );
-
-    try {
-
-        auto proc = factory.create(v.getProperty(IDs::type).toString().toStdString(),args);
-        auto *module_section = new ModuleSection(v.getProperty(IDs::type).toString() + v.getProperty(IDs::uuid).toString() , v, (proc->createEditor()));
-        container_->addSubSection(module_section);
-        module_section->setInterceptsMouseClicks(false,true);
-        parentHierarchyChanged();
-        parent->tryEnqueueProcessorInitQueue(
-            [this, proc] {
-                SynthGuiInterface* _parent = findParentComponentOfClass<SynthGuiInterface>();
-                _parent->addProcessor(proc, 0);
-            });
-        return module_section;
-    } catch (const std::bad_any_cast& e) {
-        std::cerr << "Error during object creation: " << e.what() << std::endl;
-    }
-
-
-    return nullptr;
-}
-
-void SoundModuleSection::deleteObject (ModuleSection* at)
-{
-    auto parent = findParentComponentOfClass<SynthGuiInterface>();
-    at->destroyOpenGlComponents(*parent->getOpenGlWrapper());
-    delete at;
-}
 std::map<std::string, SynthSlider*> SoundModuleSection::getAllSliders()
 {
     return container_->getAllSliders();
 }
+
+void SoundModuleSection::moduleAdded(ProcessorBase *newModule) {
+    auto *module_section = new ModuleSection( newModule->state, (newModule->createEditor()));
+    container_->addSubSection(module_section);
+    module_section->setInterceptsMouseClicks(false,true);
+    parentHierarchyChanged();
+    module_sections.emplace_back(std::move(module_section));
+    for(auto listener : listeners_)
+    {
+        listener->added();
+    }
+    resized();
+}
+void SoundModuleSection::removeModule(ProcessorBase *newModule) {
+
+    auto it = std::find_if(module_sections.begin(), module_sections.end(),
+        [newModule](ModuleSection* section)
+        {
+            return section->state == newModule->state;
+        });
+
+    if (it != module_sections.end())
+    {
+        ModuleSection* matchedSection = *it;
+
+        // Do something with matchedSection, e.g. remove from list:
+        module_sections.erase(it);
+
+    }
+}
+
+void SoundModuleSection::moduleListChanged(){
+}
+
