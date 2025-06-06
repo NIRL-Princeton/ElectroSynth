@@ -28,6 +28,8 @@
 #include "ModulationWrapper.h"
 #include "Processors/ProcessorBase.h"
 #include <chowdsp_dsp_data_structures/chowdsp_dsp_data_structures.h>
+
+#include "MasterVoiceProcessor.h"
 #include "parameterArrays.h"
 #include "Modulators/EnvModuleProcessor.h"
 SynthBase::SynthBase(AudioDeviceManager * deviceManager) : tree(ValueTree(IDs::GALLERY)), manager(deviceManager),
@@ -165,8 +167,65 @@ void SynthBase::setMpeEnabled(bool enabled) {
    midi_manager_->setMpeEnabled(enabled);
 }
 
+void SynthBase::removeProcessor(ProcessorBase* processor) {
+    for (auto& chain : engine_->processors)
+    {
+        auto it = std::find_if(chain.begin(), chain.end(),
+            [&](const std::unique_ptr<ProcessorBase>& proc)
+            {
+                return proc.get() == processor;
+            });
 
-void SynthBase::addProcessor(std::shared_ptr<ProcessorBase> processor, int chain_index)
+        if (it != chain.end())
+        {
+            // Transfer ownership out before erasing
+            std::unique_ptr<ProcessorBase> released = std::move(*chain.erase(it));
+            // Create task as a std::function
+            DeleteThreadAction task = [ptr = std::move(released)]() mutable {
+                ptr.reset(); // optional; unique_ptr will go out of scope
+            };
+
+            // Try enqueue
+            if (!processorDeleteQueue.try_enqueue(std::move(task)))
+            {
+                // If failed to enqueue, consider logging or handling fallback
+                jassertfalse; // or fallbackDeleteList.push_back(std::move(ptr));
+            }
+
+            return;// Caller is now responsible or the pointer
+        }
+    }
+}
+void SynthBase::removeProcessor(ModulatorBase* processor) {
+    for (auto& chain : engine_->modSources)
+    {
+        auto it = std::find_if(chain.begin(), chain.end(),
+            [&](const std::unique_ptr<ModulatorBase>& proc)
+            {
+                return proc.get() == processor;
+            });
+
+        if (it != chain.end())
+        {
+            // Transfer ownership out before erasing
+            std::unique_ptr<ModulatorBase> released = std::move(*chain.erase(it));
+            // Create task as a std::function
+            DeleteThreadAction task = [ptr = std::move(released)]() mutable {
+                ptr.reset(); // optional; unique_ptr will go out of scope
+            };
+
+            // Try enqueue
+            if (!processorDeleteQueue.try_enqueue(std::move(task)))
+            {
+                // If failed to enqueue, consider logging or handling fallback
+                jassertfalse; // or fallbackDeleteList.push_back(std::move(ptr));
+            }
+
+            return;// Caller is now responsible or the pointer
+        }
+    }
+}
+void SynthBase::addProcessor(std::unique_ptr<ProcessorBase> processor, int chain_index)
 {
    processor->prepareToPlay(engine_->getSampleRate(), engine_->getBufferSize());
 
@@ -174,20 +233,20 @@ void SynthBase::addProcessor(std::shared_ptr<ProcessorBase> processor, int chain
 //   {   ///this is a crazy fucking line. i hope it's doing what i want
 //       engine_->processors.emplace_back(std::initializer_list<std::shared_ptr<ProcessorBase>>{static_cast<const std::shared_ptr<ProcessorBase>> (processor)});
 //   }
-    if(engine_->processors.empty() || engine_->processors[chain_index].empty())
-   {
-       engine_->processors.emplace_back(std::initializer_list<std::shared_ptr<ProcessorBase>>{static_cast<const std::shared_ptr<ProcessorBase>> (processor)});
-   }else
-   {
-       engine_->processors[chain_index].push_back(processor);
-   }
+   //  if(engine_->processors.empty() || engine_->processors[chain_index].empty())
+   // {
+   //     engine_->processors.;
+   // }else
+   // {
+       engine_->processors[chain_index].push_back(std::move(processor));
+   // }
 
 }
 
-void SynthBase::addModulationSource(std::shared_ptr<ModulatorBase> modulationSource, int voice_index)
+void SynthBase::addModulationSource(std::unique_ptr<ModulatorBase> modulationSource, int voice_index)
 {
     modulationSource->prepareToPlay(engine_->getBufferSize(), engine_->getSampleRate());
-    engine_->modSources.emplace_back(std::initializer_list<std::shared_ptr<ModulatorBase>>{static_cast<const std::shared_ptr<ModulatorBase>> (modulationSource)});
+
     leaf::tProcessor* proc0 = &modulationSource->procArray[0];
     std::atomic<float>* watchParameter = proc0->inParameters[EVENT_WATCH_INDEX];
     if (*proc0->inParameters[EVENT_WATCH_INDEX] == 1) {
@@ -195,6 +254,7 @@ void SynthBase::addModulationSource(std::shared_ptr<ModulatorBase> modulationSou
             engine_->voiceHandler.eventEmitter.listeners[i][engine_->voiceHandler.eventEmitter.numListeners] = modulationSource->procArray[i];
     }
     engine_->voiceHandler.eventEmitter.numListeners++;
+    engine_->modSources[voice_index].push_back(std::move (modulationSource));
 }
 
 bool SynthBase::loadFromValueTree(const ValueTree& state)
@@ -593,13 +653,15 @@ void SynthBase::processMappingChanges()
 //handle deletion
 void SynthBase::timerCallback() {
     DeleteThreadAction action;
-    bool succeeded = true;
-    while (succeeded) {
-        auto * front = processorDeleteQueue.peek();
-        if (front!=nullptr && (*front)()) {
-            succeeded = processorDeleteQueue.try_dequeue(action);
-        }else {
-            succeeded = false;
-        }
-    }
+    while (processorDeleteQueue.try_dequeue(action))
+        action();
+    // bool succeeded = true;
+    // while (succeeded) {
+    //     auto * front = processorDeleteQueue.peek();
+    //     if (front!=nullptr && (*front)()) {
+    //         succeeded = processorDeleteQueue.try_dequeue(action);
+    //     }else {
+    //         succeeded = false;
+    //     }
+    // }
 }

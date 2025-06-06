@@ -45,6 +45,12 @@ namespace electrosynth {
            voiceHandler.voiceIsSounding[i] = false;
            voiceHandler.voicePrevBend[i] = 0.0f;
        }
+      processors.resize(10);
+      for (auto &processor : processors) {
+          processor.reserve(10);
+      }
+      modSources.resize(10);
+      for (auto &modSource : modSources) {modSource.reserve(10);}
       MasterVoiceEnvelopeProcessor  = std::make_unique<EnvModuleProcessor>(this, juce::ValueTree (IDs::MODULATOR).setProperty(IDs::type, "env", nullptr),&leaf);
       MasterVoiceEnvelopeProcessor->state_.params.attackParam->setParameterValue(0.1);
       MasterVoiceEnvelopeProcessor->state_.params.decayParam->setParameterValue(0.01);
@@ -191,17 +197,17 @@ namespace electrosynth {
         }
           auto amp_vals = MasterVoiceEnvelopeProcessor->processMasterEnvelope();
           processMappings();
-          for (auto modulator_chain : modSources)
+          for (auto &modulator_chain : modSources)
           {
-              for(auto modulator : modulator_chain)
+              for(auto& modulator : modulator_chain)
               {
                   modulator->process();
               }
           }
-          for (auto proc_chain : processors)
+          for (auto& proc_chain : processors)
           {
 
-              for (auto proc : proc_chain)
+              for (auto& proc : proc_chain)
               {
                   proc->processBlock (temp_voice_buffer, empty);
 
@@ -281,6 +287,7 @@ namespace electrosynth {
           {
               velocity = ((0.007685533519034f*velocity*127.f) + 0.0239372430f);
               velocity = velocity * velocity;
+              //note -= midiKeyMin;
               //note -= midiKeyMin;
               for (int j = 0; j < voiceHandler.eventEmitter.numListeners; j++) {
                   voiceHandler.eventEmitter.listeners[v][j].setterFunctions[EVENT_WATCH_INDEX]
@@ -417,9 +424,9 @@ namespace electrosynth {
   leaf::Processor* SoundEngine::getLEAFProcessor (const std::string& proc_string) {
 
       // Use find_if to search the outermost vector
-      auto outerIt = std::find_if(processors.begin(), processors.end(), [&](const std::vector<std::shared_ptr<ProcessorBase>>& innerVec) {
+      auto outerIt = std::find_if(processors.begin(), processors.end(), [&](const auto& innerVec) {
           // Use find_if on the inner vector to look for the processor with the target name
-          auto innerIt = std::find_if(innerVec.begin(), innerVec.end(), [&](const std::shared_ptr<ProcessorBase>& processor) {
+          auto innerIt = std::find_if(innerVec.begin(), innerVec.end(), [&](const auto& processor) {
               return processor->name ==  juce::String(proc_string);
           });
 
@@ -429,7 +436,7 @@ namespace electrosynth {
 
       if (outerIt != processors.end()) {
           auto innerIt = std::find_if(outerIt->begin(), outerIt->end(),
-              [&](const std::shared_ptr<ProcessorBase>& processor) {
+              [&](const auto& processor) {
                   return processor->name == juce::String(proc_string);
               });
 
@@ -442,9 +449,9 @@ namespace electrosynth {
   leaf::Processor* SoundEngine::getLEAFProcessorModulator (const std::string& proc_string) {
 
       // Use find_if to search the outermost vector
-      auto outerIt = std::find_if(modSources.begin(), modSources.end(), [&](const std::vector<std::shared_ptr<ModulatorBase>>& innerVec) {
+      auto outerIt = std::find_if(modSources.begin(), modSources.end(), [&](const auto& innerVec) {
           // Use find_if on the inner vector to look for the processor with the target name
-          auto innerIt = std::find_if(innerVec.begin(), innerVec.end(), [&](const std::shared_ptr<ModulatorBase>& processor) {
+          auto innerIt = std::find_if(innerVec.begin(), innerVec.end(), [&](const auto& processor) {
               return processor->name ==  juce::String(proc_string);
           });
 
@@ -454,7 +461,7 @@ namespace electrosynth {
 
       if (outerIt != modSources.end()) {
           auto innerIt = std::find_if(outerIt->begin(), outerIt->end(),
-              [&](const std::shared_ptr<ModulatorBase>& processor) {
+              [&](const auto& processor) {
                   return processor->name == juce::String(proc_string);
               });
 

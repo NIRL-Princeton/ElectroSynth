@@ -31,11 +31,12 @@ public:
 //        DBG("mouseenter doulesection");
 //    }
     juce::ValueTree state;
+    void buttonClicked(juce::Button* clicked_button) override;
 private:
-    ProcessorBase* processor;
+
     std::unique_ptr<electrosynth::ParametersView> _view;
 
-
+    std::shared_ptr<OpenGlShapeButton> exit_button_;
 };
 
 #endif //ELECTROSYNTH_MODULESECTION_H

@@ -83,17 +83,17 @@ void SynthGuiInterface::updateGuiControl(const std::string& name, float value) {
 
 LEAF* SynthGuiInterface::getLEAF()
 {return synth_->getLeaf();}
-void SynthGuiInterface::tryEnqueueProcessorInitQueue (juce::FixedSizeFunction<64, void()> callback) {
+void SynthGuiInterface::tryEnqueueProcessorInitQueue (juce::FixedSizeFunction<48, void()> callback) {
   synth_->processorInitQueue.try_enqueue(std::move(callback));
 }
-void SynthGuiInterface::addProcessor(std::shared_ptr<ProcessorBase> processor, int voice_index)
+void SynthGuiInterface::addProcessor(std::unique_ptr<ProcessorBase> processor, int voice_index)
 {
-  synth_->addProcessor (processor, voice_index);
+  synth_->addProcessor (std::move(processor), voice_index);
 }
 
-void SynthGuiInterface::addModulationSource (std::shared_ptr<ModulatorBase> modSource, int voice_index)
+void SynthGuiInterface::addModulationSource (std::unique_ptr<ModulatorBase> modSource, int voice_index)
 {
-    synth_->addModulationSource(modSource,voice_index);
+    synth_->addModulationSource(std::move(modSource),voice_index);
 }
 void SynthGuiInterface::connectModulation(std::string source, std::string destination)
 {

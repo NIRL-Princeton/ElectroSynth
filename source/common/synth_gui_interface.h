@@ -53,9 +53,9 @@ class SynthGuiInterface {
     SynthBase* getSynth() { return synth_; }
     virtual void updateFullGui();
     virtual void updateGuiControl(const std::string& name, float value);
-    void tryEnqueueProcessorInitQueue(juce::FixedSizeFunction<64, void()> callback);
-    void addProcessor(std::shared_ptr<ProcessorBase> processor, int voice_index);
-    void addModulationSource(std::shared_ptr<ModulatorBase> modSource, int voice_index);
+    void tryEnqueueProcessorInitQueue(juce::FixedSizeFunction<48, void()> callback);
+    void addProcessor(std::unique_ptr<ProcessorBase> processor, int voice_index);
+    void addModulationSource(std::unique_ptr<ModulatorBase> modSource, int voice_index);
     void connectModulation(std::string source, std::string destination);
     void disconnectModulation(std::string source, std::string destination);
     void disconnectModulation(electrosynth::ModulationConnection* connection);

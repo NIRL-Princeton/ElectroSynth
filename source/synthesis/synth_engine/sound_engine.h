@@ -136,8 +136,8 @@ namespace electrosynth {
       leaf::Processor* getLEAFProcessor(const std::string&);
       leaf::Processor* getLEAFProcessorModulator(const std::string&);
       std::pair<leaf::Processor*, int> getParameterInfo(const std::string&);
-      std::vector<std::vector<std::shared_ptr<ProcessorBase>>> processors;
-      std::vector<std::vector<std::shared_ptr<ModulatorBase>>> modSources;
+      std::vector<std::vector<std::unique_ptr<ProcessorBase>>> processors;
+      std::vector<std::vector<std::unique_ptr<ModulatorBase>>> modSources;
       std::vector<MappingWrapper*> mappings;
       void disconnectMapping(const electrosynth::mapping_change& change);
       void connectMapping (const electrosynth::mapping_change& change);

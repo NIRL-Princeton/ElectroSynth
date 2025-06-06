@@ -107,15 +107,16 @@ public:
        float value;
    };
    AudioDeviceManager* manager;
-
-   void addProcessor(std::shared_ptr<ProcessorBase> processor, int voice_index);
-    void addModulationSource(std::shared_ptr<ModulatorBase> processor, int voice_index);
+    void removeProcessor(ProcessorBase* processor);
+    void removeProcessor(ModulatorBase* processor);
+   void addProcessor(std::unique_ptr<ProcessorBase> processor, int voice_index);
+    void addModulationSource(std::unique_ptr<ModulatorBase> processor, int voice_index);
 
    juce::ValueTree& getValueTree();
    juce::UndoManager& getUndoManager();
-   static constexpr size_t actionSize = 64; // sizeof ([this, i = index] { callMessageThreadBroadcaster (i); })
+   static constexpr size_t actionSize = 48; // sizeof ([this, i = index] { callMessageThreadBroadcaster (i); })
    using AudioThreadAction = juce::dsp::FixedSizeFunction<actionSize, void()>;
-    using DeleteThreadAction    = juce::dsp::FixedSizeFunction<actionSize, bool()>;
+    using DeleteThreadAction    = juce::dsp::FixedSizeFunction<actionSize, void()>;
    moodycamel::ReaderWriterQueue<AudioThreadAction> processorInitQueue { 10 };
    moodycamel::ReaderWriterQueue<DeleteThreadAction> processorDeleteQueue { 10 };
     moodycamel::ReaderWriterQueue<AudioThreadAction> modulationInitQueue { 10 };

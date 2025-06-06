@@ -29,10 +29,12 @@ public:
     //void setFilterActive(bool active);
     juce::ValueTree state;
     void addModButtonListener(ModulationManager*);
+    void buttonClicked(juce::Button* clicked_button) override;
 private:
 
     std::unique_ptr<electrosynth::ParametersView> _view;
     std::shared_ptr<ModulationButton> mod_button;
+    std::shared_ptr<OpenGlShapeButton> exit_button_;
 
 };
 

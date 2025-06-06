@@ -20,7 +20,6 @@ SoundModuleSection::SoundModuleSection(const juce::ValueTree &v, ModulationManag
     viewport_.setScrollBarPosition(true,false);//use this to determine viewport scroll type in effectsviewport
     viewport_.setScrollBarsShown(false, false, true, false);
 
-
     addListener(m);
 }
 
@@ -145,9 +144,21 @@ void SoundModuleSection::removeModule(ProcessorBase *newModule) {
         ModuleSection* matchedSection = *it;
 
         // Do something with matchedSection, e.g. remove from list:
-        module_sections.erase(it);
+        auto a = *module_sections.erase(it);
+        if ((juce::OpenGLContext::getCurrentContext() == nullptr)) {
+            SynthGuiInterface *_parent = findParentComponentOfClass<SynthGuiInterface>();
+
+            //safe to do on message thread because we have locked processing if this is called
+            a->setVisible(false);
+            _parent->getOpenGlWrapper()->context.executeOnGLThread([this, &a](juce::OpenGLContext &openGLContext) {
+                                                  this->removeSubSection(a);
+                                              },
+                                              false);
+        } else
+            delete a;
 
     }
+    resized();
 }
 
 void SoundModuleSection::moduleListChanged(){

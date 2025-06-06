@@ -71,7 +71,7 @@ private:
     Factory<T> factory;
     std::vector<Listener*> listeners_;
     SynthBase* synth_;
-    std::vector<std::shared_ptr<T>> modules_;
+    // std::vector<std::shared_ptr<T>> modules_;
 };
 
 

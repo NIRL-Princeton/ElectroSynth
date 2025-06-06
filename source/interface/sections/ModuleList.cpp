@@ -28,10 +28,15 @@ ModuleList<T>::ModuleList(SynthBase *synth) : tracktion::engine::ValueTreeObject
 
 template<typename T>
 ModuleList<T>::~ModuleList() {
+
     tracktion::ValueTreeObjectList<T>::freeObjects();
 }
 template<typename T>
 void ModuleList<T>::deleteObject(T* processor_base) {
+    for (auto listener: listeners_) {
+        listener->removeModule(processor_base);
+    }
+    synth_->removeProcessor(processor_base);
 
 }
 template<typename T>
@@ -40,19 +45,23 @@ T* ModuleList<T>::createNewObject(const juce::ValueTree& v) {
     std::any args = std::make_tuple(synth_->getEngine(),v,leaf);
     try {
         auto proc = factory.create(v.getProperty(IDs::type).toString().toStdString(),args);
+        T* rawPtr = proc.get();
         if constexpr (std::is_same_v<T, ProcessorBase>)
         {
-            synth_->processorInitQueue.try_enqueue([this, proc] {
-                synth_->addProcessor(proc, 0);
-            });
+            auto task = [this, _proc = std::move(proc)]() mutable {
+                synth_->addProcessor(std::move(_proc), 0);
+            };
+
+            synth_->processorInitQueue.try_enqueue(std::move(task));
         }
         else if constexpr (std::is_same_v<T, ModulatorBase>) {
-            synth_->processorInitQueue.try_enqueue([this, proc] {
-                 synth_->addModulationSource(proc, 0);
-             });
+            auto task = [this, _proc = std::move(proc)]() mutable {
+                synth_->addModulationSource(std::move(_proc), 0);
+            };
+            synth_->processorInitQueue.try_enqueue(std::move(task));
         }
-        modules_.push_back(proc);
-        return proc.get();
+
+        return rawPtr;
     }catch (const std::bad_any_cast& e) {
         std::cerr << "Error during object creation: " << e.what() << std::endl;
     }

@@ -12,15 +12,15 @@
 template <class Base>
 class Factory {
 public:
-    using CreateFunction = std::function<std::shared_ptr<Base>(std::any)>;
+    using CreateFunction = std::function<std::unique_ptr<Base>(std::any)>;
 
     template <typename T, typename... Args>
     void registerType(const std::string& typeName) {
-        creators[typeName] = [](std::any args) -> std::shared_ptr<Base> {
+        creators[typeName] = [](std::any args) -> std::unique_ptr<Base> {
             try {
                 auto tupleArgs = std::any_cast<std::tuple<Args...>>(args); // Unpack std::any into tuple
                 return std::apply([](auto&&... unpackedArgs) {
-                    return std::make_shared<T>(std::forward<decltype(unpackedArgs)>(unpackedArgs)...);  // Create shared_ptr with forwarded arguments
+                    return std::make_unique<T>(std::forward<decltype(unpackedArgs)>(unpackedArgs)...);  // Create shared_ptr with forwarded arguments
                 }, tupleArgs);  // Apply the arguments
             } catch (const std::bad_any_cast& e) {
                 std::cerr << "std::bad_any_cast: " << e.what() << " (expected tuple)" << std::endl;
@@ -30,10 +30,10 @@ public:
     }
 
     // Create object with arguments wrapped in std::any
-    std::shared_ptr<Base> create(const std::string& typeName, std::any args) const {
+    std::unique_ptr<Base> create(const std::string& typeName, std::any args) const {
         auto it = creators.find(typeName);
         if (it != creators.end()) {
-            return it->second(args);  // Call the creation function with arguments
+            return std::move(it->second(args));  // Call the creation function with arguments
         }
         return nullptr;  // Type not found
     }

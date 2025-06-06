@@ -95,7 +95,7 @@ void ModulationModuleSection::setEffectPositions() {
     juce::Point<int> position = viewport_.getViewPosition();
     //DBG("position viewport: x: " + juce::String(position.getX()) + "y: " + juce::String(position.getY()));
   //  DBG("shadwo width: " + String(shadow_width));
-    for(auto& section : modulation_sections)
+    for(auto& section : module_sections)
     {
         section->setBounds(x, shadow_width, effect_width, effect_height);
         x += effect_width + padding;
@@ -183,7 +183,7 @@ void ModulationModuleSection::moduleAdded(ModulatorBase *newModule) {
     container_->addSubSection(module_section);
     module_section->setInterceptsMouseClicks(false,true);
     parentHierarchyChanged();
-    modulation_sections.emplace_back(std::move(module_section));
+    module_sections.emplace_back(std::move(module_section));
     for(auto listener : listeners_)
     {
         listener->added();
@@ -196,6 +196,31 @@ void ModulationModuleSection::moduleListChanged() {
 }
 
 void ModulationModuleSection::removeModule(ModulatorBase *newModule) {
+    auto it = std::find_if(module_sections.begin(), module_sections.end(),
+        [newModule](ModulationSection* section)
+        {
+            return section->state == newModule->state;
+        });
 
+    if (it != module_sections.end())
+    {
+        ModulationSection* matchedSection = *it;
+
+        // Do something with matchedSection, e.g. remove from list:
+        auto a = *module_sections.erase(it);
+        if ((juce::OpenGLContext::getCurrentContext() == nullptr)) {
+            SynthGuiInterface *_parent = findParentComponentOfClass<SynthGuiInterface>();
+
+            //safe to do on message thread because we have locked processing if this is called
+            a->setVisible(false);
+            _parent->getOpenGlWrapper()->context.executeOnGLThread([this, &a](juce::OpenGLContext &openGLContext) {
+                                                  this->removeSubSection(a);
+                                              },
+                                              false);
+        } else
+            delete a;
+
+    }
+    resized();
 }
 

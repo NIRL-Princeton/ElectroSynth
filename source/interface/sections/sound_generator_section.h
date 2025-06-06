@@ -115,7 +115,6 @@ public:
 
     virtual PopupItems createPopupMenu() = 0;
     virtual void handlePopupResult(int result) = 0;
-
 protected:
     ModuleList<T>& list;
     juce::ValueTree parent;
@@ -154,6 +153,7 @@ ModulesInterface<T>::ModulesInterface(const juce::ValueTree &v, ModuleList<T>& l
 }
 template<typename T>
 ModulesInterface<T>::~ModulesInterface() {
+    list.removeListener(this);
     //freeObjects();
 }
 template<typename T>
