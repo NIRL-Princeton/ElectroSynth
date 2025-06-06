@@ -139,7 +139,7 @@ void OpenGlImage::drawImage(OpenGlWrapper& open_gl) {
    juce::gl::glDisable(juce::gl::GL_SCISSOR_TEST);
 }
 
-void OpenGlImage::destroy(OpenGlWrapper& open_gl) {
+void OpenGlImage::destroy(juce::OpenGLContext& open_gl) {
    texture_.release();
 
    image_shader_ = nullptr;
@@ -147,6 +147,6 @@ void OpenGlImage::destroy(OpenGlWrapper& open_gl) {
    image_position_ = nullptr;
    texture_coordinates_ = nullptr;
 
-   open_gl.context.extensions.glDeleteBuffers(1, &vertex_buffer_);
-   open_gl.context.extensions.glDeleteBuffers(1, &triangle_buffer_);
+   open_gl.extensions.glDeleteBuffers(1, &vertex_buffer_);
+   open_gl.extensions.glDeleteBuffers(1, &triangle_buffer_);
 }

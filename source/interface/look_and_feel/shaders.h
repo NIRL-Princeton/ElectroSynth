@@ -115,16 +115,6 @@ class Shaders {
 struct OpenGlWrapper {
   OpenGlWrapper(juce::OpenGLContext& c) : context(c), shaders(nullptr), display_scale(1.0f) { }
 
-  static constexpr size_t actionSize = 64;
-  //std::vector<Broadcaster<void()>> audioThreadBroadcasters { totalNumParams };
-  //using AudioThreadAction = juce::dsp::FixedSizeFunction<actionSize, void()>;
-  using glInitAction  = juce::dsp::FixedSizeFunction<actionSize, void()>;
-
-
-
-  moodycamel::ConcurrentQueue<glInitAction> initOpenGlComp { 20 };
-  //moodycamel::ReaderWriterQueue
-  std::vector<juce::Component*> init_comp;
   juce::OpenGLContext& context;
   Shaders* shaders;
   float display_scale;

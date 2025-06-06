@@ -642,22 +642,22 @@ void 	ModulationManager::componentAdded()
         DBG (s.first);
     }
 
-    full->open_gl_.context.executeOnGLThread ([this, &full] (juce::OpenGLContext& openGLContext) {
+    full->open_gl_.context.executeOnGLThread ([this] (juce::OpenGLContext& openGLContext) {
         for (auto& multiquad : rotary_destinations_)
         {
-            multiquad.second->destroy (full->open_gl_);
+            multiquad.second->destroy (openGLContext);
         }
         for (auto& multiquad : rotary_meters_)
         {
-            multiquad.second->destroy (full->open_gl_);
+            multiquad.second->destroy (openGLContext);
         }
         for (auto& multiquad : linear_meters_)
         {
-            multiquad.second->destroy (full->open_gl_);
+            multiquad.second->destroy (openGLContext);
         }
         for (auto& multiquad : linear_destinations_)
         {
-            multiquad.second->destroy (full->open_gl_);
+            multiquad.second->destroy (openGLContext);
         }
     },
         true);
@@ -1336,7 +1336,7 @@ void ModulationManager::updateSmoothModValues() {
 //  }
 }
 
-void ModulationManager::destroyOpenGlComponents(OpenGlWrapper& open_gl) {
+void ModulationManager::destroyOpenGlComponents(juce::OpenGLContext& open_gl) {
   SynthSection::destroyOpenGlComponents(open_gl);
 
   drag_quad_.destroy(open_gl);

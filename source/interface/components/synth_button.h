@@ -50,7 +50,7 @@ class OpenGlShapeButtonComponent : public OpenGlComponent {
 
     virtual void render(OpenGlWrapper& open_gl, bool animate) override;
 
-    virtual void destroy(OpenGlWrapper& open_gl) override {
+    virtual void destroy(juce::OpenGLContext& open_gl) override {
       OpenGlComponent::destroy(open_gl);
       shape_.destroy(open_gl);
     };
@@ -192,7 +192,7 @@ class OpenGlButtonComponent : public OpenGlComponent {
     void setDown(bool down) { down_ = down; }
     void setHover(bool hover) { hover_ = hover; }
 
-    virtual void destroy(OpenGlWrapper& open_gl) override {
+    virtual void destroy(juce::OpenGLContext& open_gl) override {
       background_.destroy(open_gl);
       text_.destroy(open_gl);
     }

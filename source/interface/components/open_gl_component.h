@@ -62,7 +62,7 @@ public:
   virtual void render(OpenGlWrapper &open_gl, bool animate) = 0;
   void renderCorners(OpenGlWrapper &open_gl, bool animate, juce::Colour color, float rounding);
   void renderCorners(OpenGlWrapper &open_gl, bool animate);
-  virtual void destroy(OpenGlWrapper &open_gl);
+  virtual void destroy(juce::OpenGLContext& open_gl);
   virtual bool isInit();
   virtual void paintBackground(juce::Graphics &g);
   void repaintBackground();

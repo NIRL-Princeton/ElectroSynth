@@ -76,7 +76,7 @@ void OpenGlMultiImage::init(OpenGlWrapper &open_gl)
   texture_coordinates_ = getAttribute(open_gl, *image_shader_, "tex_coord_in");
 }
 
-void OpenGlMultiImage::destroy(OpenGlWrapper &open_gl)
+void OpenGlMultiImage::destroy(juce::OpenGLContext& open_gl)
 {
   texture_.release();
 
@@ -85,8 +85,8 @@ void OpenGlMultiImage::destroy(OpenGlWrapper &open_gl)
   texture_coordinates_ = nullptr;
   color_uniform_ = nullptr;
 
-  open_gl.context.extensions.glDeleteBuffers(1, &vertex_buffer_);
-  open_gl.context.extensions.glDeleteBuffers(1, &indices_buffer_);
+  open_gl.extensions.glDeleteBuffers(1, &vertex_buffer_);
+  open_gl.extensions.glDeleteBuffers(1, &indices_buffer_);
 
   vertex_buffer_ = 0;
   indices_buffer_ = 0;

@@ -103,7 +103,7 @@ public:
 
     void initOpenGlComponents(OpenGlWrapper& open_gl) override;
     void renderOpenGlComponents(OpenGlWrapper& open_gl, bool animate) override;
-    void destroyOpenGlComponents(OpenGlWrapper& open_gl) override;
+    void destroyOpenGlComponents(juce::OpenGLContext& open_gl) override;
     void addListener(Listener* listener) {
         listeners_.push_back(listener);
     }

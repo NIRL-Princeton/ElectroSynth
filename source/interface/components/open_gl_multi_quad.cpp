@@ -85,7 +85,7 @@ void OpenGlMultiQuad::init(OpenGlWrapper &open_gl)
   alpha_mult_uniform_ = getUniform(open_gl, *shader_, "alpha_mult");
 }
 
-void OpenGlMultiQuad::destroy(OpenGlWrapper &open_gl)
+void OpenGlMultiQuad::destroy(juce::OpenGLContext& open_gl)
 {
   shader_ = nullptr;
   position_ = nullptr;
@@ -102,8 +102,8 @@ void OpenGlMultiQuad::destroy(OpenGlWrapper &open_gl)
   thumb_amount_uniform_ = nullptr;
   start_pos_uniform_ = nullptr;
   alpha_mult_uniform_ = nullptr;
-  open_gl.context.extensions.glDeleteBuffers(1, &vertex_buffer_);
-  open_gl.context.extensions.glDeleteBuffers(1, &indices_buffer_);
+  open_gl.extensions.glDeleteBuffers(1, &vertex_buffer_);
+  open_gl.extensions.glDeleteBuffers(1, &indices_buffer_);
 
   vertex_buffer_ = 0;
   indices_buffer_ = 0;

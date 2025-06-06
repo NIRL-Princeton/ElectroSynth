@@ -62,7 +62,7 @@ void OpenGlBackground::init(OpenGlWrapper& open_gl) {
     texture_uniform_ = OpenGlComponent::getUniform(open_gl, *image_shader_, "image");
 }
 
-void OpenGlBackground::destroy(OpenGlWrapper& open_gl) {
+void OpenGlBackground::destroy(juce::OpenGLContext& open_gl) {
     if (background_.getWidth())
         background_.release();
 
@@ -71,8 +71,8 @@ void OpenGlBackground::destroy(OpenGlWrapper& open_gl) {
     texture_coordinates_ = nullptr;
     texture_uniform_ = nullptr;
 
-    open_gl.context.extensions.glDeleteBuffers(1, &vertex_buffer_);
-    open_gl.context.extensions.glDeleteBuffers(1, &triangle_buffer_);
+    open_gl.extensions.glDeleteBuffers(1, &vertex_buffer_);
+    open_gl.extensions.glDeleteBuffers(1, &triangle_buffer_);
 }
 
 void OpenGlBackground::bind(juce::OpenGLContext& open_gl_context) {

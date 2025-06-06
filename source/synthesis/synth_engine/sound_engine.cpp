@@ -201,7 +201,8 @@ namespace electrosynth {
           {
               for(auto& modulator : modulator_chain)
               {
-                  modulator->process();
+                  if (modulator != nullptr)
+                    modulator->process();
               }
           }
           for (auto& proc_chain : processors)
@@ -209,7 +210,8 @@ namespace electrosynth {
 
               for (auto& proc : proc_chain)
               {
-                  proc->processBlock (temp_voice_buffer, empty);
+                  if (proc != nullptr)
+                    proc->processBlock (temp_voice_buffer, empty);
 
               }
               //at end of given processor chain

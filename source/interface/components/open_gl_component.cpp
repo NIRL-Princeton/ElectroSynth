@@ -190,7 +190,7 @@ void OpenGlComponent::renderCorners(OpenGlWrapper& open_gl, bool animate) {
   renderCorners(open_gl, animate, body_color_, findValue(Skin::kWidgetRoundedCorner));
 }
 
-void OpenGlComponent::destroy(OpenGlWrapper& open_gl) {
+void OpenGlComponent::destroy(juce::OpenGLContext& open_gl) {
   if (corners_)
     corners_->destroy(open_gl);
 }

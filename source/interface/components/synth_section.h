@@ -22,7 +22,7 @@
 #include "open_gl_multi_quad.h"
 #include "look_and_feel/shaders.h"
 #include "synth_button.h"
-
+#include <juce_opengl/juce_opengl.h>
 #include <functional>
 #include <map>
 #include <set>
@@ -294,8 +294,8 @@ class SynthSection : public Component, public Slider::Listener,
     void drawTempoDivider(Graphics& g, Component* sync);
     virtual void initOpenGlComponents(OpenGlWrapper& open_gl);
     virtual void renderOpenGlComponents(OpenGlWrapper& open_gl, bool animate);
-    virtual void destroyOpenGlComponents(OpenGlWrapper& open_gl);
-    void destroyOpenGlComponent(OpenGlComponent const& open_gl_component, OpenGlWrapper& open_gl);
+    virtual void destroyOpenGlComponents(OpenGLContext& open_gl);
+    void destroyOpenGlComponent(OpenGlComponent const& open_gl_component, juce::OpenGLContext& open_gl);
 
     virtual void sliderValueChanged(Slider* moved_slider) override;
     virtual void buttonClicked(Button* clicked_button) override;

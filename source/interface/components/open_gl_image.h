@@ -28,7 +28,7 @@ public:
 
     void init(OpenGlWrapper &open_gl);
     void drawImage(OpenGlWrapper &open_gl);
-    void destroy(OpenGlWrapper &open_gl);
+    void destroy(juce::OpenGLContext& open_gl);
 
     void lock() { mutex_.lock(); }
     void unlock() { mutex_.unlock(); }

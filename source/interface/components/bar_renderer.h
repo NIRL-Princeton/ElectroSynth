@@ -36,7 +36,7 @@ class BarRenderer : public OpenGlComponent {
 
     virtual void init(OpenGlWrapper& open_gl) override;
     virtual void render(OpenGlWrapper& open_gl, bool animate) override;
-    virtual void destroy(OpenGlWrapper& open_gl) override;
+    virtual void destroy(juce::OpenGLContext& open_gl) override;
 
     void setColor(const juce::Colour& color) { color_ = color; }
     void setScale(float scale) { scale_ = scale; }

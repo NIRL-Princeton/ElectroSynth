@@ -41,7 +41,7 @@ public:
 
     virtual void init(OpenGlWrapper& open_gl) override;
     virtual void render(OpenGlWrapper& open_gl, bool animate) override;
-    virtual void destroy(OpenGlWrapper& open_gl) override;
+    virtual void destroy(juce::OpenGLContext& open_gl) override;
     virtual bool isInit() override;
     virtual void redrawImage(bool force, bool clear=true);
     void setComponent(juce::Component* component) { component_ = component; }

@@ -86,6 +86,6 @@ void OpenGlImageComponent::render(OpenGlWrapper& open_gl, bool animate) {
    image_.drawImage(open_gl);
 }
 
-void OpenGlImageComponent::destroy(OpenGlWrapper& open_gl) {
+void OpenGlImageComponent::destroy(juce::OpenGLContext& open_gl) {
    image_.destroy(open_gl);
 }

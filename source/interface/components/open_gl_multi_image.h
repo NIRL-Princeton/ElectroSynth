@@ -33,7 +33,7 @@ public:
 
   virtual void init(OpenGlWrapper &open_gl) override;
   virtual void render(OpenGlWrapper &open_gl, bool animate) override;
-  virtual void destroy(OpenGlWrapper &open_gl) override;
+  virtual void destroy(juce::OpenGLContext& open_gl) override;
 
   void paintBackground(juce::Graphics &g) override {}
 

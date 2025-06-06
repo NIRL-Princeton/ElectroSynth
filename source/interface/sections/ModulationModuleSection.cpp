@@ -207,14 +207,15 @@ void ModulationModuleSection::removeModule(ModulatorBase *newModule) {
         ModulationSection* matchedSection = *it;
 
         // Do something with matchedSection, e.g. remove from list:
-        auto a = *module_sections.erase(it);
+        auto* a = *module_sections.erase(it);
         if ((juce::OpenGLContext::getCurrentContext() == nullptr)) {
             SynthGuiInterface *_parent = findParentComponentOfClass<SynthGuiInterface>();
 
             //safe to do on message thread because we have locked processing if this is called
             a->setVisible(false);
-            _parent->getOpenGlWrapper()->context.executeOnGLThread([this, &a](juce::OpenGLContext &openGLContext) {
-                                                  this->removeSubSection(a);
+            _parent->getOpenGlWrapper()->context.executeOnGLThread([this, a](juce::OpenGLContext &openGLContext) {
+                                                    a->destroyOpenGlComponents(openGLContext);
+                                                  this->container_->removeSubSection(a);
                                               },
                                               false);
         } else

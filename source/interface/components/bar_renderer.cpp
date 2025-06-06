@@ -162,7 +162,7 @@ void BarRenderer::render(OpenGlWrapper& open_gl, bool animate) {
   drawBars(open_gl);
 }
 
-void BarRenderer::destroy(OpenGlWrapper& open_gl) {
+void BarRenderer::destroy(juce::OpenGLContext& open_gl) {
   OpenGlComponent::destroy(open_gl);
 
   shader_ = nullptr;
@@ -173,8 +173,8 @@ void BarRenderer::destroy(OpenGlWrapper& open_gl) {
   offset_uniform_ = nullptr;
   scale_uniform_ = nullptr;
   width_percent_uniform_ = nullptr;
-  open_gl.context.extensions.glDeleteBuffers(1, &bar_buffer_);
-  open_gl.context.extensions.glDeleteBuffers(1, &bar_indices_buffer_);
+  open_gl.extensions.glDeleteBuffers(1, &bar_buffer_);
+  open_gl.extensions.glDeleteBuffers(1, &bar_indices_buffer_);
 
   bar_buffer_ = 0;
   bar_indices_buffer_ = 0;

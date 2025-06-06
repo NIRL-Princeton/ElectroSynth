@@ -79,12 +79,12 @@ class OverlayBackgroundRenderer : public OpenGlComponent {
 
     void paintBackground(Graphics& g) override { }
 
-    virtual void destroy(OpenGlWrapper& open_gl) override {
+    virtual void destroy(juce::OpenGLContext& open_gl) override {
       shader_ = nullptr;
       position_ = nullptr;
       color_uniform_ = nullptr;
-      open_gl.context.extensions.glDeleteBuffers(1, &data_buffer_);
-      open_gl.context.extensions.glDeleteBuffers(1, &indices_buffer_);
+      open_gl.extensions.glDeleteBuffers(1, &data_buffer_);
+      open_gl.extensions.glDeleteBuffers(1, &indices_buffer_);
 
       data_buffer_ = 0;
       indices_buffer_ = 0;

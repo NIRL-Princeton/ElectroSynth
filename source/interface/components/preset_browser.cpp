@@ -562,7 +562,7 @@ void PresetList::renderOpenGlComponents(OpenGlWrapper& open_gl, bool animate) {
   SynthSection::renderOpenGlComponents(open_gl, animate);
 }
 
-void PresetList::destroyOpenGlComponents(OpenGlWrapper& open_gl) {
+void PresetList::destroyOpenGlComponents(juce::OpenGLContext& open_gl) {
   for (int i = 0; i < kNumCachedRows; ++i)
     rows_[i].destroy(open_gl);
 

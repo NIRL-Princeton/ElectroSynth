@@ -337,7 +337,7 @@ void PopupList::renderOpenGlComponents(OpenGlWrapper& open_gl, bool animate) {
     SynthSection::renderOpenGlComponents(open_gl, animate);
 }
 
-void PopupList::destroyOpenGlComponents(OpenGlWrapper& open_gl) {
+void PopupList::destroyOpenGlComponents(juce::OpenGLContext& open_gl) {
     rows_->destroy(open_gl);
 
     highlight_->destroy(open_gl);
@@ -930,14 +930,14 @@ int PopupList::getScrollableRange() {
 //  SynthSection::renderOpenGlComponents(open_gl, animate);
 //}
 //
-//void SelectionList::destroyOpenGlComponents(OpenGlWrapper& open_gl) {
+//void SelectionList::destroyOpenGlComponents(juce::OpenGLContext& open_gl) {
 //  for (OpenGlImage& row : rows_)
 //    row.destroy(open_gl);
 //
 //  highlight_.destroy(open_gl);
 //  hover_.destroy(open_gl);
 //  remove_additional_x_.destroy(open_gl);
-//  SynthSection::destroyOpenGlComponents(open_gl);
+//  SynthSection::destroyOpenGlComponents(open_gl.context);
 //}
 
 SinglePopupSelector::SinglePopupSelector() : SynthSection("Popup Selector"),

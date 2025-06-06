@@ -29,7 +29,7 @@ public:
     void updateBackgroundImage(juce::Image background);
     virtual void init(OpenGlWrapper& open_gl);
     virtual void render(OpenGlWrapper& open_gl);
-    virtual void destroy(OpenGlWrapper& open_gl);
+    virtual void destroy(juce::OpenGLContext& open_gl);
 
     void lock() { mutex_.lock(); }
     void unlock() { mutex_.unlock(); }

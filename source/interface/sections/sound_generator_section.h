@@ -93,7 +93,7 @@ public:
 
     void initOpenGlComponents(OpenGlWrapper& open_gl) override;
     void renderOpenGlComponents(OpenGlWrapper& open_gl, bool animate) override;
-    void destroyOpenGlComponents(OpenGlWrapper& open_gl) override;
+    void destroyOpenGlComponents(juce::OpenGLContext& open_gl) override;
 
     void scrollBarMoved(ScrollBar* scroll_bar, double range_start) override;
     virtual void setScrollBarRange();
@@ -248,7 +248,7 @@ void ModulesInterface<T>::renderOpenGlComponents(OpenGlWrapper& open_gl, bool an
     SynthSection::renderOpenGlComponents(open_gl, animate);
 }
 template<typename T>
-void ModulesInterface<T>::destroyOpenGlComponents(OpenGlWrapper& open_gl) {
+void ModulesInterface<T>::destroyOpenGlComponents(juce::OpenGLContext& open_gl) {
     background_.destroy(open_gl);
     SynthSection::destroyOpenGlComponents(open_gl);
 }

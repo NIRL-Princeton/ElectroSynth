@@ -405,19 +405,6 @@ void FullInterface::renderOpenGL() {
        last_render_scale_ = render_scale;
        juce::MessageManager::callAsync([=] { checkShouldReposition(true); });
    }
-//   if(!open_gl_.init_comp.empty())
-//    {
-//       OpenGlComponent* comp = dynamic_cast<OpenGlComponent*>(open_gl_.init_comp.back());
-//       comp->init(open_gl_);
-//       open_gl_.init_comp.pop_back();
-//
-//    }
-
-
-/// initialize opengl components dynamically
-   OpenGlWrapper::glInitAction action;
-   while (open_gl_.initOpenGlComp.try_dequeue(action))
-       action();
 
 
    juce::ScopedLock lock(open_gl_critical_section_);
@@ -431,8 +418,8 @@ void FullInterface::openGLContextClosing() {
    if (unsupported_)
        return;
 
-   background_.destroy(open_gl_);
-   destroyOpenGlComponents(open_gl_);
+   background_.destroy(open_gl_.context);
+   destroyOpenGlComponents(open_gl_.context);
    open_gl_.shaders = nullptr;
    shaders_ = nullptr;
 }

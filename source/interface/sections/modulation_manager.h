@@ -244,7 +244,7 @@ class ModulationManager : public SynthSection,
     void renderMeters(OpenGlWrapper& open_gl, bool animate);
     void renderSourceMeters(OpenGlWrapper& open_gl, int index);
     void updateSmoothModValues();
-    void destroyOpenGlComponents(OpenGlWrapper& open_gl) override;
+    void destroyOpenGlComponents(juce::OpenGLContext& open_gl) override;
     void paintBackground(juce::Graphics& g) override { positionModulationAmountSliders(); }
 
     void setModulationAmounts();

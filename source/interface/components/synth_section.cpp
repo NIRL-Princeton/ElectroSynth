@@ -387,7 +387,7 @@ void SynthSection::renderOpenGlComponents(OpenGlWrapper& open_gl, bool animate) 
 }
 
 
-void SynthSection::destroyOpenGlComponents(OpenGlWrapper& open_gl) {
+void SynthSection::destroyOpenGlComponents(juce::OpenGLContext& open_gl) {
   for (auto& open_gl_component : open_gl_components_)
     open_gl_component->destroy(open_gl);
 
@@ -398,7 +398,7 @@ void SynthSection::destroyOpenGlComponents(OpenGlWrapper& open_gl) {
       background_->destroy(open_gl);
 }
 
-void SynthSection::destroyOpenGlComponent(OpenGlComponent const& open_gl_component, OpenGlWrapper& open_gl)
+void SynthSection::destroyOpenGlComponent(OpenGlComponent const& open_gl_component, OpenGLContext& open_gl)
 {
     //moves the component to the end of the array
     //erases it from the vector
@@ -410,10 +410,17 @@ void SynthSection::destroyOpenGlComponent(OpenGlComponent const& open_gl_compone
 //    //calls destroy function
 //    new_logical_end->get()->destroy(open_gl);
 //
-//
-    open_gl_components_.erase(new_logical_end,open_gl_components_.end());
-
-
+  ////copy to a shared ptr that we will then pass to the message thread
+    std::shared_ptr<OpenGlComponent> component = *new_logical_end;
+    component->destroy(open_gl);
+    //remove from components render thread so that isVisible() doesn't get called
+    // on the render thread
+    // while it's being deleted on the message thread
+    open_gl_components_.erase(new_logical_end, open_gl_components_.end());
+    juce::MessageManager::callAsync(
+      [component, this]()mutable {
+        component.reset();
+      });;
 }
 
 void SynthSection::sliderValueChanged(Slider* moved_slider) {
