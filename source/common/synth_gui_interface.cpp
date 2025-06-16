@@ -59,6 +59,9 @@ SynthGuiInterface::SynthGuiInterface(SynthBase* synth, bool use_gui) : synth_(sy
   if (use_gui) {
     SynthGuiData synth_data(synth_);
     gui_ = std::make_unique<FullInterface>(&synth_data);
+    // for registering hotkeys etc.
+    commandHandler = std::make_unique<ApplicationCommandHandler>(this);
+    commandManager.registerAllCommandsForTarget(commandHandler.get());
   }
 
 

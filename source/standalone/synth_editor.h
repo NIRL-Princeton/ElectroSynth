@@ -22,7 +22,41 @@
 
 //#include <melatonin_perfetto/melatonin_perfetto.h>
 //class SynthComputerKeyboard;
+class MainMenuModel : public juce::MenuBarModel {
+public:
+    MainMenuModel(juce::ApplicationCommandManager &manager)
+        : commandManager(manager) {
+    }
 
+    juce::StringArray getMenuBarNames() override {
+        return {"File", "Edit","Options"};
+    }
+
+    juce::PopupMenu getMenuForIndex(int topLevelMenuIndex, const juce::String &menuName) override {
+        juce::PopupMenu menu;
+
+        if (menuName == "File") {
+            menu.addCommandItem(&commandManager,ApplicationCommandHandler::CommandIDs::save);
+            menu.addCommandItem(&commandManager,ApplicationCommandHandler::CommandIDs::load);
+        } else if (menuName == "Edit") {
+
+            menu.addCommandItem(&commandManager, ApplicationCommandHandler::CommandIDs::undo);
+            menu.addCommandItem(&commandManager, ApplicationCommandHandler::CommandIDs::redo);
+        }
+        else if (menuName == "Options") {
+        }
+
+        return menu;
+    }
+
+    void menuItemSelected(int menuItemID, int topLevelMenuIndex) override {
+    }
+
+private:
+    juce::ApplicationCommandManager &commandManager;
+
+
+};
 class SynthEditor : public AudioAppComponent, public SynthBase, public SynthGuiInterface {
   public:
     SynthEditor(bool use_gui = true);
@@ -50,6 +84,7 @@ class SynthEditor : public AudioAppComponent, public SynthBase, public SynthGuiI
 
   private:
     //std::unique_ptr<SynthComputerKeyboard> computer_keyboard_;
+    std::unique_ptr<MainMenuModel> menuModel;
     CriticalSection critical_section_;
     double current_time_;
 #if PERFETTO

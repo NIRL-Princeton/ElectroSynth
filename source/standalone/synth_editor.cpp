@@ -79,7 +79,10 @@ SynthEditor::SynthEditor(bool use_gui) : SynthGuiInterface(this, use_gui) {
     //addKeyListener(computer_keyboard_.get());
     setOpaque(true);
   }
+  // mainmenumodel on mac
 
+  menuModel = std::make_unique<MainMenuModel>(commandManager);
+  juce::MenuBarModel::setMacMainMenu(menuModel.get());
 
 }
 
@@ -87,10 +90,10 @@ SynthEditor::~SynthEditor() {
 #if PERFETTO
   MelatoninPerfetto::get().endSession();
 #endif
-  PopupMenu::dismissAllActiveMenus();
+  juce::PopupMenu::dismissAllActiveMenus();
   shutdownAudio();
+  juce::MenuBarModel::setMacMainMenu(nullptr);
 }
-
 void SynthEditor::prepareToPlay(int buffer_size, double sample_rate) {
   //engine_->setSampleRate(sample_rate);
   engine_->prepareToPlay(sample_rate, buffer_size);

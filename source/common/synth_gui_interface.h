@@ -27,7 +27,7 @@ class AudioDeviceManager { };
 #include <juce_dsp/juce_dsp.h>
 #include <juce_audio_devices/juce_audio_devices.h>
 #include <juce_audio_processors/juce_audio_processors.h>
-
+#include "ApplicationCommandHandler.h"
 class LEAF;
 class FullInterface;
 class SynthBase;
@@ -69,9 +69,11 @@ class SynthGuiInterface {
     FullInterface* getGui() { return gui_.get(); }
     LEAF* getLEAF();
     OpenGlWrapper* getOpenGlWrapper();
+  std::unique_ptr<ApplicationCommandHandler> commandHandler;
+  juce::ApplicationCommandManager commandManager;
   protected:
     SynthBase* synth_;
-
+  std::unique_ptr<juce::FileChooser> filechooser;
     std::unique_ptr<FullInterface> gui_;
   
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SynthGuiInterface)
