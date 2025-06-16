@@ -201,25 +201,25 @@ void ModulationModuleSection::removeModule(ModulatorBase *newModule) {
         {
             return section->state == newModule->state;
         });
+    if (it != module_sections.end()) {
 
-    if (it != module_sections.end())
-    {
-
-        // Do something with matchedSection, e.g. remove from list:
-        auto a = module_sections.erase(it)->get();
+        it->get()->setVisible(false);
         if ((juce::OpenGLContext::getCurrentContext() == nullptr)) {
             SynthGuiInterface *_parent = findParentComponentOfClass<SynthGuiInterface>();
+            _parent->getOpenGlWrapper()->context.executeOnGLThread([this, it](juce::OpenGLContext &openGLContext) {
 
-            //safe to do on message thread because we have locked processing if this is called
-            a->setVisible(false);
-            _parent->getOpenGlWrapper()->context.executeOnGLThread([this, a](juce::OpenGLContext &openGLContext) {
-                                                    a->destroyOpenGlComponents(openGLContext);
-                                                  this->container_->removeSubSection(a);
-                                              },
-                                              false);
+                auto a = it->get();
+                a->destroyOpenGlComponents(openGLContext);
+                this->container_->removeSubSection(a);
+                auto slidersToRemove = a->getAllSliders();
+                this->container_->removeSliders(slidersToRemove);
+               juce::MessageManager::callAsync(
+                   [it, this]()mutable {
+                       module_sections.erase(it);
+                   });
+                },false);
         } else
-            delete a;
-
+            module_sections.erase(it);
     }
     resized();
 }

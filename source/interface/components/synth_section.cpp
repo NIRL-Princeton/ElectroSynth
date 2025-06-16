@@ -487,7 +487,12 @@ void SynthSection::addSlider(SynthSlider* slider, bool show, bool listen) {
  addOpenGlComponent(slider->getQuadComponent());
  addOpenGlComponent(slider->getTextEditorComponent());
 }
-
+void SynthSection::removeSliders(std::map<std::string,SynthSlider*> toRemove) {
+  // Remove keys from allSliders that exist in slidersToRemove
+  for (const auto& [key, _] : toRemove) {
+    all_sliders_.erase(key);
+  }
+}
 void SynthSection::addSubSection(SynthSection* sub_section, bool show) {
   sub_section->setParent(this);
 
@@ -507,9 +512,14 @@ void SynthSection::addSubSection(SynthSection* sub_section, bool show) {
 }
 
 void SynthSection::removeSubSection(SynthSection* section) {
+  this->removeSliders( section->getAllSliders());
+  for (auto [key,mod] : section->all_modulation_buttons_) {
+    this->all_modulation_buttons_.erase(key);
+  }
   auto location = std::find(sub_sections_.begin(), sub_sections_.end(), section);
   if (location != sub_sections_.end())
     sub_sections_.erase(location);
+
 }
 
 void SynthSection::setScrollWheelEnabled(bool enabled) {
@@ -685,6 +695,7 @@ void SynthSection::addModulationButton(std::shared_ptr<ModulationButton> button,
     if (show)
         addOpenGlComponent(std::static_pointer_cast<OpenGlImageComponent>(button));
 }
+
 
 
 float SynthSection::getWidgetMargin() {

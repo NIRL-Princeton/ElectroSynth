@@ -342,7 +342,8 @@ class SynthSection : public Component, public Slider::Listener,
     std::vector<juce::Component*> all_sliders_v;
     void addButton(OpenGlToggleButton* button, bool show = true);
     void addOpenGlComponent(std::shared_ptr<OpenGlComponent> open_gl_component, bool to_beginning = false, bool makeVisible = true);
-  protected:
+    void removeSliders(std::map<std::string,SynthSlider*> toRemove);
+   protected:
     void setSliderHasHzAlternateDisplay(SynthSlider* slider);
     void setSidewaysHeading(bool sideways) { sideways_heading_ = sideways; }
     void addToggleButton(ToggleButton* button, bool show);

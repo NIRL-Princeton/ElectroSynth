@@ -45,6 +45,7 @@ T* ModuleList<T>::createNewObject(const juce::ValueTree& v) {
     try {
         auto proc = factory.create(v.getProperty(IDs::type).toString().toStdString(),args);
         T* rawPtr = proc.get();
+        assert(rawPtr != nullptr);
         if constexpr (std::is_same_v<T, ProcessorBase>)
         {
             auto task = [this, _proc = std::move(proc)]() mutable {
@@ -63,6 +64,7 @@ T* ModuleList<T>::createNewObject(const juce::ValueTree& v) {
         return rawPtr;
     }catch (const std::bad_any_cast& e) {
         std::cerr << "Error during object creation: " << e.what() << std::endl;
+        jassertfalse;
     }
     return nullptr;
 }
@@ -84,9 +86,14 @@ void ModuleList<T>::valueTreePropertyChanged(juce::ValueTree &v, const juce::Ide
                 obj->getStateInformation(data);
                 auto xml = juce::parseXML(data.toString());
                 //auto xml = juce::AudioProcessor::getXmlF(data.getData(), (int)data.getSize());
-                if (obj->state.getChild(0).isValid() && xml != nullptr)
-                    obj->state.getChild(0).copyPropertiesFrom(juce::ValueTree::fromXml(*xml),nullptr);
-                //  state.addChild(juce::ValueTree::fromXml(*xml),0,nullptr);
+                if (obj->state.isValid() && xml != nullptr) {
+                    auto uuid = obj->state.getProperty(IDs::uuid).toString();
+                    auto type = obj->state.getProperty(IDs::type).toString();
+                    obj->state.copyPropertiesFrom(juce::ValueTree::fromXml(*xml),nullptr);
+                    obj->state.setProperty(IDs::type, type,nullptr);
+                    obj->state.setProperty(IDs::uuid, uuid,nullptr);
+                    //  state.addChild(juce::ValueTree::fromXml(*xml),0,nullptr);
+                }
             }
             v.removeProperty("sync", nullptr);
         }

@@ -659,6 +659,7 @@ void 	ModulationManager::componentAdded()
         {
             multiquad.second->destroy (openGLContext);
         }
+
     },
         true);
     {
@@ -668,7 +669,7 @@ void 	ModulationManager::componentAdded()
         linear_destinations_.clear();
         linear_meters_.clear();
         modulation_buttons_.clear();
-
+        meter_lookup_.clear();
 
         modulation_buttons_ = mod_buttons;
         for (auto& modulation_button : modulation_buttons_) {

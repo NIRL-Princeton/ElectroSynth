@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GALLERY>
+  <MODULATOR type="env" uuid="2"/>
+  <SOUNDMODULE harmonic="0.000" pitch="12.000" pitchfine="1.000" freqoffset="2000.000"
+               glide="0.000" shape="0.500" amp="0.800" oscType="3.000" harmonicStepped="0.000"/>
+</GALLERY>
