@@ -168,9 +168,6 @@ class PluginStateImpl_ : public chowdsp::PluginState
     {
         enum
         {
-#if defined JucePlugin_VersionString
-            versionChildIndex,
-#endif
             nonParamStateChildIndex,
             paramStateChildIndex,
             expectedNumChildElements,
@@ -182,15 +179,8 @@ class PluginStateImpl_ : public chowdsp::PluginState
             return;
         }
 
-#if defined JucePlugin_VersionString
-        Serializer::template deserialize<Serializer> (Serializer::getChildElement (serial, versionChildIndex), object.pluginStateVersion);
-#else
-        using namespace version_literals;
-        object.pluginStateVersion = "0.0.0"_v;
-#endif
-
-        Serializer::template deserialize<Serializer, chowdsp::NonParamState> (Serializer::getChildElement (serial, nonParamStateChildIndex), object.nonParams);
-        Serializer::template deserialize<Serializer, chowdsp::ParamHolder> (Serializer::getChildElement (serial, paramStateChildIndex), object.params);
+        if ( Serializer::getChildElement (serial, object.params.getName()))
+            Serializer::template deserialize<Serializer, ParameterState> (Serializer::getChildElement (serial, object.params.getName()), object.params);
     }
 
     template <typename ParameterState, typename NonParameterState, typename Serializer>

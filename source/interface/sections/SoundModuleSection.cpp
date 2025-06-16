@@ -25,6 +25,7 @@ SoundModuleSection::SoundModuleSection(const juce::ValueTree &v, ModulationManag
 }
 
 SoundModuleSection::~SoundModuleSection() {
+   module_sections.clear();
 }
 
 void SoundModuleSection::handlePopupResult(int result) {
@@ -114,8 +115,8 @@ std::map<std::string, SynthSlider *> SoundModuleSection::getAllSliders() {
 }
 
 void SoundModuleSection::moduleAdded(ProcessorBase *newModule) {
-    auto *module_section = new ModuleSection(newModule->state, (newModule->createEditor()));
-    container_->addSubSection(module_section);
+    auto module_section = std::make_unique<ModuleSection>(newModule->state,std::move (newModule->createEditor()));
+    container_->addSubSection(module_section.get());
     module_section->setInterceptsMouseClicks(false, true);
     parentHierarchyChanged();
     module_sections.emplace_back(std::move(module_section));
@@ -127,19 +128,20 @@ void SoundModuleSection::moduleAdded(ProcessorBase *newModule) {
 
 void SoundModuleSection::removeModule(ProcessorBase *newModule) {
     auto it = std::find_if(module_sections.begin(), module_sections.end(),
-                           [newModule](ModuleSection *section) {
+                           [newModule](auto& section) {
                                return section->state == newModule->state;
                            });
 
     if (it != module_sections.end()) {
-        ModuleSection *matchedSection = *it;
 
         // Do something with matchedSection, e.g. remove from list:
-        auto *a = *module_sections.erase(it);
+        auto a = module_sections.erase(it)->get();
+
         if ((juce::OpenGLContext::getCurrentContext() == nullptr)) {
             SynthGuiInterface *_parent = findParentComponentOfClass<SynthGuiInterface>();
 
             //safe to do on message thread because we have locked processing if this is called
+
             a->setVisible(false);
             _parent->getOpenGlWrapper()->context.executeOnGLThread([this, a](juce::OpenGLContext &openGLContext) {
                 a->destroyOpenGlComponents(openGLContext);

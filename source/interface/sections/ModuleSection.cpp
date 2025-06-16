@@ -3,13 +3,13 @@
 //
 
 #include "ModuleSection.h"
-ModuleSection::ModuleSection(const juce::ValueTree &v, electrosynth::ParametersView* editor) : SynthSection(editor->getName()), state(v), _view(editor)
+ModuleSection::ModuleSection(const juce::ValueTree &v, std::unique_ptr<electrosynth::ParametersView> editor) : SynthSection(editor->getName()), state(v), _view(std::move(editor))
 {
-    setComponentID(editor->getName());
+    setComponentID(_view->getName());
     addSubSection(_view.get());
     setInterceptsMouseClicks(false, true);
 
-    exit_button_ = std::make_shared<OpenGlShapeButton>("Exit");
+    exit_button_ = std::make_unique<OpenGlShapeButton>("Exit");
     addAndMakeVisible(exit_button_.get());
     addOpenGlComponent(exit_button_->getGlComponent());
     exit_button_->addListener(this);

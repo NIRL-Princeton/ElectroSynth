@@ -110,6 +110,7 @@ FullInterface::FullInterface(SynthGuiData* synth_data) : SynthSection("full_inte
     open_gl_context_.attachTo(*this);
 
     ///startTimer(100);
+    valueTreeDebugger = new ValueTreeDebugger (synth_data->tree);
 
 }
 

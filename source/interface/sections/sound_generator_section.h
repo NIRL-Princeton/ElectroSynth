@@ -154,7 +154,8 @@ ModulesInterface<T>::ModulesInterface(const juce::ValueTree &v, ModuleList<T>& l
 template<typename T>
 ModulesInterface<T>::~ModulesInterface() {
     list.removeListener(this);
-    //freeObjects();
+    //freeObjects(;
+
 }
 template<typename T>
 void ModulesInterface<T>::paintBackground(Graphics& g) {

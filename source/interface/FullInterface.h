@@ -12,6 +12,7 @@
 #include "synth_section.h"
 #include "melatonin_inspector/melatonin_inspector.h"
 #include "popup_browser.h"
+#include "value_tree_debugger.h"
 class AboutSection;
 struct SynthGuiData;
 class HeaderSection;
@@ -93,6 +94,7 @@ public :
     std::map<std::string, SynthSlider*> getAllSliders() override;
     std::map<std::string, ModulationButton*> getAllModulationButtons() override;
     void modulationChanged();
+    juce::ScopedPointer<ValueTreeDebugger> valueTreeDebugger;
 private :
     std::unique_ptr<AboutSection> about_section_;
     std::unique_ptr<MainSection> main_;
@@ -113,7 +115,7 @@ private :
     juce::Image background_image_;
     //juce::TextButton inspectButton { "Inspect the UI" };
     // std::unique_ptr<melatonin::Inspector> inspector;
-    std::unique_ptr<OpenGlToggleButton> inspectButton;
+    //std::unique_ptr<OpenGlToggleButton> inspectButton;
     OpenGlBackground background_;
     std::unique_ptr<ModulationManager> modulation_manager;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FullInterface)

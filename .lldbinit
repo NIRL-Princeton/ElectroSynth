@@ -1,0 +1,2 @@
+command script import ./modules/melatonin_audio_sparklines/sparklines.py
+command script import ./modules/juce-toys/juce_lldb_xcode.py

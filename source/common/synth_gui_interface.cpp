@@ -16,13 +16,14 @@
 
 #include "synth_gui_interface.h"
 
+#include "load_save.h"
 #include "synth_base.h"
 #include "../synthesis/synth_engine/sound_engine.h"
 #include "Modulators/ModulatorBase.h"
 #include "Processors/ProcessorBase.h"
 
 SynthGuiData::SynthGuiData(SynthBase* synth_base) : synth(synth_base),
-                                                     tree(synth_base->getValueTree()),
+                                                     tree(synth_base->tree),
                                                      um(synth_base->getUndoManager())
 {
 
@@ -76,6 +77,79 @@ void SynthGuiInterface::updateFullGui() {
 //  gui_->setAllValues(synth_->getControls());
   gui_->reset();
 }
+juce::File SynthGuiInterface::getActiveFile() {
+    return synth_->getActiveFile();
+}
+
+
+void SynthGuiInterface::openLoadDialog() {
+    auto active_file = getActiveFile();
+    filechooser = std::make_unique<juce::FileChooser>("Open Preset", active_file,
+                                                      juce::String("*.") + electrosynth::kPresetExtension);
+
+    auto flags = juce::FileBrowserComponent::openMode
+                 | juce::FileBrowserComponent::canSelectFiles;
+    filechooser->launchAsync(flags, [this](const juce::FileChooser &fc) {
+        if (fc.getResult() == juce::File{}) {
+            return;
+        }
+
+        std::string error;
+        juce::File choice = fc.getResult();
+        loading = true;
+        if (!this->loadFromFile(choice, error)) {
+            //            std::string name = ProjectInfo::projectName;
+            //            error = "There was an error open the preset. " + error;
+            //juce::AlertWindow::showMessageBoxAsync(MessageBoxIconType::WarningIcon, "PRESET ERROR, ""Error opening preset", error);
+            DBG(error);
+        }
+        loading = false;
+        //        else
+        //            parent->externalPresetLoaded(choice);
+    });
+}
+bool SynthGuiInterface::loadFromFile(juce::File preset, std::string &error) {
+    return getSynth()->loadFromFile(preset, error);
+    //sampleLoadManager->loadSamples()
+}
+
+void SynthGuiInterface::openSaveDialog() {
+    filechooser = std::make_unique<juce::FileChooser>("Export the gallery", juce::File(),
+                                                      juce::String("*.") + electrosynth::kPresetExtension, true);
+    filechooser->launchAsync(
+        juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::canSelectFiles |
+        juce::FileBrowserComponent::canSelectDirectories,
+        [this](const juce::FileChooser &chooser) {
+            getSynth()->tree.setProperty("sync", 1, nullptr);
+            juce::String mystr = (getSynth()->tree.toXmlString());
+            auto xml = getSynth()->tree.createXml();
+            juce::XmlElement xml_ = *xml;
+
+            auto result = chooser.getURLResult();
+            auto name = result.isEmpty()
+                            ? juce::String()
+                            : (result.isLocalFile()
+                                   ? result.getLocalFile().getFullPathName()
+                                   : result.toString(true));
+            juce::File file(name);
+            if (!result.isEmpty()) {
+                juce::FileOutputStream output(file);
+                output.setPosition(0);
+                output.truncate();
+                output.writeText(xml_.toString(), false, false, {});
+                //                                         std::unique_ptr<juce::InputStream> wi (file.createInputStream());
+                //                                         std::unique_ptr<juce::OutputStream> wo (result.createOutputStream());
+                //
+                //                                         if (wi != nullptr && wo != nullptr)
+                //                                         {
+                //                                             //auto numWritten = wo->writeFromInputStream (*wi, -1);
+                //                                             wo->flush();
+                //                                         }
+                output.flush();
+            }
+        });
+}
+
 
 void SynthGuiInterface::updateGuiControl(const std::string& name, float value) {
   if (gui_ == nullptr)

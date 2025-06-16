@@ -33,7 +33,7 @@ public:
      std::map<std::string, ModulationButton*> getAllModulationButtons() override;
 
      ModulationManager* modulation_manager;
-     std::vector<ModulationSection*> module_sections;
+     std::vector<std::unique_ptr<ModulationSection>> module_sections;
  void moduleAdded(ModulatorBase* newModule) override;
 
 

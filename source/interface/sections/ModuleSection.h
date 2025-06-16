@@ -14,7 +14,7 @@
 class ModuleSection : public SynthSection
 {
 public:
-    ModuleSection(const juce::ValueTree &, electrosynth::ParametersView* editor);
+    ModuleSection(const juce::ValueTree &, std::unique_ptr<electrosynth::ParametersView> editor);
 
     virtual ~ModuleSection();
 
@@ -36,7 +36,7 @@ private:
 
     std::unique_ptr<electrosynth::ParametersView> _view;
 
-    std::shared_ptr<OpenGlShapeButton> exit_button_;
+    std::unique_ptr<OpenGlShapeButton> exit_button_;
 };
 
 #endif //ELECTROSYNTH_MODULESECTION_H

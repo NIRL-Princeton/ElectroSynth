@@ -37,7 +37,6 @@ void ModuleList<T>::deleteObject(T* processor_base) {
         listener->removeModule(processor_base);
     }
     synth_->removeProcessor(processor_base);
-
 }
 template<typename T>
 T* ModuleList<T>::createNewObject(const juce::ValueTree& v) {
@@ -72,6 +71,26 @@ void ModuleList<T>::newObjectAdded(T* processor) {
     for (auto listener: listeners_) {
         listener->moduleAdded(processor);
     }
+}
+template<typename T>
+void ModuleList<T>::valueTreePropertyChanged(juce::ValueTree &v, const juce::Identifier &i) {
+
+        tracktion::engine::ValueTreeObjectList<T>::valueTreePropertyChanged (v, i);
+        if(v.getProperty("sync",0))
+        {
+            for(auto obj : tracktion::engine::ValueTreeObjectList<T>::objects)
+            {
+                juce::MemoryBlock data;
+                obj->getStateInformation(data);
+                auto xml = juce::parseXML(data.toString());
+                //auto xml = juce::AudioProcessor::getXmlF(data.getData(), (int)data.getSize());
+                if (obj->state.getChild(0).isValid() && xml != nullptr)
+                    obj->state.getChild(0).copyPropertiesFrom(juce::ValueTree::fromXml(*xml),nullptr);
+                //  state.addChild(juce::ValueTree::fromXml(*xml),0,nullptr);
+            }
+            v.removeProperty("sync", nullptr);
+        }
+
 }
 
 //explicitly define the types thus telling the compiler to generate their code

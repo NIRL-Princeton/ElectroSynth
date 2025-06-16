@@ -19,12 +19,12 @@ ApplicationCommandHandler::ApplicationCommandHandler(SynthGuiInterface* gui) : j
             return true;
 
             case save: {
-                //parent->openSaveDialog();
+                parent->openSaveDialog();
                 return true;
             }
 
             case load:
-                //parent->openLoadDialog();
+                parent->openLoadDialog();
                 return true;
 
 

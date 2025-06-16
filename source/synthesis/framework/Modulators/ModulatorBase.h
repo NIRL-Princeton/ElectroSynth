@@ -29,7 +29,9 @@ public:
     void getNextAudioBlock (const juce::AudioSourceChannelInfo &bufferToFill) override {}
     void prepareToPlay (int samplesPerBlock, double sampleRate ) override {}
     void releaseResources() override {}
-    virtual electrosynth::ParametersView* createEditor() = 0;
+    virtual void getStateInformation (MemoryBlock &destData)=0;
+    virtual void setStateInformation (const void *data, int sizeInBytes)=0;
+    virtual std::unique_ptr<electrosynth::ParametersView> createEditor() = 0;
     electrosynth::SoundEngine* engine;
 };
 
@@ -44,6 +46,12 @@ public :
 
     }
     PluginStateType state_;
+    void getStateInformation(MemoryBlock &destData) override {
+        state_.serialize(destData);
+    }
+    void setStateInformation (const void *data, int sizeInBytes) override {
+        state_.deserialize (juce::MemoryBlock { data, (size_t) sizeInBytes });
+    }
 };
 
 #endif //ELECTROSYNTH_MODULATORBASE_H

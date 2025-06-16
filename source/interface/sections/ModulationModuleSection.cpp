@@ -36,7 +36,7 @@ ModulationModuleSection::ModulationModuleSection(const juce::ValueTree &v, Modul
 
 ModulationModuleSection::~ModulationModuleSection()
 {
-
+    module_sections.clear();
 }
 void ModulationModuleSection::resized()
 {
@@ -179,8 +179,8 @@ std::map<std::string, ModulationButton*> ModulationModuleSection::getAllModulati
     return container_->getAllModulationButtons();
 }
 void ModulationModuleSection::moduleAdded(ModulatorBase *newModule) {
-    auto *module_section = new ModulationSection( newModule->state, (newModule->createEditor()));
-    container_->addSubSection(module_section);
+    auto module_section = std::make_unique<ModulationSection>( newModule->state, std::move((newModule->createEditor())));
+    container_->addSubSection(module_section.get());
     module_section->setInterceptsMouseClicks(false,true);
     parentHierarchyChanged();
     module_sections.emplace_back(std::move(module_section));
@@ -197,17 +197,16 @@ void ModulationModuleSection::moduleListChanged() {
 
 void ModulationModuleSection::removeModule(ModulatorBase *newModule) {
     auto it = std::find_if(module_sections.begin(), module_sections.end(),
-        [newModule](ModulationSection* section)
+        [newModule](auto& section)
         {
             return section->state == newModule->state;
         });
 
     if (it != module_sections.end())
     {
-        ModulationSection* matchedSection = *it;
 
         // Do something with matchedSection, e.g. remove from list:
-        auto* a = *module_sections.erase(it);
+        auto a = module_sections.erase(it)->get();
         if ((juce::OpenGLContext::getCurrentContext() == nullptr)) {
             SynthGuiInterface *_parent = findParentComponentOfClass<SynthGuiInterface>();
 

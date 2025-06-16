@@ -112,7 +112,7 @@ public:
    void addProcessor(std::unique_ptr<ProcessorBase> processor, int voice_index);
     void addModulationSource(std::unique_ptr<ModulatorBase> processor, int voice_index);
 
-   juce::ValueTree& getValueTree();
+   // juce::ValueTree& getValueTree();
    juce::UndoManager& getUndoManager();
    static constexpr size_t actionSize = 48; // sizeof ([this, i = index] { callMessageThreadBroadcaster (i); })
    using AudioThreadAction = juce::dsp::FixedSizeFunction<actionSize, void()>;

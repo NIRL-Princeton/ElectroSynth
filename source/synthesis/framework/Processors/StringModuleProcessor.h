@@ -206,9 +206,9 @@ public:
 
     void releaseResources() override {}
 
-    electrosynth::ParametersView* createEditor() override
+    std::unique_ptr<electrosynth::ParametersView> createEditor() override
     {
-        return new electrosynth::ParametersView(
+        return std::make_unique<electrosynth::ParametersView>(
             state_,
             state_.params,
             state.getProperty(IDs::type).toString() + state.getProperty(IDs::uuid).toString()

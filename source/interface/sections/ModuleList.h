@@ -57,6 +57,7 @@ public:
             return v.hasType(IDs::MODULATOR);
 
     }
+    void valueTreePropertyChanged (juce::ValueTree& v, const juce::Identifier& i) override;
 
 
 

@@ -373,7 +373,7 @@ class OpenGlToggleButton : public ToggleButton {
     bool active_;
     std::shared_ptr<OpenGlButtonComponent> button_component_;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OpenGlToggleButton)
+    JUCE_HEAVYWEIGHT_LEAK_DETECTOR (OpenGlToggleButton)
 };
 
 class SynthButton : public OpenGlToggleButton {

@@ -52,6 +52,9 @@ class SynthGuiInterface {
     virtual juce::AudioDeviceManager* getAudioDeviceManager() { return nullptr; }
     SynthBase* getSynth() { return synth_; }
     virtual void updateFullGui();
+  juce::File getActiveFile();
+   void openLoadDialog();
+
     virtual void updateGuiControl(const std::string& name, float value);
     void tryEnqueueProcessorInitQueue(juce::FixedSizeFunction<48, void()> callback);
     void addProcessor(std::unique_ptr<ProcessorBase> processor, int voice_index);
@@ -66,12 +69,15 @@ class SynthGuiInterface {
     void openSaveDialog();
     void externalPresetLoaded(juce::File preset);
     void setGuiSize(float scale);
+  bool loadFromFile(juce::File preset, std::string &error);
+
     FullInterface* getGui() { return gui_.get(); }
     LEAF* getLEAF();
     OpenGlWrapper* getOpenGlWrapper();
   std::unique_ptr<ApplicationCommandHandler> commandHandler;
   juce::ApplicationCommandManager commandManager;
   protected:
+  std::atomic<bool> loading;
     SynthBase* synth_;
   std::unique_ptr<juce::FileChooser> filechooser;
     std::unique_ptr<FullInterface> gui_;

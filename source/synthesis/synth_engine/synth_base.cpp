@@ -63,7 +63,6 @@ modulators_(std::make_unique<ModuleList<ModulatorBase>>(this))
 
    Startup::doStartupChecks();
 
-   tree = ValueTree(IDs::GALLERY);
     tree.appendChild(engine_->MasterVoiceEnvelopeProcessor->state,nullptr);
    tree.addListener(this);
 startTimer(500);
@@ -168,6 +167,7 @@ void SynthBase::setMpeEnabled(bool enabled) {
 }
 
 void SynthBase::removeProcessor(ProcessorBase* processor) {
+    if (engine_ == nullptr) return;
     for (auto& chain : engine_->processors)
     {
         auto it = std::find_if(chain.begin(), chain.end(),
@@ -527,11 +527,11 @@ void SynthBase::ValueChangedCallback::messageCallback() {
    }
 }
 
-juce::ValueTree& SynthBase::getValueTree()
-{
-   return tree;
-}
-
+// juce::ValueTree& SynthBase::getValueTree()
+// {
+//    return tree;
+// }
+//
 juce::UndoManager& SynthBase::getUndoManager()
 {
    return um;

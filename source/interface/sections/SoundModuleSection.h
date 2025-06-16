@@ -21,7 +21,7 @@ public:
     void handlePopupResult(int result) override;
 
     std::map<std::string, SynthSlider*> getAllSliders() override;
-    std::vector<ModuleSection*> module_sections;
+    std::vector<std::unique_ptr<ModuleSection>> module_sections;
     void moduleAdded(ProcessorBase* newModule) override;
 
 
