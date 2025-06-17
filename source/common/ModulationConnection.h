@@ -115,6 +115,7 @@ struct MappingWrapper;
         std::vector<ModulationConnection*> all_connections_;
         std::string dest_;
 
+
         void reorderMapping();
     };
         typedef struct mapping_change

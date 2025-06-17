@@ -51,6 +51,8 @@ namespace electrosynth {
       }
       modSources.resize(10);
       for (auto &modSource : modSources) {modSource.reserve(10);}
+
+
       MasterVoiceEnvelopeProcessor  = std::make_unique<EnvModuleProcessor>(this, juce::ValueTree (IDs::MODULATOR).setProperty(IDs::type, "env", nullptr),&leaf);
       MasterVoiceEnvelopeProcessor->state_.params.attackParam->setParameterValue(0.1);
       MasterVoiceEnvelopeProcessor->state_.params.decayParam->setParameterValue(0.01);
@@ -471,6 +473,11 @@ namespace electrosynth {
           // Here you can cast the processor to leaf::Processor* if needed
           return (innerIt->get()->procArray);
       }
+      if (proc_string == "VCA") {
+          return MasterVoiceEnvelopeProcessor->procArray;
+      }
+      jassertfalse;
+      return nullptr;
 
   }
 

@@ -7,13 +7,48 @@
 #include "SoundModuleSection.h"
 #include "ModulationModuleSection.h"
 #include "synth_base.h"
-#include "test_section.h"
+#include "ModulationSection.h"
+#include "modulation_button.h"
+#include "sound_engine.h"
+#include "Modulators/EnvModuleProcessor.h"
+
+MasterVoiceEnvelopeSection:: MasterVoiceEnvelopeSection(const juce::ValueTree& v, juce::UndoManager &um,
+                                                        OpenGlWrapper &open_gl, SynthGuiData * data, std::unique_ptr<electrosynth::ParametersView>&& view) : SynthSection("MasterEnv"), mod_button(std::make_unique<ModulationButton>("mod_masterenv")), master_voice_envelope(std::move(view)) {
+    master_voice_envelope->setName("VCA");
+    setComponentID(master_voice_envelope->getName());
+    addSubSection(master_voice_envelope.get());
+    addModulationButton(mod_button);
+    addAndMakeVisible(mod_button.get());
+    mod_button->setAlwaysOnTop(true);
+}
+
+void MasterVoiceEnvelopeSection::resized() {
+    int widget_margin = findValue(Skin::kWidgetMargin);
+    int title_width = getTitleWidth();
+    int section_height = getKnobSectionHeight();
+
+    Rectangle<int> bounds = getLocalBounds().withLeft(title_width);
+    Rectangle<int> knobs_area = getDividedAreaBuffered(bounds, 2, 1, widget_margin);
+    Rectangle<int> settings_area = getDividedAreaUnbuffered(bounds, 4, 0, widget_margin);
+    master_voice_envelope->setBounds(getLocalBounds());
+    mod_button->setBounds(0, 0,40,40);
+    SynthSection::resized();
+
+}
+void MasterVoiceEnvelopeSection::paintBackground(Graphics &g) {
+    SynthSection::paintBackground(g);
+}
+#include "modulation_manager.h"
 MainSection::MainSection(const juce::ValueTree& v, juce::UndoManager &um, OpenGlWrapper & open_gl, SynthGuiData* data, ModulationManager* modulation_manager) : SynthSection("main_section"), v(v), um(um)
 {
     sound_interface = std::make_unique<SoundModuleSection>( modulation_manager,*data->synth->processors_);
     addSubSection(sound_interface.get());
     modulation_interface = std::make_unique<ModulationModuleSection>(modulation_manager,*data->synth->modulators_);
     addSubSection(modulation_interface.get());
+
+    master_voice_envelope_section = std::make_unique<MasterVoiceEnvelopeSection>(v, um, open_gl, data,std::move(data->synth->getEngine()->MasterVoiceEnvelopeProcessor->createEditor()));
+    addSubSection(master_voice_envelope_section.get());
+    master_voice_envelope_section->mod_button->addListener(modulation_manager);
     //addAndMakeVisible(constructionPort);
 //    ValueTree t(IDs::PREPARATION);
 //
@@ -54,29 +89,31 @@ void MainSection::resized()
     int width_left = (active_width - padding) / 2;
     int width_right = active_width - width_left;
     int right_x = width_left + padding;
-//    s->setBounds(0, 0, 100 *size_ratio_, 100* size_ratio_);
-//    button->setBounds(right_x, 100, 20, 20);
+
     sound_interface->setBounds(0, 0, width,height - 200);
 //     test_->setBounds(0,0,width,height - 200);
-    modulation_interface->setBounds(0,sound_interface->getBottom(), width, 200);
-
+    modulation_interface->setBounds(0,sound_interface->getBottom(), width - 200, 200);
+    master_voice_envelope_section->setBounds(width-200,sound_interface->getBottom(),200,200);
     //constructionPort.setBounds(large_padding, 0,getDisplayScale()* width, getDisplayScale() * height);
     //constructionPort.setBounds(large_padding, 0,width, height);
-    DBG (":");
-    DBG("main section");
-    DBG("display scale" + String(getDisplayScale()));
-    DBG("width" + String(getWidth()));
-    DBG("height" + String(getHeight()));
+
     //SynthSection::resized();
 }
 
 std::map<std::string, SynthSlider*> MainSection::getAllSliders()
 {
-//    return test_->getAllSliders();
-    return sound_interface->getAllSliders();
+    std::map<std::string, SynthSlider*> result = sound_interface->getAllSliders();
+
+    const auto& extraSliders = master_voice_envelope_section->getAllSliders();
+    result.insert(extraSliders.begin(), extraSliders.end());
+
+    return result;
 }
 std::map<std::string, ModulationButton*> MainSection::getAllModulationButtons()
 {
-    //test_->getAllSliders();
-    return modulation_interface->getAllModulationButtons();
+    std::map<std::string, ModulationButton*> result = modulation_interface->getAllModulationButtons();
+
+    const auto& extraButtons = master_voice_envelope_section->getAllModulationButtons();
+    result.insert(extraButtons.begin(), extraButtons.end());
+    return result;
 }

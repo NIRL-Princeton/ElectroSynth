@@ -6,13 +6,22 @@
 #define ELECTROSYNTH2_MAIN_SECTION_H
 
 #include "synth_section.h"
-
-
-class TestSection;
+#include "ParameterView/ParametersView.h"
+class ModulationSection;
 class SoundModuleSection;
 class ModulationModuleSection;
-struct SynthGuiData ;
+struct SynthGuiData;
 class ModulationManager;
+class MasterVoiceEnvelopeSection : public SynthSection {
+public:
+    MasterVoiceEnvelopeSection(const juce::ValueTree& v, juce::UndoManager &um,
+        OpenGlWrapper &open_gl, SynthGuiData * data, std::unique_ptr<electrosynth::ParametersView>&&);
+
+        void resized() override;
+    void paintBackground(Graphics &g) override;
+    std::unique_ptr<electrosynth::ParametersView> master_voice_envelope;
+    std::shared_ptr<ModulationButton> mod_button;
+};
 class MainSection : public SynthSection
 {
 public:
@@ -33,12 +42,13 @@ public:
 
     void addListener(Listener* listener) { listeners_.push_back(listener); }
 private:
-    std::unique_ptr<TestSection> test_;
     juce::ValueTree v;
     juce::UndoManager &um;
     std::unique_ptr<SoundModuleSection> sound_interface;
     std::vector<Listener*> listeners_;
     std::unique_ptr<ModulationModuleSection> modulation_interface;
+    std::unique_ptr<MasterVoiceEnvelopeSection> master_voice_envelope_section;
+
 };
 
 #endif //ELECTROSYNTH2_MAIN_SECTION_H
