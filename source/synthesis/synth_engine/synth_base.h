@@ -138,6 +138,7 @@ public:
     juce::UndoManager um;
     std::unique_ptr<ModuleList<ProcessorBase>> processors_;
     std::unique_ptr<ModuleList<ModulatorBase>> modulators_;
+    void valueTreePropertyChanged(ValueTree &treeWhosePropertyHasChanged, const Identifier &property) override;
 protected:
 
     electrosynth::mapping_change createMappingChange(electrosynth::ModulationConnection* mod);

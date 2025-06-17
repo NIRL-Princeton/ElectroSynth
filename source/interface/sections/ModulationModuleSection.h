@@ -12,7 +12,7 @@ class ModulationManager;
 class ModulationModuleSection : public ModulesInterface<ModulatorBase>
 {
 public:
-    ModulationModuleSection(const juce::ValueTree &, ModulationManager*,ModuleList<ModulatorBase>& );
+    ModulationModuleSection( ModulationManager*,ModuleList<ModulatorBase>& );
     virtual ~ModulationModuleSection();
 
      void effectsScrolled(int position) override {

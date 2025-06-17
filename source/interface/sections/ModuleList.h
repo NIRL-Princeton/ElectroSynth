@@ -36,7 +36,9 @@ public:
     //and doesn’t look in the base class template.
         this->parent.appendChild(child,undoManager);
     }
-
+    void setValueTree(const ValueTree& v) {
+       tracktion::engine::ValueTreeObjectList<T>::parent = v;
+    }
 
 
 
@@ -46,9 +48,7 @@ public:
     void objectRemoved (T*) override     { }//resized(); }
     void objectOrderChanged() override              { }//resized(); }
     void valueTreeParentChanged (juce::ValueTree&) override{};
-    void valueTreeRedirected (juce::ValueTree&) override{
 
-    };
     bool isSuitableType (const juce::ValueTree& v) const override
     {
         if constexpr (std::is_same<T, ProcessorBase>::value)
@@ -68,6 +68,14 @@ public:
                 std::remove(listeners_.begin(), listeners_.end(), l),
                 listeners_.end());
     }
+    void valueTreeRedirected (juce::ValueTree&) override{
+       tracktion::ValueTreeObjectList<T>:: deleteAllObjects();
+       tracktion::ValueTreeObjectList<T>:: rebuildObjects();
+        for (auto object : tracktion::ValueTreeObjectList<T>::objects)
+        {
+            newObjectAdded (object);
+        }
+    };
 private:
     Factory<T> factory;
     std::vector<Listener*> listeners_;

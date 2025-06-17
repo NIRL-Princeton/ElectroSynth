@@ -55,6 +55,7 @@ namespace electrosynth {
       MasterVoiceEnvelopeProcessor->state_.params.attackParam->setParameterValue(0.1);
       MasterVoiceEnvelopeProcessor->state_.params.decayParam->setParameterValue(0.01);
       MasterVoiceEnvelopeProcessor->state_.params.releaseParam->setParameterValue(0.001);
+      MasterVoiceEnvelopeProcessor->state.setProperty(IDs::name, "master_voice",nullptr);
       //temp_voice_buffer.set
   }
 

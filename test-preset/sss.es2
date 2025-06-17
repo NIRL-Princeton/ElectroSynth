@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ELECTROSYNTH>
+  <CHAINS>
+    <SOUNDMODULE harmonic="0.000" pitch="0.000" pitchfine="0.000" freqoffset="0.000"
+                 glide="0.000" shape="0.500" amp="0.800" oscType="3.000" harmonicStepped="0.000"
+                 type="osc" uuid="2"/>
+  </CHAINS>
+  <MODULATOR type="env" uuid="1" name="master_voice"/>
+</ELECTROSYNTH>

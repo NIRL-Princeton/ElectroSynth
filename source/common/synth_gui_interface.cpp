@@ -106,6 +106,7 @@ void SynthGuiInterface::openLoadDialog() {
         loading = false;
         //        else
         //            parent->externalPresetLoaded(choice);
+        DBG("==============filescho====================");
     });
 }
 bool SynthGuiInterface::loadFromFile(juce::File preset, std::string &error) {
@@ -120,7 +121,8 @@ void SynthGuiInterface::openSaveDialog() {
         juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::canSelectFiles |
         juce::FileBrowserComponent::canSelectDirectories,
         [this](const juce::FileChooser &chooser) {
-            getSynth()->tree.setProperty("sync", 1, nullptr);
+            getSynth()->tree.setProperty(IDs::sync, 1, nullptr);
+
             juce::String mystr = (getSynth()->tree.toXmlString());
             auto xml = getSynth()->tree.createXml();
             juce::XmlElement xml_ = *xml;

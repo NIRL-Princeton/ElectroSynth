@@ -11,7 +11,7 @@
 #include "Modulators/EnvModuleProcessor.h"
 #include "Modulators/LFOModuleProcessor.h"
 template<typename T>
-ModuleList<T>::ModuleList(SynthBase *synth) : tracktion::engine::ValueTreeObjectList<T>(synth->tree),synth_(synth){
+ModuleList<T>::ModuleList(SynthBase *synth) : tracktion::engine::ValueTreeObjectList<T>(synth->tree.getChildWithName(IDs::CHAINS)),synth_(synth){
     if constexpr (std::is_same_v<T, ProcessorBase>)
     {
        factory.template registerType<OscillatorModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*>("osc");
@@ -78,7 +78,7 @@ template<typename T>
 void ModuleList<T>::valueTreePropertyChanged(juce::ValueTree &v, const juce::Identifier &i) {
 
         tracktion::engine::ValueTreeObjectList<T>::valueTreePropertyChanged (v, i);
-        if(v.getProperty("sync",0))
+        if(v.getProperty(IDs::sync,0))
         {
             for(auto obj : tracktion::engine::ValueTreeObjectList<T>::objects)
             {
@@ -95,7 +95,7 @@ void ModuleList<T>::valueTreePropertyChanged(juce::ValueTree &v, const juce::Ide
                     //  state.addChild(juce::ValueTree::fromXml(*xml),0,nullptr);
                 }
             }
-            v.removeProperty("sync", nullptr);
+            v.removeProperty(IDs::sync, nullptr);
         }
 
 }

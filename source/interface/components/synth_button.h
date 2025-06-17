@@ -99,23 +99,27 @@ class OpenGlShapeButton : public ToggleButton {
     }
   
     void mouseEnter(const MouseEvent& e) override {
+    gl_component_->setHover(true);
       ToggleButton::mouseEnter(e);
-      gl_component_->setHover(true);
+
     }
   
     void mouseExit(const MouseEvent& e) override {
-      ToggleButton::mouseExit(e);
       gl_component_->setHover(false);
+      ToggleButton::mouseExit(e);
+
     }
     
     void mouseDown(const MouseEvent& e) override {
-      ToggleButton::mouseDown(e);
       gl_component_->setDown(true);
+      ToggleButton::mouseDown(e);
+
     }
     
     void mouseUp(const MouseEvent& e) override {
-      ToggleButton::mouseUp(e);
       gl_component_->setDown(false);
+      ToggleButton::mouseUp(e);
+
     }
 
   private:

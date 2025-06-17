@@ -661,7 +661,7 @@ void 	ModulationManager::componentAdded()
         }
 
     },
-        true);
+        false);
     {
         ScopedLock lock (open_gl_critical_section_);
         rotary_destinations_.clear();
@@ -670,7 +670,6 @@ void 	ModulationManager::componentAdded()
         linear_meters_.clear();
         modulation_buttons_.clear();
         meter_lookup_.clear();
-
         modulation_buttons_ = mod_buttons;
         for (auto& modulation_button : modulation_buttons_) {
             modulation_button.second->addListener(this);
@@ -680,7 +679,7 @@ void 	ModulationManager::componentAdded()
            // addOpenGlComponent(modulation_callout_buttons_[modulation_button.first]->getGlComponent());
             modulation_callout_buttons_[modulation_button.first]->addListener(this);
         }
-
+        slider_model_lookup_.clear();
         slider_model_lookup_ = sliders;
         for (auto& slider : slider_model_lookup_)
         {
@@ -764,67 +763,7 @@ void 	ModulationManager::componentAdded()
         }
     },
         true);
-//
-//    std::map<juce::Viewport*, int> rotary_indices;
-//    std::map<juce::Viewport*, int> linear_indices;
-//    for (auto& rotary_destination_group : rotary_destinations_)
-//        rotary_indices[rotary_destination_group.first] = 0;
-//
-//    for (auto& linear_destination_group : linear_destinations_)
-//        linear_indices[linear_destination_group.first] = 0;
-//
-//    SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
-//    //std::string source_name = source->getComponentID().toStdString();
-//    std::set<std::string> active_destinations;
-//    //  std::vector<electrosynth::ModulationConnection*> connections = parent->getSynth()->getSourceConnections(source_name);
-//    //  for (electrosynth::ModulationConnection* connection : connections)
-//    //    active_destinations.insert(connection->destination_name);
-//
-//    for (auto& destination : destination_lookup_)
-//    {
-//        SynthSlider* model = slider_model_lookup_[destination.first];
-//        //bool should_show = model->isShowing() && model->getSectionParent()->isActive() && current_source_->getComponentID() != juce::String (destination.first);
-//        juce::Viewport* viewport = model->findParentComponentOfClass<juce::Viewport>();
-//        destination.second->setVisible (1 /*should_show*/);
-//        destination.second->setActive (1 /*active_destinations.count(destination.first)*/);
-//        destination.second->setMargin (0);
-//
-//        juce::Point<int> position = getLocalPoint (model, juce::Point<int> (0, 0));
-//        juce::Rectangle<int> slider_bounds = model->getLocalBounds() + position;
-//        destination.second->setBounds (slider_bounds);
-//
-//        juce::Component* extra_target = model->getExtraModulationTarget();
-//        if (extra_target)
-//        {
-//            juce::Rectangle<int> bounds = destination.second->getFillBounds().toNearestInt() + position;
-//
-//            juce::Point<int> top_left = getLocalPoint (extra_target, juce::Point<int> (0, 0));
-//            juce::Rectangle<int> extra_bounds (top_left.x, top_left.y, extra_target->getWidth(), extra_target->getHeight());
-//            bounds = bounds.getUnion (extra_bounds);
-//            destination.second->setBounds (bounds);
-//        }
-//
-//        if (1)
-//        {
-//            if (destination.second->isRotary())
-//            {
-//                destination.second->setIndex (rotary_indices[viewport]);
-//                rotary_indices[viewport] = rotary_indices[viewport] + 1;
-//            }
-//            else
-//            {
-//                destination.second->setIndex (linear_indices[viewport]);
-//                linear_indices[viewport] = linear_indices[viewport] + 1;
-//            }
-//            setDestinationQuadBounds (destination.second);
-//        }
-//    }
-//    //DEBUG FIX
-//    for (auto& index_count : rotary_indices)
-//    {
-//        rotary_destinations_[index_count.first]->setNumQuads (index_count.second);
-//        //rotary_destinations_[index_count.first]->setAlpha(index_count.second > 0 ? 1.0f : 0.0f);
-//    }
+
     resized();
 }
 

@@ -12,7 +12,7 @@ namespace IDs
 {
 #define DECLARE_ID(name) const juce::Identifier name (#name);
 
-    DECLARE_ID (GALLERY)
+    DECLARE_ID (ELECTROSYNTH)
     DECLARE_ID (CONTROLS)
     DECLARE_ID (INPUT)
     DECLARE_ID (OUTPUT)
@@ -20,10 +20,11 @@ namespace IDs
     DECLARE_ID (MODULE)
     DECLARE_ID (MODULATOR)
     DECLARE_ID (PREPARATIONS)
-    DECLARE_ID(MODULATION)
+    DECLARE_ID (MODULATION)
 
     DECLARE_ID (name)
-
+    DECLARE_ID (CHAINS)
+    DECLARE_ID(sync)
     DECLARE_ID (PREPARATION)
     DECLARE_ID (id)
     DECLARE_ID (type)

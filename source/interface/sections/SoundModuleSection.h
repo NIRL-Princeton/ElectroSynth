@@ -12,7 +12,7 @@ class ModulationManager;
 class SoundModuleSection : public ModulesInterface<ProcessorBase>
 {
 public:
-    explicit SoundModuleSection(const juce::ValueTree &, ModulationManager* m, ModuleList<ProcessorBase> &);
+    explicit SoundModuleSection( ModulationManager* m, ModuleList<ProcessorBase> &);
     virtual ~SoundModuleSection();
 
     void setEffectPositions() override;

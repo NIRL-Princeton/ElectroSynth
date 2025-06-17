@@ -76,10 +76,10 @@ public:
     };
 //    T* createNewObject(const juce::ValueTree& v) override;
 //    void deleteObject (ModuleSection* at) override;
+    void reset() override;
 
 
-
-    ModulesInterface(const juce::ValueTree &,ModuleList<T> &);
+    ModulesInterface(ModuleList<T> &);
     virtual ~ModulesInterface();
 
     void paintBackground(juce::Graphics& g) override;
@@ -117,7 +117,6 @@ public:
     virtual void handlePopupResult(int result) = 0;
 protected:
     ModuleList<T>& list;
-    juce::ValueTree parent;
     std::vector<Listener*> listeners_;
     EffectsViewport viewport_;
     std::unique_ptr<ModulesContainer> container_;
@@ -133,7 +132,7 @@ protected:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ModulesInterface)
 };
 template<typename T>
-ModulesInterface<T>::ModulesInterface(const juce::ValueTree &v, ModuleList<T>& list_) : SynthSection("modules") ,list(list_),parent(v) {
+ModulesInterface<T>::ModulesInterface( ModuleList<T>& list_) : SynthSection("modules") ,list(list_) {
     container_ = std::make_unique<ModulesContainer>("container");
 
     addAndMakeVisible(viewport_);
@@ -266,5 +265,13 @@ void ModulesInterface<T>::setScrollBarRange() {
   //  DBG("viewport height: " + String(viewport_.getHeight()));
    // DBG("scrollbar range: " + String(scroll_bar_->getCurrentRangeStart()) );
 }
-
+#include "synth_gui_interface.h"
+#include "synth_base.h"
+template<typename T>
+void ModulesInterface<T>:: reset() {
+    SynthGuiInterface *_parent = findParentComponentOfClass<SynthGuiInterface>();
+    if (_parent != nullptr)
+        list.setValueTree( _parent->getSynth()->tree.getChildWithName(IDs::CHAINS));
+    SynthSection::reset();
+}
 #endif //ELECTROSYNTH_SOUND_GENERATOR_SECTION_H

@@ -386,7 +386,6 @@ void SynthSection::renderOpenGlComponents(OpenGlWrapper& open_gl, bool animate) 
       background_->render(open_gl);
 }
 
-
 void SynthSection::destroyOpenGlComponents(juce::OpenGLContext& open_gl) {
   for (auto& open_gl_component : open_gl_components_)
     open_gl_component->destroy(open_gl);
@@ -513,7 +512,7 @@ void SynthSection::addSubSection(SynthSection* sub_section, bool show) {
 
 void SynthSection::removeSubSection(SynthSection* section) {
   this->removeSliders( section->getAllSliders());
-  for (auto [key,mod] : section->all_modulation_buttons_) {
+  for (auto [key,mod] : section->modulation_buttons_) {
     this->all_modulation_buttons_.erase(key);
   }
   auto location = std::find(sub_sections_.begin(), sub_sections_.end(), section);

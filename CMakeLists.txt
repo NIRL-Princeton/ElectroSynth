@@ -215,3 +215,14 @@ include(Benchmarks)
 
 # Output some config for CI (like our PRODUCT_NAME)
 include(GitHubENV)
+# Get the C compiler path
+message("C Compiler: ${CMAKE_C_COMPILER}")
+
+# Get the C++ compiler path
+message("C++ Compiler: ${CMAKE_CXX_COMPILER}")
+
+# Get the C++ compiler id
+message("C++ Compiler ID: ${CMAKE_CXX_COMPILER_ID}")
+
+# Get the C++ compiler version
+message("C++ Compiler Version: ${CMAKE_CXX_COMPILER_VERSION}")

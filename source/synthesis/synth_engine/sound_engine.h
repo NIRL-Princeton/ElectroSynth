@@ -18,8 +18,6 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "../framework/note_handler.h"
 #include <leaf.h>
-#include <leaf-config.h>
-//#include "buffer_debugger.h"
 #include "event_emitter.h"
 #include "processors/processor.h"
 #include "ModulationConnection.h"

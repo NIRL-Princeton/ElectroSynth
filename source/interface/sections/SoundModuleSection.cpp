@@ -12,8 +12,8 @@
 #include "../../synthesis/framework/Processors/StringModuleProcessor.h"
 #include "synth_base.h"
 
-SoundModuleSection::SoundModuleSection(const juce::ValueTree &v, ModulationManager *m,
-                                       ModuleList<ProcessorBase> &module_list) : ModulesInterface(v, module_list) {
+SoundModuleSection::SoundModuleSection(ModulationManager *m,
+                                       ModuleList<ProcessorBase> &module_list) : ModulesInterface( module_list) {
     scroll_bar_ = std::make_unique<OpenGlScrollBar>();
     addAndMakeVisible(scroll_bar_.get());
     addOpenGlComponent(scroll_bar_->getGlComponent());
@@ -41,7 +41,7 @@ void SoundModuleSection::handlePopupResult(int result) {
     } else if (result == 3) {
         juce::ValueTree t(IDs::SOUNDMODULE);
         t.setProperty(IDs::type, "string", nullptr);
-        parent.appendChild(t, nullptr);
+        list.appendChild(t, nullptr);
     }
 
     //    if (result == kArmMidiLearn)
@@ -120,37 +120,56 @@ void SoundModuleSection::moduleAdded(ProcessorBase *newModule) {
     module_section->setInterceptsMouseClicks(false, true);
     parentHierarchyChanged();
     module_sections.emplace_back(std::move(module_section));
-    for (auto listener: listeners_) {
-        listener->added();
-    }
+
+        for (auto listener: listeners_) {
+            listener->added();
+        }
+
     resized();
 }
 
 void SoundModuleSection::removeModule(ProcessorBase *newModule) {
-    auto it = std::find_if(module_sections.begin(), module_sections.end(),
-                           [newModule](auto& section) {
-                               return section->state == newModule->state;
-                           });
+    decltype(module_sections)::iterator it;
+    {
+        juce::ScopedLock(this->open_gl_critical_section_);
+        it = std::remove_if(module_sections.begin(), module_sections.end(),
+                            [newModule](auto& section) {
+                                return section->state == newModule->state;
+                            });
+    }
+    //leaving this here as its another way to accomplish this task
+    // auto it = [&]() {
+    //     juce::ScopedLock lock(this->open_gl_critical_section_);
+    //     return std::remove_if(module_sections.begin(), module_sections.end(),
+    //                           [newModule](auto& section) {
+    //                               return section->state == newModule->state;
+    //                           });
+    // }();
+
 
     if (it != module_sections.end()) {
         it->get()->setVisible(false);
         if ((juce::OpenGLContext::getCurrentContext() == nullptr)) {
-            SynthGuiInterface *_parent = findParentComponentOfClass<SynthGuiInterface>();
+
+            auto *_parent = findParentComponentOfClass<SynthGuiInterface>();
             _parent->getOpenGlWrapper()->context.executeOnGLThread([this, it](juce::OpenGLContext &openGLContext) {
 
-                auto a = it->get();
 
+                auto a = it->get();
                 a->destroyOpenGlComponents(openGLContext);
                 this->container_->removeSubSection(a);
-                auto slidersToRemove = a->getAllSliders();
-                this->container_->removeSliders(slidersToRemove);
-               juce::MessageManager::callAsync(
-                   [it, this]()mutable {
-                       module_sections.erase(it);
-                   });
-                },false);
-        } else
-            module_sections.erase(it);
+
+                },true);
+
+        }
+
+        module_sections.erase(it, module_sections.end());
+
+    }
+
+    for(auto listener : listeners_)
+    {
+        listener->removed();
     }
     resized();
 }

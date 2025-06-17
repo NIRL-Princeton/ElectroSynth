@@ -32,11 +32,11 @@ public:
 //    }
     juce::ValueTree state;
     void buttonClicked(juce::Button* clicked_button) override;
+    std::unique_ptr<OpenGlShapeButton> exit_button_;
 private:
 
     std::unique_ptr<electrosynth::ParametersView> _view;
 
-    std::unique_ptr<OpenGlShapeButton> exit_button_;
 };
 
 #endif //ELECTROSYNTH_MODULESECTION_H

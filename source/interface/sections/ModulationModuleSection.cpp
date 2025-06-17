@@ -15,7 +15,7 @@ namespace electrosynth {
     class SoundEngine;
 }
 
-ModulationModuleSection::ModulationModuleSection(const juce::ValueTree &v, ModulationManager *modulation_manager,ModuleList<ModulatorBase>& module_list) : ModulesInterface(v,module_list), modulation_manager(modulation_manager)
+ModulationModuleSection::ModulationModuleSection(ModulationManager *modulation_manager,ModuleList<ModulatorBase>& module_list) : ModulesInterface(module_list), modulation_manager(modulation_manager)
 {
     scroll_bar_ = std::make_unique<OpenGlScrollBar>(false);
 //    scroll_bar_->setShrinkLeft(true)
@@ -196,31 +196,47 @@ void ModulationModuleSection::moduleListChanged() {
 }
 
 void ModulationModuleSection::removeModule(ModulatorBase *newModule) {
-    auto it = std::find_if(module_sections.begin(), module_sections.end(),
-        [newModule](auto& section)
-        {
-            return section->state == newModule->state;
-        });
-    if (it != module_sections.end()) {
+    decltype(module_sections)::iterator it;
+    {
+        juce::ScopedLock(this->open_gl_critical_section_);
+        it = std::remove_if(module_sections.begin(), module_sections.end(),
+                            [newModule](auto& section) {
+                                return section->state == newModule->state;
+                            });
+    }
+    //leaving this here as its another way to accomplish this task
+    // auto it = [&]() {
+    //     juce::ScopedLock lock(this->open_gl_critical_section_);
+    //     return std::remove_if(module_sections.begin(), module_sections.end(),
+    //                           [newModule](auto& section) {
+    //                               return section->state == newModule->state;
+    //                           });
+    // }();
 
+
+    if (it != module_sections.end()) {
         it->get()->setVisible(false);
         if ((juce::OpenGLContext::getCurrentContext() == nullptr)) {
-            SynthGuiInterface *_parent = findParentComponentOfClass<SynthGuiInterface>();
+
+            auto *_parent = findParentComponentOfClass<SynthGuiInterface>();
             _parent->getOpenGlWrapper()->context.executeOnGLThread([this, it](juce::OpenGLContext &openGLContext) {
+
 
                 auto a = it->get();
                 a->destroyOpenGlComponents(openGLContext);
                 this->container_->removeSubSection(a);
-                auto slidersToRemove = a->getAllSliders();
-                this->container_->removeSliders(slidersToRemove);
-               juce::MessageManager::callAsync(
-                   [it, this]()mutable {
-                       module_sections.erase(it);
-                   });
-                },false);
-        } else
-            module_sections.erase(it);
+
+                },true);
+
+        }
+
+        module_sections.erase(it, module_sections.end());
+
+        for(auto listener : listeners_)
+        {
+            listener->removed();
+        }
+        resized();
     }
-    resized();
 }
 
