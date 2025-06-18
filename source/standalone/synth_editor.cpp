@@ -134,11 +134,11 @@ void SynthEditor::resized() {
   {
 
 
-                  const auto scaleFactor = static_cast<float> (getWidth()) / electrosynth::kDefaultWindowWidth;
-                  gui_->setTransform (AffineTransform::scale (scaleFactor));
-                  gui_->setBounds(0, 0, electrosynth::kDefaultWindowWidth, electrosynth::kDefaultWindowHeight);
+                  // const auto scaleFactor = static_cast<float> (getWidth()) / electrosynth::kDefaultWindowWidth;
+                  // gui_->setTransform (AffineTransform::scale (scaleFactor));
+                  // gui_->setBounds(0, 0, electrosynth::kDefaultWindowWidth, electrosynth::kDefaultWindowHeight);
 
-    //gui_->setBounds (getBounds());
+    gui_->setBounds (getBounds());
   }
 }
 

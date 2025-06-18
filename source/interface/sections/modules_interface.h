@@ -19,7 +19,7 @@ class ModulesContainer : public SynthSection {
             setInterceptsMouseClicks(false,true);
         }
     void paintBackground(Graphics& g) override {
-        g.fillAll(findColour(Skin::kBackground, true));
+        // g.fillAll(findColour(Skin::kBackground, true));
 paintChildrenShadows(g);
 paintChildrenBackgrounds(g);
 }
@@ -115,6 +115,21 @@ public:
 
     virtual PopupItems createPopupMenu() = 0;
     virtual void handlePopupResult(int result) = 0;
+    bool isExpanded() const { return toggle_button_->getToggleState(); }
+    std::function<void()> onExpandChanged;
+    void buttonClicked(juce::Button* b) override
+    {
+        if (b == toggle_button_.get())
+        {
+
+            toggle_button_->setShape(toggle_button_->getToggleState() ? Paths::downTriangle() : Paths::upTriangle());
+
+            resized();
+            if (onExpandChanged)
+                onExpandChanged();
+        }
+    }
+
 protected:
     ModuleList<T>& list;
     std::vector<Listener*> listeners_;
@@ -126,13 +141,27 @@ protected:
     std::unique_ptr<OpenGlScrollBar> scroll_bar_;
 //
 //    std::vector<std::unique_ptr<SynthSection>> modules;
-
+    std::unique_ptr<OpenGlShapeButton> toggle_button_;
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ModulesInterface)
 };
 template<typename T>
 ModulesInterface<T>::ModulesInterface( ModuleList<T>& list_) : SynthSection("modules") ,list(list_) {
+    setSidewaysHeading(false);
+    toggle_button_ = std::make_unique<OpenGlShapeButton>("-");
+    addAndMakeVisible(toggle_button_.get());
+    addOpenGlComponent(toggle_button_->getGlComponent());
+    toggle_button_->addListener(this);
+    toggle_button_->setShape(Paths::downTriangle());
+    toggle_button_->setClickingTogglesState(true);
+    toggle_button_->setToggleState(true,juce::dontSendNotification);
+
+    addToggleButton(toggle_button_.get(),true);
+
+    toggle_button_->setClickingTogglesState(true);
+    toggle_button_->setToggleState(true, juce::dontSendNotification);
+
     container_ = std::make_unique<ModulesContainer>("container");
 
     addAndMakeVisible(viewport_);
@@ -158,10 +187,22 @@ ModulesInterface<T>::~ModulesInterface() {
 }
 template<typename T>
 void ModulesInterface<T>::paintBackground(Graphics& g) {
-    Colour background = findColour(Skin::kBackground, true);
-    g.setColour(background);
-    g.fillRect(getLocalBounds().withRight(getWidth() - findValue(Skin::kLargePadding) / 2));
-    //paintChildBackground(g, effect_order_.get());
+    g.setColour(Colours::purple);
+    // Colour background = findColour(Skin::kBackground, true);
+    // g.setColour(background);
+    // g.fillRect(getLocalBounds().withRight(getWidth() - findValue(Skin::kLargePadding) / 2));
+
+    g.fillRoundedRectangle(getLocalBounds().toFloat(), findValue(Skin::kBodyRounding));
+
+    int body_rounding = findValue(Skin::kBodyRounding);
+    g.setColour(Colours::red);
+    g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(0.5f), body_rounding, 1.0f);
+   // paintContainer(g);
+    paintHeadingText(g);
+
+    // paintChildrenBackgrounds(g);
+    paintBorder(g);
+    // paintChildBackground(g,container_.get());
 
     redoBackgroundImage();
 }
@@ -169,9 +210,10 @@ template<typename T>
 void ModulesInterface<T>::redoBackgroundImage() {
     Colour background = findColour(Skin::kBackground, true);
 
-    int height = std::max(container_->getHeight(), getHeight());
+    int height = std::max(viewport_.getHeight(), getHeight());
+    int width = std::max(viewport_.getWidth(), getWidth());
     int mult = juce::Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds())->scale;// getPixelMultiple();
-    Image background_image = Image(Image::ARGB, container_->getWidth() * mult, height * mult, true);
+    Image background_image = Image(Image::ARGB, width * mult, height * mult, true);
 
     Graphics background_graphics(background_image);
     background_graphics.addTransform(AffineTransform::scale(mult));
@@ -192,11 +234,25 @@ void ModulesInterface<T>::resized() {
     int shadow_width = getComponentShadowWidth();
     int viewport_x = 0 + large_padding - shadow_width;
     int viewport_width = getWidth() - viewport_x - large_padding + 2 * shadow_width;
-    viewport_.setBounds(viewport_x, 0, viewport_width, getHeight());
-    setEffectPositions();
+    auto area = getLocalBounds();
+    auto header = area.removeFromTop(30);
+    toggle_button_->setBounds(0,0,getTitleWidth(),getTitleWidth());
+    if (isExpanded()) {
+        container_->setVisible(true);
+        viewport_.setBounds(viewport_x,getTitleWidth() + large_padding, viewport_width, getHeight()-getTitleWidth() - (large_padding + 2 * shadow_width));
+        setEffectPositions();
 
-    scroll_bar_->setBounds(getWidth() - large_padding + 1, 0, large_padding - 2, getHeight());
-    scroll_bar_->setColor(findColour(Skin::kLightenScreen, true));
+        scroll_bar_->setBounds(getWidth() - large_padding + 1, getTitleWidth() + large_padding, large_padding - 2, getHeight() -(large_padding + 2 * shadow_width));
+        scroll_bar_->setColor(findColour(Skin::kLightenScreen, true));
+
+
+    }
+    else
+    {
+        viewport_.setBounds(0,0,0,0);
+        container_->setBounds(0,0,0,0);
+        container_->setVisible(false);
+    }
 
     SynthSection::resized();
 }

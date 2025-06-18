@@ -39,6 +39,7 @@ void MasterVoiceEnvelopeSection::paintBackground(Graphics &g) {
     SynthSection::paintBackground(g);
 }
 #include "modulation_manager.h"
+#include "FullInterface.h"
 MainSection::MainSection(const juce::ValueTree& v, juce::UndoManager &um, OpenGlWrapper & open_gl, SynthGuiData* data, ModulationManager* modulation_manager) : SynthSection("main_section"), v(v), um(um)
 {
     sound_interface = std::make_unique<SoundModuleSection>( modulation_manager,*data->synth->processors_);
@@ -49,6 +50,11 @@ MainSection::MainSection(const juce::ValueTree& v, juce::UndoManager &um, OpenGl
     master_voice_envelope_section = std::make_unique<MasterVoiceEnvelopeSection>(v, um, open_gl, data,std::move(data->synth->getEngine()->MasterVoiceEnvelopeProcessor->createEditor()));
     addSubSection(master_voice_envelope_section.get());
     master_voice_envelope_section->mod_button->addListener(modulation_manager);
+    sound_interface->onExpandChanged = [this]{resized();sound_interface->redoBackgroundImage();
+                                                    auto full =findParentComponentOfClass<FullInterface>();
+    full->redoBackground();};
+
+    modulation_interface->onExpandChanged = [this]{resized();};
     //addAndMakeVisible(constructionPort);
 //    ValueTree t(IDs::PREPARATION);
 //
@@ -65,14 +71,13 @@ MainSection::MainSection(const juce::ValueTree& v, juce::UndoManager &um, OpenGl
 
 void MainSection::paintBackground(juce::Graphics& g)
 {
-    paintContainer(g);
+    paintBody(g);
 
-    g.setColour(findColour(Skin::kBody, true));
+
+    // paintChildBackground(g,master_voice_envelope_section.get());
     paintChildrenBackgrounds(g);
-    paintKnobShadows(g);
-    g.saveState();
+    // paintKnobShadows(g);
 
-    g.restoreState();
 
 
 }
@@ -84,16 +89,16 @@ void MainSection::resized()
     int width = getWidth();
     int widget_margin = findValue(Skin::kWidgetMargin);
     int large_padding = findValue(Skin::kLargePadding);
-    int padding = getPadding();
+    int padding = getPadding()*size_ratio_;
     int active_width = getWidth() - padding;
     int width_left = (active_width - padding) / 2;
     int width_right = active_width - width_left;
     int right_x = width_left + padding;
 
-    sound_interface->setBounds(0, 0, width,height - 200);
+    sound_interface->setBounds(padding, padding, width- padding*2,(sound_interface->isExpanded() ? height -size_ratio_* 200 : 100) - padding);
 //     test_->setBounds(0,0,width,height - 200);
-    modulation_interface->setBounds(0,sound_interface->getBottom(), width - 200, 200);
-    master_voice_envelope_section->setBounds(width-200,sound_interface->getBottom(),200,200);
+    modulation_interface->setBounds(0,height -size_ratio_* 200+ padding, width - size_ratio_*200 , size_ratio_* 200);
+    master_voice_envelope_section->setBounds(width-size_ratio_*200 + padding,height -size_ratio_* 200 +padding,size_ratio_*200,size_ratio_*200);
     //constructionPort.setBounds(large_padding, 0,getDisplayScale()* width, getDisplayScale() * height);
     //constructionPort.setBounds(large_padding, 0,width, height);
 

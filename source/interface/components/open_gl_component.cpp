@@ -66,7 +66,7 @@ bool OpenGlComponent::setViewPort(juce::Component* component, juce::Rectangle<in
   float resize_scale = top_level->getResizingScale();
   float render_scale = 1.0f;
   if (scale == 1.0f)
-    render_scale = open_gl.context.getRenderingScale();
+    render_scale *= open_gl.context.getRenderingScale();
 
   float gl_scale = render_scale * resize_scale;
 

@@ -4,7 +4,7 @@
 
 #ifndef ELECTROSYNTH_ModulationMODULESECTION_H
 #define ELECTROSYNTH_ModulationMODULESECTION_H
-#include "sound_generator_section.h"
+#include "modules_interface.h"
 #include "ModuleList.h"
 class ModulatorBase;
 class ModulationSection;

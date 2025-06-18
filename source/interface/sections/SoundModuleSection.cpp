@@ -4,12 +4,10 @@
 
 #include "SoundModuleSection.h"
 #include "../../synthesis/framework/Processors/OscillatorModuleProcessor.h"
-#include "FilterModuleProcessor.h"
 #include "ModuleSection.h"
 #include "synth_gui_interface.h"
 #include "Processors/ProcessorBase.h"
 #include "modulation_manager.h"
-#include "../../synthesis/framework/Processors/StringModuleProcessor.h"
 #include "synth_base.h"
 
 SoundModuleSection::SoundModuleSection(ModulationManager *m,
@@ -86,10 +84,10 @@ void SoundModuleSection::setEffectPositions() {
     // DBG("position viewport: x: " + juce::String(position.getX()) + "y: " + juce::String(position.getY()));
     //DBG("shadwo width: " + String(shadow_width));
     for (auto &section: module_sections) {
-        section->setBounds(shadow_width, y, effect_width, effect_height);
+        section->setBounds(0, y, effect_width, effect_height);
         y += effect_height + padding;
     }
-    container_->setBounds(0, 0, viewport_.getWidth(), y - padding + effect_height * 2);
+    container_->setBounds(viewport_.getX(), viewport_.getY(), viewport_.getWidth(), y - padding + effect_height * 2);
     viewport_.setViewPosition(position);
 
     for (Listener *listener: listeners_)
@@ -99,6 +97,7 @@ void SoundModuleSection::setEffectPositions() {
     container_->setScrollWheelEnabled(container_->getHeight() <= viewport_.getHeight());
     setScrollBarRange();
     repaintBackground();
+    redoBackgroundImage();
 }
 
 PopupItems SoundModuleSection::createPopupMenu() {

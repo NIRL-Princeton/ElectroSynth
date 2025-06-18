@@ -76,37 +76,37 @@ void OpenGlButtonComponent::setColors() {
     off_hover_color_ = button_->findColour(Skin::kIconButtonOffHover, true);
     background_color_ = button_->findColour(Skin::kTextComponentBackground, true);
   }
-//  else if (style_ == kPowerButton) {
-//    on_color_ = button_->findColour(Skin::kPowerButtonOn, true);
-//    on_pressed_color_ = button_->findColour(Skin::kOverlayScreen, true);
-//    on_hover_color_ = button_->findColour(Skin::kLightenScreen, true);
-//    off_color_ = button_->findColour(Skin::kPowerButtonOff, true);
-//    off_pressed_color_ = on_pressed_color_;
-//    off_hover_color_ = on_hover_color_;
-//    background_color_ = on_color_;
-//  }
-//  else if (style_ == kUiButton) {
-//    if (primary_ui_button_) {
-//      on_color_ = button_->findColour(Skin::kUiActionButton, true);
-//      on_pressed_color_ = button_->findColour(Skin::kUiActionButtonPressed, true);
-//      on_hover_color_ = button_->findColour(Skin::kUiActionButtonHover, true);
-//    }
-//    else {
-//      on_color_ = button_->findColour(Skin::kUiButton, true);
-//      on_pressed_color_ = button_->findColour(Skin::kUiButtonPressed, true);
-//      on_hover_color_ = button_->findColour(Skin::kUiButtonHover, true);
-//    }
-//    background_color_ = button_->findColour(Skin::kUiButtonText, true);
-//  }
-//  else if (style_ == kLightenButton) {
-//    on_color_ = Colours::transparentWhite;
-//    on_pressed_color_ = button_->findColour(Skin::kOverlayScreen, true);
-//    on_hover_color_ = button_->findColour(Skin::kLightenScreen, true);
-//    off_color_ = on_color_;
-//    off_pressed_color_ = on_pressed_color_;
-//    off_hover_color_ = on_hover_color_;
-//    background_color_ = on_color_;
-//  }
+  else if (style_ == kPowerButton) {
+    on_color_ = button_->findColour(Skin::kPowerButtonOn, true);
+    on_pressed_color_ = button_->findColour(Skin::kOverlayScreen, true);
+    on_hover_color_ = button_->findColour(Skin::kLightenScreen, true);
+    off_color_ = button_->findColour(Skin::kPowerButtonOff, true);
+    off_pressed_color_ = on_pressed_color_;
+    off_hover_color_ = on_hover_color_;
+    background_color_ = on_color_;
+  }
+  else if (style_ == kUiButton) {
+    if (primary_ui_button_) {
+      on_color_ = button_->findColour(Skin::kUiActionButton, true);
+      on_pressed_color_ = button_->findColour(Skin::kUiActionButtonPressed, true);
+      on_hover_color_ = button_->findColour(Skin::kUiActionButtonHover, true);
+    }
+    else {
+      on_color_ = button_->findColour(Skin::kUiButton, true);
+      on_pressed_color_ = button_->findColour(Skin::kUiButtonPressed, true);
+      on_hover_color_ = button_->findColour(Skin::kUiButtonHover, true);
+    }
+    background_color_ = button_->findColour(Skin::kUiButtonText, true);
+  }
+  else if (style_ == kLightenButton) {
+    on_color_ = Colours::transparentWhite;
+    on_pressed_color_ = button_->findColour(Skin::kOverlayScreen, true);
+    on_hover_color_ = button_->findColour(Skin::kLightenScreen, true);
+    off_color_ = on_color_;
+    off_pressed_color_ = on_pressed_color_;
+    off_hover_color_ = on_hover_color_;
+    background_color_ = on_color_;
+  }
 }
 
 void OpenGlButtonComponent::renderTextButton(OpenGlWrapper& open_gl, bool animate) {

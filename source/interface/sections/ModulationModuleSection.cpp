@@ -180,7 +180,11 @@ std::map<std::string, ModulationButton*> ModulationModuleSection::getAllModulati
 }
 void ModulationModuleSection::moduleAdded(ModulatorBase *newModule) {
     auto module_section = std::make_unique<ModulationSection>( newModule->state, std::move((newModule->createEditor())));
-    container_->addSubSection(module_section.get());
+    {
+        juce::ScopedLock lock(open_gl_critical_section_);
+        container_->addSubSection(module_section.get());
+    }
+
     module_section->setInterceptsMouseClicks(false,true);
     parentHierarchyChanged();
     module_sections.emplace_back(std::move(module_section));

@@ -661,7 +661,7 @@ void 	ModulationManager::componentAdded()
         }
 
     },
-        false);
+        true);
     {
         ScopedLock lock (open_gl_critical_section_);
         rotary_destinations_.clear();

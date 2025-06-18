@@ -249,7 +249,7 @@ void FullInterface::checkShouldReposition(bool resize) {
 void FullInterface::resized() {
     checkShouldReposition(false);
 //SynthSection::resized();
-
+    width_ = getWidth();
    if (!enable_redo_background_)
    {
       // open_gl_context_.detach();
@@ -257,7 +257,7 @@ void FullInterface::resized() {
       // startTimer(100);
        return;
    }
-   width_ = getWidth();
+
 
 
    resized_width_ = width_;
@@ -292,7 +292,7 @@ void FullInterface::resized() {
 //   DBG("");
 //    DBG( "ratio: " + juce::String(ratio));
 //    DBG("display scale" + juce::String(display_scale_));
-   int padding = getPadding();
+   int padding = getPadding() * size_ratio_;
    int voice_padding = findValue(Skin::kLargePadding);
 
    int main_x = left + 2 * voice_padding;
@@ -304,7 +304,7 @@ void FullInterface::resized() {
 
    header_->setTabOffset(2 * voice_padding);
    header_->setBounds(left, top, width,  top_height);
-   Rectangle<int> main_bounds(left,header_->getBottom(), width, height - top_height);
+   Rectangle<int> main_bounds(left,header_->getBottom() + padding, width, height - top_height );
    juce::Rectangle<int> new_bounds(0, 0, width, height);
    main_->setBounds(main_bounds);
    //test_section->setBounds(main_bounds);
