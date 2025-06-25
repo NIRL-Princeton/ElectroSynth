@@ -73,7 +73,7 @@ void SoundModuleSection::setEffectPositions() {
     int padding = getPadding();
     int large_padding = findValue(Skin::kLargePadding);
     int shadow_width = getComponentShadowWidth();
-    int start_x = 0;
+    int start_x = large_padding - shadow_width;
     int effect_width = getWidth() - start_x - large_padding;
     int knob_section_height = getKnobSectionHeight();
     int widget_margin = findValue(Skin::kWidgetMargin);
@@ -84,10 +84,10 @@ void SoundModuleSection::setEffectPositions() {
     // DBG("position viewport: x: " + juce::String(position.getX()) + "y: " + juce::String(position.getY()));
     //DBG("shadwo width: " + String(shadow_width));
     for (auto &section: module_sections) {
-        section->setBounds(0, y, effect_width, effect_height);
-        y += effect_height + padding;
+        section->setBounds(0, y, effect_width, effect_height*size_ratio_);
+        y += (effect_height +padding);
     }
-    container_->setBounds(viewport_.getX(), viewport_.getY(), viewport_.getWidth(), y - padding + effect_height * 2);
+    container_->setBounds(0,0, viewport_.getWidth(), y - padding + effect_height * 2);
     viewport_.setViewPosition(position);
 
     for (Listener *listener: listeners_)
@@ -97,7 +97,6 @@ void SoundModuleSection::setEffectPositions() {
     container_->setScrollWheelEnabled(container_->getHeight() <= viewport_.getHeight());
     setScrollBarRange();
     repaintBackground();
-    redoBackgroundImage();
 }
 
 PopupItems SoundModuleSection::createPopupMenu() {
@@ -115,7 +114,9 @@ std::map<std::string, SynthSlider *> SoundModuleSection::getAllSliders() {
 
 void SoundModuleSection::moduleAdded(ProcessorBase *newModule) {
     auto module_section = std::make_unique<ModuleSection>(newModule->state,std::move (newModule->createEditor()));
-    container_->addSubSection(module_section.get());
+    { juce::ScopedLock lock(open_gl_critical_section_);
+        container_->addSubSection(module_section.get());
+    }
     module_section->setInterceptsMouseClicks(false, true);
     parentHierarchyChanged();
     module_sections.emplace_back(std::move(module_section));
@@ -128,22 +129,22 @@ void SoundModuleSection::moduleAdded(ProcessorBase *newModule) {
 }
 
 void SoundModuleSection::removeModule(ProcessorBase *newModule) {
-    decltype(module_sections)::iterator it;
-    {
-        juce::ScopedLock(this->open_gl_critical_section_);
-        it = std::remove_if(module_sections.begin(), module_sections.end(),
-                            [newModule](auto& section) {
-                                return section->state == newModule->state;
-                            });
-    }
-    //leaving this here as its another way to accomplish this task
-    // auto it = [&]() {
-    //     juce::ScopedLock lock(this->open_gl_critical_section_);
-    //     return std::remove_if(module_sections.begin(), module_sections.end(),
-    //                           [newModule](auto& section) {
-    //                               return section->state == newModule->state;
-    //                           });
-    // }();
+    // decltype(module_sections)::iterator it;
+    // {
+    //     juce::ScopedLock(this->open_gl_critical_section_);
+    //     it = std::remove_if(module_sections.begin(), module_sections.end(),
+    //                         [newModule](auto& section) {
+    //                             return section->state == newModule->state;
+    //                         });
+    // }
+    // leaving this here as its another way to accomplish this task
+     auto it = [&]() {
+         juce::ScopedLock lock(this->open_gl_critical_section_);
+         return std::partition(module_sections.begin(), module_sections.end(),
+                               [newModule](auto& section) {
+                                   return section->state == newModule->state;
+                               });
+     }();
 
 
     if (it != module_sections.end()) {

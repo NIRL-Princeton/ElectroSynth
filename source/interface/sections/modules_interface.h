@@ -18,6 +18,9 @@ class ModulesContainer : public SynthSection {
         ModulesContainer(String name) : SynthSection(name) {
             setInterceptsMouseClicks(false,true);
         }
+    void resized() override {
+            SynthSection::resized();
+        }
     void paintBackground(Graphics& g) override {
         // g.fillAll(findColour(Skin::kBackground, true));
 paintChildrenShadows(g);
@@ -47,6 +50,7 @@ public:
             listener->endScroll();
     }
     void visibleAreaChanged(const juce::Rectangle<int>& visible_area) override {
+        Viewport::visibleAreaChanged(visible_area);
         for (Listener* listener : listeners_) {
             if (isVerticalScrollbarOnTheRight())
                 listener->effectsScrolled(visible_area.getY());
@@ -54,7 +58,7 @@ public:
                 listener->effectsScrolled(visible_area.getX());
         }
 
-        Viewport::visibleAreaChanged(visible_area);
+
     }
 
 private:
@@ -102,7 +106,7 @@ public:
     void effectsScrolled(int position) override {
         setScrollBarRange();
         scroll_bar_->setCurrentRange(position, viewport_.getHeight());
-        DBG("position: " + String(position));
+        // DBG("position: " + String(position));
         for (Listener* listener : listeners_)
             listener->effectsMoved();
     }
@@ -171,8 +175,8 @@ ModulesInterface<T>::ModulesInterface( ModuleList<T>& list_) : SynthSection("mod
     //breaks sacling if true
     addSubSection(container_.get(), false);
 
-    container_->toFront(true);
-    container_->setInterceptsMouseClicks(false,true);
+    // container_->toFront(true);
+    // container_->setInterceptsMouseClicks(false,true);
 
     setOpaque(false);
     list.addListener(this);
@@ -210,8 +214,8 @@ template<typename T>
 void ModulesInterface<T>::redoBackgroundImage() {
     Colour background = findColour(Skin::kBackground, true);
 
-    int height = std::max(viewport_.getHeight(), getHeight());
-    int width = std::max(viewport_.getWidth(), getWidth());
+    int height = std::max(container_->getHeight(), getHeight());
+    int width = std::max(container_->getWidth(), getWidth());
     int mult = juce::Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds())->scale;// getPixelMultiple();
     Image background_image = Image(Image::ARGB, width * mult, height * mult, true);
 
@@ -238,11 +242,9 @@ void ModulesInterface<T>::resized() {
     auto header = area.removeFromTop(30);
     toggle_button_->setBounds(0,0,getTitleWidth(),getTitleWidth());
     if (isExpanded()) {
-        container_->setVisible(true);
-        viewport_.setBounds(viewport_x,getTitleWidth() + large_padding, viewport_width, getHeight()-getTitleWidth() - (large_padding + 2 * shadow_width));
+        viewport_.setBounds(0,0,getWidth(),getHeight()); //getHeight()-getTitleWidth() - (large_padding + 20 * shadow_width));
         setEffectPositions();
-
-        scroll_bar_->setBounds(getWidth() - large_padding + 1, getTitleWidth() + large_padding, large_padding - 2, getHeight() -(large_padding + 2 * shadow_width));
+        scroll_bar_->setBounds(getWidth() - large_padding + 1, getTitleWidth() + large_padding, large_padding - 2, getHeight() -getTitleWidth()-(large_padding + 2 * shadow_width));
         scroll_bar_->setColor(findColour(Skin::kLightenScreen, true));
 
 
@@ -251,7 +253,6 @@ void ModulesInterface<T>::resized() {
     {
         viewport_.setBounds(0,0,0,0);
         container_->setBounds(0,0,0,0);
-        container_->setVisible(false);
     }
 
     SynthSection::resized();
@@ -281,11 +282,7 @@ void ModulesInterface<T>::initOpenGlComponents(OpenGlWrapper& open_gl) {
 template<typename T>
 void ModulesInterface<T>::renderOpenGlComponents(OpenGlWrapper& open_gl, bool animate) {
     ScopedLock lock(open_gl_critical_section_);
-    //    Component* top_level = getTopLevelComponent();
-    //    Rectangle<int> global_bounds = top_level->getLocalArea(this, getLocalBounds());
-    //    double display_scale = Desktop::getInstance().getDisplays().getDisplayForRect(top_level->getScreenBounds())->scale;
-    //    return 1;//
-    // display_scale;// * (1.0f * global_bounds.getWidth()) / getWidth();
+
     OpenGlComponent::setViewPort(&viewport_, open_gl);
 
     float image_width = background_.getImageWidth(); //electrosynth::utils::nextPowerOfTwo(background_.getImageWidth());
@@ -293,15 +290,33 @@ void ModulesInterface<T>::renderOpenGlComponents(OpenGlWrapper& open_gl, bool an
     int mult = juce::Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds())->scale;// getPixelMultiple();
     float width_ratio = image_width / (container_->getWidth() * mult);
     float height_ratio = image_height / (viewport_.getHeight() * mult);
-    float y_offset = (2.0f * viewport_.getViewPositionY()) / getHeight();
+   // DBG(viewport_.getViewPositionY());
+    float y_offset =(2.0f * viewport_.getViewPositionY()) /getHeight();
 
-    background_.setTopLeft(-1.0f, 1.0f + y_offset);
-    background_.setTopRight(-1.0 + 2.0f * width_ratio, 1.0f + y_offset);
+    // --- Debug output ---
+    // DBG("image_width: " + juce::String(image_width));
+    // DBG("image_height: " + juce::String(image_height));
+    // DBG("mult (scale factor): " + juce::String(mult));
+    // DBG("container width: " + juce::String(container_->getWidth()));
+    // DBG("viewport height: " + juce::String(viewport_.getHeight()));
+    // DBG("width_ratio: " + juce::String(width_ratio));
+    // DBG("height_ratio: " + juce::String(height_ratio));
+    // DBG("viewport Y offset: " + juce::String(viewport_.getViewPositionY()));
+    // DBG("computed y_offset: " + juce::String(y_offset));
+    //
+    background_.setTopLeft(-1.0f, 1.0f+ y_offset);
+    background_.setTopRight(-1.0f + 2.0f * width_ratio,  1.0f+y_offset);
     background_.setBottomLeft(-1.0f, 1.0f - 2.0f * height_ratio + y_offset);
-    background_.setBottomRight(-1.0 + 2.0f * width_ratio, 1.0f - 2.0f * height_ratio + y_offset);
+    background_.setBottomRight(-1.0f + 2.0f * width_ratio, 1.0f - 2.0f * height_ratio + y_offset);
     background_.setColor(Colours::white);
     background_.drawImage(open_gl);
+    OpenGlComponent::setScissorBounds(this, viewport_.getBounds(),open_gl);
     SynthSection::renderOpenGlComponents(open_gl, animate);
+    // DBG("TopLeft: (" + juce::String(-1.0f) + ", " + juce::String(1.0f + y_offset) + ")");
+    // DBG("TopRight: (" + juce::String(-1.0f + 2.0f * width_ratio) + ", " + juce::String(1.0f + y_offset) + ")");
+    // DBG("BottomLeft: (" + juce::String(-1.0f) + ", " + juce::String(1.0f - 2.0f * height_ratio + y_offset) + ")");
+    // DBG("BottomRight: (" + juce::String(-1.0f + 2.0f * width_ratio) + ", " + juce::String(1.0f - 2.0f * height_ratio + y_offset) + ")");
+
 }
 template<typename T>
 void ModulesInterface<T>::destroyOpenGlComponents(juce::OpenGLContext& open_gl) {
@@ -310,7 +325,7 @@ void ModulesInterface<T>::destroyOpenGlComponents(juce::OpenGLContext& open_gl) 
 }
 template<typename T>
 void ModulesInterface<T>::scrollBarMoved(ScrollBar* scroll_bar, double range_start) {
-    viewport_.setViewPosition(juce::Point<int>(0, range_start));
+    viewport_.setViewPosition(juce::Point<int>(0, std::ceil(range_start)));
     DBG(range_start);
 }
 template<typename T>
