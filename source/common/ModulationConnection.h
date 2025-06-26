@@ -64,7 +64,7 @@ struct MappingWrapper;
                 else
                     scalingValue_->store(val);
             }
-            DBG(juce::String(val));
+            //DBG(juce::String(val));
         }
 
         void setBypass(bool bypass) {}

@@ -112,7 +112,7 @@ void OpenGlBackground::render(OpenGlWrapper& open_gl) {
     if ((new_background_ || background_.getWidth() == 0) && background_image_.getWidth() > 0) {
         new_background_ = false;
         background_.loadImage(background_image_);
-        DBG( background_.getWidth());
+        //DBG( background_.getWidth());
         float width_ratio = (1.0f * background_.getWidth()) / background_image_.getWidth();
         float height_ratio = (1.0f * background_.getHeight()) / background_image_.getHeight();
         float width_end = 2.0f * width_ratio - 1.0f;

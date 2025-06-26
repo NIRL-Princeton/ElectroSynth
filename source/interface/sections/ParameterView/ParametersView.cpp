@@ -204,7 +204,7 @@ namespace electrosynth {
                     }
                 },
                 [this, &paramListeners](auto &paramHolder) {
-                    DBG("add group item");
+                   // DBG("add group item");
 //                    addSubSection(std::make_unique<ParameterGroupItem>(paramHolder,listeners, *this).release());
                 });
         setLookAndFeel(DefaultLookAndFeel::instance());
@@ -222,8 +222,8 @@ namespace electrosynth {
     }
 
     void ParametersView::resized() {
-        DBG("--------" + getName() + "View -------------");
-        DBG("bounds x:" + juce::String(getLocalBounds().getX()) + " y:" + juce::String(getLocalBounds().getY()) + " width: " + juce::String(getLocalBounds().getWidth()) + " height: " + juce::String(getLocalBounds().getHeight()));
+        //DBG("--------" + getName() + "View -------------");
+        //DBG("bounds x:" + juce::String(getLocalBounds().getX()) + " y:" + juce::String(getLocalBounds().getY()) + " width: " + juce::String(getLocalBounds().getWidth()) + " height: " + juce::String(getLocalBounds().getHeight()));
         //pimpl->groupItem.setBounds(getLocalBounds());
         placeKnobsInArea(getLocalBounds(), comps);
 //        SynthSection::resized();

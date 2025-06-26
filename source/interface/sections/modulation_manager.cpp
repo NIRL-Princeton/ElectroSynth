@@ -639,7 +639,7 @@ void 	ModulationManager::componentAdded()
     auto mod_buttons = full->getAllModulationButtons();
     for (auto s : sliders)
     {
-        DBG (s.first);
+        //DBG (s.first);
     }
 
     full->open_gl_.context.executeOnGLThread ([this] (juce::OpenGLContext& openGLContext) {
@@ -696,7 +696,7 @@ void 	ModulationManager::componentAdded()
 
         for (auto& rotary_meters : num_rotary_meters)
         {
-            DBG ("num rotary" + String (rotary_meters.second));
+            //DBG ("num rotary" + String (rotary_meters.second));
             rotary_destinations_[rotary_meters.first] = std::make_unique<OpenGlMultiQuad> (rotary_meters.second,
                 Shaders::kCircleFragment);
             rotary_destinations_[rotary_meters.first]->setTargetComponent (this);

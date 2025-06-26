@@ -25,7 +25,7 @@ public:
     };
 
 
-    ModuleList(SynthBase* synth);
+    ModuleList(SynthBase* synth,const ValueTree& );
 
 
     void appendChild (const ValueTree& child, UndoManager* undoManager)
@@ -45,7 +45,7 @@ public:
     ~ModuleList();
     T* createNewObject(const juce::ValueTree &) override;
     void newObjectAdded (T*) override;
-    void objectRemoved (T*) override     { }//resized(); }
+    void objectRemoved (T*) override;
     void objectOrderChanged() override              { }//resized(); }
     void valueTreeParentChanged (juce::ValueTree&) override{};
 

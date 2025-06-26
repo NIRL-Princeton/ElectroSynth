@@ -35,8 +35,9 @@
 
 SynthBase::SynthBase(AudioDeviceManager *deviceManager) : tree(ValueTree(IDs::ELECTROSYNTH)), manager(deviceManager) {
     tree.addChild(juce::ValueTree{IDs::CHAINS}, -1, nullptr);
-    processors_ = std::make_unique<ModuleList<ProcessorBase> >(this);
-    modulators_ = std::make_unique<ModuleList<ModulatorBase> >(this);
+    tree.addChild(juce::ValueTree{IDs::MODULATORS}, -1, nullptr);
+    processors_ = std::make_unique<ModuleList<ProcessorBase> >(this,tree.getChildWithName(IDs::CHAINS));
+    modulators_ = std::make_unique<ModuleList<ModulatorBase> >(this,tree.getChildWithName(IDs::MODULATORS));
     self_reference_ = std::make_shared<SynthBase *>();
     *self_reference_ = this;
 
@@ -155,7 +156,8 @@ void SynthBase::removeProcessor(ProcessorBase *processor) {
 
         if (it != chain.end()) {
             // Transfer ownership out before erasing
-            std::unique_ptr<ProcessorBase> released = std::move(*chain.erase(it));
+            std::unique_ptr<ProcessorBase> released = std::move(*it);
+            *chain.erase(it);
             // Create task as a std::function
             DeleteThreadAction task = [ptr = std::move(released)]() mutable {
                 ptr.reset(); // optional; unique_ptr will go out of scope
@@ -163,11 +165,10 @@ void SynthBase::removeProcessor(ProcessorBase *processor) {
 
             // Try enqueue
             if (!processorDeleteQueue.try_enqueue(std::move(task))) {
-                // If failed to enqueue, consider logging or handling fallback
-                jassertfalse; // or fallbackDeleteList.push_back(std::move(ptr));
+                jassertfalse;
             }
 
-            return; // Caller is now responsible or the pointer
+            return;
         }
     }
 }

@@ -92,8 +92,8 @@ void SoundModuleSection::setEffectPositions() {
 
     for (Listener *listener: listeners_)
         listener->effectsMoved();
-    DBG("container Height " + String(container_->getHeight()));
-    DBG("viewport Height " + String(viewport_.getWidth()));
+    //DBG("container Height " + String(container_->getHeight()));
+    //DBG("viewport Height " + String(viewport_.getWidth()));
     container_->setScrollWheelEnabled(container_->getHeight() <= viewport_.getHeight());
     setScrollBarRange();
     repaintBackground();
@@ -129,6 +129,8 @@ void SoundModuleSection::moduleAdded(ProcessorBase *newModule) {
 }
 
 void SoundModuleSection::removeModule(ProcessorBase *newModule) {
+    DBG(newModule->state.getProperty(IDs::uuid).toString());
+     DBG("prepartoremoeve");
     // decltype(module_sections)::iterator it;
     // {
     //     juce::ScopedLock(this->open_gl_critical_section_);
@@ -142,14 +144,14 @@ void SoundModuleSection::removeModule(ProcessorBase *newModule) {
          juce::ScopedLock lock(this->open_gl_critical_section_);
          return std::partition(module_sections.begin(), module_sections.end(),
                                [newModule](auto& section) {
-                                   return section->state == newModule->state;
+                                   return section->state != newModule->state;
                                });
      }();
 
 
-    if (it != module_sections.end()) {
+
         it->get()->setVisible(false);
-        if ((juce::OpenGLContext::getCurrentContext() == nullptr)) {
+
 
             auto *_parent = findParentComponentOfClass<SynthGuiInterface>();
             _parent->getOpenGlWrapper()->context.executeOnGLThread([this, it](juce::OpenGLContext &openGLContext) {
@@ -158,14 +160,13 @@ void SoundModuleSection::removeModule(ProcessorBase *newModule) {
                 auto a = it->get();
                 a->destroyOpenGlComponents(openGLContext);
                 this->container_->removeSubSection(a);
-
+                DBG("delete");
                 },true);
 
-        }
 
-        module_sections.erase(it, module_sections.end());
 
-    }
+    module_sections.erase(it);
+    DBG("deletesection");
 
     for(auto listener : listeners_)
     {

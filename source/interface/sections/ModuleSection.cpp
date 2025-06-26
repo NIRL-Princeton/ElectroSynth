@@ -47,6 +47,7 @@ void ModuleSection::resized()
 void ModuleSection::buttonClicked(juce::Button *button) {
     if (button == exit_button_.get()) {
         this->setVisible(false);
+        //DBG("state " state.getParent())
         state.getParent().removeChild(state,nullptr);
     }
 }

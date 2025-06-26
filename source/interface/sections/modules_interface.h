@@ -326,7 +326,7 @@ void ModulesInterface<T>::destroyOpenGlComponents(juce::OpenGLContext& open_gl) 
 template<typename T>
 void ModulesInterface<T>::scrollBarMoved(ScrollBar* scroll_bar, double range_start) {
     viewport_.setViewPosition(juce::Point<int>(0, std::ceil(range_start)));
-    DBG(range_start);
+    // DBG(range_start);
 }
 template<typename T>
 void ModulesInterface<T>::setScrollBarRange() {

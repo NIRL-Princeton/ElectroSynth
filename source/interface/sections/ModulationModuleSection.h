@@ -18,7 +18,7 @@ public:
      void effectsScrolled(int position) override {
          setScrollBarRange();
          scroll_bar_->setCurrentRange(position, viewport_.getWidth());
-        DBG("pspootion" + juce::String(position));
+        //DBG("pspootion" + juce::String(position));
          for (Listener* listener : listeners_)
              listener->effectsMoved();
      }
