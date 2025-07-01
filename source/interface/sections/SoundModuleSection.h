@@ -23,10 +23,14 @@ public:
     std::map<std::string, SynthSlider*> getAllSliders() override;
     std::vector<std::unique_ptr<ModuleSection>> module_sections;
     void moduleAdded(ProcessorBase* newModule) override;
-
+    void resized() override;
 
     void removeModule(ProcessorBase* newModule)   override;
-void moduleListChanged() ;
+    void moduleListChanged() ;
+
+    std::shared_ptr<OpenGlQuad> footer_body;
+
+
 
 
 };

@@ -11,7 +11,7 @@
 #include "Modulators/EnvModuleProcessor.h"
 #include "Modulators/LFOModuleProcessor.h"
 template<typename T>
-ModuleList<T>::ModuleList(SynthBase *synth,const ValueTree& v) : tracktion::engine::ValueTreeObjectList<T>(v),synth_(synth){
+ModuleList<T>::ModuleList(SynthBase *synth,const ValueTree& v) : tracktion::engine::ValueTreeObjectList<T>(v),synth_(synth),state(v){
     if constexpr (std::is_same_v<T, ProcessorBase>)
     {
        factory.template registerType<OscillatorModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*>("osc");
@@ -23,6 +23,10 @@ ModuleList<T>::ModuleList(SynthBase *synth,const ValueTree& v) : tracktion::engi
 
         factory.template registerType<EnvModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*>("env");
         factory.template registerType<LFOModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*>("lfo");
+    }
+    tracktion::engine::ValueTreeObjectList<T>::rebuildObjects();
+    for (auto obj: tracktion::engine::ValueTreeObjectList<T>::objects) {
+        newObjectAdded(obj);
     }
 }
 
@@ -55,8 +59,8 @@ T* ModuleList<T>::createNewObject(const juce::ValueTree& v) {
         assert(rawPtr != nullptr);
         if constexpr (std::is_same_v<T, ProcessorBase>)
         {
-            auto task = [this, _proc = std::move(proc)]() mutable {
-                synth_->addProcessor(std::move(_proc), 0);
+            auto task = [this, _proc = std::move(proc), index = v.getParent().getParent().indexOf(v.getParent())]() mutable {
+                synth_->addProcessor(std::move(_proc), index);
             };
 
             synth_->processorInitQueue.try_enqueue(std::move(task));
@@ -107,7 +111,47 @@ void ModuleList<T>::valueTreePropertyChanged(juce::ValueTree &v, const juce::Ide
 
 }
 
+
+template<typename T>
+ChainList<T>::ChainList(SynthBase* synth, const juce::ValueTree& v) : tracktion::engine::ValueTreeObjectList<ModuleList<T>>(v), synth_(synth){
+    tracktion::engine::ValueTreeObjectList<ModuleList<T>>::rebuildObjects();
+}
+
+template<typename T>
+ModuleList<T> *ChainList<T>::createNewObject(const juce::ValueTree &v) {
+    auto index = v.getParent().indexOf(v);
+    ModuleList<T> *list = new ModuleList<T>(synth_,v);
+    return list;
+
+}
+template<typename T>
+void ChainList<T>::newObjectAdded ( ModuleList<T>*t) {
+    for (auto listener: listeners_) {
+        listener->chainAdded(t);
+    }
+}
+
+template<typename T>
+ChainList<T>::~ChainList() {
+
+    tracktion::ValueTreeObjectList<ModuleList<T>>::freeObjects();
+}
+template<typename T>
+void ChainList<T>::deleteObject(ModuleList<T>* processor_base) {
+    DBG("deleteObject");
+    processor_base->freeObjects();
+
+}
+
+template <typename T>
+void ChainList<T>::objectRemoved(ModuleList<T>* processor_base) {
+    for (auto listener: listeners_) {
+        listener->removeChain(processor_base);
+    }
+
+}
 //explicitly define the types thus telling the compiler to generate their code
 
 template class ModuleList<ProcessorBase>;
 template class ModuleList<ModulatorBase>;
+template class ChainList<ProcessorBase>;

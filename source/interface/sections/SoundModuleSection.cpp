@@ -11,15 +11,24 @@
 #include "synth_base.h"
 
 SoundModuleSection::SoundModuleSection(ModulationManager *m,
-                                       ModuleList<ProcessorBase> &module_list) : ModulesInterface( module_list) {
+                                       ModuleList<ProcessorBase> &module_list) : ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRectangleFragment)) {
     scroll_bar_ = std::make_unique<OpenGlScrollBar>();
     addAndMakeVisible(scroll_bar_.get());
     addOpenGlComponent(scroll_bar_->getGlComponent());
+    addOpenGlComponent(footer_body);
+
+    setLookAndFeel(DefaultLookAndFeel::instance());
     scroll_bar_->addListener(this);
     viewport_.setScrollBarPosition(true, false); //use this to determine viewport scroll type in effectsviewport
     viewport_.setScrollBarsShown(false, false, true, false);
 
     addListener(m);
+    for (auto obj : list) {
+        SoundModuleSection::moduleAdded(obj);
+    }
+    setSidewaysHeading(false);
+    setName("section");
+
 }
 
 SoundModuleSection::~SoundModuleSection() {
@@ -77,17 +86,17 @@ void SoundModuleSection::setEffectPositions() {
     int effect_width = getWidth() - start_x - large_padding;
     int knob_section_height = getKnobSectionHeight();
     int widget_margin = findValue(Skin::kWidgetMargin);
-    int effect_height = 2 * knob_section_height - widget_margin;
-    int y = 0;
+    int effect_height =  knob_section_height - widget_margin;
+    int y = 0;//+ getTitleWidth();
 
     juce::Point<int> position = viewport_.getViewPosition();
     // DBG("position viewport: x: " + juce::String(position.getX()) + "y: " + juce::String(position.getY()));
     //DBG("shadwo width: " + String(shadow_width));
     for (auto &section: module_sections) {
-        section->setBounds(0, y, effect_width, effect_height*size_ratio_);
+        section->setBounds(0, y, effect_width, effect_height);
         y += (effect_height +padding);
     }
-    container_->setBounds(0,0, viewport_.getWidth(), y - padding + effect_height * 2);
+    container_->setBounds(0,getTitleWidth(), viewport_.getWidth(), y - padding + effect_height * 2);
     viewport_.setViewPosition(position);
 
     for (Listener *listener: listeners_)
@@ -127,7 +136,12 @@ void SoundModuleSection::moduleAdded(ProcessorBase *newModule) {
 
     resized();
 }
-
+void SoundModuleSection::resized() {
+    ModulesInterface::resized();
+    //ooter_body->setBounds(0,getHeight()-1, getWidth(), getTitleWidth());
+    footer_body->setRounding(findValue(Skin::kBodyRounding));
+    footer_body->setColor(findColour(Skin::kBody, true));
+}
 void SoundModuleSection::removeModule(ProcessorBase *newModule) {
     DBG(newModule->state.getProperty(IDs::uuid).toString());
      DBG("prepartoremoeve");

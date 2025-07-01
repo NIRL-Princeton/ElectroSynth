@@ -59,6 +59,7 @@ namespace IDs
     DECLARE_ID(midiPrefs)
     DECLARE_ID(SOUNDMODULE)
     DECLARE_ID(MODULATORS)
+    DECLARE_ID(CHAIN)
 }
 
 #undef DECLARE_ID

@@ -36,7 +36,7 @@
 SynthBase::SynthBase(AudioDeviceManager *deviceManager) : tree(ValueTree(IDs::ELECTROSYNTH)), manager(deviceManager) {
     tree.addChild(juce::ValueTree{IDs::CHAINS}, -1, nullptr);
     tree.addChild(juce::ValueTree{IDs::MODULATORS}, -1, nullptr);
-    processors_ = std::make_unique<ModuleList<ProcessorBase> >(this,tree.getChildWithName(IDs::CHAINS));
+    processors_ = std::make_unique<ChainList<ProcessorBase> >(this,tree.getChildWithName(IDs::CHAINS));
     modulators_ = std::make_unique<ModuleList<ModulatorBase> >(this,tree.getChildWithName(IDs::MODULATORS));
     self_reference_ = std::make_shared<SynthBase *>();
     *self_reference_ = this;
@@ -202,17 +202,7 @@ void SynthBase::removeProcessor(ModulatorBase *processor) {
 void SynthBase::addProcessor(std::unique_ptr<ProcessorBase> processor, int chain_index) {
     processor->prepareToPlay(engine_->getSampleRate(), engine_->getBufferSize());
 
-    //   if ()
-    //   {   ///this is a crazy fucking line. i hope it's doing what i want
-    //       engine_->processors.emplace_back(std::initializer_list<std::shared_ptr<ProcessorBase>>{static_cast<const std::shared_ptr<ProcessorBase>> (processor)});
-    //   }
-    //  if(engine_->processors.empty() || engine_->processors[chain_index].empty())
-    // {
-    //     engine_->processors.;
-    // }else
-    // {
     engine_->processors[chain_index].push_back(std::move(processor));
-    // }
 }
 
 void SynthBase::addModulationSource(std::unique_ptr<ModulatorBase> modulationSource, int voice_index) {

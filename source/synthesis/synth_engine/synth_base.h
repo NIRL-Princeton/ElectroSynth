@@ -136,7 +136,7 @@ public:
     void timerCallback() override;
     juce::ValueTree tree;
     juce::UndoManager um;
-    std::unique_ptr<ModuleList<ProcessorBase>> processors_;
+    std::unique_ptr<ChainList<ProcessorBase>> processors_;
     std::unique_ptr<ModuleList<ModulatorBase>> modulators_;
     void valueTreePropertyChanged(ValueTree &treeWhosePropertyHasChanged, const Identifier &property) override;
 protected:

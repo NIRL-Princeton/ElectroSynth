@@ -160,8 +160,7 @@ void HeaderSection::resized() {
 //  spectrogram_->setColour(Skin::kBody, findColour(Skin::kBackground, true));
   int height = getHeight();
   int width = getWidth();
-
-    body_->setBounds(getLocalBounds());
+body_->setBounds(getLocalBounds());
     body_->setRounding(findValue(Skin::kBodyRounding));
     body_->setColor(findColour(Skin::kBody, true));
   int widget_margin = findValue(Skin::kWidgetMargin);

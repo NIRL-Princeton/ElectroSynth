@@ -7,6 +7,8 @@
 
 #include "synth_section.h"
 #include "ParameterView/ParametersView.h"
+#include "AudioChainSection.h"
+#include "ModuleList.h"
 class ModulationSection;
 class SoundModuleSection;
 class ModulationModuleSection;
@@ -41,10 +43,12 @@ public:
     std::map<std::string, ModulationButton*> getAllModulationButtons() override;
 
     void addListener(Listener* listener) { listeners_.push_back(listener); }
+
+
 private:
     juce::ValueTree v;
     juce::UndoManager &um;
-    std::unique_ptr<SoundModuleSection> sound_interface;
+    std::unique_ptr<AudioChainSection> sound_interface;
     std::vector<Listener*> listeners_;
     std::unique_ptr<ModulationModuleSection> modulation_interface;
     std::unique_ptr<MasterVoiceEnvelopeSection> master_voice_envelope_section;

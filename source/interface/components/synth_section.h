@@ -343,6 +343,7 @@ class SynthSection : public Component, public Slider::Listener,
     void addButton(OpenGlToggleButton* button, bool show = true);
     void addOpenGlComponent(std::shared_ptr<OpenGlComponent> open_gl_component, bool to_beginning = false, bool makeVisible = true);
     void removeSliders(std::map<std::string,SynthSlider*> toRemove);
+    std::map<std::string, SynthSlider*> all_sliders_;
    protected:
     void setSliderHasHzAlternateDisplay(SynthSlider* slider);
     void setSidewaysHeading(bool sideways) { sideways_heading_ = sideways; }
@@ -383,7 +384,7 @@ class SynthSection : public Component, public Slider::Listener,
     std::map<std::string, Button*> button_lookup_;
     std::map<std::string, ModulationButton*> modulation_buttons_;
 
-    std::map<std::string, SynthSlider*> all_sliders_;
+    // std::map<std::string, SynthSlider*> all_sliders_;
     std::map<std::string, ToggleButton*> all_buttons_;
     std::map<std::string, ModulationButton*> all_modulation_buttons_;
     std::map<Skin::ValueId, float> value_lookup_;

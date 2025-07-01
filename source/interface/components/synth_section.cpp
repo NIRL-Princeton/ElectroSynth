@@ -633,9 +633,9 @@ void SynthSection::placeKnobsInArea(Rectangle<int> area, std::vector<std::unique
   float component_width = (area.getWidth() - (knobs.size() + 1) * widget_margin) / (1.0f * knobs.size());
  //beign lazy and moving sliders
 
-  int y = area.getY()/2;
-  int height = area.getHeight()/2 - widget_margin;
-  y += height;
+  int y = 0;//area.getY()/2;
+  int height = area.getHeight() - widget_margin;
+  //y += height;
   float x = area.getX() + widget_margin;
   for (const auto& knob : knobs) {
     int left = std::round(x);

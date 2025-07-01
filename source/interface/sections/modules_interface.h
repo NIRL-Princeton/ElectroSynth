@@ -17,12 +17,14 @@ class ModulesContainer : public SynthSection {
     public:
         ModulesContainer(String name) : SynthSection(name) {
             setInterceptsMouseClicks(false,true);
+            setSidewaysHeading(false);
         }
     void resized() override {
             SynthSection::resized();
         }
     void paintBackground(Graphics& g) override {
-        // g.fillAll(findColour(Skin::kBackground, true));
+            g.fillAll(findColour(Skin::kBody, true));
+           // paintHeadingText(g);
 paintChildrenShadows(g);
 paintChildrenBackgrounds(g);
 }
@@ -80,7 +82,7 @@ public:
     };
 //    T* createNewObject(const juce::ValueTree& v) override;
 //    void deleteObject (ModuleSection* at) override;
-    void reset() override;
+    // void reset() override;
 
 
     ModulesInterface(ModuleList<T> &);
@@ -182,6 +184,7 @@ ModulesInterface<T>::ModulesInterface( ModuleList<T>& list_) : SynthSection("mod
     list.addListener(this);
 
 
+
 }
 template<typename T>
 ModulesInterface<T>::~ModulesInterface() {
@@ -202,7 +205,8 @@ void ModulesInterface<T>::paintBackground(Graphics& g) {
     g.setColour(Colours::red);
     g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(0.5f), body_rounding, 1.0f);
    // paintContainer(g);
-    paintHeadingText(g);
+    paintBody(g);
+   paintHeadingText(g);
 
     // paintChildrenBackgrounds(g);
     paintBorder(g);
@@ -214,7 +218,9 @@ template<typename T>
 void ModulesInterface<T>::redoBackgroundImage() {
     Colour background = findColour(Skin::kBackground, true);
 
-    int height = std::max(container_->getHeight(), getHeight());
+    int height = std::max(container_->getHeight(),static_cast<int> (viewport_.getHeight()));
+    if (height == 0)
+        height = getHeight();
     int width = std::max(container_->getWidth(), getWidth());
     int mult = juce::Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds())->scale;// getPixelMultiple();
     Image background_image = Image(Image::ARGB, width * mult, height * mult, true);
@@ -242,7 +248,7 @@ void ModulesInterface<T>::resized() {
     auto header = area.removeFromTop(30);
     toggle_button_->setBounds(0,0,getTitleWidth(),getTitleWidth());
     if (isExpanded()) {
-        viewport_.setBounds(0,0,getWidth(),getHeight()); //getHeight()-getTitleWidth() - (large_padding + 20 * shadow_width));
+        viewport_.setBounds(0,getTitleWidth(),getWidth(),getHeight()-getTitleWidth()*2); //getHeight()-getTitleWidth() - (large_padding + 20 * shadow_width));
         setEffectPositions();
         scroll_bar_->setBounds(getWidth() - large_padding + 1, getTitleWidth() + large_padding, large_padding - 2, getHeight() -getTitleWidth()-(large_padding + 2 * shadow_width));
         scroll_bar_->setColor(findColour(Skin::kLightenScreen, true));
@@ -278,7 +284,7 @@ void ModulesInterface<T>::initOpenGlComponents(OpenGlWrapper& open_gl) {
     background_.init(open_gl);
     SynthSection::initOpenGlComponents(open_gl);
 }
-
+#include "synth_slider.h"
 template<typename T>
 void ModulesInterface<T>::renderOpenGlComponents(OpenGlWrapper& open_gl, bool animate) {
     ScopedLock lock(open_gl_critical_section_);
@@ -291,7 +297,7 @@ void ModulesInterface<T>::renderOpenGlComponents(OpenGlWrapper& open_gl, bool an
     float width_ratio = image_width / (container_->getWidth() * mult);
     float height_ratio = image_height / (viewport_.getHeight() * mult);
    // DBG(viewport_.getViewPositionY());
-    float y_offset =(2.0f * viewport_.getViewPositionY()) /getHeight();
+    float y_offset =(2.0f * viewport_.getViewPositionY()) /viewport_.getHeight();
 
     // --- Debug output ---
     // DBG("image_width: " + juce::String(image_width));
@@ -310,7 +316,15 @@ void ModulesInterface<T>::renderOpenGlComponents(OpenGlWrapper& open_gl, bool an
     background_.setBottomRight(-1.0f + 2.0f * width_ratio, 1.0f - 2.0f * height_ratio + y_offset);
     background_.setColor(Colours::white);
     background_.drawImage(open_gl);
-    OpenGlComponent::setScissorBounds(this, viewport_.getBounds(),open_gl);
+
+    OpenGlComponent::setScissorBounds(this, getLocalBounds(),open_gl);
+    for (auto sub : sub_sections_) {
+        OpenGlComponent::setScissorBounds(sub, viewport_.getLocalBounds(), open_gl);
+        for (auto slider : sub->all_sliders_) {
+            //slider.second->setScissor(this, open_gl);
+            slider.second->setScissorComponent(&viewport_);
+        }
+    }
     SynthSection::renderOpenGlComponents(open_gl, animate);
     // DBG("TopLeft: (" + juce::String(-1.0f) + ", " + juce::String(1.0f + y_offset) + ")");
     // DBG("TopRight: (" + juce::String(-1.0f + 2.0f * width_ratio) + ", " + juce::String(1.0f + y_offset) + ")");
@@ -336,13 +350,13 @@ void ModulesInterface<T>::setScrollBarRange() {
   //  DBG("viewport height: " + String(viewport_.getHeight()));
    // DBG("scrollbar range: " + String(scroll_bar_->getCurrentRangeStart()) );
 }
-#include "synth_gui_interface.h"
-#include "synth_base.h"
-template<typename T>
-void ModulesInterface<T>:: reset() {
-    SynthGuiInterface *_parent = findParentComponentOfClass<SynthGuiInterface>();
-    if (_parent != nullptr)
-        list.setValueTree( _parent->getSynth()->tree.getChildWithName(IDs::CHAINS));
-    SynthSection::reset();
-}
+// #include "synth_gui_interface.h"
+// #include "synth_base.h"
+// template<typename T>
+// void ModulesInterface<T>:: reset() {
+//     SynthGuiInterface *_parent = findParentComponentOfClass<SynthGuiInterface>();
+//     if (_parent != nullptr)
+//         list.setValueTree( _parent->getSynth()->tree.getChildWithName(IDs::CHAINS));
+//     SynthSection::reset();
+// }
 #endif //ELECTROSYNTH_SOUND_GENERATOR_SECTION_H
