@@ -110,9 +110,12 @@ public:
     return this->id == other.id; // Example comparison based on an 'id' member
   }
   void setBackgroundColor(const juce::Colour &color) { background_color_ = color; }
-
+  virtual void setScissorComponent(juce::Component *scissor_component) {
+    scissor_component_ = scissor_component;
+  }
 protected:
   bool setViewPort(OpenGlWrapper &open_gl);
+  juce::Component* scissor_component_;
 
   std::unique_ptr<OpenGlCorners> corners_;
   bool only_bottom_corners_;

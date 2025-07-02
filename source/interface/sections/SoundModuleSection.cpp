@@ -29,6 +29,8 @@ SoundModuleSection::SoundModuleSection(ModulationManager *m,
     setSidewaysHeading(false);
     setName("section");
 
+
+
 }
 
 SoundModuleSection::~SoundModuleSection() {

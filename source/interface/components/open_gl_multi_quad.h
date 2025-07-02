@@ -234,9 +234,9 @@ public:
         target_component_ = target_component;
     }
 
-    void setScissorComponent(juce::Component *scissor_component) {
-        scissor_component_ = scissor_component;
-    }
+    // void setScissorComponent(juce::Component *scissor_component) {
+    //     scissor_component_ = scissor_component;
+    // }
 
     juce::OpenGLShaderProgram *shader() { return shader_; }
 
@@ -252,7 +252,7 @@ public:
 
 protected:
     juce::Component *target_component_;
-    juce::Component *scissor_component_;
+    // juce::Component *scissor_component_;
     Shaders::FragmentShader fragment_shader_;
     int max_quads_;
     int num_quads_;

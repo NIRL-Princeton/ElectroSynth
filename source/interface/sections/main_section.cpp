@@ -94,7 +94,7 @@ void MainSection::resized()
     int width_left = (active_width - padding) / 2;
     int width_right = active_width - width_left;
     int right_x = width_left + padding;
-    sound_interface->setBounds(padding, padding, width- padding*2,height -size_ratio_* 200  - padding);
+    sound_interface->setBounds(padding, padding, 2*width/3- padding*2,height -size_ratio_* 200  - padding);
 
 //     test_->setBounds(0,0,width,height - 200);
     modulation_interface->setBounds(0,height -size_ratio_* 200+ padding, width - size_ratio_*200 , size_ratio_* 200);

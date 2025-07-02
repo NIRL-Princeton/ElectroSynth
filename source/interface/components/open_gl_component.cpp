@@ -47,7 +47,7 @@ namespace {
 
 int OpenGlComponent::nID = 0;
 OpenGlComponent::OpenGlComponent(juce::String name) : juce::Component(name), only_bottom_corners_(false),
-                                                parent_(nullptr), skin_override_(Skin::kNone)
+                                                parent_(nullptr), skin_override_(Skin::kNone), scissor_component_(nullptr)
                                                 {
   background_color_ = juce::Colours::transparentBlack;
   id = generateID();

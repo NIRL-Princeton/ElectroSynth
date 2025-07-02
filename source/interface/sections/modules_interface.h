@@ -9,6 +9,7 @@
 #include "tracktion_ValueTreeUtilities.h"
 #include <string>
 
+#include "border_bounds_constrainer.h"
 #include "ModuleList.h"
 #include "public.sdk/source/vst/hosting/module.h"
 
@@ -318,13 +319,33 @@ void ModulesInterface<T>::renderOpenGlComponents(OpenGlWrapper& open_gl, bool an
     background_.drawImage(open_gl);
 
     OpenGlComponent::setScissorBounds(this, getLocalBounds(),open_gl);
+    //TODO: clean up. this is to check here becuase I can do this creationlazy do better
     for (auto sub : sub_sections_) {
         OpenGlComponent::setScissorBounds(sub, viewport_.getLocalBounds(), open_gl);
         for (auto slider : sub->all_sliders_) {
             //slider.second->setScissor(this, open_gl);
             slider.second->setScissorComponent(&viewport_);
         }
+        for (auto component : sub->open_gl_components_) {
+            component->setScissorComponent(&viewport_);
+        }
     }
+    container_->setScissorComponent(&viewport_);
+    for (auto component : container_->open_gl_components_) {
+        component->setScissorComponent(&viewport_);
+    }
+    for (auto sub : container_->sub_sections_) {
+        for (auto view : sub->sub_sections_) {
+            for (auto component : view->open_gl_components_) {
+                component->setScissorComponent(&viewport_);
+            }
+        }
+        for (auto component : sub->open_gl_components_) {
+            component->setScissorComponent(&viewport_);
+        }
+    }
+
+
     SynthSection::renderOpenGlComponents(open_gl, animate);
     // DBG("TopLeft: (" + juce::String(-1.0f) + ", " + juce::String(1.0f + y_offset) + ")");
     // DBG("TopRight: (" + juce::String(-1.0f + 2.0f * width_ratio) + ", " + juce::String(1.0f + y_offset) + ")");

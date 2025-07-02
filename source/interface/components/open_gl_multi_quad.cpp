@@ -19,7 +19,7 @@
 #include "look_and_feel/shaders.h"
 
 OpenGlMultiQuad::OpenGlMultiQuad(int max_quads, Shaders::FragmentShader shader, juce::String name) : OpenGlComponent(name),
-                                                                                               target_component_(nullptr), scissor_component_(nullptr), fragment_shader_(shader),
+                                                                                               target_component_(nullptr), fragment_shader_(shader),
                                                                                                max_quads_(max_quads), num_quads_(max_quads), draw_when_not_visible_(false),
                                                                                                active_(true), dirty_(false), max_arc_(2.0f), thumb_amount_(0.5f), start_pos_(0.0f),
                                                                                                current_alpha_mult_(1.0f), alpha_mult_(1.0f), additive_blending_(false),

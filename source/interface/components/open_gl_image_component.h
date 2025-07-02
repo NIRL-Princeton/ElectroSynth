@@ -54,7 +54,9 @@ public:
     void paintEntireComponent(bool paint_entire_component) { paint_entire_component_ = paint_entire_component; }
     bool isActive() const { return active_; }
     std::unique_ptr<juce::Image> draw_image_;
+
 protected:
+  // juce::Component *scissor_component_;
     juce::Component* component_;
     bool active_;
     bool static_image_;

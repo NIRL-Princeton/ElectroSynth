@@ -63,7 +63,10 @@ class OpenGlShapeButtonComponent : public OpenGlComponent {
   
     void setDown(bool down) { down_ = down; }
     void setHover(bool hover) { hover_ = hover; }
-
+   void setScissorComponent(juce::Component *scissor_component)  override {
+      OpenGlComponent::setScissorComponent(scissor_component);
+      shape_.setScissorComponent(scissor_component);
+    }
   private:
     Button* button_;
 
@@ -211,7 +214,12 @@ class OpenGlButtonComponent : public OpenGlComponent {
     OpenGlQuad& background() { return background_; }
     PlainTextComponent& text() { return text_; }
     ButtonStyle style() { return style_; }
-
+  void setScissorComponent(juce::Component *scissor_component) override
+  {
+    OpenGlComponent::setScissorComponent(scissor_component);
+    background_.setScissorComponent(scissor_component_);
+    text_.setScissorComponent(scissor_component_);
+  }
   protected:
     ButtonStyle style_;
     Button* button_;

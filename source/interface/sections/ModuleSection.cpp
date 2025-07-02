@@ -14,6 +14,7 @@ ModuleSection::ModuleSection(const juce::ValueTree &v, std::unique_ptr<electrosy
     addOpenGlComponent(exit_button_->getGlComponent());
     exit_button_->addListener(this);
     exit_button_->setShape(Paths::exitX());
+
 }
 
 ModuleSection::~ModuleSection() = default;

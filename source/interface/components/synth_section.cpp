@@ -26,7 +26,7 @@
 SynthSection::SynthSection(const String& name) : Component(name), parent_(nullptr), activator_(nullptr),
                                                  preset_selector_(nullptr), preset_selector_half_width_(false),
                                                  skin_override_(Skin::kNone), size_ratio_(1.0f),
-                                                 active_(true), sideways_heading_(true), background_(nullptr) {
+                                                 active_(true), sideways_heading_(true), background_(nullptr) , scissor_component_(nullptr){
 
   setWantsKeyboardFocus(true);
 
@@ -345,6 +345,9 @@ void SynthSection::initOpenGlComponents(OpenGlWrapper& open_gl) {
 }
 
 void SynthSection::renderOpenGlComponents(OpenGlWrapper& open_gl, bool animate) {
+  if (scissor_component_) {
+    OpenGlComponent::setScissor(scissor_component_, open_gl);
+  }
   for (auto& sub_section : sub_sections_) {
       if (sub_section != nullptr && sub_section->isVisible() && !sub_section->isAlwaysOnTop())
       sub_section->renderOpenGlComponents(open_gl, animate);

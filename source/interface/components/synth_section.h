@@ -344,7 +344,13 @@ class SynthSection : public Component, public Slider::Listener,
     void addOpenGlComponent(std::shared_ptr<OpenGlComponent> open_gl_component, bool to_beginning = false, bool makeVisible = true);
     void removeSliders(std::map<std::string,SynthSlider*> toRemove);
     std::map<std::string, SynthSlider*> all_sliders_;
-   protected:
+    std::vector<std::shared_ptr<OpenGlComponent>> open_gl_components_;
+    void setScissorComponent(juce::Component *scissor_component) {
+        scissor_component_ = scissor_component;
+    }
+    std::vector<SynthSection*> sub_sections_;
+
+protected:
     void setSliderHasHzAlternateDisplay(SynthSlider* slider);
     void setSidewaysHeading(bool sideways) { sideways_heading_ = sideways; }
     void addToggleButton(ToggleButton* button, bool show);
@@ -376,9 +382,7 @@ class SynthSection : public Component, public Slider::Listener,
     double getDisplayScale() const;
     virtual int getPixelMultiple() const;
 
-
-    std::vector<SynthSection*> sub_sections_;
-    std::vector<std::shared_ptr<OpenGlComponent>> open_gl_components_;
+    juce::Component* scissor_component_;
     OpenGlBackground* background_;
     std::map<std::string, SynthSlider*> slider_lookup_;
     std::map<std::string, Button*> button_lookup_;

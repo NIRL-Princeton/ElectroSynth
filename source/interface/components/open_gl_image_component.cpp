@@ -82,7 +82,11 @@ void OpenGlImageComponent::render(OpenGlWrapper& open_gl, bool animate) {
    juce::Component* component = component_ ? component_ : this;
    if (!active_ || !setViewPort(component, open_gl) || !component->isVisible())
        return;
-
+    juce::Component *scissor_component = scissor_component_;
+    if (scissor_component) {
+        setScissor(true);
+        OpenGlComponent::setScissor(scissor_component, open_gl);
+    }
    image_.drawImage(open_gl);
 }
 
