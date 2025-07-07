@@ -6,29 +6,49 @@
 #define ELECTORSYNTH_PARAMETERARRAYS_H
 //only include this in the sound_engine.cpp file so that it only creates one instance
 #include <array>
-
-const std::array<std::vector<std::string>,3> paramsAllArray =
+// typedef enum {
+//     ModuleTypeOscModule,
+//     ModuleTypeLFOModule,
+//     ModuleTypeEnvModule,
+//     ModuleTypeFilterModule,
+//     ModuleTypeStringModule,
+//     ModuleTypeVCAModule,
+//
+// } ModuleType;
+const std::array<std::vector<std::string>, 6> paramsAllArray =
+{
     {
-    {
-            {
-                "", // OscMidiPitch
-                "harmonic", // OscHarmonic
-                "pitch", // OscPitchOffset
-                "pitchfine", // OscPitchFine
-                "freqoffset", // OscFreqOffset
-                "shape", // OscShapeParam
-                "amp", // OscAmpParam
-                "glide", // OscGlide
-                "harmonicStepped", // OscStepped
-                "", // OscSyncMode (undefined in your parameters)
-                "", // OscSyncIn (undefined in your parameters)
-                "oscType", // OscType
-                "" // OscNumParams (typically represents the count, no corresponding parameter)
-            },
-            {},
-            {},
-        }
+        {
+            "", // OscMidiPitch
+            "harmonic", // OscHarmonic
+            "pitch", // OscPitchOffset
+            "pitchfine", // OscPitchFine
+            "freqoffset", // OscFreqOffset
+            "shape", // OscShapeParam
+            "amp", // OscAmpParam
+            "glide", // OscGlide
+            "harmonicStepped", // OscStepped
+            "", // OscSyncMode (undefined in your parameters)
+            "", // OscSyncIn (undefined in your parameters)
+            "oscType", // OscType
+            "" // OscNumParams (typically represents the count, no corresponding parameter)
+        },
+        {}, //lfo
+        {}, //env
+        {
+            "eventWatch", // FiltEventWatchFlag
+            "midiPitch", // FiltMidiPitch
+            "cutoff", // FiltCutoff
+            "gain", // FiltGain
+            "resonance", // FiltResonance
+            "keyfollow", // FiltKeyfollow
+            "filterType", // FiltType
+            "audioInput", // FiltAudioInput
+            "" // FiltNumParams (placeholder)
+        },
+        {}, //string
+    }
 
-    };
+};
 
 #endif //ELECTORSYNTH_PARAMETERARRAYS_H

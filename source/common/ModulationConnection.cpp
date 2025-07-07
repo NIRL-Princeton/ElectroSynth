@@ -40,24 +40,32 @@ namespace electrosynth
         int i =0;
         for (auto* connection : all_connections_)
         {
-            mapping_.inUUIDS[i] = connection->uuid;
+
 
             //need to swap all things
             //need to ensure we move the value over but also don't lose our previous values
             //this is not the best way to do this. should definitely update
-            float scaleCurr = *connection->scalingValue_;
+            float scaleCurr = connection->scalingValue_;
             float bipolarOffset = *connection->bipolarOffset;
-            connection->scalingValue_ = &mapping_.scalingValues[i];
-            connection->bipolarOffset = &mapping_.bipolarOffset[i];
-            *connection->scalingValue_ = scaleCurr;
+            for ( int v = 0; v < MAX_NUM_VOICES; v++) {
+                mapping_[v].inUUIDS[i] = connection->uuid;
+                mapping_[v].scalingValues[i] = &connection->scalingValue_;
+
+                connection->bipolarOffset = &mapping_[i].bipolarOffset[i];
+                mapping_[v].inSources[i] = &connection->sourceProc_[v].outParameters[0];
+            }
+            connection->scalingValue_ = scaleCurr;
             *connection->bipolarOffset = bipolarOffset;
             connection->index_in_mapping = i;
-            mapping_.inSources[i] = &connection->sourceProc_->outParameters[0];
+
 
             i++;
         }
-        jassert(mapping_.numUsedSources != i);
-        mapping_.numUsedSources = i;
+        jassert(mapping_[0].numUsedSources != i);
+        for (int v = 0; v < MAX_NUM_VOICES; v++) {
+            mapping_[v].numUsedSources = i;
+        }
+        //mapping_.numUsedSources = i;
 
     }
 

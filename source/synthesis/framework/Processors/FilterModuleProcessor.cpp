@@ -32,19 +32,21 @@ FilterModuleProcessor::FilterModuleProcessor(electrosynth::SoundEngine* engine,c
    state.setProperty(IDs::uuid, state_.params.processors[0].processorUniqueID, nullptr);
     procArray = &state_.params.processors[0];
 }
-
-void FilterModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer&)
-{
+#include "sound_engine.h"
+void FilterModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer&) {
     int numSamples = buffer.getNumSamples();
     //buffer.clear();
-//    auto* samplesL = buffer.getReadPointer(0);
-    auto* L = buffer.getWritePointer(0);
-    auto* R = buffer.getWritePointer(1);
-    for (int i = 0; i < numSamples; i++)
-    {
-        (state_.params.modules[0], L);
+    //    auto* samplesL = buffer.getReadPointer(0);
 
-        R[i] = L[i];
+    for (int v = 0; v < engine->voiceHandler.numVoicesActive; v++) {
+        auto* L = buffer.getWritePointer(v*2);
+        auto* R = buffer.getWritePointer(v*2 +1);
+        for (int i = 0; i < numSamples; i++)
+        {
+            procArray[v].tick(procArray[v].object,L);
+
+            R[i] = L[i];
+        }
+
     }
-
 }

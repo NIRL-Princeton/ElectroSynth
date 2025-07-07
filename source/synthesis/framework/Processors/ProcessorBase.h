@@ -7,6 +7,7 @@
 #include "PluginStateImpl_.h"
 #include "leaf.h"
 #include "ParameterView/ParametersView.h"
+#include "Identifiers.h"
 namespace electrosynth {
     class SoundEngine;
 }
@@ -18,7 +19,6 @@ public:
         leaf(leaf),
         state(tree)
     {
-
     }
     ~ProcessorBase() override = default;
     LEAF* leaf;
@@ -43,7 +43,9 @@ public :
     : ProcessorBase(engine,leaf, tree, um),
           state_(leaf)
     {
-
+    state.setProperty(IDs::uuid, state_.params.processors[0].processorUniqueID, nullptr);
+    name = state.getProperty(IDs::type).toString() + state.getProperty(IDs::uuid).toString();
+    procArray = &state_.params.processors[0];
     }
     PluginStateType state_;
     void getStateInformation(MemoryBlock &destData) override {

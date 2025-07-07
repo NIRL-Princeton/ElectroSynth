@@ -49,21 +49,22 @@ struct MappingWrapper;
 
         float getCurrentBaseValue()
         {
-            if(scalingValue_ != nullptr)
-            {
-                return scalingValue_->load();
-            }
-            return 0.5f;
+            // if(scalingValue_ != nullptr)
+            // {
+            //     return scalingValue_->load();
+            // }
+            // return 0.5f;
+            return scalingValue_;
         }
         void setScalingValue(float val)
         {
-            if(scalingValue_ != nullptr)
-            {
+            // if(scalingValue_ != nullptr)
+            // {
                 if (isBipolar())
-                    scalingValue_->store(val *0.5f);
+                    scalingValue_.store(val *0.5f);
                 else
-                    scalingValue_->store(val);
-            }
+                    scalingValue_.store(val);
+            // }
             //DBG(juce::String(val));
         }
 
@@ -103,7 +104,7 @@ struct MappingWrapper;
         bool defaultBipolar;
         LEAF &leaf_;
         leaf::tProcessor* sourceProc_;
-        std::atomic<float>* scalingValue_;
+        std::atomic<float> scalingValue_;
         std::atomic<float>* bipolarOffset;
 
         MappingWrapper* mapping_;
@@ -111,7 +112,7 @@ struct MappingWrapper;
 
     struct MappingWrapper
     {
-        leaf::Mapping mapping_;
+        leaf::Mapping mapping_[MAX_NUM_VOICES];
         std::vector<ModulationConnection*> all_connections_;
         std::string dest_;
 

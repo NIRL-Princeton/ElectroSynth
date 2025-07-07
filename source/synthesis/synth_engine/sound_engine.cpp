@@ -122,7 +122,8 @@ namespace electrosynth {
   {
       for (auto mapping : mappings)
       {
-          processMapping(&mapping->mapping_);
+          for (int i = 0 ; i < MAX_NUM_VOICES; i++)
+            processMapping(&mapping->mapping_[i]);
       }
   }
     void SoundEngine::process(juce::AudioSampleBuffer &audio_buffer , int channels, int samples, int offset)
@@ -210,7 +211,8 @@ namespace electrosynth {
           }
           for (auto& proc_chain : processors)
           {
-
+            if (proc_chain.empty())
+                continue;
               for (auto& proc : proc_chain)
               {
                   if (proc != nullptr)
@@ -221,6 +223,10 @@ namespace electrosynth {
               for ( int v = 0; v < voiceHandler.numVoicesActive; ++v) {
                       // audio_buffer.addSample(0, i, temp_voice_buffer.getSample(v*2, 0));
                       // audio_buffer.addSample(1, i, temp_voice_buffer.getSample(v*2+1, 0));
+                  // if (amp_vals->getSample(v*2,0) > 0.f) {
+                  //     DBG(amp_vals->getSample(v*2,0));
+                  //     DBG(temp_voice_buffer.getSample(v*2,0));
+                  // }
                       audio_buffer.addSample(0, i, amp_vals->getSample(v*2, 0) * temp_voice_buffer.getSample(v*2, 0));
                      audio_buffer.addSample(1, i, amp_vals->getSample(v*2+1, 0) * temp_voice_buffer.getSample(v*2+1, 0));
               }
@@ -228,10 +234,11 @@ namespace electrosynth {
           }
           temp_voice_buffer.clear();
 
-
+          // melatonin::printSparkline (*amp_vals.get,true);
 
       }
-      //melatonin::printSparkline (audio_buffer,false);
+      // melatonin::printSparkline (audio_buffer,true);
+
       if (getNumActiveVoices() == 0)
       {
 
@@ -448,6 +455,7 @@ namespace electrosynth {
           // Here you can cast the processor to leaf::Processor* if needed
           return (innerIt->get()->procArray);
       }
+      jassertfalse;
 
   }
 
@@ -530,8 +538,12 @@ void SoundEngine::connectMapping (const electrosynth::mapping_change& change) {
                 sourceIndex = static_cast<int> (std::distance (change.mapping->all_connections_.begin(), it));
             }
             //set the scale value to point to the backend mapping scaling
-            change.connection->scalingValue_ = tMappingAdd(&change.mapping->mapping_, change._source, change._dest, change.dest_param_index, sourceIndex, &leaf);
-            change.connection->bipolarOffset = &change.mapping->mapping_.bipolarOffset[sourceIndex];
+            for (int v = 0; v < MAX_NUM_VOICES; v++) {
+                tMappingAdd(&change.mapping->mapping_[v], change._source, change._dest, change.dest_param_index, sourceIndex, &leaf, &change.connection->scalingValue_);
+
+            }
+           //TODO : fix bipolaroffset like mapping_
+            //change.connection->bipolarOffset = &change.mapping->mapping_.bipolarOffset[sourceIndex];
             return;
         }
     }
@@ -547,8 +559,13 @@ void SoundEngine::connectMapping (const electrosynth::mapping_change& change) {
     //otherwise this is a new mapping
     //index will be 0 in the mapping
     //set the scale value to point to the backend mapping scaling
-    change.connection->scalingValue_ = tMappingAdd(&change.mapping->mapping_, change._source, change._dest, change.dest_param_index, 0, &leaf);
-    change.connection->bipolarOffset = &change.mapping->mapping_.bipolarOffset[0];
+      for (int v = 0; v < voiceHandler.numVoicesActive; v++) {
+          tMappingAdd(&change.mapping->mapping_[v], &change._source[v], &change._dest[v], change.dest_param_index,
+        0, &leaf,&change.connection->scalingValue_);
+          change.connection->bipolarOffset = &change.mapping->mapping_[0].bipolarOffset[0];
+      }
+
+
 
 
     mappings.push_back(change.mapping);
@@ -570,17 +587,20 @@ void SoundEngine::disconnectMapping (const electrosynth::mapping_change& change)
             {
                 sourceIndex = static_cast<int> (std::distance (change.mapping->all_connections_.begin(), it));
             }
-            modulation->mapping_.inSources[sourceIndex] = nullptr;
-            modulation->mapping_.scalingValues[sourceIndex] = 0.0f;
-            modulation->mapping_.inUUIDS[sourceIndex] = 0.0f;
-            //set the scale value to point to the backend mapping scaling
-            change.connection->scalingValue_ = nullptr;
+            for (int v = 0; v < MAX_NUM_VOICES; v++) {
+                modulation->mapping_[v].inSources[sourceIndex] = nullptr;
+                *modulation->mapping_[v].scalingValues[sourceIndex] = 0.0f;
+                modulation->mapping_[v].inUUIDS[sourceIndex] = 0.0f;
+            }
+
+
+            change.connection->scalingValue_ = 0.0f;
             //erase-remove idiom reorders array
             modulation->all_connections_.erase(std::remove (modulation->all_connections_.begin(), modulation->all_connections_.end(), change.connection),modulation->all_connections_.end());
             //use reordered array to update the now out of order mapping
             modulation->reorderMapping();
 
-            if (modulation->mapping_.numUsedSources == 0)
+            if (modulation->mapping_[0].numUsedSources == 0)
             {
                 mappingToRemove = modulation;
             }
