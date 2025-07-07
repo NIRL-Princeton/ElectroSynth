@@ -27,6 +27,8 @@ class OpenGlCorners;
 class OpenGlComponent : public juce::Component
 {
 public:
+  static void drawDebugBox(int x, int y, int width, int height, int viewportHeight);
+
   static bool setViewPort(juce::Component *component, juce::Rectangle<int> bounds, OpenGlWrapper &open_gl);
   static bool setViewPort(juce::Component *component, OpenGlWrapper &open_gl);
   static void setScissor(juce::Component *component, OpenGlWrapper &open_gl);

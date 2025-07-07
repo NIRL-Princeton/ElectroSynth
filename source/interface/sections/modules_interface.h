@@ -286,6 +286,8 @@ void ModulesInterface<T>::initOpenGlComponents(OpenGlWrapper& open_gl) {
     SynthSection::initOpenGlComponents(open_gl);
 }
 #include "synth_slider.h"
+
+// #include "open_gl_component.h"
 template<typename T>
 void ModulesInterface<T>::renderOpenGlComponents(OpenGlWrapper& open_gl, bool animate) {
     ScopedLock lock(open_gl_critical_section_);
@@ -320,30 +322,30 @@ void ModulesInterface<T>::renderOpenGlComponents(OpenGlWrapper& open_gl, bool an
 
     OpenGlComponent::setScissorBounds(this, getLocalBounds(),open_gl);
     //TODO: clean up. this is to check here becuase I can do this creationlazy do better
-    for (auto sub : sub_sections_) {
-        OpenGlComponent::setScissorBounds(sub, viewport_.getLocalBounds(), open_gl);
-        for (auto slider : sub->all_sliders_) {
-            //slider.second->setScissor(this, open_gl);
-            slider.second->setScissorComponent(&viewport_);
-        }
-        for (auto component : sub->open_gl_components_) {
-            component->setScissorComponent(&viewport_);
-        }
-    }
-    container_->setScissorComponent(&viewport_);
-    for (auto component : container_->open_gl_components_) {
-        component->setScissorComponent(&viewport_);
-    }
-    for (auto sub : container_->sub_sections_) {
-        for (auto view : sub->sub_sections_) {
-            for (auto component : view->open_gl_components_) {
-                component->setScissorComponent(&viewport_);
-            }
-        }
-        for (auto component : sub->open_gl_components_) {
-            component->setScissorComponent(&viewport_);
-        }
-    }
+    // for (auto sub : sub_sections_) {
+    //     OpenGlComponent::setScissorBounds(sub, viewport_.getLocalBounds(), open_gl);
+    //     for (auto slider : sub->all_sliders_) {
+    //         //slider.second->setScissor(this, open_gl);
+    //         slider.second->setScissorComponent(&viewport_);
+    //     }
+    //     for (auto component : sub->open_gl_components_) {
+    //         component->setScissorComponent(&viewport_);
+    //     }
+    // }
+    // container_->setScissorComponent(&viewport_);
+    // for (auto component : container_->open_gl_components_) {
+    //     component->setScissorComponent(&viewport_);
+    // }
+    // for (auto sub : container_->sub_sections_) {
+    //     for (auto view : sub->sub_sections_) {
+    //         for (auto component : view->open_gl_components_) {
+    //             component->setScissorComponent(&viewport_);
+    //         }
+    //     }
+    //     for (auto component : sub->open_gl_components_) {
+    //         component->setScissorComponent(&viewport_);
+    //     }
+    // }
 
 
     SynthSection::renderOpenGlComponents(open_gl, animate);

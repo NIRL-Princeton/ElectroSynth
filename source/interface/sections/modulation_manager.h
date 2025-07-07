@@ -27,6 +27,8 @@
 #include "synth_slider.h"
 #include <tracktion_ValueTreeUtilities.h>
 #include <set>
+
+#include "AudioChainSection.h"
 #include "ModulationModuleSection.h"
 #include "SoundModuleSection.h"
 class ExpandModulationButton;
@@ -176,7 +178,8 @@ class ModulationManager : public SynthSection,
                           public SynthSlider::SliderListener,
                           public ModulationExpansionBox::Listener,
                           public ModulesInterface<ProcessorBase>::Listener,
-                          public ModulesInterface<ModulatorBase>::Listener
+                          public ModulesInterface<ModulatorBase>::Listener,
+                          public AudioChainSection::Listener
 
 {
   public:

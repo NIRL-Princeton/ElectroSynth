@@ -634,34 +634,36 @@ bool ModulationManager::hasFreeConnection() {
 
 void 	ModulationManager::componentAdded()
 {
-    FullInterface* full = findParentComponentOfClass<FullInterface>();
+  FullInterface* full = findParentComponentOfClass<FullInterface>();
+  full->open_gl_.context.executeOnGLThread ([this] (juce::OpenGLContext& openGLContext) {
+      for (auto& multiquad : rotary_destinations_)
+      {
+          multiquad.second->destroy (openGLContext);
+      }
+      for (auto& multiquad : rotary_meters_)
+      {
+          multiquad.second->destroy (openGLContext);
+      }
+      for (auto& multiquad : linear_meters_)
+      {
+          multiquad.second->destroy (openGLContext);
+      }
+      for (auto& multiquad : linear_destinations_)
+      {
+          multiquad.second->destroy (openGLContext);
+      }
+
+  },
+      true);
+
     auto sliders = full->getAllSliders();
     auto mod_buttons = full->getAllModulationButtons();
     for (auto s : sliders)
     {
-        //DBG (s.first);
+        DBG (s.first);
     }
 
-    full->open_gl_.context.executeOnGLThread ([this] (juce::OpenGLContext& openGLContext) {
-        for (auto& multiquad : rotary_destinations_)
-        {
-            multiquad.second->destroy (openGLContext);
-        }
-        for (auto& multiquad : rotary_meters_)
-        {
-            multiquad.second->destroy (openGLContext);
-        }
-        for (auto& multiquad : linear_meters_)
-        {
-            multiquad.second->destroy (openGLContext);
-        }
-        for (auto& multiquad : linear_destinations_)
-        {
-            multiquad.second->destroy (openGLContext);
-        }
 
-    },
-        true);
     {
         ScopedLock lock (open_gl_critical_section_);
         rotary_destinations_.clear();
@@ -670,6 +672,8 @@ void 	ModulationManager::componentAdded()
         linear_meters_.clear();
         modulation_buttons_.clear();
         meter_lookup_.clear();
+        num_linear_meters.clear();
+        num_rotary_meters.clear();
         modulation_buttons_ = mod_buttons;
         for (auto& modulation_button : modulation_buttons_) {
             modulation_button.second->addListener(this);

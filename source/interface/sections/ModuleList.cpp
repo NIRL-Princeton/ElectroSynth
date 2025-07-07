@@ -150,6 +150,14 @@ void ChainList<T>::objectRemoved(ModuleList<T>* processor_base) {
     }
 
 }
+// template<typename T>
+// void ChainList<T>::moduleListChanged() {
+//     for (auto listener: listeners_) {
+//         listeners_->moduleListChanged();
+//     };
+// }
+
+
 //explicitly define the types thus telling the compiler to generate their code
 
 template class ModuleList<ProcessorBase>;

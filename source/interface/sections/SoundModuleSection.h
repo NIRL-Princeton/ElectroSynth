@@ -12,7 +12,7 @@ class ModulationManager;
 class SoundModuleSection : public ModulesInterface<ProcessorBase>
 {
 public:
-    explicit SoundModuleSection( ModulationManager* m, ModuleList<ProcessorBase> &);
+    explicit SoundModuleSection( ModulationManager* m, ModuleList<ProcessorBase> &,const juce::ValueTree &);
     virtual ~SoundModuleSection();
 
     void setEffectPositions() override;
@@ -29,9 +29,19 @@ public:
     void moduleListChanged() ;
 
     std::shared_ptr<OpenGlQuad> footer_body;
+    std::unique_ptr<OpenGlShapeButton> exit_button_;
 
+    void buttonClicked(juce::Button* clicked_button) override;
+    juce::ValueTree state;
+    // void renderOpenGlComponents(OpenGlWrapper &open_gl, bool animate) override;
+    ModuleSection* currently_dragged_;
+    ModuleSection* currently_hovered_;
+    // void mouseDown(const juce::MouseEvent& e) override;
 
-
+    int last_dragged_index_;
+    int mouse_down_y_;
+    int dragged_starting_y_;
+    int height;
 
 };
 

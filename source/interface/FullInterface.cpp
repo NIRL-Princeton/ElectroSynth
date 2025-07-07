@@ -304,7 +304,7 @@ void FullInterface::resized() {
 
    header_->setTabOffset(2 * voice_padding);
    header_->setBounds(left, top, width,  top_height);
-   Rectangle<int> main_bounds(left,header_->getBottom() + padding, width, height - top_height );
+   Rectangle<int> main_bounds(left,header_->getBottom(), width, height - top_height );
    juce::Rectangle<int> new_bounds(0, 0, width, height);
    main_->setBounds(main_bounds);
    //test_section->setBounds(main_bounds);

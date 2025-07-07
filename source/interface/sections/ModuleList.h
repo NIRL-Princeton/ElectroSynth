@@ -147,6 +147,18 @@ class ChainList : public tracktion::ValueTreeObjectList<ModuleList<T>> {
             newObjectAdded (object);
         }
     };
+
+    // void moduleListChanged() {
+    //     for (auto listener: listeners_) {
+    //         listeners_->moduleListChanged();
+    //     };
+    // }
+    // void moduleAdded(T* newModule) {
+    //     for (auto listener: listeners_) {
+    //
+    //     }
+    // }
+    // void removeModule(T* moduleToRemove){}
     std::vector<Listener*> listeners_;
 
     SynthBase* synth_;

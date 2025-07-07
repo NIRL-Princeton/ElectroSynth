@@ -33,10 +33,20 @@ public:
     juce::ValueTree state;
     void buttonClicked(juce::Button* clicked_button) override;
     std::unique_ptr<OpenGlShapeButton> exit_button_;
+    void addListener(Listener* listener) { listeners_.push_back(listener); }
+    void mouseEnter(const juce::MouseEvent& e) {
+        hover_ = true;
+    }
+    void mouseExit(const juce::MouseEvent& e) override
+    {
+        hover_ = false;
+    }
+    bool hover_;
+    const int height = 100;
 private:
-
+    std::shared_ptr<OpenGlImageComponent> background_;
     std::unique_ptr<electrosynth::ParametersView> _view;
-
+    std::vector<Listener*> listeners_;
 };
 
 #endif //ELECTROSYNTH_MODULESECTION_H

@@ -156,7 +156,7 @@ void SynthSection::paintBody(Graphics& g, Rectangle<int> bounds) {
 
 void SynthSection::paintBorder(Graphics& g, Rectangle<int> bounds) {
   int body_rounding = findValue(Skin::kBodyRounding);
-  g.setColour(findColour(Skin::kBorder, true));
+  g.setColour(juce::Colours::aliceblue);//findColour(Skin::kBorder, true));
   g.drawRoundedRectangle(bounds.toFloat().reduced(0.5f), body_rounding, 1.0f);
 }
 

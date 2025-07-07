@@ -21,6 +21,7 @@
 
 
 namespace {
+
   juce::Rectangle<int> getGlobalBounds(juce::Component* component, juce::Rectangle<int> bounds) {
     juce::Component* parent = component->getParentComponent();
     while (parent && dynamic_cast<FullInterface*>(component) == nullptr) {
@@ -44,7 +45,47 @@ namespace {
     return visible_bounds + component->getPosition();
   }
 }
+void OpenGlComponent::drawDebugBox(int x, int y, int width, int height, int viewportHeight) {
+  {
+    GLint viewport[4];
+    juce::gl::glGetIntegerv(juce::gl::GL_VIEWPORT, viewport);
+    int viewportHeight = viewport[3];
 
+    int flippedY = viewportHeight - y - height;
+
+    // Set up orthographic projection (2D)
+    juce::gl::glMatrixMode(juce::gl::GL_PROJECTION);
+    juce::gl::glPushMatrix();
+    juce::gl::glLoadIdentity();
+    juce::gl::glOrtho(0, viewport[2], 0, viewport[3], -1.0, 1.0);
+
+    juce::gl::glMatrixMode(juce::gl::GL_MODELVIEW);
+    juce::gl::glPushMatrix();
+    juce::gl::glLoadIdentity();
+
+    // Temporarily disable scissor to draw debug overlay
+    juce::gl::glDisable(juce::gl::GL_SCISSOR_TEST);
+    juce::gl::glEnable(juce::gl::GL_BLEND);
+    juce::gl::glBlendFunc(juce::gl::GL_SRC_ALPHA, juce::gl::GL_ONE_MINUS_SRC_ALPHA);
+    juce::gl::glColor4f(1.0f, 0.0f, 0.0f, 0.3f);  // Red, 30% transparent
+
+    juce::gl::glBegin(juce::gl::GL_QUADS);
+    juce::gl::glVertex2f((GLfloat)x,               (GLfloat)flippedY);
+    juce::gl::glVertex2f((GLfloat)(x + width),     (GLfloat)flippedY);
+    juce::gl::glVertex2f((GLfloat)(x + width),     (GLfloat)(flippedY + height));
+    juce::gl::glVertex2f((GLfloat)x,               (GLfloat)(flippedY + height));
+    juce::gl::glEnd();
+
+    juce::gl::glDisable(juce::gl::GL_BLEND);
+    juce::gl::glEnable(juce::gl::GL_SCISSOR_TEST);  // Restore
+
+    // Restore previous projection/modelview matrices
+    juce::gl::glPopMatrix(); // Modelview
+    juce::gl::glMatrixMode(juce::gl::GL_PROJECTION);
+    juce::gl::glPopMatrix();
+    juce::gl::glMatrixMode(juce::gl::GL_MODELVIEW);
+  }
+}
 int OpenGlComponent::nID = 0;
 OpenGlComponent::OpenGlComponent(juce::String name) : juce::Component(name), only_bottom_corners_(false),
                                                 parent_(nullptr), skin_override_(Skin::kNone), scissor_component_(nullptr)
@@ -108,6 +149,7 @@ void OpenGlComponent::setScissorBounds(juce::Component* component, juce::Rectang
     return;
 
   FullInterface* top_level = component->findParentComponentOfClass<FullInterface>();
+  if (top_level == nullptr) return;
   float scale = open_gl.display_scale;
   float resize_scale = top_level->getResizingScale();
   float render_scale = 1.0f;

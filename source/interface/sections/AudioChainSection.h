@@ -24,7 +24,8 @@ public:
         paintChildrenBackgrounds(g);
     }
 };
-class AudioChainSection : public SynthSection , public ChainList<ProcessorBase>::Listener, public juce::ScrollBar::Listener, EffectsViewport::Listener {
+class AudioChainSection : public SynthSection , public ChainList<ProcessorBase>::Listener, ModulesInterface<ProcessorBase>::Listener,
+public juce::ScrollBar::Listener, EffectsViewport::Listener {
 
 public:
     AudioChainSection(ChainList<ProcessorBase>&,ModulationManager* m);// : SynthSection("AudioChainSection") {}
@@ -92,6 +93,17 @@ public:
     std::vector<std::unique_ptr<SoundModuleSection>> sound_module_sections;
     ModulationManager* modulation_manager_;
     std::shared_ptr<OpenGlQuad> footer_quad_;
+    void added() override {
+
+        resized();
+        // setSize(getWidth(), getHeight()+100);
+    }
+    void removed() override{
+        setSize(getWidth(), getHeight()-100);
+    }
+    void effectsMoved() override{
+
+    };
 };
 
 

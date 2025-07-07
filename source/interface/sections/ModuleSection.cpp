@@ -14,18 +14,22 @@ ModuleSection::ModuleSection(const juce::ValueTree &v, std::unique_ptr<electrosy
     addOpenGlComponent(exit_button_->getGlComponent());
     exit_button_->addListener(this);
     exit_button_->setShape(Paths::exitX());
-
+    background_ = std::make_unique<OpenGlImageComponent>("background");
+    addOpenGlComponent(background_);
+    background_->setComponent(this);
+    background_->paintEntireComponent(false);
 }
 
 ModuleSection::~ModuleSection() = default;
 
 void ModuleSection::paintBackground(juce::Graphics &g)
 {
+
     paintContainer(g);
     paintHeadingText(g);
 
     paintKnobShadows(g);
-    paintChildrenBackgrounds(g);
+    paintChildrenBackgrounds(g);    paintBorder(g);
    //SynthSection::paintBackground(g);
 }
 
