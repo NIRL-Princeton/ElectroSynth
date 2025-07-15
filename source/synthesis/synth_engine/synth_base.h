@@ -143,7 +143,9 @@ public:
     juce::UndoManager um;
     std::unique_ptr<ChainList<ProcessorBase>> processors_;
     std::unique_ptr<ModuleList<ModulatorBase>> modulators_;
-    std::unique_ptr<EffectList> effects_;
+    std::unique_ptr<EffectList> effects_0;
+    std::unique_ptr<EffectList> effects_1;
+    std::unique_ptr<EffectList> effects_2;
     void valueTreePropertyChanged(ValueTree &treeWhosePropertyHasChanged, const Identifier &property) override;
 protected:
 

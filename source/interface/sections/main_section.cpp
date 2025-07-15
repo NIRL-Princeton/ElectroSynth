@@ -51,12 +51,12 @@ MainSection::MainSection(const juce::ValueTree& v, juce::UndoManager &um, OpenGl
     modulation_interface = std::make_unique<ModulationModuleSection>(modulation_manager,*data->synth->modulators_);
     addSubSection(modulation_interface.get());
 
-    effects_section_1 = std::make_unique<EffectModuleSection>(modulation_manager, *data->synth->effects_,data->synth->effects_->state);
+    effects_section_0 = std::make_unique<EffectModuleSection>(modulation_manager, *data->synth->effects_0,data->synth->effects_0->state);
+    addSubSection(effects_section_0.get());
+    effects_section_1 = std::make_unique<EffectModuleSection>(modulation_manager, *data->synth->effects_1,data->synth->effects_1->state);
     addSubSection(effects_section_1.get());
-    effects_section_2 = std::make_unique<EffectModuleSection>(modulation_manager, *data->synth->effects_,data->synth->effects_->state);
+    effects_section_2 = std::make_unique<EffectModuleSection>(modulation_manager, *data->synth->effects_2,data->synth->effects_2->state);
     addSubSection(effects_section_2.get());
-    effects_section_3 = std::make_unique<EffectModuleSection>(modulation_manager, *data->synth->effects_,data->synth->effects_->state);
-    addSubSection(effects_section_3.get());
 
     master_voice_envelope_section = std::make_unique<MasterVoiceEnvelopeSection>(v, um, open_gl, data,std::move(data->synth->getEngine()->MasterVoiceEnvelopeProcessor->createEditor()));
     addSubSection(master_voice_envelope_section.get());
@@ -106,9 +106,9 @@ void MainSection::resized()
     int sound_interface_width = 2*width/3- padding*2;
     int all_effects_width = getWidth() - sound_interface_width;
     sound_interface->setBounds(padding, padding, sound_interface_width,height -size_ratio_* 200  - padding);
-    effects_section_1->setBounds(sound_interface->getRight() + padding, padding, (all_effects_width-3*padding)/3,height -size_ratio_* 200  - padding);
+    effects_section_0->setBounds(sound_interface->getRight() + padding, padding, (all_effects_width-3*padding)/3,height -size_ratio_* 200  - padding);
+    effects_section_1->setBounds(effects_section_0->getRight() + padding, padding, (all_effects_width-3*padding)/3,height -size_ratio_* 200  - padding);
     effects_section_2->setBounds(effects_section_1->getRight() + padding, padding, (all_effects_width-3*padding)/3,height -size_ratio_* 200  - padding);
-    effects_section_3->setBounds(effects_section_2->getRight() + padding, padding, (all_effects_width-3*padding)/3,height -size_ratio_* 200  - padding);
 //     test_->setBounds(0,0,width,height - 200);
     modulation_interface->setBounds(0,height -size_ratio_* 200+ padding, width - size_ratio_*200 , size_ratio_* 200);
     master_voice_envelope_section->setBounds(width-size_ratio_*200 + padding,height -size_ratio_* 200 +padding,size_ratio_*200,size_ratio_*200);

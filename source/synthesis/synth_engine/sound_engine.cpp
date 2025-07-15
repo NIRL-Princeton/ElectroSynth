@@ -62,6 +62,8 @@ namespace electrosynth {
       MasterVoiceEnvelopeProcessor->state_.params.releaseParam->setParameterValue(0.001);
       MasterVoiceEnvelopeProcessor->state.setProperty(IDs::name, "master_voice",nullptr);
       //temp_voice_buffer.set
+      for (auto& buffer : temp_fx_buffers)
+          buffer.setSize(MAX_NUM_VOICES*2,1);
   }
 
   SoundEngine::~SoundEngine() {
@@ -135,6 +137,8 @@ namespace electrosynth {
       // benchmark();
       juce::FloatVectorOperations::disableDenormalisedNumberSupport();
       temp_voice_buffer.clear();
+      for (auto& buffer : temp_fx_buffers)
+          buffer.clear();
       //juce::MidiBuffer midimessages;
       int mpe = voiceHandler.mpeMode ? 1 : 0;
       int impe = 1-mpe;
@@ -234,23 +238,45 @@ namespace electrosynth {
               //         audio_buffer.addSample(0, i, amp_vals->getSample(v*2, 0) * temp_voice_buffer.getSample(v*2, 0));
               //        audio_buffer.addSample(1, i, amp_vals->getSample(v*2+1, 0) * temp_voice_buffer.getSample(v*2+1, 0));
               // }
+              for ( int v = 0; v < voiceHandler.numVoicesActive; ++v) {
+                  // audio_buffer.addSample(0, i, temp_voice_buffer.getSample(v*2, 0));
+                  // audio_buffer.addSample(1, i, temp_voice_buffer.getSample(v*2+1, 0));
+                  temp_voice_buffer.setSample(v*2, 0, amp_vals->getSample(v*2, 0) * temp_voice_buffer.getSample(v*2, 0));
+                  temp_voice_buffer.setSample(v*2+1, 0, amp_vals->getSample(v*2+1, 0) * temp_voice_buffer.getSample(v*2+1, 0));
+              }
+              //writes out to fx_buffers
               chainPostGain[chainIndex]->processBlock(temp_voice_buffer, empty);
 
               chainIndex++;
+              temp_voice_buffer.clear();
           }
 
+
+          int index = 1;
+          for ( int v = 0; v < voiceHandler.numVoicesActive; ++v) {
+              audio_buffer.addSample(0, i, temp_fx_buffers[0].getSample(v*2, 0));
+              audio_buffer.addSample(1, i, temp_fx_buffers[0].getSample(v*2+1, 0));
+          }
           for (auto &fx_lane : effects) {
-              float audio_in;
-
-
+              for(auto& fx : fx_lane) {
+                  fx->processBlock (temp_fx_buffers[index], empty);
+              }
+              for ( int v = 0; v < voiceHandler.numVoicesActive; ++v) {
+                  audio_buffer.addSample(0, i, temp_fx_buffers[index].getSample(v*2, 0));
+                  audio_buffer.addSample(1, i, temp_fx_buffers[index].getSample(v*2+1, 0));
+              }
+              index++;
           }
 
-          temp_voice_buffer.clear();
 
-          // melatonin::printSparkline (*amp_vals.get,true);
+
+            for(auto   &fx: temp_fx_buffers) {
+                fx.clear();
+            }
+          // melatonin::printSparklin   e (*amp_vals.get,true);
 
       }
-      // melatonin::printSparkline (audio_buffer,true);
+      melatonin::printSparkline (audio_buffer,true);
 
       if (getNumActiveVoices() == 0)
       {

@@ -169,10 +169,8 @@ namespace electrosynth {
       int buffer_size;
       int curr_sample_rate;
       juce::AudioBuffer<float> temp_voice_buffer{MAX_NUM_VOICES*2,1};
-      juce::AudioBuffer<float> temp_fx_voice_buffer{MAX_NUM_VOICES*2,1};
+      std::array<juce::AudioBuffer<float>, 4> temp_fx_buffers;
       //benchmark::ProcessBlock benchmark;
-//      Value* oversampling_;
-//      Value* bps_;
 //      Value* legato_;
 //      Decimator* decimator_;
 //      PeakMeter* peak_meter_;

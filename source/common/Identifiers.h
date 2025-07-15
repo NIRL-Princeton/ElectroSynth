@@ -62,6 +62,7 @@ namespace IDs
     DECLARE_ID(CHAIN)
     DECLARE_ID(EFFECTS)
     DECLARE_ID(EFFECTMODULE)
+    DECLARE_ID(effect_lane)
 }
 
 #undef DECLARE_ID

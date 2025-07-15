@@ -79,6 +79,7 @@ struct RoutingParams : public LEAFParams<_tVCAModule> {
         chowdsp::ScopedCallbackList callbacks;
         // std::array<leaf::tAudioRouting,MAX_NUM_VOICES> audio_routings;
         int curr_lane;
+        juce::AudioBuffer<float> *audio_out;
     };
 
 

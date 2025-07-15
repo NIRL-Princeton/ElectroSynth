@@ -52,7 +52,7 @@ private:
     std::unique_ptr<AudioChainSection> sound_interface;
     std::unique_ptr<EffectModuleSection> effects_section_1;
     std::unique_ptr<EffectModuleSection> effects_section_2;
-    std::unique_ptr<EffectModuleSection> effects_section_3;
+    std::unique_ptr<EffectModuleSection> effects_section_0;
     std::vector<Listener*> listeners_;
     std::unique_ptr<ModulationModuleSection> modulation_interface;
     std::unique_ptr<MasterVoiceEnvelopeSection> master_voice_envelope_section;
