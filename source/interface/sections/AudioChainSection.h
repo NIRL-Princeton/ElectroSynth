@@ -7,6 +7,8 @@
 #include "synth_section.h"
 #include "ModuleList.h"
 #include "SoundModuleSection.h"
+#include "ParameterView/RoutingView.h"
+
 class ModulesListContainer : public SynthSection {
 public:
     ModulesListContainer(String name) : SynthSection(name) {
@@ -104,6 +106,7 @@ public:
     void effectsMoved() override{
 
     };
+
 };
 
 

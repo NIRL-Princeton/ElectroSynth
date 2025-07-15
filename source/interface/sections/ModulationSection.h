@@ -15,7 +15,7 @@ class ModulationManager;
 class ModulationSection : public SynthSection
 {
 public:
-    ModulationSection(  const juce::ValueTree &, std::unique_ptr<electrosynth::ParametersView> editor);
+    ModulationSection(  const juce::ValueTree &, std::unique_ptr<SynthSection> editor);
 
     virtual ~ModulationSection();
 
@@ -32,7 +32,7 @@ public:
     void buttonClicked(juce::Button* clicked_button) override;
 private:
 
-    std::unique_ptr<electrosynth::ParametersView> _view;
+    std::unique_ptr<SynthSection> _view;
     std::shared_ptr<ModulationButton> mod_button;
     std::shared_ptr<OpenGlShapeButton> exit_button_;
 

@@ -30,12 +30,13 @@
 #include "circular_queue.h"
 #include "ModulationConnection.h"
 #include "ModuleList.h"
+class RoutingProcessor;
 class ProcessorBase;
 class ModulatorBase;
 class SynthGuiInterface;
 template<typename T>
 class BKSamplerSound;
-
+class EffectList;
 class SynthBase : public MidiManager::Listener, public juce::ValueTree::Listener, public Timer {
 public:
    static constexpr float kOutputWindowMinNote = 16.0f;
@@ -109,7 +110,11 @@ public:
    AudioDeviceManager* manager;
     void removeProcessor(ProcessorBase* processor);
     void removeProcessor(ModulatorBase* processor);
+    void removeEffect(ProcessorBase* processor,int lane);
+
    void addProcessor(std::unique_ptr<ProcessorBase> processor, int voice_index);
+   void addChainRouting(std::unique_ptr<RoutingProcessor> processor, int voice_index);
+   void addEffect(std::unique_ptr<ProcessorBase> processor, int lane);
     void addModulationSource(std::unique_ptr<ModulatorBase> processor, int voice_index);
 
    // juce::ValueTree& getValueTree();
@@ -138,6 +143,7 @@ public:
     juce::UndoManager um;
     std::unique_ptr<ChainList<ProcessorBase>> processors_;
     std::unique_ptr<ModuleList<ModulatorBase>> modulators_;
+    std::unique_ptr<EffectList> effects_;
     void valueTreePropertyChanged(ValueTree &treeWhosePropertyHasChanged, const Identifier &property) override;
 protected:
 

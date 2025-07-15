@@ -13,6 +13,7 @@
 * You should have received a copy of the GNU General Public License
 * along with vital.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include "RoutingProcessor.h"
 
 #include "synth_base.h"
 #include "synth_gui_interface.h"
@@ -32,12 +33,14 @@
 #include "MasterVoiceProcessor.h"
 #include "parameterArrays.h"
 #include "Modulators/EnvModuleProcessor.h"
-
+#include "EffectList.h"
 SynthBase::SynthBase(AudioDeviceManager *deviceManager) : tree(ValueTree(IDs::ELECTROSYNTH)), manager(deviceManager) {
     tree.addChild(juce::ValueTree{IDs::CHAINS}, -1, nullptr);
     tree.addChild(juce::ValueTree{IDs::MODULATORS}, -1, nullptr);
+    tree.addChild(juce::ValueTree{IDs::EFFECTS}, -1, nullptr);
     processors_ = std::make_unique<ChainList<ProcessorBase> >(this,tree.getChildWithName(IDs::CHAINS));
     modulators_ = std::make_unique<ModuleList<ModulatorBase> >(this,tree.getChildWithName(IDs::MODULATORS));
+    effects_ = std::make_unique<EffectList >(this,tree.getChildWithName(IDs::EFFECTS),0);
     self_reference_ = std::make_shared<SynthBase *>();
     *self_reference_ = this;
 
@@ -145,7 +148,35 @@ void SynthBase::initEngine() {
 void SynthBase::setMpeEnabled(bool enabled) {
     midi_manager_->setMpeEnabled(enabled);
 }
+void SynthBase::removeEffect(ProcessorBase *processor, int lane) {
+    if (engine_ == nullptr) return;
+    if (lane < 0 || lane >= static_cast<int>(engine_->effects.size()))
+        return; // invalid lane index
 
+    auto& effectLane = engine_->effects[lane];
+    auto it = std::find_if(effectLane.begin(), effectLane.end(),
+                               [processor](const auto& ptr)
+                               {
+                                   return ptr.get() == processor;
+                               });
+        if (it != effectLane.end()) {
+            // Transfer ownership out before erasing
+            std::unique_ptr<ProcessorBase> released = std::move(*it);
+            *effectLane.erase(it);
+            // Create task as a std::function
+            DeleteThreadAction task = [ptr = std::move(released)]() mutable {
+                ptr.reset(); // optional; unique_ptr will go out of scope
+            };
+
+            // Try enqueue
+            if (!processorDeleteQueue.try_enqueue(std::move(task))) {
+                jassertfalse;
+            }
+
+            return;
+
+    }
+}
 void SynthBase::removeProcessor(ProcessorBase *processor) {
     if (engine_ == nullptr) return;
     for (auto &chain: engine_->processors) {
@@ -198,13 +229,21 @@ void SynthBase::removeProcessor(ModulatorBase *processor) {
         }
     }
 }
+void SynthBase::addChainRouting(std::unique_ptr<RoutingProcessor> processor, int chain_index) {
+    processor->prepareToPlay(engine_->getSampleRate(), engine_->getBufferSize());
 
+    engine_->chainPostGain[chain_index]=std::move(processor);
+}
 void SynthBase::addProcessor(std::unique_ptr<ProcessorBase> processor, int chain_index) {
     processor->prepareToPlay(engine_->getSampleRate(), engine_->getBufferSize());
 
     engine_->processors[chain_index].push_back(std::move(processor));
 }
+void SynthBase::addEffect(std::unique_ptr<ProcessorBase> processor, int lane) {
+    processor->prepareToPlay(engine_->getSampleRate(), engine_->getBufferSize());
 
+    engine_->effects[lane].push_back(std::move(processor));
+}
 void SynthBase::addModulationSource(std::unique_ptr<ModulatorBase> modulationSource, int voice_index) {
     modulationSource->prepareToPlay(engine_->getBufferSize(), engine_->getSampleRate());
 

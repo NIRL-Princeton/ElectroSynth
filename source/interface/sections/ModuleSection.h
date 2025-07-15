@@ -14,7 +14,7 @@
 class ModuleSection : public SynthSection
 {
 public:
-    ModuleSection(const juce::ValueTree &, std::unique_ptr<electrosynth::ParametersView> editor);
+    ModuleSection(const juce::ValueTree &, std::unique_ptr<SynthSection> editor);
 
     virtual ~ModuleSection();
 
@@ -42,10 +42,10 @@ public:
         hover_ = false;
     }
     bool hover_;
-    const int height = 100;
+    const int height = 71;
 private:
     std::shared_ptr<OpenGlImageComponent> background_;
-    std::unique_ptr<electrosynth::ParametersView> _view;
+    std::unique_ptr<SynthSection> _view;
     std::vector<Listener*> listeners_;
 };
 

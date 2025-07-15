@@ -121,6 +121,20 @@ template<typename T>
 ModuleList<T> *ChainList<T>::createNewObject(const juce::ValueTree &v) {
     auto index = v.getParent().indexOf(v);
     ModuleList<T> *list = new ModuleList<T>(synth_,v);
+    if constexpr (std::is_same_v<T, ProcessorBase>) {
+        auto* leaf  = synth_->getLeaf();
+        auto proc = std::make_unique<RoutingProcessor>(synth_->getEngine(),v,leaf);
+        list->router_ = proc.get();
+        auto task = [this, _proc = std::move(proc),index = v.getParent().indexOf(v)  ]() mutable {
+            synth_->addChainRouting(std::move(_proc), index);
+        };
+        synth_->processorInitQueue.try_enqueue(std::move(task));
+    }
+    // auto task = [this, _proc = std::move(proc), index = v.getParent().getParent().indexOf(v.getParent())]() mutable {
+    //     synth_->addProcessor(std::move(_proc), index);
+    // };
+    //
+    // synth_->processorInitQueue.try_enqueue(std::move(task));
     return list;
 
 }

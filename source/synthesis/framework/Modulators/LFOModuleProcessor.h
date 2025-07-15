@@ -76,7 +76,7 @@ public:
     void getNextAudioBlock (const juce::AudioSourceChannelInfo &bufferToFill) override;
     void prepareToPlay (int samplesPerBlock, double sampleRate ) override {}
     void releaseResources() override {}
-    std::unique_ptr<electrosynth::ParametersView> createEditor() override
+    std::unique_ptr<SynthSection> createEditor() override
     {
         return std::make_unique<electrosynth::ParametersView>(state_, state_.params, state.getProperty(IDs::type).toString() + state.getProperty(IDs::uuid).toString());
     }

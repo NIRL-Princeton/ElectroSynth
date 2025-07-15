@@ -39,6 +39,7 @@ public:
 
  void removeModule(ModulatorBase* newModule)   override;
  void moduleListChanged() ;
+ EffectsViewport viewport;
 };
 
 #endif //ELECTROSYNTH_ModulationMODULESECTION_H

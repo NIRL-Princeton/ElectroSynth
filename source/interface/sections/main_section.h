@@ -9,6 +9,7 @@
 #include "ParameterView/ParametersView.h"
 #include "AudioChainSection.h"
 #include "ModuleList.h"
+#include "EffectsModuleSection.h"
 class ModulationSection;
 class SoundModuleSection;
 class ModulationModuleSection;
@@ -17,11 +18,11 @@ class ModulationManager;
 class MasterVoiceEnvelopeSection : public SynthSection {
 public:
     MasterVoiceEnvelopeSection(const juce::ValueTree& v, juce::UndoManager &um,
-        OpenGlWrapper &open_gl, SynthGuiData * data, std::unique_ptr<electrosynth::ParametersView>&&);
+        OpenGlWrapper &open_gl, SynthGuiData * data, std::unique_ptr<SynthSection>&&);
 
         void resized() override;
     void paintBackground(Graphics &g) override;
-    std::unique_ptr<electrosynth::ParametersView> master_voice_envelope;
+    std::unique_ptr<SynthSection> master_voice_envelope;
     std::shared_ptr<ModulationButton> mod_button;
 };
 class MainSection : public SynthSection
@@ -49,6 +50,9 @@ private:
     juce::ValueTree v;
     juce::UndoManager &um;
     std::unique_ptr<AudioChainSection> sound_interface;
+    std::unique_ptr<EffectModuleSection> effects_section_1;
+    std::unique_ptr<EffectModuleSection> effects_section_2;
+    std::unique_ptr<EffectModuleSection> effects_section_3;
     std::vector<Listener*> listeners_;
     std::unique_ptr<ModulationModuleSection> modulation_interface;
     std::unique_ptr<MasterVoiceEnvelopeSection> master_voice_envelope_section;

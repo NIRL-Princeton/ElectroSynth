@@ -6,7 +6,7 @@
 #include "ModulationSection.h"
 #include "modulation_button.h"
 #include "modulation_manager.h"
-ModulationSection::ModulationSection( const juce::ValueTree &v, std::unique_ptr<electrosynth::ParametersView> editor) : SynthSection(editor->getName()), state(v), _view(std::move(editor)),
+ModulationSection::ModulationSection( const juce::ValueTree &v, std::unique_ptr<SynthSection> editor) : SynthSection(editor->getName()), state(v), _view(std::move(editor)),
 mod_button(new ModulationButton("mod"))
 {
     setComponentID(_view->getName());

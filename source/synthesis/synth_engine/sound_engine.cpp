@@ -25,6 +25,7 @@
 #include "parameterArrays.h"
 #include "ModulationConnection.h"
 #include "Modulators/EnvModuleProcessor.h"
+#include "RoutingProcessor.h"
 
 namespace electrosynth {
 
@@ -46,6 +47,8 @@ namespace electrosynth {
            voiceHandler.voicePrevBend[i] = 0.0f;
        }
       processors.resize(10);
+      chainPostGain.reserve(10);
+
       for (auto &processor : processors) {
           processor.reserve(10);
       }
@@ -209,6 +212,7 @@ namespace electrosynth {
                     modulator->process();
               }
           }
+          int chainIndex = 0;
           for (auto& proc_chain : processors)
           {
             if (proc_chain.empty())
@@ -219,19 +223,28 @@ namespace electrosynth {
                     proc->processBlock (temp_voice_buffer, empty);
 
               }
-              //at end of given processor chain
-              for ( int v = 0; v < voiceHandler.numVoicesActive; ++v) {
-                      // audio_buffer.addSample(0, i, temp_voice_buffer.getSample(v*2, 0));
-                      // audio_buffer.addSample(1, i, temp_voice_buffer.getSample(v*2+1, 0));
-                  // if (amp_vals->getSample(v*2,0) > 0.f) {
-                  //     DBG(amp_vals->getSample(v*2,0));
-                  //     DBG(temp_voice_buffer.getSample(v*2,0));
-                  // }
-                      audio_buffer.addSample(0, i, amp_vals->getSample(v*2, 0) * temp_voice_buffer.getSample(v*2, 0));
-                     audio_buffer.addSample(1, i, amp_vals->getSample(v*2+1, 0) * temp_voice_buffer.getSample(v*2+1, 0));
-              }
+              // //at end of given processor chain
+              // for ( int v = 0; v < voiceHandler.numVoicesActive; ++v) {
+              //         // audio_buffer.addSample(0, i, temp_voice_buffer.getSample(v*2, 0));
+              //         // audio_buffer.addSample(1, i, temp_voice_buffer.getSample(v*2+1, 0));
+              //     // if (amp_vals->getSample(v*2,0) > 0.f) {
+              //     //     DBG(amp_vals->getSample(v*2,0));
+              //     //     DBG(temp_voice_buffer.getSample(v*2,0));
+              //     // }
+              //         audio_buffer.addSample(0, i, amp_vals->getSample(v*2, 0) * temp_voice_buffer.getSample(v*2, 0));
+              //        audio_buffer.addSample(1, i, amp_vals->getSample(v*2+1, 0) * temp_voice_buffer.getSample(v*2+1, 0));
+              // }
+              chainPostGain[chainIndex]->processBlock(temp_voice_buffer, empty);
+
+              chainIndex++;
+          }
+
+          for (auto &fx_lane : effects) {
+              float audio_in;
+
 
           }
+
           temp_voice_buffer.clear();
 
           // melatonin::printSparkline (*amp_vals.get,true);
@@ -539,7 +552,7 @@ void SoundEngine::connectMapping (const electrosynth::mapping_change& change) {
             }
             //set the scale value to point to the backend mapping scaling
             for (int v = 0; v < MAX_NUM_VOICES; v++) {
-                tMappingAdd(&change.mapping->mapping_[v], change._source, change._dest, change.dest_param_index, sourceIndex, &leaf, &change.connection->scalingValue_);
+                tMappingAdd(&change.mapping->mapping_[v], &change._source[v], &change._dest[v], change.dest_param_index, sourceIndex, &leaf, &change.connection->scalingValue_);
 
             }
            //TODO : fix bipolaroffset like mapping_

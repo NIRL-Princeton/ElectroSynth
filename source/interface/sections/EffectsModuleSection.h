@@ -2,19 +2,18 @@
 // Created by Davis Polito on 11/19/24.
 //
 
-#ifndef ELECTROSYNTH_SOUNDMODULESECTION_H
-#define ELECTROSYNTH_SOUNDMODULESECTION_H
+#pragma once
 #include "modules_interface.h"
 class ModuleSection;
 class ProcessorBase;
 class ModulationManager;
 #include "ModuleList.h"
-#include "ParameterView/RoutingView.h"
-class SoundModuleSection : public ModulesInterface<ProcessorBase>
+class EffectList;
+class EffectModuleSection : public ModulesInterface<ProcessorBase>
 {
 public:
-    explicit SoundModuleSection( ModulationManager* m, ModuleList<ProcessorBase> &,const juce::ValueTree &);
-    virtual ~SoundModuleSection();
+    explicit EffectModuleSection( ModulationManager* m, EffectList &,const juce::ValueTree &);
+    virtual ~EffectModuleSection();
 
     void setEffectPositions() override;
 
@@ -25,15 +24,13 @@ public:
     std::vector<std::unique_ptr<ModuleSection>> module_sections;
     void moduleAdded(ProcessorBase* newModule) override;
     void resized() override;
-    void effectsScrolled(int position) override
-    {}
+
     void removeModule(ProcessorBase* newModule)   override;
     void moduleListChanged() ;
 
     std::shared_ptr<OpenGlQuad> footer_body;
-    std::unique_ptr<OpenGlShapeButton> exit_button_;
 
-    void buttonClicked(juce::Button* clicked_button) override;
+
     juce::ValueTree state;
     // void renderOpenGlComponents(OpenGlWrapper &open_gl, bool animate) override;
     ModuleSection* currently_dragged_;
@@ -44,7 +41,5 @@ public:
     int mouse_down_y_;
     int dragged_starting_y_;
     int height;
-    std::unique_ptr<RoutingView> routing_view_;
 };
 
-#endif //ELECTROSYNTH_SOUNDMODULESECTION_H

@@ -206,7 +206,7 @@ public:
 
     void releaseResources() override {}
 
-    std::unique_ptr<electrosynth::ParametersView> createEditor() override
+    std::unique_ptr<SynthSection> createEditor() override
     {
         return std::make_unique<electrosynth::ParametersView>(
             state_,

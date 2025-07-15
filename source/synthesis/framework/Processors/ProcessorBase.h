@@ -31,7 +31,7 @@ public:
     void releaseResources() override {}
     virtual void getStateInformation (MemoryBlock &destData)=0;
     virtual void setStateInformation (const void *data, int sizeInBytes)=0;
-    virtual std::unique_ptr<electrosynth::ParametersView> createEditor() = 0;
+    virtual std::unique_ptr<SynthSection> createEditor() = 0;
     electrosynth::SoundEngine* engine;
 };
 

@@ -22,7 +22,9 @@
 #include "processors/processor.h"
 #include "ModulationConnection.h"
 #include "BenchMarkProcessBlock.h"
+#include "VCAModule.h"
 class MappingWrapper;
+class RoutingProcessor;
 class ProcessorBase;
 class ModulatorBase;
 class EnvModuleProcessor;
@@ -135,6 +137,10 @@ namespace electrosynth {
       leaf::Processor* getLEAFProcessorModulator(const std::string&);
       std::pair<leaf::Processor*, int> getParameterInfo(const std::string&);
       std::vector<std::vector<std::unique_ptr<ProcessorBase>>> processors;
+      std::vector<std::unique_ptr<RoutingProcessor>> chainPostGain;
+      std::vector<leaf::tAudioRouting*> chain_to_lane_routings;
+      std::vector<std::unique_ptr<RoutingProcessor>> effectPreGain;
+      std::array<std::vector<std::unique_ptr<ProcessorBase>>,3> effects;
       std::vector<std::vector<std::unique_ptr<ModulatorBase>>> modSources;
       std::vector<MappingWrapper*> mappings;
       void disconnectMapping(const electrosynth::mapping_change& change);
@@ -163,6 +169,7 @@ namespace electrosynth {
       int buffer_size;
       int curr_sample_rate;
       juce::AudioBuffer<float> temp_voice_buffer{MAX_NUM_VOICES*2,1};
+      juce::AudioBuffer<float> temp_fx_voice_buffer{MAX_NUM_VOICES*2,1};
       //benchmark::ProcessBlock benchmark;
 //      Value* oversampling_;
 //      Value* bps_;

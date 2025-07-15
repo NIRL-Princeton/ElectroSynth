@@ -27,6 +27,8 @@ AudioChainSection::AudioChainSection(ChainList<ProcessorBase> &chains, Modulatio
     viewport_.setScrollBarsShown(false, false, true, false);
     setSidewaysHeading(false);
     addListener(m);
+
+
 }
 
 
@@ -185,7 +187,7 @@ void AudioChainSection::setEffectPositions() {
     int effect_width = getWidth() - start_x - large_padding;
     int knob_section_height = getKnobSectionHeight();
     int widget_margin = findValue(Skin::kWidgetMargin);
-    int effect_height = 2 * knob_section_height + 100 - widget_margin;
+    int effect_height =  knob_section_height + getTitleWidth()*2 - widget_margin;
     int y = 0;
 
     juce::Point<int> position = viewport_.getViewPosition();

@@ -3,7 +3,7 @@
 //
 
 #include "ModuleSection.h"
-ModuleSection::ModuleSection(const juce::ValueTree &v, std::unique_ptr<electrosynth::ParametersView> editor) : SynthSection(editor->getName()), state(v), _view(std::move(editor))
+ModuleSection::ModuleSection(const juce::ValueTree &v, std::unique_ptr<SynthSection> editor) : SynthSection(editor->getName()), state(v), _view(std::move(editor))
 {
     setComponentID(_view->getName());
     addSubSection(_view.get());
@@ -18,6 +18,7 @@ ModuleSection::ModuleSection(const juce::ValueTree &v, std::unique_ptr<electrosy
     addOpenGlComponent(background_);
     background_->setComponent(this);
     background_->paintEntireComponent(false);
+
 }
 
 ModuleSection::~ModuleSection() = default;

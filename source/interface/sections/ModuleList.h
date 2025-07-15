@@ -13,9 +13,9 @@
 class SynthBase;
 class ProcessorBase;
 class ModulatorBase;
+#include "RoutingProcessor.h"
 
-
-
+struct DummyType{};
 
 
 template <typename T>
@@ -82,12 +82,16 @@ public:
         }
     };
     ValueTree state;
-private:
+    using Router = std::conditional_t<std::is_same_v<T, ProcessorBase>, RoutingProcessor, struct DummyType>;
+
+    ; // Only usable when T == int
+    // std::vector<std::shared_ptr<T>> modules_;
+    Router* router_;
+protected:
+    SynthBase* synth_;
     Factory<T> factory;
     std::vector<Listener*> listeners_;
-    SynthBase* synth_;
 
-    // std::vector<std::shared_ptr<T>> modules_;
 };
 template <typename T>
 class ChainList : public tracktion::ValueTreeObjectList<ModuleList<T>> {
