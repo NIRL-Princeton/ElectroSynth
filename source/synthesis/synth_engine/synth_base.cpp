@@ -548,15 +548,17 @@ electrosynth::mapping_change SynthBase::createMappingChange(electrosynth::Modula
     std::getline(ss, proc_string, '_');
     auto [dest, index] = engine_->getParameterInfo(connection->destination_name);
     auto source = engine_->getLEAFProcessorModulator(proc_string);
-
+    connection->sourceProc_ =source;
     electrosynth::mapping_change change;
     change.connection = connection;
     change.mapping = connection->mapping_;
     change.destination = connection->destination_name;
     change.dest_param_index = index;
     //change.source_uuid = source->processorUniqueID;
+
     change._dest = dest;
     change._source = source;
+    change.source = proc_string ;
 
     return change;
 }
