@@ -72,7 +72,7 @@ struct LFOParamHolder : public LEAFParams<_tLFOModule>
 class LFOModuleProcessor: public ModulatorStateBase<PluginStateImpl_<LFOParamHolder >>
 {
 public:
-    LFOModuleProcessor(electrosynth::SoundEngine* engine,juce::ValueTree&, LEAF* leaf);
+    LFOModuleProcessor(electrosynth::SoundEngine* engine,juce::ValueTree&, LEAF* leaf,juce::UndoManager*);
     void getNextAudioBlock (const juce::AudioSourceChannelInfo &bufferToFill) override;
     void prepareToPlay (int samplesPerBlock, double sampleRate ) override {}
     void releaseResources() override {}

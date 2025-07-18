@@ -45,7 +45,7 @@ namespace electrosynth {
         }
         processors.resize(10);
         chainPostGain.reserve(10);
-
+        chainPostGain.resize(10);
         for (auto &processor: processors) {
             processor.reserve(10);
         }
@@ -54,7 +54,7 @@ namespace electrosynth {
 
 
         MasterVoiceEnvelopeProcessor = std::make_unique<EnvModuleProcessor>(
-            this, juce::ValueTree(IDs::MODULATOR).setProperty(IDs::type, "env", nullptr), &leaf);
+            this, juce::ValueTree(IDs::MODULATOR).setProperty(IDs::type, "env", nullptr), &leaf, nullptr);
         MasterVoiceEnvelopeProcessor->state_.params.attackParam->setParameterValue(0.1);
         MasterVoiceEnvelopeProcessor->state_.params.decayParam->setParameterValue(0.01);
         MasterVoiceEnvelopeProcessor->state_.params.releaseParam->setParameterValue(0.001);

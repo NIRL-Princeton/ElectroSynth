@@ -3,8 +3,8 @@
 //
 
 #include "LFOModuleProcessor.h"
-LFOModuleProcessor::LFOModuleProcessor(electrosynth::SoundEngine* engine,juce::ValueTree& vt, LEAF* leaf)
-    :ModulatorStateBase(engine,leaf,vt )
+LFOModuleProcessor::LFOModuleProcessor(electrosynth::SoundEngine* engine,juce::ValueTree& vt, LEAF* leaf,juce::UndoManager *um)
+    :ModulatorStateBase(engine,leaf,vt ,um)
 {
     procArray = &state_.params.processors[0];
     vt.setProperty(IDs::uuid, state_.params.processors[0].processorUniqueID, nullptr);

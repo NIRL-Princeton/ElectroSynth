@@ -63,7 +63,7 @@ struct RoutingParams : public LEAFParams<_tVCAModule> {
 
     class RoutingProcessor : public ProcessorStateBase<PluginStateImpl_<RoutingParams> > {
     public:
-        RoutingProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree&, LEAF* leaf);
+        RoutingProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree&, LEAF* leaf, juce::UndoManager *um);
         void getNextAudioBlock(const juce::AudioSourceChannelInfo &bufferToFill) override {
         }
 

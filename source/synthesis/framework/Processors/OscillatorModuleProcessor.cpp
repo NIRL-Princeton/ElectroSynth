@@ -25,7 +25,7 @@ juce::String electrosynth::utils::harmonicValToString(float harmonic)
     else
         return juce::String(round(harmonic));
 }
-OscillatorModuleProcessor::OscillatorModuleProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree &v, LEAF *leaf) :ProcessorStateBase(engine,leaf,v)
+OscillatorModuleProcessor::OscillatorModuleProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree &v, LEAF *leaf,juce::UndoManager* um) :ProcessorStateBase(engine,leaf,v,um)
 
 
 {

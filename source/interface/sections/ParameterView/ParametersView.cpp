@@ -9,8 +9,8 @@ namespace electrosynth {
         //==============================================================================
         class BooleanParameterComponent : public juce::Component {
         public:
-            BooleanParameterComponent(chowdsp::BoolParameter &param, chowdsp::ParameterListeners& listeners,SynthSection &parent)
-                    : button(param.name), attachment(param, listeners, button, nullptr) {
+            BooleanParameterComponent(chowdsp::BoolParameter &param, chowdsp::PluginState& listeners,SynthSection &parent)
+                    : button(param.name), attachment(param, listeners, button) {
                 button.setComponentID(param.paramID);
                 setLookAndFeel(DefaultLookAndFeel::instance());
                 parent.addButton(&button);
@@ -35,8 +35,8 @@ namespace electrosynth {
 
         class ChoiceParameterComponent : public juce::Component {
         public:
-            ChoiceParameterComponent(chowdsp::ChoiceParameter &param, chowdsp::ParameterListeners& listeners,SynthSection &parent)
-                    : attachment(param, listeners, box, nullptr) {
+            ChoiceParameterComponent(chowdsp::ChoiceParameter &param, chowdsp::PluginState& listeners,SynthSection &parent)
+                    : attachment(param, listeners, box) {
                 addAndMakeVisible(box);
                 parent.addChildComponent (box);
                 parent.addOpenGlComponent (box.getImageComponent());
@@ -58,8 +58,8 @@ namespace electrosynth {
 
         class SliderParameterComponent : public juce::Component {
         public:
-            SliderParameterComponent(chowdsp::FloatParameter &param, chowdsp::ParameterListeners& listeners, SynthSection &parent)
-                    : slider(param.name), attachment(param, listeners, slider, nullptr) {
+            SliderParameterComponent(chowdsp::FloatParameter &param, chowdsp::PluginState& listeners, SynthSection &parent)
+                    : slider(param.name), attachment(param, listeners, slider) {
                 slider.setComponentID(param.paramID);
                 setLookAndFeel(DefaultLookAndFeel::instance());
                 slider.setScrollWheelEnabled(false);
@@ -96,7 +96,7 @@ namespace electrosynth {
 
             JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SliderParameterComponent)
         };
-        std::unique_ptr<juce::Component> createParameterComp(chowdsp::ParameterListeners& listeners, juce::RangedAudioParameter &parameter, SynthSection& parent) {
+        std::unique_ptr<juce::Component> createParameterComp(chowdsp::PluginState& listeners, juce::RangedAudioParameter &parameter, SynthSection& parent) {
             if (auto *boolParam = dynamic_cast<chowdsp::BoolParameter *> (&parameter))
                 return std::make_unique<BooleanParameterComponent>(*boolParam, listeners,parent);
 
@@ -184,8 +184,28 @@ namespace electrosynth {
 
 //==============================================================================
     ParametersView::ParametersView(chowdsp::PluginState &pluginState, chowdsp::ParamHolder &params, String name)
-            : ParametersView (pluginState.getParameterListeners(), params, name) {
+            // : ParametersView (pluginState.getParameterListeners(), params, name) {:
+    :
+    SynthSection(name)
+    {
+        setComponentID(name);
+        setInterceptsMouseClicks(false,true);
+        //pimpl(std::make_unique<Pimpl>(params, paramListeners, *this)){
+        //        auto *viewport = pimpl->view.getViewport();
+        params.doForAllParameterContainers(
+                [this, &pluginState](auto &paramVec) {
+                    for (auto &param: paramVec)
+                    {
+                        comps.push_back(parameters_view_detail::createParameterComp(pluginState, param,*this));
 
+                    }
+                },
+                [this, &pluginState](auto &paramHolder) {
+                   // DBG("add group item");
+//                    addSubSection(std::make_unique<ParameterGroupItem>(paramHolder,listeners, *this).release());
+                });
+        setLookAndFeel(DefaultLookAndFeel::instance());
+        setOpaque(true);
     }
 
     ParametersView::ParametersView(chowdsp::ParameterListeners& paramListeners, chowdsp::ParamHolder& params, String name)
@@ -195,24 +215,24 @@ namespace electrosynth {
         setInterceptsMouseClicks(false,true);
               //pimpl(std::make_unique<Pimpl>(params, paramListeners, *this)){
 //        auto *viewport = pimpl->view.getViewport();
-        params.doForAllParameterContainers(
-                [this, &paramListeners](auto &paramVec) {
-                    for (auto &param: paramVec)
-                    {
-                        comps.push_back(parameters_view_detail::createParameterComp(paramListeners, param,*this));
-
-                    }
-                },
-                [this, &paramListeners](auto &paramHolder) {
-                   // DBG("add group item");
-//                    addSubSection(std::make_unique<ParameterGroupItem>(paramHolder,listeners, *this).release());
-                });
-        setLookAndFeel(DefaultLookAndFeel::instance());
-        setOpaque(true);
-//        addAndMakeVisible(pimpl->view);
-//        viewport->setScrollBarsShown (true, false);
-//        setSize(viewport->getViewedComponent()->getWidth() + viewport->getVerticalScrollBar().getWidth(),
-//                juce::jlimit(125, 700, viewport->getViewedComponent()->getHeight()));
+//         params.doForAllParameterContainers(
+//                 [this, &paramListeners](auto &paramVec) {
+//                     for (auto &param: paramVec)
+//                     {
+//                         comps.push_back(parameters_view_detail::createParameterComp(paramListeners, param,*this));
+//
+//                     }
+//                 },
+//                 [this, &paramListeners](auto &paramHolder) {
+//                    // DBG("add group item");
+// //                    addSubSection(std::make_unique<ParameterGroupItem>(paramHolder,listeners, *this).release());
+//                 });
+//         setLookAndFeel(DefaultLookAndFeel::instance());
+//         setOpaque(true);
+// //        addAndMakeVisible(pimpl->view);
+// //        viewport->setScrollBarsShown (true, false);
+// //        setSize(viewport->getViewedComponent()->getWidth() + viewport->getVerticalScrollBar().getWidth(),
+// //                juce::jlimit(125, 700, viewport->getViewedComponent()->getHeight()));
     }
 
     ParametersView::~ParametersView() = default;

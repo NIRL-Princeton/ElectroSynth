@@ -189,8 +189,8 @@ struct StringParams : public LEAFParams<_tStringModule>
 class StringModuleProcessor : public ProcessorStateBase<PluginStateImpl_<StringParams>>
 {
 public:
-    StringModuleProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree& _state, LEAF* leaf)
-        : ProcessorStateBase(engine,leaf,_state)
+    StringModuleProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree& _state, LEAF* leaf,juce::UndoManager* um)
+        : ProcessorStateBase(engine,leaf,_state,um)
     {
         state.setProperty(IDs::uuid, state_.params.processors[0].processorUniqueID, nullptr);
         name = state.getProperty(IDs::type).toString() + state.getProperty(IDs::uuid).toString();

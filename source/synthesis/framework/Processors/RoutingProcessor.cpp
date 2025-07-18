@@ -7,7 +7,7 @@
 #include "mapping.h"
 #include "sound_engine.h"
 
-RoutingProcessor::RoutingProcessor(electrosynth::SoundEngine *engine, const juce::ValueTree &v, LEAF *leaf) : ProcessorStateBase(engine,leaf,v){
+RoutingProcessor::RoutingProcessor(electrosynth::SoundEngine *engine, const juce::ValueTree &v, LEAF *leaf,juce::UndoManager * um) : ProcessorStateBase(engine,leaf,v,um){
 
         callbacks += {
                 state_.addParameterListener (*state_.params.routing, chowdsp::ParameterListenerThread::AudioThread,

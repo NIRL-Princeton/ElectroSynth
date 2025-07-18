@@ -41,7 +41,7 @@ class ProcessorStateBase : public ProcessorBase{
 public :
     ProcessorStateBase(electrosynth::SoundEngine* engine,LEAF* leaf, const juce::ValueTree& tree, juce::UndoManager* um = nullptr)
     : ProcessorBase(engine,leaf, tree, um),
-          state_(leaf)
+          state_(leaf,um)
     {
     state.setProperty(IDs::uuid, state_.params.processors[0].processorUniqueID, nullptr);
     name = state.getProperty(IDs::type).toString() + state.getProperty(IDs::uuid).toString();

@@ -80,7 +80,7 @@ struct FilterParams : public LEAFParams<_tFiltModule >
 class FilterModuleProcessor : public ProcessorStateBase<PluginStateImpl_<FilterParams>>
 {
 public:
-    FilterModuleProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree&, LEAF* leaf);
+    FilterModuleProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree&, LEAF* leaf,juce::UndoManager*);
 
 
     void getNextAudioBlock (const juce::AudioSourceChannelInfo &bufferToFill) override {}

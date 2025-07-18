@@ -14,15 +14,15 @@ template<typename T>
 ModuleList<T>::ModuleList(SynthBase *synth,const ValueTree& v) : tracktion::engine::ValueTreeObjectList<T>(v),synth_(synth),state(v){
     if constexpr (std::is_same_v<T, ProcessorBase>)
     {
-       factory.template registerType<OscillatorModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*>("osc");
-       factory.template registerType<FilterModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*>("filt");
-        factory.template registerType<StringModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*>("string");
+       factory.template registerType<OscillatorModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*, juce::UndoManager*>("osc");
+       factory.template registerType<FilterModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*,juce::UndoManager*>("filt");
+        factory.template registerType<StringModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*, juce::UndoManager*>("string");
     }
     else if constexpr (std::is_same_v<T, ModulatorBase>)
     {
 
-        factory.template registerType<EnvModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*>("env");
-        factory.template registerType<LFOModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*>("lfo");
+        factory.template registerType<EnvModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*,juce::UndoManager*>("env");
+        factory.template registerType<LFOModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*, juce::UndoManager*>("lfo");
     }
     tracktion::engine::ValueTreeObjectList<T>::rebuildObjects();
     for (auto obj: tracktion::engine::ValueTreeObjectList<T>::objects) {
@@ -53,7 +53,7 @@ void ModuleList<T>::objectRemoved(T* processor_base) {
 template<typename T>
 T* ModuleList<T>::createNewObject(const juce::ValueTree& v) {
     auto* leaf  = synth_->getLeaf();
-    std::any args = std::make_tuple(synth_->getEngine(),v,leaf);
+    std::any args = std::make_tuple(synth_->getEngine(),v,leaf,&synth_->um);
     try {
         auto proc = factory.create(v.getProperty(IDs::type).toString().toStdString(),args);
         T* rawPtr = proc.get();
@@ -123,7 +123,7 @@ ModuleList<T> *ChainList<T>::createNewObject(const juce::ValueTree &v) {
     ModuleList<T> *list;
     if constexpr (std::is_same_v<T, ProcessorBase>) {
         auto* leaf  = synth_->getLeaf();
-        auto proc = std::make_unique<RoutingProcessor>(synth_->getEngine(),v,leaf);
+        auto proc = std::make_unique<RoutingProcessor>(synth_->getEngine(),v,leaf,&synth_->um);
         auto * rawPtr = proc.get();
         auto task = [this, _proc = std::move(proc),index = v.getParent().indexOf(v)  ]() mutable {
             synth_->addChainRouting(std::move(_proc), index);
