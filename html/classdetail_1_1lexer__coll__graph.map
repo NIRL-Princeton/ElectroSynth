@@ -1,7 +1,0 @@
-<map id="detail::lexer&lt; BasicJsonType, InputAdapterType &gt;" name="detail::lexer&lt; BasicJsonType, InputAdapterType &gt;">
-<area shape="rect" id="Node000001" title="lexical analysis" alt="" coords="56,117,217,158"/>
-<area shape="rect" id="Node000002" href="$classdetail_1_1lexer__base.html" title=" " alt="" coords="5,5,129,46"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="90,57,127,116,122,119,85,60"/>
-<area shape="rect" id="Node000003" href="$structdetail_1_1position__t.html" title="struct to capture the start position of the current token" alt="" coords="153,13,259,38"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="201,40,160,105,155,102,196,37"/>
-</map>

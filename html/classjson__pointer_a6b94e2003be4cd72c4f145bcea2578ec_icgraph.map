@@ -1,5 +1,0 @@
-<map id="json_pointer::to_string" name="json_pointer::to_string">
-<area shape="rect" id="Node000001" title="return a string representation of the JSON pointer" alt="" coords="216,5,365,31"/>
-<area shape="rect" id="Node000002" href="$classjson__pointer.html#ad4140db2dd2f347f46f3abae0fc2156f" title="write string representation of the JSON pointer to stream" alt="" coords="5,5,168,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,21,168,21,168,16,200,16"/>
-</map>

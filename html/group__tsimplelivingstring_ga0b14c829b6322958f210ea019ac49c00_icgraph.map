@@ -1,5 +1,0 @@
-<map id="tSimpleLivingString_initToPool" name="tSimpleLivingString_initToPool">
-<area shape="rect" id="Node000001" title="Initialize a tSimpleLivingString to a specified mempool." alt="" coords="211,5,344,46"/>
-<area shape="rect" id="Node000002" href="$group__tsimplelivingstring.html#gade7ba2799861c753ad312e8d673e4562" title="Initialize a tSimpleLivingString to the default mempool of a LEAF instance." alt="" coords="5,13,163,38"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="195,28,163,28,163,23,195,23"/>
-</map>

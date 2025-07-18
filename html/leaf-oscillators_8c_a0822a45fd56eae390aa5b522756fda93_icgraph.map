@@ -1,7 +1,0 @@
-<map id="tPlutaQuadOsc_setFreq" name="tPlutaQuadOsc_setFreq">
-<area shape="rect" id="Node000001" title=" " alt="" coords="410,5,571,31"/>
-<area shape="rect" id="Node000002" href="$leaf-oscillators_8c.html#a13075bb17ddec90433dfd330fa9cb510" title=" " alt="" coords="188,5,362,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="394,21,363,21,363,16,394,16"/>
-<area shape="rect" id="Node000003" href="$leaf-oscillators_8c.html#ac760acf699c65478f3721899d67bc895" title=" " alt="" coords="5,5,140,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="172,21,140,21,140,16,172,16"/>
-</map>

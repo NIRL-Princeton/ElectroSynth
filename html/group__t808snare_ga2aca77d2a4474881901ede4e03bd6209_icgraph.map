@@ -1,5 +1,0 @@
-<map id="t808Snare_initToPool" name="t808Snare_initToPool">
-<area shape="rect" id="Node000001" title="Initialize a t808Snare to a specified mempool." alt="" coords="158,5,302,31"/>
-<area shape="rect" id="Node000002" href="$group__t808snare.html#gacd0d752096b9eb8c14b7bd5e7088f6df" title="Initialize a t808Snare to the default mempool of a LEAF instance." alt="" coords="5,5,110,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="142,21,110,21,110,16,142,16"/>
-</map>

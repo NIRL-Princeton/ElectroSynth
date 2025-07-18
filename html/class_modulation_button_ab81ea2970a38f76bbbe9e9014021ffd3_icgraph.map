@@ -1,7 +1,0 @@
-<map id="ModulationButton::getModulationAmountBounds" name="ModulationButton::getModulationAmountBounds">
-<area shape="rect" id="Node000001" title=" " alt="" coords="530,13,741,54"/>
-<area shape="rect" id="Node000002" href="$class_modulation_manager.html#a5ce85bdf6353b9b2e3bf203cf9c623be" title=" " alt="" coords="268,5,482,61"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="515,36,483,36,483,30,515,30"/>
-<area shape="rect" id="Node000003" href="$class_modulation_manager.html#a24380d87d57701f6be84d048530cb558" title=" " alt="" coords="5,13,220,54"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="252,36,220,36,220,30,252,30"/>
-</map>

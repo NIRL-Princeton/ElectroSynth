@@ -1,9 +1,0 @@
-<map id="tFormantShifter_remove" name="tFormantShifter_remove">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,167,56"/>
-<area shape="rect" id="Node000002" href="$leaf-dynamics_8c.html#a339feddee6b67224ed6c0673cc5c74bc" title=" " alt="" coords="215,5,367,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="167,31,199,27,200,32,168,36"/>
-<area shape="rect" id="Node000004" href="$leaf-filters_8c.html#acd5b781b5e1c4e54d69ce60fa1f30894" title=" " alt="" coords="237,55,345,80"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="168,50,222,57,221,62,167,56"/>
-<area shape="rect" id="Node000003" href="$leaf-analysis_8c.html#a37dff32c1a7cebbd5e02dab1788e4983" title=" " alt="" coords="415,5,554,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="367,16,400,16,400,21,367,21"/>
-</map>

@@ -1,8 +1,0 @@
-<map id="tDattorroReverb_setInputFilter" name="tDattorroReverb_setInputFilter">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,174,46"/>
-<area shape="rect" id="Node000002" href="$leaf-math_8h.html#ad4bddb22c798cb40b789a727a48b81fd" title=" " alt="" coords="396,13,477,38"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="174,23,381,23,381,28,174,28"/>
-<area shape="rect" id="Node000003" href="$leaf-filters_8c.html#a42ffca763f847990d7442a5409cfac97" title=" " alt="" coords="222,38,348,64"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="175,34,207,38,206,43,174,39"/>
-<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="348,38,380,32,381,38,349,43"/>
-</map>

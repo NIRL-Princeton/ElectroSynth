@@ -1,7 +1,0 @@
-<map id="SynthBase::getEngine" name="SynthBase::getEngine">
-<area shape="rect" id="Node000001" title=" " alt="" coords="227,31,378,56"/>
-<area shape="rect" id="Node000002" href="$class_main_section.html#a9f283cb147198ac15ca610d18d1080c9" title=" " alt="" coords="5,5,179,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="210,35,179,31,179,26,211,30"/>
-<area shape="rect" id="Node000003" href="$class_synth_base.html#a3f146c438b802a424a2ed2c2b6b1ae3b" title=" " alt="" coords="13,55,171,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="211,57,171,61,171,56,211,51"/>
-</map>

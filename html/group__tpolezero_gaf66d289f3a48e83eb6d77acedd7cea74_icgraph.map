@@ -1,9 +1,0 @@
-<map id="tPoleZero_free" name="tPoleZero_free">
-<area shape="rect" id="Node000001" title="Free a tPoleZero from its mempool." alt="" coords="300,31,406,56"/>
-<area shape="rect" id="Node000002" href="$leaf_2test_2filters__test_8cpp.html#a7bbe3ffd1131efef414d1ea48fff8728" title=" " alt="" coords="153,5,252,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="284,35,252,29,253,24,285,29"/>
-<area shape="rect" id="Node000003" href="$group__tneuron.html#ga8e7767ba34797b6e41cd47fee21a674b" title="Free a tNeuron from its mempool." alt="" coords="154,55,250,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="285,57,251,62,251,57,284,52"/>
-<area shape="rect" id="Node000004" href="$leaf_2test_2oscillators__test_8cpp.html#ad5ec31a075ec49f83eb3060a8c90a5ac" title=" " alt="" coords="5,55,105,80"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="138,70,105,70,105,65,138,65"/>
-</map>

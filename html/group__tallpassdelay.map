@@ -1,4 +1,0 @@
-<map id="tAllpassDelay" name="tAllpassDelay">
-<area shape="rect" id="Node000002" href="$group__delay.html" title="Delays." alt="" coords="5,5,61,31"/>
-<area shape="rect" id="Node000001" title="Allpass&#45;interpolating delay, reimplemented from STK (Cook and Scavone)." alt="" coords="109,5,211,31"/>
-</map>

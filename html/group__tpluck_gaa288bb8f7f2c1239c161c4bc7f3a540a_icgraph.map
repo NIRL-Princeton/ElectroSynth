@@ -1,5 +1,0 @@
-<map id="tPluck_initToPool" name="tPluck_initToPool">
-<area shape="rect" id="Node000001" title="Initialize a tPluck to a specified mempool." alt="" coords="136,5,258,31"/>
-<area shape="rect" id="Node000002" href="$group__tpluck.html#gad9664a14431ab3f72e17d48bcc65b7ed" title="Initialize a tPluck to the default mempool of a LEAF instance." alt="" coords="5,5,88,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="120,21,88,21,88,16,120,16"/>
-</map>

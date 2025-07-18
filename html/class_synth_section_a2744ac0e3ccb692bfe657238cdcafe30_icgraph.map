@@ -1,9 +1,0 @@
-<map id="SynthSection::paintOpenGlChildrenBackgrounds" name="SynthSection::paintOpenGlChildrenBackgrounds">
-<area shape="rect" id="Node000001" title=" " alt="" coords="436,23,615,64"/>
-<area shape="rect" id="Node000002" href="$class_overlay.html#a1c2f17db1cd8e0a9c867a92012f25e01" title=" " alt="" coords="217,5,388,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="420,34,388,31,389,25,421,29"/>
-<area shape="rect" id="Node000003" href="$class_about_section.html#a717231b31a30362ec758a78c2fb1ad13" title=" " alt="" coords="220,55,384,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="421,57,385,61,385,56,420,52"/>
-<area shape="rect" id="Node000004" href="$class_about_section.html#a815e4994735cd1622330e0bcb518524b" title=" " alt="" coords="5,55,169,80"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="205,70,169,70,169,65,205,65"/>
-</map>

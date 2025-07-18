@@ -13,8 +13,9 @@ RoutingProcessor::RoutingProcessor(electrosynth::SoundEngine *engine, const juce
                 state_.addParameterListener (*state_.params.routing, chowdsp::ParameterListenerThread::AudioThread,
                     [this] {
                     auto routing = state_.params.routing.get();
-                    float lane =  (float)routing->getIndex() / (float)4; //numroutings
+                    float lane =  routing->getIndex(); /// (float)4; //numroutings
                     curr_lane = lane;
+                        audio_out = &this->engine->temp_fx_buffers[curr_lane];
                     // for (auto mod: state_.params.modules) {
                     //     mod->setterFunctions[OscParams::OscType](mod,val);
                     //     mod->setterFunctions[OscParams::OscShapeParam](mod->theOsc, *mod->params[OscShapeParam]);
@@ -25,6 +26,7 @@ RoutingProcessor::RoutingProcessor(electrosynth::SoundEngine *engine, const juce
 
                 })
             };
+    audio_out = &this->engine->temp_fx_buffers[0];
         state.setProperty(IDs::uuid, state_.params.processors[0].processorUniqueID, nullptr);
         name = state.getProperty(IDs::type).toString() + state.getProperty(IDs::uuid).toString();
         procArray = &state_.params.processors[0];
@@ -37,19 +39,25 @@ std::unique_ptr<SynthSection> RoutingProcessor::createEditor() {
 
 }
 
-void RoutingProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuffer &) {
+void RoutingProcessor::processBlock(juce::AudioBuffer<float> & buffer, juce::MidiBuffer &) {
+    state_.getParameterListeners().callAudioThreadBroadcasters();
+
     int numSamples = buffer.getNumSamples();
     //buffer.clear();
 
     //    auto* samplesL = buffer.getReadPointer(0);
+
     for (int v = 0; v < engine->voiceHandler.numVoicesActive; v++) {
-        auto* L = buffer.getWritePointer(v*2);
-        auto* R = buffer.getWritePointer(v * 2 + 1);
+        auto* inL = buffer.getWritePointer(v*2);
+        auto* inR = buffer.getWritePointer(v * 2 + 1);
+
+        auto* outL = audio_out->getWritePointer(v*2);
+        auto* outR = audio_out->getWritePointer(v * 2 + 1);
         for (int i = 0; i < numSamples; i++)
         {
-            procArray[v].tick(procArray[v].object,L);
-            L[i] += procArray[v].outParameters[0];
-            R[i] = L[i];
+            procArray[v].tick(procArray[v].object,inL);
+            outL[i] += procArray[v].outParameters[0];
+            outR[i] = outL[i];
         }
     }
 }

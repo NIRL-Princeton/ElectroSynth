@@ -1,7 +1,0 @@
-<map id="lambertW" name="lambertW">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,83,31"/>
-<area shape="rect" id="Node000002" href="$leaf-electrical_8c.html#a507e12c4aac6c3fe38231a1cc8bd388f" title=" " alt="" coords="131,5,312,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="83,16,115,16,115,21,83,21"/>
-<area shape="rect" id="Node000003" href="$leaf-electrical_8c.html#a8a32245604430663363fd192b7dd2c1a" title=" " alt="" coords="360,5,465,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="313,16,344,16,344,21,313,21"/>
-</map>

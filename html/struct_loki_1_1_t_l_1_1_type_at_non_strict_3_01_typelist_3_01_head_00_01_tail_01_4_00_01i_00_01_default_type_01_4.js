@@ -1,4 +1,0 @@
-var struct_loki_1_1_t_l_1_1_type_at_non_strict_3_01_typelist_3_01_head_00_01_tail_01_4_00_01i_00_01_default_type_01_4 =
-[
-    [ "Result", "struct_loki_1_1_t_l_1_1_type_at_non_strict_3_01_typelist_3_01_head_00_01_tail_01_4_00_01i_00_01_default_type_01_4.html#a2a54652b3daa12a16fd1e7d5efd37c04", null ]
-];

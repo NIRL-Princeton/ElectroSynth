@@ -1,8 +1,0 @@
-<map id="tSawSquareLFO_setPhase" name="tSawSquareLFO_setPhase">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,185,31"/>
-<area shape="rect" id="Node000002" href="$leaf-oscillators_8c.html#a80e2306206d391b784c0cb28a1739cf3" title=" " alt="" coords="434,5,577,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="185,16,419,16,419,21,185,21"/>
-<area shape="rect" id="Node000003" href="$leaf-oscillators_8c.html#a26186267e124b501dbed599ad300c2e2" title=" " alt="" coords="233,31,386,56"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="185,26,218,30,217,35,185,31"/>
-<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="386,31,418,27,419,32,387,36"/>
-</map>

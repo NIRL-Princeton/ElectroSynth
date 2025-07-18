@@ -1,7 +1,0 @@
-<map id="SynthBase::processMidi" name="SynthBase::processMidi">
-<area shape="rect" id="Node000001" title=" " alt="" coords="230,46,393,72"/>
-<area shape="rect" id="Node000002" href="$class_synth_editor.html#a74b80cc17da6ec580d93442db02686ac" title=" " alt="" coords="5,5,182,46"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="214,47,182,42,183,37,215,42"/>
-<area shape="rect" id="Node000003" href="$class_plugin_processor.html#a3e68455546250567a9888382c296d5eb" title=" " alt="" coords="8,71,179,111"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="215,76,180,81,179,76,214,71"/>
-</map>

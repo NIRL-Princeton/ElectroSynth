@@ -1,9 +1,0 @@
-<map id="Loki::AssocVector&lt; K, V, C, A &gt;" name="Loki::AssocVector&lt; K, V, C, A &gt;">
-<area shape="rect" id="Node000001" title=" " alt="" coords="104,183,229,223"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="5,79,149,135"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="115,143,151,181,147,185,111,147"/>
-<area shape="rect" id="Node000003" href="$class_loki_1_1_private_1_1_assoc_vector_compare.html" title=" " alt="" coords="172,86,339,127"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="229,140,186,185,183,181,225,136"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="246,5,266,31"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="258,46,258,87,253,87,253,46"/>
-</map>

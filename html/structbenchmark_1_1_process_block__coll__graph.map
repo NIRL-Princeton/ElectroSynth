@@ -1,6 +1,0 @@
-<map id="benchmark::ProcessBlock" name="benchmark::ProcessBlock">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,79,169,105"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="65,5,109,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="81,45,83,79,78,79,76,46"/>
-<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="99,46,97,79,91,79,93,45"/>
-</map>

@@ -1,5 +1,0 @@
-<map id="tPRCReverb_initToPool" name="tPRCReverb_initToPool">
-<area shape="rect" id="Node000001" title="Initialize a tPRCReverb to a specified mempool." alt="" coords="174,5,334,31"/>
-<area shape="rect" id="Node000002" href="$group__tprcreverb.html#ga01e3732fab4359c125516e8ac5e28c16" title="Initialize a tPRCReverb to the default mempool of a LEAF instance." alt="" coords="5,5,126,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="158,21,126,21,126,16,158,16"/>
-</map>

@@ -1,5 +1,0 @@
-<map id="tMedianFilter_initToPool" name="tMedianFilter_initToPool">
-<area shape="rect" id="Node000001" title="Initialize a tMedianFilter to a specified mempool." alt="" coords="174,5,334,31"/>
-<area shape="rect" id="Node000002" href="$group__tmedianfilter.html#ga681edc6f80e60403e48d6228010242c7" title="Initialize a tMedianFilter to the default mempool of a LEAF instance." alt="" coords="5,5,126,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="158,21,126,21,126,16,158,16"/>
-</map>

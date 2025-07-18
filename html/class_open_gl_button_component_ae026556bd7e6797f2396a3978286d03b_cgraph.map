@@ -1,7 +1,0 @@
-<map id="OpenGlButtonComponent::renderLightenButton" name="OpenGlButtonComponent::renderLightenButton">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,27,176,68"/>
-<area shape="rect" id="Node000002" href="$class_open_gl_component.html#aabfea74619ee336cb31ea174c56d2c67" title=" " alt="" coords="224,5,417,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="175,34,208,30,209,35,176,39"/>
-<area shape="rect" id="Node000003" href="$class_open_gl_button_component.html#af1c3f9accb2ded76403a2e6a5c4cdff1" title=" " alt="" coords="235,55,406,96"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="176,55,220,61,219,66,175,60"/>
-</map>

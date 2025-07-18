@@ -1,7 +1,0 @@
-<map id="tNeuron_initToPool" name="tNeuron_initToPool">
-<area shape="rect" id="Node000001" title="Initialize a tNeuron to a specified mempool." alt="" coords="292,5,423,31"/>
-<area shape="rect" id="Node000002" href="$group__tneuron.html#gaaf7fb0a50cde5d02085bae982f355d98" title="Initialize a tNeuron to the default mempool of a LEAF instance." alt="" coords="153,5,244,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="277,21,245,21,245,16,277,16"/>
-<area shape="rect" id="Node000003" href="$leaf_2test_2oscillators__test_8cpp.html#ad5ec31a075ec49f83eb3060a8c90a5ac" title=" " alt="" coords="5,5,105,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="137,21,105,21,105,16,137,16"/>
-</map>

@@ -1,7 +1,0 @@
-<map id="PopupList::PopupList" name="PopupList::PopupList">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,151,56"/>
-<area shape="rect" id="Node000002" href="$class_synth_section.html#a106e35d5a7f591a72016b2a595d33e43" title=" " alt="" coords="199,5,438,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="151,33,183,30,184,35,152,38"/>
-<area shape="rect" id="Node000003" href="$class_synth_section.html#aacbd2a0f89359676471964d630ca9c21" title=" " alt="" coords="226,55,411,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="152,48,210,54,210,59,151,53"/>
-</map>

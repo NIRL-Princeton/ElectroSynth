@@ -1,9 +1,0 @@
-<map id="detail::output_adapter_protocol&lt; CharType &gt;" name="detail::output_adapter_protocol&lt; CharType &gt;">
-<area shape="rect" id="Node000001" title="abstract output adapter interface" alt="" coords="204,5,348,46"/>
-<area shape="rect" id="Node000002" href="$classdetail_1_1output__stream__adapter.html" title="output adapter for output streams" alt="" coords="5,102,146,142"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="223,55,117,104,115,99,220,50"/>
-<area shape="rect" id="Node000003" href="$classdetail_1_1output__string__adapter.html" title="output adapter for basic_string" alt="" coords="170,102,381,142"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="278,61,278,102,273,102,273,61"/>
-<area shape="rect" id="Node000004" href="$classdetail_1_1output__vector__adapter.html" title="output adapter for byte vectors" alt="" coords="405,94,592,150"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="336,49,437,92,435,97,333,54"/>
-</map>

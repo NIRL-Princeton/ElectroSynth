@@ -1,7 +1,0 @@
-<map id="tSquareLFO_setSampleRate" name="tSquareLFO_setSampleRate">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,194,31"/>
-<area shape="rect" id="Node000002" href="$leaf-oscillators_8c.html#a2ad604aa6022f7329472a367ed9da558" title=" " alt="" coords="242,5,420,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="194,16,226,16,226,21,194,21"/>
-<area shape="rect" id="Node000003" href="$leaf-oscillators_8c.html#a2f576bfd2d270b6c28362c004b63f9a5" title=" " alt="" coords="468,5,600,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="420,16,453,16,453,21,420,21"/>
-</map>

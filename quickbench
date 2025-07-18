@@ -1,0 +1,97 @@
+#include <array>
+#include <memory>
+#include <benchmark/benchmark.h>
+
+constexpr size_t numFuncs = 10;
+
+// --- Trivial functions ---
+template <int N>
+int func() { return N; }
+
+template <size_t... Is>
+constexpr auto make_func_ptr_array(std::index_sequence<Is...>) {
+    return std::array<int(*)(), sizeof...(Is)>{ &func<Is>... };
+}
+constexpr auto funcptrs = make_func_ptr_array(std::make_index_sequence<numFuncs>{});
+
+// --- Switch dispatch ---
+int switchdispatch(int i) {
+    switch (i) {
+        case 0: return func<0>();
+        case 1: return func<1>();
+        case 2: return func<2>();
+        case 3: return func<3>();
+        case 4: return func<4>();
+        case 5: return func<5>();
+        case 6: return func<6>();
+        case 7: return func<7>();
+        case 8: return func<8>();
+        case 9: return func<9>();
+        default: return -1;
+    }
+}
+
+// --- Virtual dispatch ---
+struct Base {
+    virtual int call() const = 0;
+    virtual ~Base() = default;
+};
+
+template <int N>
+struct Derived : Base {
+    int call() const override { return N; }
+};
+
+auto make_virtual_objects() {
+    std::array<std::unique_ptr<Base>, numFuncs> arr{};
+    for (size_t i = 0; i < numFuncs; ++i) {
+        switch (i) {
+            case 0: arr[i] = std::make_unique<Derived<0>>(); break;
+            case 1: arr[i] = std::make_unique<Derived<1>>(); break;
+            case 2: arr[i] = std::make_unique<Derived<2>>(); break;
+            case 3: arr[i] = std::make_unique<Derived<3>>(); break;
+            case 4: arr[i] = std::make_unique<Derived<4>>(); break;
+            case 5: arr[i] = std::make_unique<Derived<5>>(); break;
+            case 6: arr[i] = std::make_unique<Derived<6>>(); break;
+            case 7: arr[i] = std::make_unique<Derived<7>>(); break;
+            case 8: arr[i] = std::make_unique<Derived<8>>(); break;
+            case 9: arr[i] = std::make_unique<Derived<9>>(); break;
+        }
+    }
+    return arr;
+}
+
+// ----------------- BENCHMARKS -------------------
+
+static void BM_FuncPtr(benchmark::State& state) {
+    int dummy = 0;
+    for (auto _ : state) {
+        for (int i = 0; i < 1000; ++i)
+            dummy += funcptrs[i % numFuncs]();
+    }
+    benchmark::DoNotOptimize(dummy);
+}
+
+static void BM_Switch(benchmark::State& state) {
+    int dummy = 0;
+    for (auto _ : state) {
+        for (int i = 0; i < 1000; ++i)
+            dummy += switchdispatch(i % numFuncs);
+    }
+    benchmark::DoNotOptimize(dummy);
+}
+ auto vtable = make_virtual_objects();
+static void BM_Virtual(benchmark::State& state) {
+
+    int dummy = 0;
+    for (auto _ : state) {
+        for (int i = 0; i < 1000; ++i)
+            dummy += vtable[i % numFuncs]->call();
+    }
+    benchmark::DoNotOptimize(dummy);
+}
+
+// Register benchmarks
+BENCHMARK(BM_FuncPtr);
+BENCHMARK(BM_Switch);
+BENCHMARK(BM_Virtual);

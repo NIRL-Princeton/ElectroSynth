@@ -1,9 +1,0 @@
-<map id="tSimpleLivingString5_pluck" name="tSimpleLivingString5_pluck">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,47,146,88"/>
-<area shape="rect" id="Node000002" href="$leaf-math_8h.html#ad4bddb22c798cb40b789a727a48b81fd" title=" " alt="" coords="230,5,312,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="145,47,215,29,216,35,147,52"/>
-<area shape="rect" id="Node000003" href="$leaf-envelopes_8c.html#a466b28cf3b04814007f041b2fe6e58f5" title=" " alt="" coords="198,55,344,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="146,65,182,65,182,70,146,70"/>
-<area shape="rect" id="Node000004" href="$leaf-delay_8c.html#a03108991f7eb430dc95a57396fa1a382" title=" " alt="" coords="194,104,348,130"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="147,83,204,97,202,102,145,88"/>
-</map>

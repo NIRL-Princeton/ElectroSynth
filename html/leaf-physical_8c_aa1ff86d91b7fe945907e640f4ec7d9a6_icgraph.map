@@ -1,9 +1,0 @@
-<map id="tStiffString_updateOscillators" name="tStiffString_updateOscillators">
-<area shape="rect" id="Node000001" title=" " alt="" coords="253,55,444,80"/>
-<area shape="rect" id="Node000002" href="$leaf-physical_8c.html#a53d61e3efd55795ba7181c6c922ccf99" title=" " alt="" coords="32,5,178,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="266,54,171,34,173,29,267,48"/>
-<area shape="rect" id="Node000003" href="$leaf-physical_8c.html#a7697d945ee4d5c5c4856b392c1687fa3" title=" " alt="" coords="5,55,205,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="237,70,205,70,205,65,237,65"/>
-<area shape="rect" id="Node000004" href="$leaf-physical_8c.html#a49354f1d593a3d36daa353087902631d" title=" " alt="" coords="38,104,172,130"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="267,87,173,106,171,101,266,81"/>
-</map>

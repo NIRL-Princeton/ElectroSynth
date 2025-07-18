@@ -1,9 +1,0 @@
-<map id="basic_json&lt; ObjectType, ArrayType, StringType, BooleanType, NumberIntegerType, NumberUnsignedType, NumberFloatType, AllocatorType, JSONSerializer, BinaryType, CustomBaseClass &gt;" name="basic_json&lt; ObjectType, ArrayType, StringType, BooleanType, NumberIntegerType, NumberUnsignedType, NumberFloatType, AllocatorType, JSONSerializer, BinaryType, CustomBaseClass &gt;">
-<area shape="rect" id="Node000001" title="namespace for Niels Lohmann" alt="" coords="5,287,272,388"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="64,5,202,46"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="137,61,140,288,135,288,131,61"/>
-<area shape="rect" id="Node000003" href="$classbasic__json.html" title="namespace for Niels Lohmann" alt="" coords="155,95,421,196"/>
-<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="172,53,225,93,222,98,169,57"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="252,197,190,276,185,273,247,194"/>
-<area shape="poly" id="edge4_Node000003_Node000003" title=" " alt="" coords="422,131,440,136,448,146,440,155,436,151,443,146,437,141,420,136"/>
-</map>

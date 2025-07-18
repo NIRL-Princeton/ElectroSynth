@@ -1,9 +1,0 @@
-<map id="tRampUpDown_free" name="tRampUpDown_free">
-<area shape="rect" id="Node000001" title="Free a tRampUpDown from its mempool." alt="" coords="5,31,146,56"/>
-<area shape="rect" id="Node000002" href="$leaf-mempool_8c.html#ab22403c96346dcc0a1c2437a00e616fc" title=" " alt="" coords="194,31,279,56"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="146,41,178,41,178,46,146,46"/>
-<area shape="rect" id="Node000003" href="$leaf-mempool_8c.html#a1cac56e9fbf416e1410563bfb49290b4" title=" " alt="" coords="373,5,463,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="279,35,357,24,358,29,280,40"/>
-<area shape="rect" id="Node000004" href="$leaf_8c.html#a389f39fbcc732ce345106b995b3a434d" title=" " alt="" coords="327,55,509,80"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="280,46,312,51,311,56,279,52"/>
-</map>

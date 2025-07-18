@@ -1,9 +1,0 @@
-<map id="electrosynth::CircularQueue::removeAt" name="electrosynth::CircularQueue::removeAt">
-<area shape="rect" id="Node000001" title=" " alt="" coords="237,71,420,111"/>
-<area shape="rect" id="Node000002" href="$classelectrosynth_1_1_circular_queue.html#a23027a587409ceccd1a049094acd27e0" title=" " alt="" coords="5,5,189,46"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="239,69,171,49,173,44,240,63"/>
-<area shape="rect" id="Node000003" href="$classelectrosynth_1_1_circular_queue.html#ad10f3f0ee09decc7b4a388b9f9aaf897" title=" " alt="" coords="5,71,189,111"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="221,94,189,94,189,88,221,88"/>
-<area shape="rect" id="Node000004" href="$classelectrosynth_1_1_circular_queue.html#a295a20e811cdb6fd9cb791597a49c431" title=" " alt="" coords="5,136,189,177"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="240,119,173,138,171,133,239,113"/>
-</map>

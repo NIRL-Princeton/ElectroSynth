@@ -1,7 +1,0 @@
-<map id="Skin::setComponentColors" name="Skin::setComponentColors">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,184,31"/>
-<area shape="rect" id="Node000002" href="$class_skin.html#a6604addefe3496634f4ed20756a0b97c" title=" " alt="" coords="232,5,410,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="184,16,216,16,216,21,184,21"/>
-<area shape="rect" id="Node000003" href="$class_skin.html#a31e3f1f281fead4256c5b093d51f8ec9" title=" " alt="" coords="458,5,562,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="411,16,443,16,443,21,411,21"/>
-</map>

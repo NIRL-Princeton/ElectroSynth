@@ -1,9 +1,0 @@
-<map id="SynthSection::paintTabShadow" name="SynthSection::paintTabShadow">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,35,209,60"/>
-<area shape="rect" id="Node000002" href="$class_synth_section.html#aa01a2cf1cb512707d217490aa89a8b2f" title=" " alt="" coords="273,5,433,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="209,33,257,27,257,32,209,38"/>
-<area shape="rect" id="Node000004" href="$class_synth_section.html#a419d77d2995e49ddbf684d4b67921161" title=" " alt="" coords="257,55,449,96"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="209,56,242,60,241,65,209,62"/>
-<area shape="rect" id="Node000003" href="$class_skin.html#a9ce18118f19d0503a1581ec8521b7c9b" title=" " alt="" coords="497,5,655,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="433,16,481,16,481,21,433,21"/>
-</map>

@@ -1,8 +1,0 @@
-<map id="detail::is_constructible_object_type_impl&lt; BasicJsonType, ConstructibleObjectType, enable_if_t&lt; is_detected&lt; mapped_type_t, ConstructibleObjectType &gt;::value &amp;&amp;is_detected&lt; key_type_t, ConstructibleObjectType &gt;::value &gt; &gt;" name="detail::is_constructible_object_type_impl&lt; BasicJsonType, ConstructibleObjectType, enable_if_t&lt; is_detected&lt; mapped_type_t, ConstructibleObjectType &gt;::value &amp;&amp;is_detected&lt; key_type_t, ConstructibleObjectType &gt;::value &gt; &gt;">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,329,304,445"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="101,5,198,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="152,46,157,329,151,329,147,46"/>
-<area shape="rect" id="Node000003" href="$structdetail_1_1is__constructible__object__type__impl.html" title=" " alt="" coords="171,80,405,136"/>
-<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="182,37,247,78,245,83,179,41"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="271,151,184,330,179,328,266,148"/>
-</map>

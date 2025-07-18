@@ -1,9 +1,0 @@
-<map id="source/common/circular_queue.h" name="source/common/circular_queue.h">
-<area shape="rect" id="Node000001" title=" " alt="" coords="64,5,224,46"/>
-<area shape="rect" id="Node000002" href="$common_8h.html" title=" " alt="" coords="5,94,88,120"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="121,48,75,86,72,82,118,44"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="112,94,176,120"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="146,46,146,78,141,78,141,46"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="200,94,269,120"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="168,44,211,82,207,86,164,48"/>
-</map>

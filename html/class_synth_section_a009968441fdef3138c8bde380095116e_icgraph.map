@@ -1,7 +1,0 @@
-<map id="SynthSection::getDividedAreaBuffered" name="SynthSection::getDividedAreaBuffered">
-<area shape="rect" id="Node000001" title=" " alt="" coords="246,39,415,79"/>
-<area shape="rect" id="Node000002" href="$class_master_voice_envelope_section.html#a01d4d8af6043485040395fdd05671704" title=" " alt="" coords="5,5,198,46"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="230,47,198,42,199,37,231,42"/>
-<area shape="rect" id="Node000003" href="$class_modulation_section.html#a53313bb138001d8892ca395e84dc0289" title=" " alt="" coords="33,71,170,111"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="231,76,171,84,170,79,230,70"/>
-</map>

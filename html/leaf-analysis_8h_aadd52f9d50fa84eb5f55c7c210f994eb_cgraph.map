@@ -1,9 +1,0 @@
-<map id="tPitchDetector_setHysteresis" name="tPitchDetector_setHysteresis">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,13,199,38"/>
-<area shape="rect" id="Node000002" href="$leaf-analysis_8c.html#a5e6a3237bff5de64ba6580d49d00206b" title=" " alt="" coords="247,13,447,38"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="199,23,231,23,231,28,199,28"/>
-<area shape="rect" id="Node000003" href="$leaf-analysis_8c.html#a1c99966781bd44a8f3f6343a9a9ddaa4" title=" " alt="" coords="495,5,650,46"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="447,23,479,23,479,28,447,28"/>
-<area shape="rect" id="Node000004" href="$leaf-math_8h.html#a7708eaca709c177cb121ef574d8963c3" title=" " alt="" coords="698,13,752,38"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="651,23,683,23,683,28,651,28"/>
-</map>

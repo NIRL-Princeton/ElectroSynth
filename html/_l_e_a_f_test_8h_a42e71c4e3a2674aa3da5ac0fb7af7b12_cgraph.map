@@ -1,7 +1,0 @@
-<map id="LEAFTest_block" name="LEAFTest_block">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,123,56"/>
-<area shape="rect" id="Node000002" href="$_l_e_a_f_link_8cpp.html#af1bca0eef84617d4a544168227b540d1" title=" " alt="" coords="180,5,284,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="123,32,164,26,165,31,124,37"/>
-<area shape="rect" id="Node000003" href="$leaf-oscillators_8c.html#ab21144b34f133dd620ee1c4f3bdde4ef" title=" " alt="" coords="171,55,293,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="123,49,156,54,155,59,123,55"/>
-</map>

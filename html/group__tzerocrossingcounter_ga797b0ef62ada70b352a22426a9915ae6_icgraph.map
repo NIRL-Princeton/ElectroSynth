@@ -1,5 +1,0 @@
-<map id="tZeroCrossingCounter_initToPool" name="tZeroCrossingCounter_initToPool">
-<area shape="rect" id="Node000001" title="Initialize a tZeroCrossingCounter to a specified mempool." alt="" coords="227,5,376,46"/>
-<area shape="rect" id="Node000002" href="$group__tzerocrossingcounter.html#ga8fed3441e5ac46750e3f7641d8b5d80b" title="Initialize a tZeroCrossingCounter to the default mempool of a LEAF instance." alt="" coords="5,13,179,38"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="211,28,179,28,179,23,211,23"/>
-</map>

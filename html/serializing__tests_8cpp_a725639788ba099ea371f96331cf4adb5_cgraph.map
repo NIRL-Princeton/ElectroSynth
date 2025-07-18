@@ -1,7 +1,0 @@
-<map id="TEST_CASE" name="TEST_CASE">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,105,56"/>
-<area shape="rect" id="Node000002" href="$mapping_8cpp.html#ada2cd81ab6f83d680c6419ec79b943eb" title=" " alt="" coords="153,5,284,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="105,33,137,28,138,33,105,38"/>
-<area shape="rect" id="Node000003" href="$mapping_8cpp.html#ab667a38f2e53247f232b0538d0ef6e91" title=" " alt="" coords="153,55,284,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="105,48,138,53,137,58,105,53"/>
-</map>

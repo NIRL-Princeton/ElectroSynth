@@ -1,9 +1,0 @@
-<map id="Factory&lt; Base &gt;" name="Factory&lt; Base &gt;">
-<area shape="rect" id="Node000001" title=" " alt="" coords="226,5,334,31"/>
-<area shape="rect" id="Node000002" href="$class_factory.html" title=" " alt="" coords="5,102,173,128"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="212,35,183,45,155,57,124,80,100,104,97,100,120,76,152,53,181,40,211,30"/>
-<area shape="rect" id="Node000003" href="$class_factory.html" title=" " alt="" coords="197,102,363,128"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="282,46,282,102,277,102,277,46"/>
-<area shape="rect" id="Node000004" href="$class_factory.html" title=" " alt="" coords="387,102,474,128"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="350,27,377,37,403,53,421,77,430,101,425,103,416,80,399,57,375,42,348,32"/>
-</map>

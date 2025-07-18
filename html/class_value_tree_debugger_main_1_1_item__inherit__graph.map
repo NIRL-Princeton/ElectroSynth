@@ -1,7 +1,0 @@
-<map id="ValueTreeDebuggerMain::Item" name="ValueTreeDebuggerMain::Item">
-<area shape="rect" id="Node000001" title=" " alt="" coords="72,79,225,120"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="5,5,129,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="92,39,131,78,127,81,88,43"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="152,5,307,31"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="209,43,170,81,166,78,205,39"/>
-</map>

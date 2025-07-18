@@ -1,7 +1,0 @@
-<map id="tSimpleLivingString3_setPickupPoint" name="tSimpleLivingString3_setPickupPoint">
-<area shape="rect" id="Node000001" title=" " alt="" coords="481,5,621,46"/>
-<area shape="rect" id="Node000002" href="$_string_module_8cpp.html#a8f3d21f1e2e314c3cfb87f0ffeaf88ae" title=" " alt="" coords="237,13,433,38"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="465,28,434,28,434,23,465,23"/>
-<area shape="rect" id="Node000003" href="$_string_module_8cpp.html#a0e31a4ec3f3c7247f4754048082753f5" title=" " alt="" coords="5,13,189,38"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="221,28,189,28,189,23,221,23"/>
-</map>

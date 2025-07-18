@@ -1,9 +1,0 @@
-<map id="electrosynth::parameters_view_detail::BooleanParameterComponent" name="electrosynth::parameters_view_detail::BooleanParameterComponent">
-<area shape="rect" id="Node000001" title=" " alt="" coords="8,177,206,233"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="5,80,115,106"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="73,119,98,176,93,178,69,121"/>
-<area shape="rect" id="Node000003" href="$class_open_gl_toggle_button.html" title=" " alt="" coords="139,80,270,106"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="196,108,143,167,139,163,192,104"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="161,5,248,31"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="207,46,207,80,202,80,202,46"/>
-</map>

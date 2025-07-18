@@ -1,9 +1,0 @@
-<map id="SynthSection::getLabelBackgroundBounds" name="SynthSection::getLabelBackgroundBounds">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,231,46"/>
-<area shape="rect" id="Node000002" href="$class_synth_section.html#a988ae340fb5be83419a90fb6ab3e2c07" title=" " alt="" coords="279,5,504,46"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="231,23,263,23,263,28,231,28"/>
-<area shape="rect" id="Node000003" href="$class_synth_section.html#aa01a2cf1cb512707d217490aa89a8b2f" title=" " alt="" coords="552,13,712,38"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="504,23,536,23,536,28,504,28"/>
-<area shape="rect" id="Node000004" href="$class_skin.html#a9ce18118f19d0503a1581ec8521b7c9b" title=" " alt="" coords="760,13,919,38"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="713,23,745,23,745,28,713,28"/>
-</map>

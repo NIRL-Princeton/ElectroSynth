@@ -9,7 +9,7 @@
 #include "open_gl_image_component.h"
 #include "default_look_and_feel.h"
 
-class OpenGLComboBox : public OpenGlAutoImageComponent<juce::ComboBox>{
+class OpenGLComboBox : public OpenGlAutoImageComponent<juce::ComboBox>, juce::ComboBox::Listener{
 
 public:
     OpenGLComboBox() : OpenGlAutoImageComponent<juce::ComboBox> ("Combo box")
@@ -17,12 +17,17 @@ public:
         image_component_ = std::make_shared<OpenGlImageComponent> ();
         setLookAndFeel(DefaultLookAndFeel::instance());
         image_component_->setComponent(this);
+        addListener(this);
     }
     virtual void resized() override
     {
         OpenGlAutoImageComponent<juce::ComboBox>::resized();
         redoImage();
     }
+    void comboBoxChanged(ComboBox *comboBoxThatHasChanged) override
+{
+    redoImage();
+}
 };
 
 

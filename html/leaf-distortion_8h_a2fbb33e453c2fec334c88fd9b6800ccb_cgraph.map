@@ -1,7 +1,0 @@
-<map id="tOversampler_tick" name="tOversampler_tick">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,133,56"/>
-<area shape="rect" id="Node000002" href="$leaf-distortion_8c.html#adc2fd76b4ba489ea3ff857394e742e7f" title=" " alt="" coords="181,5,360,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="133,33,165,29,166,34,134,38"/>
-<area shape="rect" id="Node000003" href="$leaf-distortion_8c.html#a9518ce4c482b2a080f12bf4afa2f02f0" title=" " alt="" coords="189,55,352,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="134,48,174,53,174,59,133,54"/>
-</map>

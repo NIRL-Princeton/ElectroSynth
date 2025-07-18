@@ -1,7 +1,0 @@
-<map id="Skin::saveToFile" name="Skin::saveToFile">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,124,31"/>
-<area shape="rect" id="Node000002" href="$class_skin.html#aadab9155bd3039d16c60c7c1ed442f1d" title=" " alt="" coords="172,5,304,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="124,16,156,16,156,21,124,21"/>
-<area shape="rect" id="Node000003" href="$class_skin.html#a639dcac53e82bd3b3bead7950e6f2eaa" title=" " alt="" coords="352,5,478,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="304,16,337,16,337,21,304,21"/>
-</map>

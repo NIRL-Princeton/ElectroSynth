@@ -1,7 +1,0 @@
-<map id="ModulationAmountKnob::makeVisible" name="ModulationAmountKnob::makeVisible">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,165,46"/>
-<area shape="rect" id="Node000002" href="$class_open_gl_slider.html#aafc75923f57ecc2e58f7ddc7b9de471d" title=" " alt="" coords="213,13,370,38"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="165,23,197,23,197,28,165,28"/>
-<area shape="rect" id="Node000003" href="$leaf-analysis_8c.html#af43f509ad674d7aa5ea5fb560800b74d" title=" " alt="" coords="418,13,468,38"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="370,23,403,23,403,28,370,28"/>
-</map>

@@ -1,7 +1,0 @@
-<map id="tLagrangeDelay_free" name="tLagrangeDelay_free">
-<area shape="rect" id="Node000001" title=" " alt="" coords="223,31,364,56"/>
-<area shape="rect" id="Node000002" href="$leaf-physical_8c.html#a0ba1294ead90277b4b784fc1c251d773" title=" " alt="" coords="5,5,175,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="207,35,175,31,175,26,208,30"/>
-<area shape="rect" id="Node000003" href="$leaf-physical_8c.html#ad166a06782eaf838b184cbecead43e59" title=" " alt="" coords="42,55,138,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="208,56,139,64,138,59,207,51"/>
-</map>

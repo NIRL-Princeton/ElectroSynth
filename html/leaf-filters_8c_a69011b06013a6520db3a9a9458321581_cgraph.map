@@ -1,9 +1,0 @@
-<map id="tVZFilter_BandwidthToREfficientBP" name="tVZFilter_BandwidthToREfficientBP">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,55,235,80"/>
-<area shape="rect" id="Node000002" href="$leaf-math_8h.html#a69e2e346c7566931bdc94d89f3168109" title=" " alt="" coords="283,5,359,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="175,51,267,28,268,34,176,57"/>
-<area shape="rect" id="Node000003" href="$leaf-math_8h.html#a2efaf6219114b1d7a8d31cbd3205e133" title=" " alt="" coords="284,55,358,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="235,65,269,65,269,70,235,70"/>
-<area shape="rect" id="Node000004" href="$leaf-math_8h.html#a0e844a72861fecf6934c56d8d8f4ab6a" title=" " alt="" coords="286,104,356,130"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="176,78,272,102,271,107,175,84"/>
-</map>

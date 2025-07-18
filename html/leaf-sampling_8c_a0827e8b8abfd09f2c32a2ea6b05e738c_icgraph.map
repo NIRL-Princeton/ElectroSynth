@@ -1,9 +1,0 @@
-<map id="attemptStartEndChange" name="attemptStartEndChange">
-<area shape="rect" id="Node000001" title=" " alt="" coords="369,31,530,56"/>
-<area shape="rect" id="Node000002" href="$leaf-sampling_8c.html#a9258b69e9a73a8013005e53f277aeb7a" title=" " alt="" coords="201,5,302,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="354,34,302,27,303,22,354,29"/>
-<area shape="rect" id="Node000004" href="$leaf-sampling_8c.html#a0f1f946d42a69a2d885725401b5299bb" title=" " alt="" coords="182,55,321,80"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="354,58,322,62,321,56,353,52"/>
-<area shape="rect" id="Node000003" href="$leaf-sampling_8c.html#aa44b6cb41c90aab47a979f6b71ec30f6" title=" " alt="" coords="5,5,134,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="185,21,134,21,134,16,185,16"/>
-</map>

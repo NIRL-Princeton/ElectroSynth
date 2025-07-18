@@ -1,9 +1,0 @@
-<map id="detail::binary_writer::write_bson_string" name="detail::binary_writer::write_bson_string">
-<area shape="rect" id="Node000001" title="Writes a BSON element with key name and string value value." alt="" coords="5,39,140,79"/>
-<area shape="rect" id="Node000002" href="$classdetail_1_1binary__writer.html#aec35b5420c48539db2959ef88ae296d5" title="Writes the given element_type and name to the output adapter." alt="" coords="188,5,362,46"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="140,45,171,40,172,45,141,51"/>
-<area shape="rect" id="Node000004" href="$classdetail_1_1binary__writer.html#aab9bf30c969ca7694eed2bfd39d9274a" title=" " alt="" coords="208,71,342,111"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="141,67,193,75,192,81,140,72"/>
-<area shape="rect" id="Node000003" href="$classdetail_1_1binary__writer.html#a2822d4a58bbb0dc2198686da430e8906" title=" " alt="" coords="410,5,544,46"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="363,23,395,23,395,28,363,28"/>
-</map>

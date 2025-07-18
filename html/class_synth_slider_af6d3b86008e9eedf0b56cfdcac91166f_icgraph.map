@@ -1,7 +1,0 @@
-<map id="SynthSlider::mouseExit" name="SynthSlider::mouseExit">
-<area shape="rect" id="Node000001" title=" " alt="" coords="213,46,371,72"/>
-<area shape="rect" id="Node000002" href="$class_modulation_amount_knob.html#a0964b41a49cb0cdfd7d1bb681cf83702" title=" " alt="" coords="5,5,165,46"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="197,46,165,41,166,36,198,41"/>
-<area shape="rect" id="Node000003" href="$class_modulation_amount_knob.html#ae299a2d16adc9094a9759ae3c6a1a0f7" title=" " alt="" coords="5,71,165,111"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="198,76,166,81,165,76,197,71"/>
-</map>

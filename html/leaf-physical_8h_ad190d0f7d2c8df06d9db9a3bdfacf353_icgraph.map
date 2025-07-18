@@ -1,9 +1,0 @@
-<map id="tBowTable_initToPool" name="tBowTable_initToPool">
-<area shape="rect" id="Node000001" title=" " alt="" coords="320,31,466,56"/>
-<area shape="rect" id="Node000002" href="$leaf-physical_8c.html#a39cce19208b964866364a6a324553a47" title=" " alt="" coords="143,5,272,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="304,34,272,30,273,24,305,29"/>
-<area shape="rect" id="Node000004" href="$leaf-physical_8c.html#aba455364de7fe82c8162490bdc1112c4" title=" " alt="" coords="154,55,260,80"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="305,58,261,63,260,58,304,52"/>
-<area shape="rect" id="Node000003" href="$leaf-physical_8c.html#aef888e4c9893865f93eff50f04b6ca63" title=" " alt="" coords="5,5,95,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="127,21,95,21,95,16,127,16"/>
-</map>

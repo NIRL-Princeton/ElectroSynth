@@ -1,9 +1,0 @@
-<map id="Delay" name="Delay">
-<area shape="rect" id="Node000001" title="Delays." alt="" coords="5,129,61,155"/>
-<area shape="rect" id="Node000005" href="$group__tallpassdelay.html" title="Allpass&#45;interpolating delay, reimplemented from STK (Cook and Scavone)." alt="" coords="110,5,212,31"/>
-<area shape="rect" id="Node000002" href="$group__tdelay.html" title="Non&#45;interpolating delay, reimplemented from STK (Cook and Scavone)." alt="" coords="132,55,191,80"/>
-<area shape="rect" id="Node000004" href="$group__thermitedelay.html" title="Hermite&#45;interpolating delay, created by adapting STK linear delay with Hermite interpolation." alt="" coords="109,104,214,130"/>
-<area shape="rect" id="Node000003" href="$group__tlineardelay.html" title="Linearly&#45;interpolating delay, reimplemented from STK (Cook and Scavone)." alt="" coords="114,153,208,179"/>
-<area shape="rect" id="Node000007" href="$group__tringbuffer.html" title="Ring buffer." alt="" coords="118,203,205,228"/>
-<area shape="rect" id="Node000006" href="$group__ttapedelay.html" title="Linear interpolating delay with fixed read and write pointers, variable rate." alt="" coords="118,252,205,278"/>
-</map>

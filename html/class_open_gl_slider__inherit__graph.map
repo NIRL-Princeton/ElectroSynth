@@ -1,9 +1,0 @@
-<map id="OpenGlSlider" name="OpenGlSlider">
-<area shape="rect" id="Node000001" title=" " alt="" coords="36,79,124,105"/>
-<area shape="rect" id="Node000003" href="$class_synth_slider.html" title=" " alt="" coords="41,153,118,178"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="82,120,82,153,77,153,77,120"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="42,5,118,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="82,46,82,79,77,79,77,46"/>
-<area shape="rect" id="Node000004" href="$class_modulation_amount_knob.html" title=" " alt="" coords="5,226,154,252"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="82,193,82,227,77,227,77,193"/>
-</map>

@@ -1,7 +1,0 @@
-<map id="tProcessor_initToPool" name="tProcessor_initToPool">
-<area shape="rect" id="Node000001" title=" " alt="" coords="370,5,518,31"/>
-<area shape="rect" id="Node000002" href="$processor_8cpp.html#a7ac955fd555a0e8197744e43032b0c03" title=" " alt="" coords="214,5,322,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="355,21,322,21,322,16,355,16"/>
-<area shape="rect" id="Node000003" href="$midi__sysex_8cpp.html#a6dbe2554f66a2afe695ee557d8bd50b2" title=" " alt="" coords="5,5,166,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="198,21,166,21,166,16,198,16"/>
-</map>

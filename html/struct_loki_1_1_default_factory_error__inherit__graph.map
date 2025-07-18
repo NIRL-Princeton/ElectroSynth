@@ -1,9 +1,0 @@
-<map id="Loki::DefaultFactoryError&lt; IdentifierType, AbstractProduct &gt;" name="Loki::DefaultFactoryError&lt; IdentifierType, AbstractProduct &gt;">
-<area shape="rect" id="Node000001" title=" " alt="" coords="35,5,248,46"/>
-<area shape="rect" id="Node000002" href="$class_loki_1_1_factory.html" title=" " alt="" coords="5,117,235,173"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="138,61,128,117,122,117,133,60"/>
-<area shape="rect" id="Node000003" href="$struct_loki_1_1_default_factory_error.html" title=" " alt="" coords="259,124,445,165"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="190,51,319,122,317,127,188,56"/>
-<area shape="rect" id="Node000004" href="$class_loki_1_1_clone_factory.html" title=" " alt="" coords="262,222,442,278"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="355,180,355,222,350,222,350,180"/>
-</map>

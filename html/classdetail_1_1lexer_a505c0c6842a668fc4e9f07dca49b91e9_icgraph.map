@@ -1,7 +1,0 @@
-<map id="detail::lexer::next_byte_in_range" name="detail::lexer::next_byte_in_range">
-<area shape="rect" id="Node000001" title="check if the next byte(s) are inside a given range" alt="" coords="350,5,471,46"/>
-<area shape="rect" id="Node000002" href="$classdetail_1_1lexer.html#a13c79af5cade626e08f321ead26b83f9" title="scan a string literal" alt="" coords="178,5,302,46"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="335,28,302,28,302,23,335,23"/>
-<area shape="rect" id="Node000003" href="$classdetail_1_1lexer.html#a6497d12a0c35b355b3e22da69d6819f9" title=" " alt="" coords="5,13,130,38"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="162,28,130,28,130,23,162,23"/>
-</map>

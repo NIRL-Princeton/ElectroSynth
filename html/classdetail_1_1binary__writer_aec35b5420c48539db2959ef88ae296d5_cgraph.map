@@ -1,5 +1,0 @@
-<map id="detail::binary_writer::write_bson_entry_header" name="detail::binary_writer::write_bson_entry_header">
-<area shape="rect" id="Node000001" title="Writes the given element_type and name to the output adapter." alt="" coords="5,5,180,46"/>
-<area shape="rect" id="Node000002" href="$classdetail_1_1binary__writer.html#a2822d4a58bbb0dc2198686da430e8906" title=" " alt="" coords="228,5,362,46"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,23,212,23,212,28,180,28"/>
-</map>

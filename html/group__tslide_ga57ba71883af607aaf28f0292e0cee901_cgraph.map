@@ -1,9 +1,0 @@
-<map id="tSlide_free" name="tSlide_free">
-<area shape="rect" id="Node000001" title="Free a tSlide from its mempool." alt="" coords="5,31,89,56"/>
-<area shape="rect" id="Node000002" href="$leaf-mempool_8c.html#ab22403c96346dcc0a1c2437a00e616fc" title=" " alt="" coords="137,31,222,56"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="89,41,121,41,121,46,89,46"/>
-<area shape="rect" id="Node000003" href="$leaf-mempool_8c.html#a1cac56e9fbf416e1410563bfb49290b4" title=" " alt="" coords="316,5,406,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="222,35,300,24,301,29,223,40"/>
-<area shape="rect" id="Node000004" href="$leaf_8c.html#a389f39fbcc732ce345106b995b3a434d" title=" " alt="" coords="270,55,452,80"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="223,46,255,51,254,56,222,52"/>
-</map>

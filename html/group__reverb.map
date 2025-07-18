@@ -1,6 +1,0 @@
-<map id="Reverb" name="Reverb">
-<area shape="rect" id="Node000001" title="Reverbs." alt="" coords="5,55,69,80"/>
-<area shape="rect" id="Node000004" href="$group__tdattorroreverb.html" title="Dattorro plate reverb." alt="" coords="117,5,231,31"/>
-<area shape="rect" id="Node000003" href="$group__tnreverb.html" title="Reverb, reimplemented from STK (Cook and Scavone)." alt="" coords="135,55,212,80"/>
-<area shape="rect" id="Node000002" href="$group__tprcreverb.html" title="Reverb, reimplemented from STK (Cook and Scavone)." alt="" coords="126,104,222,130"/>
-</map>

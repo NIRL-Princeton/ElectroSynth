@@ -1,7 +1,0 @@
-<map id="ModulationManager::getConnection" name="ModulationManager::getConnection">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,27,148,68"/>
-<area shape="rect" id="Node000002" href="$class_synth_base.html#ad8457e35814eb01c28b873cf036980f0" title=" " alt="" coords="196,5,421,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="147,36,186,31,187,36,148,41"/>
-<area shape="rect" id="Node000003" href="$class_synth_gui_interface.html#a4e948c6a5558b838582d7476f079251d" title=" " alt="" coords="241,55,376,96"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="148,53,226,63,225,68,148,59"/>
-</map>

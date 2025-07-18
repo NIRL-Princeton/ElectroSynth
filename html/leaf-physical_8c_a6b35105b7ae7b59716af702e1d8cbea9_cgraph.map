@@ -1,9 +1,0 @@
-<map id="tPluck_setFrequency" name="tPluck_setFrequency">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,150,56"/>
-<area shape="rect" id="Node000002" href="$leaf-delay_8c.html#a39e4c1e5bd98bbcbb541aa67049e192a" title=" " alt="" coords="203,5,364,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="150,32,187,27,187,33,150,37"/>
-<area shape="rect" id="Node000004" href="$leaf-filters_8c.html#a73007814be79dbdaa7b4d8d9ab6e91cd" title=" " alt="" coords="198,55,369,80"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="150,49,182,53,182,58,150,55"/>
-<area shape="rect" id="Node000003" href="$leaf-math_8h.html#ad4bddb22c798cb40b789a727a48b81fd" title=" " alt="" coords="417,5,498,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="364,16,401,16,401,21,364,21"/>
-</map>

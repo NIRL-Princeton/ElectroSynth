@@ -1,7 +1,0 @@
-<map id="SynthBase::notifyOversamplingChanged" name="SynthBase::notifyOversamplingChanged">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,23,211,64"/>
-<area shape="rect" id="Node000002" href="$class_synth_base.html#a6379a26cda438709fcbbf1c7c38e70ca" title=" " alt="" coords="259,5,467,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="211,31,243,27,243,33,211,36"/>
-<area shape="rect" id="Node000003" href="$class_synth_base.html#a61c53ea8670b76df78930447a3e57453" title=" " alt="" coords="266,55,460,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="211,51,251,54,250,60,211,56"/>
-</map>

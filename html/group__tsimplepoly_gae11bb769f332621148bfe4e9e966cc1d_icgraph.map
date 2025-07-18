@@ -1,5 +1,0 @@
-<map id="tSimplePoly_setNumVoices" name="tSimplePoly_setNumVoices">
-<area shape="rect" id="Node000001" title="Set the number of voices available to play notes." alt="" coords="231,13,415,38"/>
-<area shape="rect" id="Node000002" href="$classelectrosynth_1_1_sound_engine.html#a695a8fc175adf7d6be4435a9d009d4b0" title=" " alt="" coords="5,5,183,46"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="215,28,183,28,183,23,215,23"/>
-</map>

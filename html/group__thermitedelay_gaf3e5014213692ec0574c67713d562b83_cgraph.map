@@ -1,9 +1,0 @@
-<map id="tHermiteDelay_free" name="tHermiteDelay_free">
-<area shape="rect" id="Node000001" title="Free a tHermiteDelay from its mempool." alt="" coords="5,31,140,56"/>
-<area shape="rect" id="Node000002" href="$leaf-mempool_8c.html#ab22403c96346dcc0a1c2437a00e616fc" title=" " alt="" coords="188,31,273,56"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="140,41,172,41,172,46,140,46"/>
-<area shape="rect" id="Node000003" href="$leaf-mempool_8c.html#a1cac56e9fbf416e1410563bfb49290b4" title=" " alt="" coords="367,5,457,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="273,35,351,24,352,29,274,40"/>
-<area shape="rect" id="Node000004" href="$leaf_8c.html#a389f39fbcc732ce345106b995b3a434d" title=" " alt="" coords="321,55,503,80"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="274,46,306,51,305,56,273,52"/>
-</map>

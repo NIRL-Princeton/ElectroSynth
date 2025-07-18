@@ -1,9 +1,0 @@
-<map id="OpenGlToggleButton::OpenGlToggleButton" name="OpenGlToggleButton::OpenGlToggleButton">
-<area shape="rect" id="Node000001" title=" " alt="" coords="461,35,610,75"/>
-<area shape="rect" id="Node000002" href="$class_expand_modulation_button.html#a03958345f07b5ab05212350106602090" title=" " alt="" coords="239,5,413,46"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="445,45,413,41,414,35,446,40"/>
-<area shape="rect" id="Node000003" href="$class_synth_button.html#a3f5b461704716acc1ac6f1b0043e0b05" title=" " alt="" coords="239,70,412,96"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="446,70,413,74,413,69,445,64"/>
-<area shape="rect" id="Node000004" href="$class_synth_button_1_1_button_listener.html#a4012b94e70eb8b11c8957aa2102c3cfd" title=" " alt="" coords="5,63,191,103"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="224,86,191,86,191,80,224,80"/>
-</map>

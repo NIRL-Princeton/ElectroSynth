@@ -1,5 +1,0 @@
-<map id="tBuffer_initToPool" name="tBuffer_initToPool">
-<area shape="rect" id="Node000001" title="Initialize a tBuffer to a specified mempool." alt="" coords="138,5,262,31"/>
-<area shape="rect" id="Node000002" href="$group__tbuffer.html#ga91d93789b64c9306b30933c5e8d001fd" title="Initialize a tBuffer to the default mempool of a LEAF instance." alt="" coords="5,5,90,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="122,21,90,21,90,16,122,16"/>
-</map>

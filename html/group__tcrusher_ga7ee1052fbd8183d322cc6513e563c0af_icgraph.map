@@ -1,5 +1,0 @@
-<map id="tCrusher_initToPool" name="tCrusher_initToPool">
-<area shape="rect" id="Node000001" title="Initialize a tCrusher to a specified mempool." alt="" coords="149,5,284,31"/>
-<area shape="rect" id="Node000002" href="$group__tcrusher.html#gafd391e483eb15ab1e220867b2bc37537" title="Initialize a tCrusher to the default mempool of a LEAF instance." alt="" coords="5,5,101,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="133,21,101,21,101,16,133,16"/>
-</map>

@@ -1,9 +1,0 @@
-<map id="SynthSlider::textEditorFocusLost" name="SynthSlider::textEditorFocusLost">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,13,219,38"/>
-<area shape="rect" id="Node000002" href="$class_synth_slider.html#aca1e3d117cd19f295ee9eb2918837f43" title=" " alt="" coords="267,5,461,46"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="219,23,251,23,251,28,219,28"/>
-<area shape="rect" id="Node000003" href="$class_synth_slider.html#aa95830c03c99c19788f822e941f594e4" title=" " alt="" coords="509,13,710,38"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="462,23,493,23,493,28,462,28"/>
-<area shape="rect" id="Node000004" href="$class_synth_slider.html#a196e1447c119ab05f5349d32c966c610" title=" " alt="" coords="758,5,935,46"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="711,23,743,23,743,28,711,28"/>
-</map>

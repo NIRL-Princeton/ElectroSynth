@@ -1,7 +1,0 @@
-<map id="tPitchShift_free" name="tPitchShift_free">
-<area shape="rect" id="Node000001" title="Free a tPitchShift from its mempool." alt="" coords="190,31,301,56"/>
-<area shape="rect" id="Node000002" href="$group__tretune.html#ga9054a73b7bb08d4721b109b7c2c94042" title="Free a tRetune from its mempool." alt="" coords="25,5,122,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="174,36,122,28,122,23,174,30"/>
-<area shape="rect" id="Node000003" href="$group__tsimpleretune.html#ga3a1f081437fbb7ad75b27fb09c39f096" title="Free a tSimpleRetune from its mempool." alt="" coords="5,55,142,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="174,56,142,61,142,55,174,51"/>
-</map>

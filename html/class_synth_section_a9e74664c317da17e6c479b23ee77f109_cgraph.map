@@ -1,9 +1,0 @@
-<map id="SynthSection::addButton" name="SynthSection::addButton">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,55,172,80"/>
-<area shape="rect" id="Node000002" href="$class_synth_section.html#a106e35d5a7f591a72016b2a595d33e43" title=" " alt="" coords="220,5,459,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="157,51,255,32,256,37,158,57"/>
-<area shape="rect" id="Node000003" href="$class_synth_section.html#a2f511b8b5a7efb9c338ffff80e5a9146" title=" " alt="" coords="237,55,442,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="172,65,222,65,222,70,172,70"/>
-<area shape="rect" id="Node000004" href="$class_open_gl_shape_button.html#ac2a01246753db9688e2b846f866903fd" title=" " alt="" coords="265,104,414,145"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="149,78,250,102,249,107,147,84"/>
-</map>

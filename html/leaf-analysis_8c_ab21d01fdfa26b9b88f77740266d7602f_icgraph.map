@@ -1,7 +1,0 @@
-<map id="tPitchDetector_predictFrequency" name="tPitchDetector_predictFrequency">
-<area shape="rect" id="Node000001" title=" " alt="" coords="429,13,641,38"/>
-<area shape="rect" id="Node000002" href="$leaf-analysis_8c.html#a852cbc9bca16cd15a8ea87e6092da1b7" title=" " alt="" coords="186,13,381,38"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="413,28,381,28,381,23,413,23"/>
-<area shape="rect" id="Node000003" href="$leaf-analysis_8c.html#a44de858ce58e783a2484c0ccb18ff4b9" title=" " alt="" coords="5,5,138,46"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="170,28,138,28,138,23,170,23"/>
-</map>

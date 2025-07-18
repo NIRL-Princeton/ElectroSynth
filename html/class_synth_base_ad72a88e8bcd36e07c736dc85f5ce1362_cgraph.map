@@ -1,7 +1,0 @@
-<map id="SynthBase::connectModulation" name="SynthBase::connectModulation">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,42,208,68"/>
-<area shape="rect" id="Node000002" href="$class_synth_base.html#ae2a8de0bf18b6761b72c7d1bae2cc32c" title=" " alt="" coords="270,5,448,46"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="208,41,254,35,255,40,208,46"/>
-<area shape="rect" id="Node000003" href="$class_synth_base.html#a93b4991cd8c74001822bfde012a7deed" title=" " alt="" coords="256,70,463,96"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="208,64,240,67,240,72,208,69"/>
-</map>

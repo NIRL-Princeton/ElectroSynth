@@ -1,7 +1,0 @@
-<map id="FullInterface::animate" name="FullInterface::animate">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,153,55"/>
-<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="46,30,39,21,43,11,57,5,79,3,103,5,116,12,113,17,102,10,79,8,58,10,47,15,45,20,50,27"/>
-<area shape="rect" id="Node000002" href="$class_synth_section.html#a23ece0b1a7ac3a7a3ffb8623875d7220" title=" " alt="" coords="201,29,354,55"/>
-<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="153,40,185,40,185,45,153,45"/>
-<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="244,30,238,21,242,11,255,5,277,3,302,5,314,12,312,17,300,10,277,8,256,10,245,15,243,20,248,27"/>
-</map>

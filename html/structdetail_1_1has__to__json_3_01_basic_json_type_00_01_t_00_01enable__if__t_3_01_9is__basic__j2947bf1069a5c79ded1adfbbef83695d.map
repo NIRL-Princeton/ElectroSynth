@@ -1,8 +1,0 @@
-<map id="detail::has_to_json&lt; BasicJsonType, T, enable_if_t&lt; !is_basic_json&lt; T &gt;::value &gt; &gt;" name="detail::has_to_json&lt; BasicJsonType, T, enable_if_t&lt; !is_basic_json&lt; T &gt;::value &gt; &gt;">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,248,147,318"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="22,5,119,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="74,46,78,248,73,248,69,46"/>
-<area shape="rect" id="Node000003" href="$structdetail_1_1has__to__json.html" title=" " alt="" coords="93,80,222,136"/>
-<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="95,40,133,78,129,82,91,43"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="141,151,94,249,90,247,136,148"/>
-</map>

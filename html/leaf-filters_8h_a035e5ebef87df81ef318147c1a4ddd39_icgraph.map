@@ -1,7 +1,0 @@
-<map id="tCookOnePole_setGain" name="tCookOnePole_setGain">
-<area shape="rect" id="Node000001" title=" " alt="" coords="320,5,478,31"/>
-<area shape="rect" id="Node000002" href="$leaf-physical_8c.html#a39cce19208b964866364a6a324553a47" title=" " alt="" coords="143,5,272,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="305,21,272,21,272,16,305,16"/>
-<area shape="rect" id="Node000003" href="$leaf-physical_8c.html#aef888e4c9893865f93eff50f04b6ca63" title=" " alt="" coords="5,5,95,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="127,21,95,21,95,16,127,16"/>
-</map>

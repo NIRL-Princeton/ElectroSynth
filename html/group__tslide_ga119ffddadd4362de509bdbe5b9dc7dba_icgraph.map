@@ -1,9 +1,0 @@
-<map id="tSlide_initToPool" name="tSlide_initToPool">
-<area shape="rect" id="Node000001" title="Initialize a tSlide to a specified mempool." alt="" coords="324,31,442,56"/>
-<area shape="rect" id="Node000002" href="$group__tslide.html#gaaec673bf0e3bc34bf6445c270c47180b" title="Initialize a tSlide to the default mempool of a LEAF instance." alt="" coords="171,5,250,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="309,35,249,26,250,21,310,30"/>
-<area shape="rect" id="Node000003" href="$leaf-physical_8c.html#afc2a797d85996300c7ad7ccc500b2a35" title=" " alt="" coords="145,55,276,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="309,56,277,61,276,56,308,51"/>
-<area shape="rect" id="Node000004" href="$leaf-physical_8c.html#ae1ebcb618a511cb6638867e81516eec9" title=" " alt="" coords="5,55,97,80"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="129,70,97,70,97,65,129,65"/>
-</map>

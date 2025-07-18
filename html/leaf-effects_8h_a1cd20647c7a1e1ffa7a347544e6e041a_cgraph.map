@@ -1,9 +1,0 @@
-<map id="tTalkboxLfloat_tick" name="tTalkboxLfloat_tick">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,136,56"/>
-<area shape="rect" id="Node000002" href="$group__ttalkbox_lfloat.html#gad618d35e5757ba972a34a55af4a56b5a" title=" " alt="" coords="184,31,310,56"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="136,41,168,41,168,46,136,46"/>
-<area shape="rect" id="Node000003" href="$group__ttalkbox.html#ga3212e5e866e9d7d89504626f24d50411" title=" " alt="" coords="406,5,538,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="310,34,390,25,391,30,310,39"/>
-<area shape="rect" id="Node000004" href="$group__ttalkbox_lfloat.html#gaba37577df87f03c5dcf5647808a26ef0" title=" " alt="" coords="358,55,586,80"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="310,48,343,51,342,56,310,53"/>
-</map>

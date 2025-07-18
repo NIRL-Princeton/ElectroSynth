@@ -1,8 +1,0 @@
-<map id="SynthBase::getConnection" name="SynthBase::getConnection">
-<area shape="rect" id="Node000001" title=" " alt="" coords="273,55,450,80"/>
-<area shape="rect" id="Node000002" href="$class_synth_base.html#a20f5d5c0d63b354ce557a849624ce16f" title=" " alt="" coords="14,29,216,55"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="257,59,216,55,217,50,257,54"/>
-<area shape="rect" id="Node000003" href="$class_synth_base.html#a80b1c77b9fbdfec20214d0703ad74f8a" title=" " alt="" coords="5,79,225,104"/>
-<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="257,80,225,83,225,78,257,75"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="158,17,144,11,115,8,89,10,75,15,72,20,78,27,74,31,66,21,71,11,88,5,115,3,146,5,161,13"/>
-</map>

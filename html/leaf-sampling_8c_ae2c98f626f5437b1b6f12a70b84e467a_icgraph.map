@@ -1,9 +1,0 @@
-<map id="tBuffer_setRecordMode" name="tBuffer_setRecordMode">
-<area shape="rect" id="Node000001" title=" " alt="" coords="390,31,549,56"/>
-<area shape="rect" id="Node000002" href="$leaf-sampling_8c.html#aa2cc96a4bfb94bfb3aa4777c828ef347" title=" " alt="" coords="178,5,342,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="374,35,342,31,343,25,375,29"/>
-<area shape="rect" id="Node000004" href="$leaf-sampling_8c.html#a74f051d5e95a54d4374b2e52ee427704" title=" " alt="" coords="180,55,340,80"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="375,57,341,61,340,56,374,52"/>
-<area shape="rect" id="Node000003" href="$group__tautosampler.html#gafbc477a175f7abfd083b150e7fb425eb" title="Initialize a tAutoSampler to the default mempool of a LEAF instance." alt="" coords="5,5,130,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="163,21,130,21,130,16,163,16"/>
-</map>

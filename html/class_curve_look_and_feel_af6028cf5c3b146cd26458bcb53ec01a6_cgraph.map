@@ -1,6 +1,0 @@
-<map id="CurveLookAndFeel::instance" name="CurveLookAndFeel::instance">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,195,55"/>
-<area shape="poly" id="edge2_Node000001_Node000001" title=" " alt="" coords="60,31,52,21,56,11,73,5,100,3,130,5,145,13,143,17,129,11,100,8,74,10,60,15,57,20,64,27"/>
-<area shape="rect" id="Node000002" href="$class_curve_look_and_feel.html#af49ba9562100d2f1670e5dfc7ab5733e" title=" " alt="" coords="243,22,446,62"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="195,40,227,40,227,45,195,45"/>
-</map>

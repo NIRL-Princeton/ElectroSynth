@@ -1,9 +1,0 @@
-<map id="OpenGlScrollQuad::render" name="OpenGlScrollQuad::render">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,63,179,88"/>
-<area shape="rect" id="Node000002" href="$class_open_gl_component.html#a10a93fd43ee463c2de17aeb055d6ca78" title=" " alt="" coords="229,5,406,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="145,59,248,33,250,38,146,65"/>
-<area shape="rect" id="Node000003" href="$class_open_gl_multi_quad.html#a1edce35dbc2389f7ce171ed0b004a329" title=" " alt="" coords="227,55,408,96"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="179,73,211,73,211,78,179,78"/>
-<area shape="rect" id="Node000004" href="$class_open_gl_multi_quad.html#a3a3ca1a53307fb30842eced6355f6b73" title=" " alt="" coords="227,120,408,161"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="140,86,231,113,229,118,138,91"/>
-</map>

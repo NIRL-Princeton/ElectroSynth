@@ -1,9 +1,0 @@
-<map id="tPickupNonLinearity_initToPool" name="tPickupNonLinearity_initToPool">
-<area shape="rect" id="Node000001" title=" " alt="" coords="355,23,493,64"/>
-<area shape="rect" id="Node000002" href="$leaf-physical_8c.html#ad0971f628d9b5d5a14cc4b8247993a09" title=" " alt="" coords="145,5,307,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="339,35,307,31,308,26,340,30"/>
-<area shape="rect" id="Node000003" href="$leaf-physical_8c.html#afc2a797d85996300c7ad7ccc500b2a35" title=" " alt="" coords="160,55,292,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="340,56,292,62,292,57,339,51"/>
-<area shape="rect" id="Node000004" href="$leaf-physical_8c.html#ae1ebcb618a511cb6638867e81516eec9" title=" " alt="" coords="5,55,97,80"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="145,70,97,70,97,65,145,65"/>
-</map>

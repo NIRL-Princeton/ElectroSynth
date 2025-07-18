@@ -1,9 +1,0 @@
-<map id="Shaders::getVertexShaderId" name="Shaders::getVertexShaderId">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,191,56"/>
-<area shape="rect" id="Node000002" href="$class_shaders.html#a9f0d382c7141eef37817ee82b6207286" title=" " alt="" coords="239,31,431,56"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="191,41,223,41,223,46,191,46"/>
-<area shape="rect" id="Node000003" href="$class_shaders.html#a27caf27926b5355531a92e10ab70ee29" title=" " alt="" coords="479,5,675,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="431,31,463,27,464,33,432,36"/>
-<area shape="rect" id="Node000004" href="$class_shaders.html#a173813c756f5e7999d9771166aa62164" title=" " alt="" coords="490,55,664,80"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="432,50,475,55,474,60,431,56"/>
-</map>

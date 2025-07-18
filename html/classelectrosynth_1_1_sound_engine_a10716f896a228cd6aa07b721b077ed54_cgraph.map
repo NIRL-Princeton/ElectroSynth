@@ -1,9 +1,0 @@
-<map id="electrosynth::SoundEngine::noteOff" name="electrosynth::SoundEngine::noteOff">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,47,183,88"/>
-<area shape="rect" id="Node000002" href="$group__tsimplepoly.html#ga6d801960d20e16f81eff12b420a904c8" title=" " alt="" coords="245,5,436,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="183,47,257,32,258,37,184,52"/>
-<area shape="rect" id="Node000003" href="$group__tsimplepoly.html#ga668c915adab45224835268b08c7f4c80" title=" " alt="" coords="231,55,451,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="183,65,215,65,215,70,183,70"/>
-<area shape="rect" id="Node000004" href="$group__tstack.html#ga995a3cb4b43476c387f4fd431af923ef" title="Get the current size of the stack." alt="" coords="286,104,396,130"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="184,83,271,100,270,105,183,88"/>
-</map>

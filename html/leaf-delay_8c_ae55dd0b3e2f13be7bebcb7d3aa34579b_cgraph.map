@@ -1,9 +1,0 @@
-<map id="tLagrangeDelay_free" name="tLagrangeDelay_free">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,147,56"/>
-<area shape="rect" id="Node000002" href="$leaf-mempool_8c.html#ab22403c96346dcc0a1c2437a00e616fc" title=" " alt="" coords="195,31,280,56"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="147,41,179,41,179,46,147,46"/>
-<area shape="rect" id="Node000003" href="$leaf-mempool_8c.html#a1cac56e9fbf416e1410563bfb49290b4" title=" " alt="" coords="374,5,464,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="280,35,358,24,359,29,281,40"/>
-<area shape="rect" id="Node000004" href="$leaf_8c.html#a389f39fbcc732ce345106b995b3a434d" title=" " alt="" coords="328,55,510,80"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="281,46,313,51,312,56,280,52"/>
-</map>

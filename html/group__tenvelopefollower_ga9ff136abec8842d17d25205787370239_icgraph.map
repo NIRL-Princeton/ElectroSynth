@@ -1,5 +1,0 @@
-<map id="tEnvelopeFollower_free" name="tEnvelopeFollower_free">
-<area shape="rect" id="Node000001" title="Free a tEnvelopeFollower from its mempool." alt="" coords="183,5,340,31"/>
-<area shape="rect" id="Node000002" href="$group__tautosampler.html#ga1317602e4195ebc58d6df3f0263c4bb8" title="Free a tAutoSampler from its mempool." alt="" coords="5,5,135,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="167,21,135,21,135,16,167,16"/>
-</map>

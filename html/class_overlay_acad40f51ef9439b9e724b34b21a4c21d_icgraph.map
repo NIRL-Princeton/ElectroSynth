@@ -1,7 +1,0 @@
-<map id="Overlay::setVisible" name="Overlay::setVisible">
-<area shape="rect" id="Node000001" title=" " alt="" coords="429,5,560,31"/>
-<area shape="rect" id="Node000002" href="$class_about_section.html#a717231b31a30362ec758a78c2fb1ad13" title=" " alt="" coords="217,5,381,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="413,21,382,21,382,16,413,16"/>
-<area shape="rect" id="Node000003" href="$class_about_section.html#a815e4994735cd1622330e0bcb518524b" title=" " alt="" coords="5,5,169,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="201,21,169,21,169,16,201,16"/>
-</map>

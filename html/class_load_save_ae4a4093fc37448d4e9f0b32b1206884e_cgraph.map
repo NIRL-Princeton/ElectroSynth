@@ -1,7 +1,0 @@
-<map id="LoadSave::getUserSampleDirectory" name="LoadSave::getUserSampleDirectory">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,236,31"/>
-<area shape="rect" id="Node000002" href="$class_load_save.html#a0b0a38714f969618aee818ec1fae9b55" title=" " alt="" coords="284,5,470,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="236,16,268,16,268,21,236,21"/>
-<area shape="rect" id="Node000003" href="$class_load_save.html#a719159719a51935b55d76560cfbf1658" title=" " alt="" coords="518,5,704,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="470,16,502,16,502,21,470,21"/>
-</map>

@@ -1,7 +1,0 @@
-<map id="tEnvModule_setSustain" name="tEnvModule_setSustain">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,165,56"/>
-<area shape="rect" id="Node000002" href="$leaf-math_8h.html#ad4bddb22c798cb40b789a727a48b81fd" title=" " alt="" coords="242,5,324,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="165,31,227,23,227,28,165,36"/>
-<area shape="rect" id="Node000003" href="$leaf-envelopes_8c.html#ab1924c558e53247019692c5838bcc1df" title=" " alt="" coords="213,55,353,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="165,51,198,55,197,60,165,56"/>
-</map>

@@ -1,4 +1,0 @@
-<map id="tStack" name="tStack">
-<area shape="rect" id="Node000002" href="$group__midi.html" title="MIDI handling." alt="" coords="5,5,56,31"/>
-<area shape="rect" id="Node000001" title="A basic stack of integers with a fixed capacity of 128, used by tPoly to keep track of MIDI notes." alt="" coords="104,5,163,31"/>
-</map>

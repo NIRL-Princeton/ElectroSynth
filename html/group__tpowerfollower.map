@@ -1,4 +1,0 @@
-<map id="tPowerFollower" name="tPowerFollower">
-<area shape="rect" id="Node000002" href="$group__analysis.html" title="Signal analysis." alt="" coords="5,5,77,31"/>
-<area shape="rect" id="Node000001" title="Measure and follow the power of an input signal using an exponential moving average for smoothing." alt="" coords="125,5,236,31"/>
-</map>

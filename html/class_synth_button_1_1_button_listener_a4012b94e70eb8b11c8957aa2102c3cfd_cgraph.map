@@ -1,7 +1,0 @@
-<map id="SynthButton::ButtonListener::guiChanged" name="SynthButton::ButtonListener::guiChanged">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,191,46"/>
-<area shape="rect" id="Node000002" href="$class_synth_button.html#a3f5b461704716acc1ac6f1b0043e0b05" title=" " alt="" coords="239,13,412,38"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="191,23,223,23,223,28,191,28"/>
-<area shape="rect" id="Node000003" href="$class_open_gl_toggle_button.html#ae70d9a10bdf3504011b9ead38ca0f197" title=" " alt="" coords="460,5,609,46"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="413,23,445,23,445,28,413,28"/>
-</map>

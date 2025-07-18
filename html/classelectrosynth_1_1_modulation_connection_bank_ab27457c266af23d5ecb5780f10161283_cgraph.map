@@ -1,7 +1,0 @@
-<map id="electrosynth::ModulationConnectionBank::createConnection" name="electrosynth::ModulationConnectionBank::createConnection">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,41,233,82"/>
-<area shape="rect" id="Node000002" href="$classelectrosynth_1_1_modulation_connection_bank.html#a594c446633d0829b0138a0df0022ee93" title=" " alt="" coords="281,5,491,46"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="233,44,265,39,265,45,233,49"/>
-<area shape="rect" id="Node000003" href="$structelectrosynth_1_1_modulation_connection.html#aec9088e7094642a26671a4b82a952367" title=" " alt="" coords="281,70,490,126"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="233,74,266,79,265,84,233,80"/>
-</map>

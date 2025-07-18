@@ -1,4 +1,0 @@
-<map id="tHermiteDelay" name="tHermiteDelay">
-<area shape="rect" id="Node000002" href="$group__delay.html" title="Delays." alt="" coords="5,5,61,31"/>
-<area shape="rect" id="Node000001" title="Hermite&#45;interpolating delay, created by adapting STK linear delay with Hermite interpolation." alt="" coords="109,5,214,31"/>
-</map>

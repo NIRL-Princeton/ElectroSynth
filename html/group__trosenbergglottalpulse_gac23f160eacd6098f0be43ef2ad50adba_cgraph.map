@@ -1,9 +1,0 @@
-<map id="tRosenbergGlottalPulse_free" name="tRosenbergGlottalPulse_free">
-<area shape="rect" id="Node000001" title="Free a tRosenbergGlottalPulse from its mempool." alt="" coords="5,31,194,56"/>
-<area shape="rect" id="Node000002" href="$leaf-mempool_8c.html#ab22403c96346dcc0a1c2437a00e616fc" title=" " alt="" coords="242,31,327,56"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="194,41,226,41,226,46,194,46"/>
-<area shape="rect" id="Node000003" href="$leaf-mempool_8c.html#a1cac56e9fbf416e1410563bfb49290b4" title=" " alt="" coords="421,5,511,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="327,35,405,24,406,29,328,40"/>
-<area shape="rect" id="Node000004" href="$leaf_8c.html#a389f39fbcc732ce345106b995b3a434d" title=" " alt="" coords="375,55,557,80"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="328,46,360,51,359,56,327,52"/>
-</map>

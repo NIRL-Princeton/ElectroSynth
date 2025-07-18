@@ -1,9 +1,0 @@
-<map id="Overlay::Overlay" name="Overlay::Overlay">
-<area shape="rect" id="Node000001" title=" " alt="" coords="239,63,358,88"/>
-<area shape="rect" id="Node000002" href="$class_about_section.html#a1e5308bca21344d8922ac619e32629d8" title=" " alt="" coords="5,5,191,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="238,60,190,46,148,34,149,29,191,41,239,55"/>
-<area shape="rect" id="Node000003" href="$class_overlay_1_1_listener.html#a0f0322aa5bfaf8f5cfe7ce2bee351bd4" title=" " alt="" coords="34,55,162,96"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="223,78,163,78,163,73,223,73"/>
-<area shape="rect" id="Node000004" href="$class_overlay_1_1_listener.html#ab2ecd35914bcfbc33c9d7433bfb8368d" title=" " alt="" coords="34,120,162,161"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="243,96,164,122,162,117,241,91"/>
-</map>

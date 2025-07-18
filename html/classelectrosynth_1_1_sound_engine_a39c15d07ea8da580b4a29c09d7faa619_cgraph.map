@@ -1,8 +1,0 @@
-<map id="electrosynth::SoundEngine::connectMapping" name="electrosynth::SoundEngine::connectMapping">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,183,70"/>
-<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="59,29,57,19,63,10,75,5,94,3,114,5,126,11,124,16,113,10,94,8,77,10,66,15,62,20,64,28"/>
-<area shape="rect" id="Node000002" href="$mapping_8cpp.html#a211bfc6cb2f695bd699cdd020e01a2f1" title=" " alt="" coords="231,37,328,62"/>
-<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="183,47,215,47,215,52,183,52"/>
-<area shape="rect" id="Node000003" href="$leaf_8c.html#af466ccd32346c030e92fb55d5127eb1a" title=" " alt="" coords="376,37,470,62"/>
-<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="328,47,360,47,360,52,328,52"/>
-</map>

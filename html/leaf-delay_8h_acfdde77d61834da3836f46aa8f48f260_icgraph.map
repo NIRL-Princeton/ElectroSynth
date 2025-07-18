@@ -1,7 +1,0 @@
-<map id="tLagrangeDelay_tapOutInterpolated" name="tLagrangeDelay_tapOutInterpolated">
-<area shape="rect" id="Node000001" title=" " alt="" coords="222,31,448,56"/>
-<area shape="rect" id="Node000002" href="$leaf-physical_8c.html#a9aecf011e62b923d113ba1ff8aac7c39" title=" " alt="" coords="5,5,174,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="206,33,174,30,175,24,206,28"/>
-<area shape="rect" id="Node000003" href="$leaf-physical_8c.html#ad621441e87aa83573a51cab8a22953b3" title=" " alt="" coords="42,55,137,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="206,59,138,66,137,60,206,53"/>
-</map>

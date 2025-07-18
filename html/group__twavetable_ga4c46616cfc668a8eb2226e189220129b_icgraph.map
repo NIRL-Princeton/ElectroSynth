@@ -1,7 +1,0 @@
-<map id="tWaveTable_init" name="tWaveTable_init">
-<area shape="rect" id="Node000001" title="Initialize a tWaveTable to the default mempool of a LEAF instance." alt="" coords="153,31,266,56"/>
-<area shape="rect" id="Node000002" href="$leaf_2test_2oscillators__test_8cpp.html#aab362e167309269155fe5ac65ffa3c77" title=" " alt="" coords="5,5,105,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="137,34,104,29,105,24,138,29"/>
-<area shape="rect" id="Node000003" href="$leaf_2test_2oscillators__test_8cpp.html#a9a8ed933cbcb9d02293d28275d93786a" title=" " alt="" coords="5,55,105,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="138,57,105,62,105,57,137,52"/>
-</map>

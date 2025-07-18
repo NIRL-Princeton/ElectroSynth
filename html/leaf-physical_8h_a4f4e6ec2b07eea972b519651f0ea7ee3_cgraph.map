@@ -1,7 +1,0 @@
-<map id="tStereoRotation_tickOut" name="tStereoRotation_tickOut">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,167,56"/>
-<area shape="rect" id="Node000002" href="$leaf-delay_8c.html#ad06596ee9b23fd12946912f6ee4442d2" title=" " alt="" coords="215,5,376,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="167,31,199,27,200,32,168,36"/>
-<area shape="rect" id="Node000003" href="$leaf-filters_8c.html#a53e2717772dba0b64d915a635383e13c" title=" " alt="" coords="244,55,347,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="168,50,229,57,228,63,167,55"/>
-</map>

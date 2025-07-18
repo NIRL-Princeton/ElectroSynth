@@ -1,5 +1,0 @@
-<map id="tNReverb_initToPool" name="tNReverb_initToPool">
-<area shape="rect" id="Node000001" title="Initialize a tNReverb to a specified mempool." alt="" coords="155,5,296,31"/>
-<area shape="rect" id="Node000002" href="$group__tnreverb.html#gae1c0212383504c948614d42a30dd683c" title="Initialize a tNReverb to the default mempool of a LEAF instance." alt="" coords="5,5,107,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="139,21,107,21,107,16,139,16"/>
-</map>

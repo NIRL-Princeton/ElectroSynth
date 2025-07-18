@@ -1,7 +1,0 @@
-<map id="ExpandModulationButton::ExpandModulationButton" name="ExpandModulationButton::ExpandModulationButton">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,180,79"/>
-<area shape="rect" id="Node000002" href="$class_open_gl_toggle_button.html#ae70d9a10bdf3504011b9ead38ca0f197" title=" " alt="" coords="228,5,377,46"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="179,43,212,37,213,43,180,48"/>
-<area shape="rect" id="Node000003" href="$class_open_gl_toggle_button.html#aa587cf25bb079adfe5864e98a560466e" title=" " alt="" coords="232,71,373,111"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="180,70,217,75,216,81,179,75"/>
-</map>

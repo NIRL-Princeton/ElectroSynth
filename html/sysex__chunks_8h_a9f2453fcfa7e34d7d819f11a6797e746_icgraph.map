@@ -1,9 +1,0 @@
-<map id="splitUint8To7bit" name="splitUint8To7bit">
-<area shape="rect" id="Node000001" title=" " alt="" coords="343,31,454,56"/>
-<area shape="rect" id="Node000002" href="$mapping_8cpp.html#a4758b8ec23035ae973b7f69c41c3e188" title=" " alt="" coords="158,5,290,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="327,36,290,30,291,25,328,31"/>
-<area shape="rect" id="Node000004" href="$processor_8cpp.html#abd2b4658febb81521efdc8d84d865567" title=" " alt="" coords="153,55,295,80"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="328,56,296,60,295,55,327,51"/>
-<area shape="rect" id="Node000003" href="$serializing__tests_8cpp.html#a4596bd74489f4eb6eacd1199d3c5b5b6" title=" " alt="" coords="5,5,105,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="142,21,105,21,105,16,142,16"/>
-</map>

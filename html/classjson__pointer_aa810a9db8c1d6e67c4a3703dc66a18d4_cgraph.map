@@ -1,8 +1,0 @@
-<map id="json_pointer::operator/=" name="json_pointer::operator/=">
-<area shape="rect" id="Node000001" title="append an unescaped reference token at the end of this JSON pointer" alt="" coords="5,66,164,92"/>
-<area shape="rect" id="Node000002" href="$classjson__pointer.html#ab0a623288bc1272870149ad50f799a73" title=" " alt="" coords="231,29,354,70"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="164,65,215,58,216,63,165,70"/>
-<area shape="rect" id="Node000003" href="$classjson__pointer.html#adbe97f9c00a221fb7be88d940b39a24f" title="append an unescaped token at the end of the reference pointer" alt="" coords="212,94,374,120"/>
-<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="165,87,197,91,196,97,164,92"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="253,29,251,19,258,10,272,5,293,3,315,5,329,11,327,16,314,10,293,8,273,10,261,15,257,20,259,28"/>
-</map>

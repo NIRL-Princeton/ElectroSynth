@@ -1,7 +1,0 @@
-<map id="OpenGlComponent::renderCorners" name="OpenGlComponent::renderCorners">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,228,56"/>
-<area shape="rect" id="Node000002" href="$class_open_gl_component.html#aabfea74619ee336cb31ea174c56d2c67" title=" " alt="" coords="290,5,484,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="228,30,274,26,275,31,229,36"/>
-<area shape="rect" id="Node000003" href="$class_open_gl_component.html#ad591623790f677d58d57bf0230de9f19" title=" " alt="" coords="276,55,498,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="228,51,261,54,260,59,228,56"/>
-</map>

@@ -1,5 +1,0 @@
-<map id="tVocoder_initToPool" name="tVocoder_initToPool">
-<area shape="rect" id="Node000001" title="Initialize a tVocoder to a specified mempool." alt="" coords="151,5,288,31"/>
-<area shape="rect" id="Node000002" href="$group__tvocoder.html#ga687d4d2f952579f5df6d9c280ef9e0eb" title="Initialize a tVocoder to the default mempool of a LEAF instance." alt="" coords="5,5,103,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="135,21,103,21,103,16,135,16"/>
-</map>

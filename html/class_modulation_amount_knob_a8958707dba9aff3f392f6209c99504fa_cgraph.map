@@ -1,9 +1,0 @@
-<map id="ModulationAmountKnob::getSelectedColor" name="ModulationAmountKnob::getSelectedColor">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,165,79"/>
-<area shape="rect" id="Node000002" href="$class_open_gl_slider.html#af32298301857662e7fec045f362bbef9" title=" " alt="" coords="213,5,388,46"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="165,44,197,39,197,44,165,49"/>
-<area shape="rect" id="Node000004" href="$class_modulation_amount_knob.html#a339bc7695073b9decd3aa60403c37fd0" title=" " alt="" coords="221,71,380,111"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="165,68,205,74,205,80,165,73"/>
-<area shape="rect" id="Node000003" href="$class_open_gl_slider.html#ae8e89f8723a3286a317bb2287589fe4c" title=" " alt="" coords="436,13,645,38"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="388,23,420,23,420,28,388,28"/>
-</map>

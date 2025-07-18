@@ -1,9 +1,0 @@
-<map id="source/common/templates/TypeManip.h" name="source/common/templates/TypeManip.h">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,181,46"/>
-<area shape="rect" id="Node000002" href="$_typelist_8h.html" title=" " alt="" coords="5,94,181,135"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="96,62,96,94,90,94,90,62"/>
-<area shape="rect" id="Node000003" href="$_loki_type_info_8h.html" title=" " alt="" coords="5,183,181,223"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="96,150,96,182,90,182,90,150"/>
-<area shape="rect" id="Node000004" href="$templates_2_factory_8h.html" title=" " alt="" coords="5,271,181,312"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="96,239,96,271,90,271,90,239"/>
-</map>

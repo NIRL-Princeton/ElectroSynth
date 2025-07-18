@@ -1,9 +1,0 @@
-<map id="tTwoZero_tick" name="tTwoZero_tick">
-<area shape="rect" id="Node000001" title=" " alt="" coords="230,55,333,80"/>
-<area shape="rect" id="Node000002" href="$leaf-physical_8c.html#a4b6d9c59ec11cd08ef20952e10b0ca07" title=" " alt="" coords="29,5,158,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="214,53,145,34,146,29,216,48"/>
-<area shape="rect" id="Node000003" href="$leaf-physical_8c.html#a96771597f0a1d844bc03375c1bbd8da3" title=" " alt="" coords="5,55,182,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="214,70,182,70,182,65,214,65"/>
-<area shape="rect" id="Node000004" href="$leaf-physical_8c.html#a50bb9646648655f62a14cce106893dd1" title=" " alt="" coords="9,104,178,130"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="216,87,146,106,145,101,214,82"/>
-</map>

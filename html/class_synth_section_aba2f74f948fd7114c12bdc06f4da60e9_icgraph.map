@@ -1,9 +1,0 @@
-<map id="SynthSection::getSizeRatio" name="SynthSection::getSizeRatio">
-<area shape="rect" id="Node000001" title=" " alt="" coords="398,31,580,56"/>
-<area shape="rect" id="Node000002" href="$class_popup_list.html#a73721a12a1bd1707d1218bc0116bcbf3" title=" " alt="" coords="220,5,350,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="382,33,349,29,350,24,383,28"/>
-<area shape="rect" id="Node000004" href="$class_preset_list.html#a195ef778887ae3a3ca1b8a4596a8e275" title=" " alt="" coords="220,55,350,80"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="383,59,351,63,350,57,382,53"/>
-<area shape="rect" id="Node000003" href="$class_popup_list.html#a1f76a1a51c98d1ff30f6cf402a06050b" title=" " alt="" coords="5,5,172,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="204,21,172,21,172,16,204,16"/>
-</map>

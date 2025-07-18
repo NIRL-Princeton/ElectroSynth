@@ -1,9 +1,0 @@
-<map id="OpenGlComponent::render" name="OpenGlComponent::render">
-<area shape="rect" id="Node000001" title=" " alt="" coords="246,70,422,96"/>
-<area shape="rect" id="Node000002" href="$class_synth_section.html#a78dd0f15e5945a73e881ed882173358e" title=" " alt="" coords="5,5,198,46"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="263,68,186,49,188,44,265,63"/>
-<area shape="rect" id="Node000003" href="$class_modulation_button.html#a65aa3f6527e774a39633123dd3f3b7a6" title=" " alt="" coords="18,70,185,96"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="230,86,185,86,185,80,230,80"/>
-<area shape="rect" id="Node000004" href="$class_open_gl_scroll_quad.html#a89f25678d812cc3ef633764eaa25426e" title=" " alt="" coords="15,120,188,145"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="255,102,166,121,165,116,254,97"/>
-</map>

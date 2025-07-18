@@ -1,9 +1,0 @@
-<map id="LEAF_tanh" name="LEAF_tanh">
-<area shape="rect" id="Node000001" title=" " alt="" coords="194,78,280,104"/>
-<area shape="rect" id="Node000002" href="$leaf-physical_8c.html#ac0e560ae3d013d6de76da527e12802ba" title=" " alt="" coords="5,5,146,46"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="188,74,126,49,128,44,190,69"/>
-<area shape="rect" id="Node000003" href="$leaf-physical_8c.html#ab77c21bde42c63140899cdb7812ba58d" title=" " alt="" coords="5,71,146,111"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="178,94,146,94,146,88,178,88"/>
-<area shape="rect" id="Node000004" href="$leaf-physical_8c.html#a3357d148578f94776851121beec88b8a" title=" " alt="" coords="23,136,128,161"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="185,112,115,137,113,132,183,107"/>
-</map>

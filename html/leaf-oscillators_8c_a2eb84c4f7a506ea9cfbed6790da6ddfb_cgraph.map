@@ -1,8 +1,0 @@
-<map id="tSawSquareLFO_tick" name="tSawSquareLFO_tick">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,151,31"/>
-<area shape="rect" id="Node000002" href="$leaf-oscillators_8c.html#a47b707122912c3f5c5c80917124301a5" title=" " alt="" coords="366,5,475,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="151,16,350,16,350,21,151,21"/>
-<area shape="rect" id="Node000003" href="$leaf-oscillators_8c.html#acb4bb0e57f4a9f646f2f26923febba49" title=" " alt="" coords="199,31,318,56"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="151,26,183,30,183,36,151,31"/>
-<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="318,32,350,26,351,32,319,37"/>
-</map>

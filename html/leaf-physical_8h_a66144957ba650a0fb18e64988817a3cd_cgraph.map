@@ -1,8 +1,0 @@
-<map id="tStiffString_setPluckPos" name="tStiffString_setPluckPos">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,170,31"/>
-<area shape="rect" id="Node000002" href="$leaf-math_8h.html#ad4bddb22c798cb40b789a727a48b81fd" title=" " alt="" coords="434,5,515,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="170,13,218,12,386,12,418,13,418,18,386,17,218,17,170,18"/>
-<area shape="rect" id="Node000003" href="$leaf-physical_8c.html#ac89792efb67b9bcdfbb59a0d22f28d7a" title=" " alt="" coords="218,26,386,66"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="170,26,202,30,202,36,170,32"/>
-<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="386,30,418,25,419,30,387,35"/>
-</map>

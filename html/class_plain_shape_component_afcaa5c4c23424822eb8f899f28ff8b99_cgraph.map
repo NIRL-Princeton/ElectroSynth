@@ -1,9 +1,0 @@
-<map id="PlainShapeComponent::setShape" name="PlainShapeComponent::setShape">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,160,79"/>
-<area shape="rect" id="Node000002" href="$class_open_gl_image_component.html#a2f17fbb543452557dbb20150724e7efd" title=" " alt="" coords="208,39,376,79"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="160,56,192,56,192,62,160,62"/>
-<area shape="rect" id="Node000003" href="$namespaceelectrosynth_1_1utils.html#a0b866e972397cac25d5743e302d6c04a" title=" " alt="" coords="444,5,573,46"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="376,43,428,35,429,41,377,49"/>
-<area shape="rect" id="Node000004" href="$class_open_gl_image_component.html#a756dd00054d35b25d41e625a01b6c2e8" title=" " alt="" coords="424,71,592,111"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="377,69,409,74,408,79,376,74"/>
-</map>

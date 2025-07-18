@@ -1,9 +1,0 @@
-<map id="tVocoder_update" name="tVocoder_update">
-<area shape="rect" id="Node000001" title=" " alt="" coords="369,31,488,56"/>
-<area shape="rect" id="Node000002" href="$group__tvocoder.html#gad625ecd68ef438606e5a82fe11a3484f" title="Initialize a tVocoder to a specified mempool." alt="" coords="167,5,304,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="353,36,305,30,305,25,354,31"/>
-<area shape="rect" id="Node000004" href="$leaf-effects_8c.html#acf9a96260a6e6a637634eb12ea93daeb" title=" " alt="" coords="151,55,321,80"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="354,55,322,60,321,54,353,50"/>
-<area shape="rect" id="Node000003" href="$group__tvocoder.html#ga687d4d2f952579f5df6d9c280ef9e0eb" title="Initialize a tVocoder to the default mempool of a LEAF instance." alt="" coords="5,5,103,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="152,21,103,21,103,16,152,16"/>
-</map>

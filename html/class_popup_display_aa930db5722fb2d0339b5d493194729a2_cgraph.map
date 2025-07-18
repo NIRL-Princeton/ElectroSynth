@@ -1,9 +1,0 @@
-<map id="PopupDisplay::PopupDisplay" name="PopupDisplay::PopupDisplay">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,55,197,80"/>
-<area shape="rect" id="Node000002" href="$class_synth_section.html#a106e35d5a7f591a72016b2a595d33e43" title=" " alt="" coords="245,5,484,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="173,51,276,32,277,37,174,57"/>
-<area shape="rect" id="Node000003" href="$class_synth_section.html#ae4b092420f64f8d195dd2fdb406bfccf" title=" " alt="" coords="264,55,464,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="197,65,249,65,249,70,197,70"/>
-<area shape="rect" id="Node000004" href="$class_synth_section.html#aacbd2a0f89359676471964d630ca9c21" title=" " alt="" coords="272,104,457,130"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="174,78,277,98,276,103,173,84"/>
-</map>

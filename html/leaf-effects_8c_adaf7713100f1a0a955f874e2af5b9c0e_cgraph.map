@@ -1,9 +1,0 @@
-<map id="tTalkbox_tick" name="tTalkbox_tick">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,104,56"/>
-<area shape="rect" id="Node000002" href="$group__ttalkbox.html#ga386907795586d153f25c7d41a4372125" title=" " alt="" coords="152,31,246,56"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="104,41,136,41,136,46,104,46"/>
-<area shape="rect" id="Node000003" href="$group__ttalkbox.html#ga3212e5e866e9d7d89504626f24d50411" title=" " alt="" coords="326,5,458,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="246,35,310,26,311,31,247,40"/>
-<area shape="rect" id="Node000004" href="$group__ttalkbox.html#gafa58ada1863f5ffadf829fbb99140675" title=" " alt="" coords="294,55,490,80"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="247,47,279,51,278,56,246,52"/>
-</map>

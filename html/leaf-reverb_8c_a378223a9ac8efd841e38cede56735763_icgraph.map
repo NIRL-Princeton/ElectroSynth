@@ -1,9 +1,0 @@
-<map id="tNReverb_setT60" name="tNReverb_setT60">
-<area shape="rect" id="Node000001" title=" " alt="" coords="377,31,501,56"/>
-<area shape="rect" id="Node000002" href="$group__tnreverb.html#ga19bd2bc0ec08d51f1fb2292dc6feb97d" title="Initialize a tNReverb to a specified mempool." alt="" coords="171,5,312,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="361,36,312,30,313,25,362,31"/>
-<area shape="rect" id="Node000004" href="$leaf-reverb_8c.html#afe4fdebc98648102a54c892922857cfb" title=" " alt="" coords="155,55,329,80"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="362,56,330,60,329,54,361,50"/>
-<area shape="rect" id="Node000003" href="$group__tnreverb.html#gae1c0212383504c948614d42a30dd683c" title="Initialize a tNReverb to the default mempool of a LEAF instance." alt="" coords="5,5,107,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="156,21,107,21,107,16,156,16"/>
-</map>

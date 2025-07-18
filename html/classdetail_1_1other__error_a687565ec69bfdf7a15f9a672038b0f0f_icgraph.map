@@ -1,7 +1,0 @@
-<map id="detail::other_error::create" name="detail::other_error::create">
-<area shape="rect" id="Node000001" title=" " alt="" coords="240,41,362,82"/>
-<area shape="rect" id="Node000002" href="$classbasic__json.html#ad919ffad986df2c11159792ba4f733f2" title=" " alt="" coords="5,5,192,46"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="224,51,192,45,193,40,225,45"/>
-<area shape="rect" id="Node000003" href="$classbasic__json.html#a693812b31e106dec9166e93d8f6dd7d7" title=" " alt="" coords="20,70,177,126"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="225,78,178,86,177,81,224,73"/>
-</map>

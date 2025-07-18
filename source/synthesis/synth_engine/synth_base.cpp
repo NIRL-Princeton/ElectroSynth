@@ -37,10 +37,20 @@
 SynthBase::SynthBase(AudioDeviceManager *deviceManager) : tree(ValueTree(IDs::ELECTROSYNTH)), manager(deviceManager) {
     tree.addChild(juce::ValueTree{IDs::CHAINS}, -1, nullptr);
     tree.addChild(juce::ValueTree{IDs::MODULATORS}, -1, nullptr);
-    tree.addChild(juce::ValueTree{IDs::EFFECTS}, -1, nullptr);
+    juce::ValueTree effect1{IDs::EFFECTS};
+    effect1.setProperty(IDs::effect_lane,0,nullptr);
+    juce::ValueTree effect2{IDs::EFFECTS};
+    effect2.setProperty(IDs::effect_lane,1,nullptr);
+    juce::ValueTree effect3{IDs::EFFECTS};
+    effect3.setProperty(IDs::effect_lane,2,nullptr);
+    tree.addChild(effect1, -1, nullptr);
+    tree.addChild(effect2, -1, nullptr);
+    tree.addChild(effect3, -1, nullptr);
     processors_ = std::make_unique<ChainList<ProcessorBase> >(this,tree.getChildWithName(IDs::CHAINS));
     modulators_ = std::make_unique<ModuleList<ModulatorBase> >(this,tree.getChildWithName(IDs::MODULATORS));
-    effects_ = std::make_unique<EffectList >(this,tree.getChildWithName(IDs::EFFECTS),0);
+    effects_0 = std::make_unique<EffectList >(this,tree.getChildWithProperty(IDs::effect_lane,0),0);
+    effects_1 = std::make_unique<EffectList >(this,tree.getChildWithProperty(IDs::effect_lane,1),1);
+    effects_2 = std::make_unique<EffectList >(this,tree.getChildWithProperty(IDs::effect_lane,2),2);
     self_reference_ = std::make_shared<SynthBase *>();
     *self_reference_ = this;
 
@@ -566,15 +576,17 @@ electrosynth::mapping_change SynthBase::createMappingChange(electrosynth::Modula
     std::getline(ss, proc_string, '_');
     auto [dest, index] = engine_->getParameterInfo(connection->destination_name);
     auto source = engine_->getLEAFProcessorModulator(proc_string);
-
+    connection->sourceProc_ =source;
     electrosynth::mapping_change change;
     change.connection = connection;
     change.mapping = connection->mapping_;
     change.destination = connection->destination_name;
     change.dest_param_index = index;
     //change.source_uuid = source->processorUniqueID;
+
     change._dest = dest;
     change._source = source;
+    change.source = proc_string ;
 
     return change;
 }

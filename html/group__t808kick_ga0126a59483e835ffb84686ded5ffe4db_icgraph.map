@@ -1,5 +1,0 @@
-<map id="t808Kick_initToPool" name="t808Kick_initToPool">
-<area shape="rect" id="Node000001" title="Initialize a t808Kick to a specified mempool." alt="" coords="150,5,286,31"/>
-<area shape="rect" id="Node000002" href="$group__t808kick.html#gadf0610a6f55caa8fe2bce29be8ae5866" title="Initialize a t808Kick to the default mempool of a LEAF instance." alt="" coords="5,5,102,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="134,21,102,21,102,16,134,16"/>
-</map>

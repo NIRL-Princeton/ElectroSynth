@@ -1,7 +1,0 @@
-<map id="PopupList::destroyOpenGlComponents" name="PopupList::destroyOpenGlComponents">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,180,46"/>
-<area shape="rect" id="Node000002" href="$class_synth_section.html#a7bf7d9913a60e1fadcf3f270bdf38813" title=" " alt="" coords="228,5,409,46"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,23,212,23,212,28,180,28"/>
-<area shape="rect" id="Node000003" href="$class_open_gl_component.html#aca4d87abef370d37877f83dda44909a3" title=" " alt="" coords="457,13,640,38"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="410,23,441,23,441,28,410,28"/>
-</map>

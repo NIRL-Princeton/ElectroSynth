@@ -1,7 +1,0 @@
-<map id="mpool_create" name="mpool_create">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,105,56"/>
-<area shape="rect" id="Node000002" href="$leaf-mempool_8c.html#a03d72131ceaf28939aa5fd5ebd87807c" title=" " alt="" coords="153,5,245,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="105,32,137,26,138,32,106,37"/>
-<area shape="rect" id="Node000003" href="$leaf-mempool_8c.html#a86e9ff1e29b71d059a27641ff1b4c00e" title=" " alt="" coords="154,55,244,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="106,49,139,55,138,60,105,54"/>
-</map>

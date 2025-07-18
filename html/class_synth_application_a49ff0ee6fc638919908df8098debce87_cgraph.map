@@ -1,7 +1,0 @@
-<map id="SynthApplication::initialise" name="SynthApplication::initialise">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,35,180,60"/>
-<area shape="rect" id="Node000002" href="$class_synth_application.html#af6aa75db93bb0682f3ab30b66f0916ab" title=" " alt="" coords="228,5,472,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,35,216,31,217,36,180,40"/>
-<area shape="rect" id="Node000003" href="$class_synth_application.html#acdbf0be8a4f6ad5f83add422e0dee0d8" title=" " alt="" coords="259,55,440,96"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="180,54,244,61,243,67,180,60"/>
-</map>

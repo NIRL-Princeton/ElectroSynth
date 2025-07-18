@@ -1,7 +1,0 @@
-<map id="OpenGlComponent::addRoundedCorners" name="OpenGlComponent::addRoundedCorners">
-<area shape="rect" id="Node000001" title=" " alt="" coords="257,35,470,75"/>
-<area shape="rect" id="Node000002" href="$class_open_gl_component.html#a3567b675d5f3213b85c753f9561f6ea7" title=" " alt="" coords="5,5,209,46"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="241,44,209,40,209,35,241,38"/>
-<area shape="rect" id="Node000003" href="$class_bar_renderer.html#a387b5ac300ddebaf3304d420c07033b8" title=" " alt="" coords="19,70,195,96"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="242,71,195,76,195,71,241,66"/>
-</map>

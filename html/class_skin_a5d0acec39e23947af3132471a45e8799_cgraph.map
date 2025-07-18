@@ -1,7 +1,0 @@
-<map id="Skin::jsonToState" name="Skin::jsonToState">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,130,56"/>
-<area shape="rect" id="Node000002" href="$class_skin.html#af1f87616051907ceb045f8b0db046120" title=" " alt="" coords="184,5,294,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="130,32,168,26,169,31,131,37"/>
-<area shape="rect" id="Node000003" href="$class_skin.html#a2a1d533875f2c3073bb438c57f73094e" title=" " alt="" coords="178,55,300,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="131,50,163,54,162,59,130,55"/>
-</map>

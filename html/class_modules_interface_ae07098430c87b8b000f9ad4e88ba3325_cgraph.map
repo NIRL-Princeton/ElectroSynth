@@ -1,9 +1,0 @@
-<map id="ModulesInterface::mouseDown" name="ModulesInterface::mouseDown">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,42,208,68"/>
-<area shape="rect" id="Node000002" href="$class_modules_interface.html#a21d30965ad752713d1815fcd2ab1f61c" title=" " alt="" coords="285,5,450,46"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="208,41,269,34,269,39,208,46"/>
-<area shape="rect" id="Node000003" href="$class_synth_section.html#a02cffa44898631905c06f4d0595899df" title=" " alt="" coords="256,70,479,96"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="208,63,240,67,240,72,208,69"/>
-<area shape="rect" id="Node000004" href="$class_full_interface.html#af56ac6d0d3cc0fffaa22a0a4c64964fd" title=" " alt="" coords="527,70,711,96"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="479,80,511,80,511,86,479,86"/>
-</map>

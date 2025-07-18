@@ -1,5 +1,0 @@
-<map id="AudioChainSection::Listener" name="AudioChainSection::Listener">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,135,46"/>
-<area shape="rect" id="Node000002" href="$class_modulation_manager.html" title=" " alt="" coords="8,94,132,120"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="73,61,73,94,68,94,68,61"/>
-</map>

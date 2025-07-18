@@ -1,8 +1,0 @@
-<map id="PlainTextComponent::paintToImage" name="PlainTextComponent::paintToImage">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,22,148,62"/>
-<area shape="rect" id="Node000002" href="$class_fonts.html#ae7669a3eeb9db437c7d34feff9e99707" title=" " alt="" coords="196,29,307,55"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="148,40,180,40,180,45,148,45"/>
-<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="225,30,220,21,223,11,234,5,251,3,270,5,280,12,277,16,268,10,251,8,236,10,228,15,226,20,230,28"/>
-<area shape="rect" id="Node000003" href="$class_fonts.html#a45eefc38057ad57973216627645d60c9" title=" " alt="" coords="355,29,450,55"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="308,40,339,40,339,45,308,45"/>
-</map>

@@ -1,9 +1,0 @@
-<map id="SynthApplication::MainWindow" name="SynthApplication::MainWindow">
-<area shape="rect" id="Node000001" title=" " alt="" coords="167,94,359,120"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="5,13,155,38"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="122,42,237,92,235,97,120,47"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="180,5,346,46"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="266,61,266,94,260,94,260,61"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="371,13,464,38"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="383,47,287,96,284,92,381,43"/>
-</map>

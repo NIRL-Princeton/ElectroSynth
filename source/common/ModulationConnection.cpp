@@ -3,7 +3,6 @@
 //
 #include "common.h"
 #include "ModulationConnection.h"
-
 namespace electrosynth
 {
     namespace
@@ -111,6 +110,7 @@ namespace electrosynth
 
                 connection->mapping_ = createMapping(to);
                 connection->setDefaultBipolar(ModulationConnection::isModulationSourceDefaultBipolar(from));
+
                 return connection.get();
             }
         }

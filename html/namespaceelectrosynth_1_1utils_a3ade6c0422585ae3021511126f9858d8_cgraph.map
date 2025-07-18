@@ -1,7 +1,0 @@
-<map id="electrosynth::utils::iclamp" name="electrosynth::utils::iclamp">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,23,130,64"/>
-<area shape="rect" id="Node000002" href="$namespaceelectrosynth_1_1utils.html#a67e42b6567e807e611b1f63718445a69" title=" " alt="" coords="178,5,335,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="130,32,162,28,162,33,131,38"/>
-<area shape="rect" id="Node000003" href="$namespaceelectrosynth_1_1utils.html#af62566b2eea8d0bec331edf544dc25ea" title=" " alt="" coords="180,55,333,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="131,49,165,53,164,58,130,54"/>
-</map>

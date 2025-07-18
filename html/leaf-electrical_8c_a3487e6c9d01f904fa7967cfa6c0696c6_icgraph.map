@@ -1,9 +1,0 @@
-<map id="get_port_resistance_for_capacitor" name="get_port_resistance_for_capacitor">
-<area shape="rect" id="Node000001" title=" " alt="" coords="416,5,552,46"/>
-<area shape="rect" id="Node000002" href="$leaf-electrical_8c.html#a1c42e075ca784ef25bf59e8bbfc81618" title=" " alt="" coords="302,13,368,38"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="401,28,369,28,369,23,401,23"/>
-<area shape="rect" id="Node000003" href="$group__twdf.html#ga56db3e9eb7db14bb9bb47a2fdd8f9e03" title="Initialize a tWDF to a specified mempool." alt="" coords="134,13,254,38"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="287,28,254,28,254,23,287,23"/>
-<area shape="rect" id="Node000004" href="$group__twdf.html#ga8d1df9f37020a71ffd7e163045259bc8" title="Initialize a tWDF to the default mempool of a LEAF instance." alt="" coords="5,13,86,38"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="118,28,86,28,86,23,118,23"/>
-</map>

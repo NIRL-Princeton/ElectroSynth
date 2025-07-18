@@ -1,6 +1,0 @@
-<map id="Dynamics" name="Dynamics">
-<area shape="rect" id="Node000001" title="Compression and levelling." alt="" coords="5,55,86,80"/>
-<area shape="rect" id="Node000002" href="$group__tcompressor.html" title="Standard compressor." alt="" coords="148,5,244,31"/>
-<area shape="rect" id="Node000003" href="$group__tfeedbackleveler.html" title="An auto VCA that you put into a feedback circuit to make it stay at the same level." alt="" coords="134,55,258,80"/>
-<area shape="rect" id="Node000004" href="$group__tthreshold.html" title="Threshold with hysteresis (like Max/MSP thresh~ object)" alt="" coords="155,104,237,130"/>
-</map>

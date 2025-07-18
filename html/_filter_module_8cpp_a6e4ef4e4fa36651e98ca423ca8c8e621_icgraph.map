@@ -1,7 +1,0 @@
-<map id="tFiltModule_PeakGainSet" name="tFiltModule_PeakGainSet">
-<area shape="rect" id="Node000001" title=" " alt="" coords="360,5,529,31"/>
-<area shape="rect" id="Node000002" href="$_filter_module_8cpp.html#a890864172e49dad6b425f98e6bd063b9" title=" " alt="" coords="163,5,312,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="344,21,312,21,312,16,344,16"/>
-<area shape="rect" id="Node000003" href="$_filter_module_8cpp.html#a8367203d6f61ba3d934063221d651b7b" title=" " alt="" coords="5,5,115,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="147,21,115,21,115,16,147,16"/>
-</map>

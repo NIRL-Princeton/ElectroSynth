@@ -1,7 +1,0 @@
-<map id="SynthSection::addModulationButton" name="SynthSection::addModulationButton">
-<area shape="rect" id="Node000001" title=" " alt="" coords="254,39,445,79"/>
-<area shape="rect" id="Node000002" href="$class_master_voice_envelope_section.html#a9ea898d33c0c81780614cfacfe0f2f4e" title=" " alt="" coords="5,5,206,46"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="238,46,206,42,206,37,238,41"/>
-<area shape="rect" id="Node000003" href="$class_modulation_section.html#a803b7d5d26e4a8e95f6f95ae9206f7b3" title=" " alt="" coords="37,71,174,111"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="238,76,175,85,174,79,238,71"/>
-</map>

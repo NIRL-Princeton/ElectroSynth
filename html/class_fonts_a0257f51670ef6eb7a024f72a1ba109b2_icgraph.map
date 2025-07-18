@@ -1,9 +1,0 @@
-<map id="Fonts::monospace" name="Fonts::monospace">
-<area shape="rect" id="Node000001" title=" " alt="" coords="470,35,599,60"/>
-<area shape="rect" id="Node000002" href="$class_open_gl_text_editor.html#a40fba41ef66cdd5d63e211b65e3fa44c" title=" " alt="" coords="233,35,422,60"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="455,50,422,50,422,45,455,45"/>
-<area shape="rect" id="Node000003" href="$class_open_gl_text_editor.html#a0d72840d4459cd646bdc452129e4b479" title=" " alt="" coords="8,5,182,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="217,36,182,32,183,27,218,31"/>
-<area shape="rect" id="Node000004" href="$class_open_gl_text_editor.html#a5a8578dd2fe7dfe0bd4ce68a057c9815" title=" " alt="" coords="5,55,185,96"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="218,63,186,67,185,62,217,58"/>
-</map>

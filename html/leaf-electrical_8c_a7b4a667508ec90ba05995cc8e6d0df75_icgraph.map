@@ -1,9 +1,0 @@
-<map id="set_incident_wave_for_leaf" name="set_incident_wave_for_leaf">
-<area shape="rect" id="Node000001" title=" " alt="" coords="416,5,596,31"/>
-<area shape="rect" id="Node000002" href="$leaf-electrical_8c.html#a1c42e075ca784ef25bf59e8bbfc81618" title=" " alt="" coords="302,5,368,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="401,21,369,21,369,16,401,16"/>
-<area shape="rect" id="Node000003" href="$group__twdf.html#ga56db3e9eb7db14bb9bb47a2fdd8f9e03" title="Initialize a tWDF to a specified mempool." alt="" coords="134,5,254,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="287,21,254,21,254,16,287,16"/>
-<area shape="rect" id="Node000004" href="$group__twdf.html#ga8d1df9f37020a71ffd7e163045259bc8" title="Initialize a tWDF to the default mempool of a LEAF instance." alt="" coords="5,5,86,31"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="118,21,86,21,86,16,118,16"/>
-</map>

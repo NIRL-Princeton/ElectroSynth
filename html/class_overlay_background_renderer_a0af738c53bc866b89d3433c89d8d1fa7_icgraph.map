@@ -1,7 +1,0 @@
-<map id="OverlayBackgroundRenderer::init" name="OverlayBackgroundRenderer::init">
-<area shape="rect" id="Node000001" title=" " alt="" coords="478,5,666,46"/>
-<area shape="rect" id="Node000002" href="$class_overlay_background_renderer.html#ae63b14b08f5ac87c4047cff7149fa4bd" title=" " alt="" coords="242,5,430,46"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="462,28,430,28,430,23,462,23"/>
-<area shape="rect" id="Node000003" href="$class_overlay_background_renderer.html#a9bee61eb2e0a76f0483fbe5b65568ad2" title=" " alt="" coords="5,5,194,46"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="226,28,194,28,194,23,226,23"/>
-</map>

@@ -1,7 +1,0 @@
-<map id="ModulationManager::getModulationIndex" name="ModulationManager::getModulationIndex">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,148,79"/>
-<area shape="rect" id="Node000002" href="$class_synth_base.html#af7bb381c4193cfb86245a5fbd5ad762b" title=" " alt="" coords="196,5,373,46"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="147,45,180,40,181,45,148,50"/>
-<area shape="rect" id="Node000003" href="$class_synth_gui_interface.html#a4e948c6a5558b838582d7476f079251d" title=" " alt="" coords="217,71,352,111"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="148,67,202,76,202,81,147,73"/>
-</map>

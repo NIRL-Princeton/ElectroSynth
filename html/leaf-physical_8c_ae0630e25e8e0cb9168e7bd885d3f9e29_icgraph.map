@@ -1,7 +1,0 @@
-<map id="tComplexLivingString_setFreq" name="tComplexLivingString_setFreq">
-<area shape="rect" id="Node000001" title=" " alt="" coords="416,5,561,46"/>
-<area shape="rect" id="Node000002" href="$group__tcomplexlivingstring.html#ga99b18b2748d7191cf15a6a848b2a8568" title="Initialize a tComplexLivingString to a specified mempool." alt="" coords="223,5,368,46"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="401,28,369,28,369,23,401,23"/>
-<area shape="rect" id="Node000003" href="$group__tcomplexlivingstring.html#gaf00f24d3d131a0b899084d0b5e0b1b68" title="Initialize a tComplexLivingString to the default mempool of a LEAF instance." alt="" coords="5,13,175,38"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="207,28,175,28,175,23,207,23"/>
-</map>

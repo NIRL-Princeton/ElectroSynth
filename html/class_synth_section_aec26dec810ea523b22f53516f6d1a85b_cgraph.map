@@ -1,9 +1,0 @@
-<map id="SynthSection::removeSubSection" name="SynthSection::removeSubSection">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,55,223,80"/>
-<area shape="rect" id="Node000002" href="$class_synth_section.html#a30eee9ad9c36ce3609535557eea2d737" title=" " alt="" coords="276,5,456,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="183,51,281,32,282,37,184,57"/>
-<area shape="rect" id="Node000003" href="$class_synth_section.html#adeb51e1d9939ce59a343e6595c6e0434" title=" " alt="" coords="271,55,461,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="223,65,255,65,255,70,223,70"/>
-<area shape="rect" id="Node000004" href="$class_synth_section.html#aacbd2a0f89359676471964d630ca9c21" title=" " alt="" coords="273,104,458,130"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="184,78,282,98,281,103,183,84"/>
-</map>

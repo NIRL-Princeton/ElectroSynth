@@ -1,7 +1,0 @@
-<map id="SynthApplication::loadFromCommandLine" name="SynthApplication::loadFromCommandLine">
-<area shape="rect" id="Node000001" title=" " alt="" coords="228,35,409,75"/>
-<area shape="rect" id="Node000002" href="$class_synth_application.html#a555362d5972588b2bd0c2b2a56314244" title=" " alt="" coords="7,5,178,46"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="212,44,178,39,179,34,213,39"/>
-<area shape="rect" id="Node000003" href="$class_synth_application.html#a49ff0ee6fc638919908df8098debce87" title=" " alt="" coords="5,70,180,96"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="213,71,180,75,180,70,212,65"/>
-</map>

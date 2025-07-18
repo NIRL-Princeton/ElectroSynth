@@ -1,8 +1,0 @@
-<map id="Distortion" name="Distortion">
-<area shape="rect" id="Node000001" title="Degradation and oversampling." alt="" coords="5,104,83,130"/>
-<area shape="rect" id="Node000004" href="$group__t_wavefolder.html" title="more efficient and simpler wavefolder." alt="" coords="156,5,246,31"/>
-<area shape="rect" id="Node000006" href="$group__tcrusher.html" title="Bit depth and sampler rate degrader." alt="" coords="165,55,236,80"/>
-<area shape="rect" id="Node000005" href="$group__tlockhartwavefolder.html" title="Analog model wavefolder." alt="" coords="131,104,271,130"/>
-<area shape="rect" id="Node000003" href="$group__toversampler.html" title="Oversampler." alt="" coords="151,153,250,179"/>
-<area shape="rect" id="Node000002" href="$group__tsamplereducer.html" title="Sample rate reducer." alt="" coords="142,203,260,228"/>
-</map>
