@@ -28,7 +28,7 @@
 #include "RoutingProcessor.h"
 
 namespace electrosynth {
-    SoundEngine::SoundEngine() : /*voice_handler_(nullptr),*/
+    SoundEngine::SoundEngine(juce::UndoManager& um) : undo(um),/*voice_handler_(nullptr),*/
         last_oversampling_amount_(-1), last_sample_rate_(-1), modulation_bank_((leaf)) {
         LEAF_init(&leaf, 44100.0f, memory, 16777216, []() { return (float) rand() / RAND_MAX; });
         //processors.push_back(std::make_shared<OscillatorModuleProcessor> (&leaf));
@@ -54,7 +54,7 @@ namespace electrosynth {
 
 
         MasterVoiceEnvelopeProcessor = std::make_unique<EnvModuleProcessor>(
-            this, juce::ValueTree(IDs::MODULATOR).setProperty(IDs::type, "env", nullptr), &leaf, nullptr);
+            this, juce::ValueTree(IDs::MODULATOR).setProperty(IDs::type, "env", nullptr), &leaf, &undo);
         MasterVoiceEnvelopeProcessor->state_.params.attackParam->setParameterValue(0.1);
         MasterVoiceEnvelopeProcessor->state_.params.decayParam->setParameterValue(0.01);
         MasterVoiceEnvelopeProcessor->state_.params.releaseParam->setParameterValue(0.001);

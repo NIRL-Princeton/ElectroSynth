@@ -36,7 +36,7 @@ namespace electrosynth {
       static constexpr int kDefaultOversamplingAmount = 2;
       static constexpr int kDefaultSampleRate = 44100;
 
-      SoundEngine();
+      SoundEngine(juce::UndoManager& um);
       virtual ~SoundEngine();
 
 //      void init() override;
@@ -170,6 +170,8 @@ namespace electrosynth {
       int curr_sample_rate;
       juce::AudioBuffer<float> temp_voice_buffer{MAX_NUM_VOICES*2,1};
       std::array<juce::AudioBuffer<float>, 4> temp_fx_buffers;
+
+      juce::UndoManager& undo;
       //benchmark::ProcessBlock benchmark;
 //      Value* legato_;
 //      Decimator* decimator_;

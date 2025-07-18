@@ -54,7 +54,7 @@ SynthBase::SynthBase(AudioDeviceManager *deviceManager) : tree(ValueTree(IDs::EL
     self_reference_ = std::make_shared<SynthBase *>();
     *self_reference_ = this;
 
-    engine_ = std::make_unique<electrosynth::SoundEngine>();
+    engine_ = std::make_unique<electrosynth::SoundEngine>(um);
 
 
     mod_connections_.reserve(electrosynth::kMaxModulationConnections);
