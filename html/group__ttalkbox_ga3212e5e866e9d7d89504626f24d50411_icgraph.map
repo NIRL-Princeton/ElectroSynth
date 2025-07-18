@@ -1,0 +1,11 @@
+<map id="tTalkbox_lpcDurbin" name="tTalkbox_lpcDurbin">
+<area shape="rect" id="Node000001" title=" " alt="" coords="358,31,490,56"/>
+<area shape="rect" id="Node000002" href="$group__ttalkbox.html#ga386907795586d153f25c7d41a4372125" title=" " alt="" coords="200,5,294,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="342,35,294,27,295,22,343,29"/>
+<area shape="rect" id="Node000004" href="$group__ttalkbox_lfloat.html#gad618d35e5757ba972a34a55af4a56b5a" title=" " alt="" coords="184,55,310,80"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="343,57,311,62,310,56,342,52"/>
+<area shape="rect" id="Node000003" href="$leaf-effects_8c.html#adaf7713100f1a0a955f874e2af5b9c0e" title=" " alt="" coords="21,5,120,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="184,21,120,21,120,16,184,16"/>
+<area shape="rect" id="Node000005" href="$leaf-effects_8c.html#a85a725a9e71c810f3e74bb3ebe4c6c51" title=" " alt="" coords="5,55,136,80"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="168,70,136,70,136,65,168,65"/>
+</map>

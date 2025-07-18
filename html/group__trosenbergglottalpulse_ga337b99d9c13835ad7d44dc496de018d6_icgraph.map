@@ -1,0 +1,5 @@
+<map id="tRosenbergGlottalPulse_initToPool" name="tRosenbergGlottalPulse_initToPool">
+<area shape="rect" id="Node000001" title="Initialize a tRosenbergGlottalPulse to a specified mempool." alt="" coords="237,5,396,46"/>
+<area shape="rect" id="Node000002" href="$group__trosenbergglottalpulse.html#gabc9f965e57fb4f4d19078e735ceeef41" title="Initialize a tRosenbergGlottalPulse to the default mempool of a LEAF instance." alt="" coords="5,13,189,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="221,28,189,28,189,23,221,23"/>
+</map>

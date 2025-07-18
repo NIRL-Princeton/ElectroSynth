@@ -12,7 +12,7 @@ class ModulationManager;
 class ModulationModuleSection : public ModulesInterface<ModulatorBase>
 {
 public:
-    ModulationModuleSection( ModulationManager*,ModuleList<ModulatorBase>& );
+    ModulationModuleSection( ModulationManager*,ModuleList<ModulatorBase>&, juce::UndoManager& um);
     virtual ~ModulationModuleSection();
 
      void effectsScrolled(int position) override {
@@ -40,6 +40,7 @@ public:
  void removeModule(ModulatorBase* newModule)   override;
  void moduleListChanged() ;
  EffectsViewport viewport;
+    juce::UndoManager& undo;
 };
 
 #endif //ELECTROSYNTH_ModulationMODULESECTION_H

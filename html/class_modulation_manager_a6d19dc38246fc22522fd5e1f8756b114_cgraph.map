@@ -1,0 +1,5 @@
+<map id="ModulationManager::getIndexForModulationSlider" name="ModulationManager::getIndexForModulationSlider">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,192,46"/>
+<area shape="rect" id="Node000002" href="$class_modulation_amount_knob.html#a73e6021f410fe3ca73b52251272610b0" title=" " alt="" coords="240,5,399,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="192,23,224,23,224,28,192,28"/>
+</map>

@@ -1,0 +1,8 @@
+<map id="PopupList::getRowFromPosition" name="PopupList::getRowFromPosition">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,215,31"/>
+<area shape="rect" id="Node000002" href="$class_popup_list.html#af0f5c24547e59448f7db87ccf9f6e487" title=" " alt="" coords="492,5,662,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="215,16,476,16,476,21,215,21"/>
+<area shape="rect" id="Node000003" href="$class_popup_list.html#a3a5038b71cd946b373d33b2e1066b694" title=" " alt="" coords="263,31,444,56"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="215,26,248,30,247,35,215,32"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="444,31,476,27,477,32,445,36"/>
+</map>

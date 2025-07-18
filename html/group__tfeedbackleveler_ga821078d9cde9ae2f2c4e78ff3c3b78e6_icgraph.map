@@ -1,0 +1,23 @@
+<map id="tFeedbackLeveler_free" name="tFeedbackLeveler_free">
+<area shape="rect" id="Node000001" title="Free a tFeedbackLeveler from its mempool." alt="" coords="228,228,381,254"/>
+<area shape="rect" id="Node000002" href="$group__tcomplexlivingstring.html#ga3a7b657a97195d44907de707485d25cb" title="Free a tComplexLivingString from its mempool." alt="" coords="5,5,180,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="291,215,275,176,251,130,218,84,178,44,160,34,162,29,181,40,222,80,255,127,280,174,296,212"/>
+<area shape="rect" id="Node000003" href="$group__tformantshifter.html#gab4d9198bc06d81125663dd3da00fbf47" title="Free a tFormantShifter from its mempool." alt="" coords="22,55,163,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="286,216,242,154,213,121,178,94,157,83,160,79,181,89,216,117,247,150,290,213"/>
+<area shape="rect" id="Node000004" href="$group__tlivingstring2.html#ga6d22b86489a093eaac03451df57064e7" title="Free a tLivingString2 from its mempool." alt="" coords="28,104,157,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="278,219,234,180,178,143,153,133,155,128,181,138,237,176,281,215"/>
+<area shape="rect" id="Node000005" href="$group__tlivingstring.html#ga218b97b43f8b5183be6f64bd48c33363" title="Free a tLivingString from its mempool." alt="" coords="31,153,154,179"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="258,224,179,193,145,182,147,177,181,188,260,219"/>
+<area shape="rect" id="Node000006" href="$leaf-physical_8c.html#aa6b459d9bc9d8ee8421de762deedce8c" title=" " alt="" coords="8,203,177,228"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="212,233,177,228,178,223,213,227"/>
+<area shape="rect" id="Node000007" href="$leaf-physical_8c.html#a1f54560c8b1bfa7ba8d05a6debc8b829" title=" " alt="" coords="8,252,177,278"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="213,254,178,258,177,253,212,249"/>
+<area shape="rect" id="Node000008" href="$leaf-physical_8c.html#ad053e2a2d3aaee721ea2b168344f6044" title=" " alt="" coords="8,301,177,327"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="260,262,181,293,146,303,145,298,179,288,258,257"/>
+<area shape="rect" id="Node000009" href="$leaf-physical_8c.html#a0ba1294ead90277b4b784fc1c251d773" title=" " alt="" coords="8,351,177,376"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="281,267,237,305,181,342,155,353,153,348,178,337,234,301,278,263"/>
+<area shape="rect" id="Node000010" href="$group__tsimplelivingstring.html#ga9d08fedb273f78dfe7dc468736faee1c" title="Free a tSimpleLivingString from its mempool." alt="" coords="11,400,174,426"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="290,269,247,330,216,363,181,391,160,402,157,397,178,387,212,359,242,327,286,266"/>
+<area shape="rect" id="Node000011" href="$leaf-physical_8c.html#ad166a06782eaf838b184cbecead43e59" title=" " alt="" coords="44,449,141,475"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="296,270,279,308,255,354,222,401,181,440,162,451,142,458,140,453,160,446,178,436,218,397,250,351,274,306,291,268"/>
+</map>

@@ -1,0 +1,17 @@
+<map id="TestSection::TestSection" name="TestSection::TestSection">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,128,173,154"/>
+<area shape="rect" id="Node000002" href="$class_synth_section.html#a0b0e9e5d68f1b7cf57bbace00128a235" title=" " alt="" coords="240,79,402,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="152,125,242,106,243,111,154,130"/>
+<area shape="rect" id="Node000007" href="$class_synth_section.html#ae4b092420f64f8d195dd2fdb406bfccf" title=" " alt="" coords="221,128,421,154"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="173,138,205,138,205,144,173,144"/>
+<area shape="rect" id="Node000008" href="$class_synth_section.html#aacbd2a0f89359676471964d630ca9c21" title=" " alt="" coords="228,177,414,203"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="154,152,243,171,242,176,152,157"/>
+<area shape="rect" id="Node000003" href="$class_synth_section.html#a106e35d5a7f591a72016b2a595d33e43" title=" " alt="" coords="469,5,708,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="357,76,468,40,498,32,500,37,470,45,359,81"/>
+<area shape="rect" id="Node000004" href="$class_open_gl_slider.html#a02ef213ae7c9b9f82d303a4dec5750a2" title=" " alt="" coords="475,55,702,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="402,82,460,76,460,82,402,87"/>
+<area shape="rect" id="Node000005" href="$class_open_gl_slider.html#a92bba6166b9a6a274f15882cca5da19e" title=" " alt="" coords="478,104,700,130"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="402,96,463,102,462,108,402,102"/>
+<area shape="rect" id="Node000006" href="$class_synth_slider.html#ae60289c83459c00eab2b0bd272fef10d" title=" " alt="" coords="502,154,675,194"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="389,102,422,113,446,126,470,140,489,147,487,152,468,145,444,131,420,118,388,107"/>
+</map>

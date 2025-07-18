@@ -1,0 +1,22 @@
+<map id="SynthSection::paintJointControl" name="SynthSection::paintJointControl">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,23,169,64"/>
+<area shape="rect" id="Node000002" href="$class_synth_section.html#aa01a2cf1cb512707d217490aa89a8b2f" title=" " alt="" coords="677,15,838,40"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="169,28,216,22,423,4,513,3,630,9,662,12,661,17,629,14,513,9,423,10,217,27,170,33"/>
+<area shape="rect" id="Node000004" href="$class_synth_section.html#ac002025876c4a19ee14e238f3d0ecaea" title=" " alt="" coords="456,23,620,64"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="169,41,441,41,441,46,169,46"/>
+<area shape="rect" id="Node000005" href="$class_synth_section.html#a87c021454e2c5d2207afa28af959a1fe" title=" " alt="" coords="217,84,399,110"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="170,61,237,77,236,82,168,66"/>
+<area shape="rect" id="Node000003" href="$class_skin.html#a9ce18118f19d0503a1581ec8521b7c9b" title=" " alt="" coords="886,15,1044,40"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="838,25,870,25,870,30,838,30"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="620,35,662,32,662,37,620,40"/>
+<area shape="rect" id="Node000006" href="$class_synth_section.html#a6ff7ea35fb2b02355288e798ea5f9a21" title=" " alt="" coords="447,88,629,114"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="399,96,431,96,431,102,399,101"/>
+<area shape="poly" id="edge7_Node000006_Node000002" title=" " alt="" coords="592,85,628,73,676,49,692,43,694,48,678,54,630,78,594,90"/>
+<area shape="rect" id="Node000007" href="$class_fonts.html#ae7669a3eeb9db437c7d34feff9e99707" title=" " alt="" coords="702,88,813,114"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="630,98,687,98,687,103,630,103"/>
+<area shape="rect" id="Node000009" href="$class_fonts.html#a0ca7c8b2b0d128db1cede87c3f011388" title=" " alt="" coords="693,138,822,178"/>
+<area shape="poly" id="edge11_Node000006_Node000009" title=" " alt="" coords="591,112,679,135,677,140,590,117"/>
+<area shape="poly" id="edge10_Node000007_Node000007" title=" " alt="" coords="723,89,716,79,720,70,734,63,758,61,783,64,796,71,793,76,781,69,757,67,736,69,724,73,721,79,727,86"/>
+<area shape="rect" id="Node000008" href="$class_fonts.html#a45eefc38057ad57973216627645d60c9" title=" " alt="" coords="917,88,1012,114"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="814,98,902,98,902,103,814,103"/>
+</map>

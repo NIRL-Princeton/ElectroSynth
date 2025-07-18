@@ -1,0 +1,15 @@
+<map id="tOversampler_initToPool" name="tOversampler_initToPool">
+<area shape="rect" id="Node000001" title="Initialize a tOversampler to a specified mempool." alt="" coords="566,55,730,80"/>
+<area shape="rect" id="Node000002" href="$group__toversampler.html#ga6c89c7875f0f5679ea59430d9a6c61e8" title="Initialize a tOversampler to the default mempool of a LEAF instance." alt="" coords="359,5,482,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="570,53,482,34,483,29,571,48"/>
+<area shape="rect" id="Node000003" href="$group__ttwavetables.html#ga283a12a88b35dfab587dcb167fd2b2c5" title="Initialize a tWaveTableS to a specified mempool." alt="" coords="340,55,502,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="551,70,502,70,502,65,551,65"/>
+<area shape="rect" id="Node000007" href="$leaf-oscillators_8c.html#ad00b659f59bcff42c1c7c43b3131c15d" title=" " alt="" coords="323,104,518,130"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="571,87,484,106,483,101,570,82"/>
+<area shape="rect" id="Node000004" href="$group__ttwavetables.html#ga8a09cbc46aad477ae425aa83a04cc388" title="Initialize a tWaveTableS to the default mempool of a LEAF instance." alt="" coords="153,55,275,80"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="324,70,275,70,275,65,324,65"/>
+<area shape="rect" id="Node000005" href="$leaf_2test_2oscillators__test_8cpp.html#a4779d95e98ca8b5e1f4668578d9be209" title=" " alt="" coords="5,29,105,55"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="137,58,105,53,105,47,138,53"/>
+<area shape="rect" id="Node000006" href="$leaf_2test_2oscillators__test_8cpp.html#a7180a6e911871c5d9d1f9fb04678069f" title=" " alt="" coords="5,79,105,104"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="138,82,105,87,105,81,137,76"/>
+</map>

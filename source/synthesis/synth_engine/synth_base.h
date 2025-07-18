@@ -114,6 +114,8 @@ public:
 
    void addProcessor(std::unique_ptr<ProcessorBase> processor, int voice_index);
    void addChainRouting(std::unique_ptr<RoutingProcessor> processor, int voice_index);
+    void removeChainRouting(RoutingProcessor* processor);
+
    void addEffect(std::unique_ptr<ProcessorBase> processor, int lane);
     void addModulationSource(std::unique_ptr<ModulatorBase> processor, int voice_index);
 

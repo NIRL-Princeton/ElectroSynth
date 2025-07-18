@@ -7,8 +7,8 @@
 #include "about_section.h"
 #include "modulation_manager.h"
 
-AudioChainSection::AudioChainSection(ChainList<ProcessorBase> &chains, ModulationManager *m) : SynthSection("chains"),
-    chains_(chains), modulation_manager_(m) {
+AudioChainSection::AudioChainSection(ChainList<ProcessorBase> &chains, ModulationManager *m, juce::UndoManager& um) : SynthSection("chains"),
+    chains_(chains), modulation_manager_(m), undo(um) {
     container_ = std::make_unique<ModulesListContainer>("container");
 
     addAndMakeVisible(viewport_);
@@ -298,8 +298,9 @@ void AudioChainSection::handlePopupResult(int result) {
         juce::ValueTree t(IDs::SOUNDMODULE);
         t.setProperty(IDs::type, "osc", nullptr);
         juce::ValueTree v(IDs::CHAIN);
-        v.appendChild(t, nullptr);
-        chains_.appendChild(v, nullptr);
+        undo.beginNewTransaction();
+        v.appendChild(t, &undo);
+        chains_.appendChild(v, &undo);
     }
 }
 

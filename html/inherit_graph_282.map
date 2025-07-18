@@ -1,0 +1,9 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" title=" " alt="" coords="5,31,158,56"/>
+<area shape="rect" id="Node000001" href="$class_default_look_and_feel.html" title=" " alt="" coords="206,31,345,56"/>
+<area shape="poly" id="edge280_Node000000_Node000001" title=" " alt="" coords="173,41,205,41,205,46,173,46"/>
+<area shape="rect" id="Node000002" href="$class_curve_look_and_feel.html" title=" " alt="" coords="393,5,525,31"/>
+<area shape="poly" id="edge281_Node000001_Node000002" title=" " alt="" coords="360,29,392,25,393,30,360,34"/>
+<area shape="rect" id="Node000003" href="$class_text_look_and_feel.html" title=" " alt="" coords="398,55,520,80"/>
+<area shape="poly" id="edge282_Node000001_Node000003" title=" " alt="" coords="361,52,398,57,397,62,360,57"/>
+</map>

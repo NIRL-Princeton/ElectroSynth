@@ -1,0 +1,5 @@
+<map id="t808Cowbell_initToPool" name="t808Cowbell_initToPool">
+<area shape="rect" id="Node000001" title="Initialize a t808Cowbell to a specified mempool." alt="" coords="171,5,328,31"/>
+<area shape="rect" id="Node000002" href="$group__t808cowbell.html#gad73082119a3ea30b5531c683617d007b" title="Initialize a t808Cowbell to the default mempool of a LEAF instance." alt="" coords="5,5,123,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="155,21,123,21,123,16,155,16"/>
+</map>

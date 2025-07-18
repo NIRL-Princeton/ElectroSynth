@@ -1,0 +1,12 @@
+<map id="ModulationManager::renderMeters" name="ModulationManager::renderMeters">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,71,148,112"/>
+<area shape="rect" id="Node000002" href="$class_synth_section.html#a23ece0b1a7ac3a7a3ffb8623875d7220" title=" " alt="" coords="225,29,378,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="148,73,224,56,225,61,149,78"/>
+<area shape="rect" id="Node000003" href="$class_open_gl_slider.html#afb98992928c2b58b61d96cadfaa8cb8c" title=" " alt="" coords="225,79,378,104"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="148,89,209,89,209,94,148,94"/>
+<area shape="rect" id="Node000004" href="$class_open_gl_component.html#a1c60673cae2dce8ab46435108ea4f7a3" title=" " alt="" coords="196,128,407,154"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="149,105,225,122,224,127,148,110"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="264,31,257,21,261,11,276,5,301,3,329,5,343,12,340,17,327,10,301,8,278,10,265,15,262,20,268,27"/>
+<area shape="rect" id="Node000005" href="$class_full_interface.html#a9d7b80b786b131c4597e72179ba49650" title=" " alt="" coords="455,120,625,161"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="408,138,439,138,439,144,408,144"/>
+</map>

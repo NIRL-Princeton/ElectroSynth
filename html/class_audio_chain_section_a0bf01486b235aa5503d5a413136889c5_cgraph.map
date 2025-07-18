@@ -1,0 +1,19 @@
+<map id="AudioChainSection::renderOpenGlComponents" name="AudioChainSection::renderOpenGlComponents">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,102,181,142"/>
+<area shape="rect" id="Node000002" href="$class_synth_section.html#a23ece0b1a7ac3a7a3ffb8623875d7220" title=" " alt="" coords="476,29,629,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="129,99,175,77,228,58,288,47,348,40,460,36,460,41,349,45,288,52,229,63,177,82,131,104"/>
+<area shape="rect" id="Node000003" href="$class_synth_section.html#a0b94a0f0b660853bfb868c2ece290d33" title=" " alt="" coords="229,72,403,113"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="180,108,213,104,213,109,181,113"/>
+<area shape="rect" id="Node000005" href="$class_open_gl_component.html#adc3d2663aa41b8aa81699c35c53d213f" title=" " alt="" coords="706,123,908,164"/>
+<area shape="poly" id="edge8_Node000001_Node000005" title=" " alt="" coords="181,122,691,137,690,143,181,127"/>
+<area shape="rect" id="Node000007" href="$class_open_gl_component.html#a1c60673cae2dce8ab46435108ea4f7a3" title=" " alt="" coords="701,188,913,214"/>
+<area shape="poly" id="edge9_Node000001_Node000007" title=" " alt="" coords="181,129,686,185,685,190,181,134"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="513,31,505,21,510,11,526,5,552,3,581,5,596,12,593,17,580,11,552,8,527,10,514,15,511,20,517,27"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="403,72,474,56,475,61,404,77"/>
+<area shape="rect" id="Node000004" href="$class_open_gl_component.html#acbffca8e69957f7f58b66b3d3724d1a9" title=" " alt="" coords="451,84,653,110"/>
+<area shape="poly" id="edge5_Node000003_Node000004" title=" " alt="" coords="404,92,436,92,435,98,403,97"/>
+<area shape="poly" id="edge6_Node000004_Node000005" title=" " alt="" coords="627,108,691,120,690,125,626,113"/>
+<area shape="rect" id="Node000006" href="$class_full_interface.html#a9d7b80b786b131c4597e72179ba49650" title=" " alt="" coords="961,152,1131,193"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="909,153,945,158,945,163,909,159"/>
+<area shape="poly" id="edge10_Node000007_Node000006" title=" " alt="" coords="913,186,945,182,945,187,914,191"/>
+</map>

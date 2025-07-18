@@ -1,0 +1,18 @@
+<map id="Filters" name="Filters">
+<area shape="rect" id="Node000001" title="Filters." alt="" coords="5,351,63,376"/>
+<area shape="rect" id="Node000002" href="$group__tallpass.html" title="Schroeder allpass. Comb&#45;filter with feedforward and feedback." alt="" coords="126,5,194,31"/>
+<area shape="rect" id="Node000008" href="$group__tbiquad.html" title="BiQuad filter, reimplemented from STK (Cook and Scavone)." alt="" coords="126,55,194,80"/>
+<area shape="rect" id="Node000012" href="$group__tbutterworth.html" title="Butterworth filter." alt="" coords="114,104,206,130"/>
+<area shape="rect" id="Node000016" href="$group__tdiodefilter.html" title="Diode filter." alt="" coords="116,153,204,179"/>
+<area shape="rect" id="Node000010" href="$group__tefficientsvf.html" title="Efficient State Variable Filter for 14&#45;bit control input, [0, 4096)." alt="" coords="111,203,210,228"/>
+<area shape="rect" id="Node000013" href="$group__tfir.html" title="Finite impulse response filter." alt="" coords="137,252,184,278"/>
+<area shape="rect" id="Node000011" href="$group__thighpass.html" title="Simple Highpass filter." alt="" coords="120,301,200,327"/>
+<area shape="rect" id="Node000014" href="$group__tmedianfilter.html" title="Median filter." alt="" coords="112,351,208,376"/>
+<area shape="rect" id="Node000003" href="$group__tonepole.html" title="OnePole filter, reimplemented from STK (Cook and Scavone)." alt="" coords="123,400,198,426"/>
+<area shape="rect" id="Node000005" href="$group__tonezero.html" title="OneZero filter, reimplemented from STK (Cook and Scavone)." alt="" coords="123,449,198,475"/>
+<area shape="rect" id="Node000007" href="$group__tpolezero.html" title="PoleZero filter, reimplemented from STK (Cook and Scavone)." alt="" coords="122,499,199,524"/>
+<area shape="rect" id="Node000009" href="$group__tsvf.html" title="State Variable Filter, algorithm from Andy Simper." alt="" coords="135,548,186,574"/>
+<area shape="rect" id="Node000004" href="$group__ttwopole.html" title="TwoPole filter, reimplemented from STK (Cook and Scavone)." alt="" coords="123,597,198,623"/>
+<area shape="rect" id="Node000006" href="$group__ttwozero.html" title="TwoZero filter, reimplemented from STK (Cook and Scavone)." alt="" coords="123,647,198,672"/>
+<area shape="rect" id="Node000015" href="$group__tvzfilter.html" title="Vadim Zavalishin style from VA book (from implementation in RSlib posted to kvr forum)" alt="" coords="125,696,196,722"/>
+</map>

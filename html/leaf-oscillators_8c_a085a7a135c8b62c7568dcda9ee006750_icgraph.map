@@ -1,0 +1,13 @@
+<map id="tPBSawSquare_setFreq" name="tPBSawSquare_setFreq">
+<area shape="rect" id="Node000001" title=" " alt="" coords="482,55,643,80"/>
+<area shape="rect" id="Node000002" href="$_simple_osc_module_8cpp.html#a1d769ff669a68a8e37db2148571e8dff" title=" " alt="" coords="253,5,408,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="483,53,394,34,395,29,484,48"/>
+<area shape="rect" id="Node000004" href="$_simple_osc_module_8cpp.html#a0b6606d8d528017253776e824fa25fb2" title=" " alt="" coords="258,55,402,80"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="466,70,403,70,403,65,466,65"/>
+<area shape="rect" id="Node000006" href="$leaf-oscillators_8c.html#ab3ab8727004570614882f312bc4dfec3" title=" " alt="" coords="227,104,434,130"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="484,87,395,106,394,101,483,82"/>
+<area shape="rect" id="Node000003" href="$_simple_osc_module_8cpp.html#a9d6d4ee0cd5448a9024b6ebc1ee6f3ee" title=" " alt="" coords="34,5,150,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="237,21,150,21,150,16,237,16"/>
+<area shape="rect" id="Node000005" href="$_simple_osc_module_8cpp.html#a7734e136f8220c3762956671822ceffa" title=" " alt="" coords="5,55,179,80"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="243,70,179,70,179,65,243,65"/>
+</map>

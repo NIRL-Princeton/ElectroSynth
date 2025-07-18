@@ -1,0 +1,12 @@
+<map id="Effects" name="Effects">
+<area shape="rect" id="Node000001" title="Vocoders, pitch shifters, and more." alt="" coords="5,203,69,228"/>
+<area shape="rect" id="Node000010" href="$group__tformantshifter.html" title="Formant remover and adder, allowing for formant shifting." alt="" coords="141,5,252,31"/>
+<area shape="rect" id="Node000007" href="$group__tpitchshift.html" title="SOLAD&#45;based pitch shifter." alt="" coords="155,55,238,80"/>
+<area shape="rect" id="Node000009" href="$group__tretune.html" title="Wrapper for multiple pitch shifters with multi&#45;channel output." alt="" coords="163,104,230,130"/>
+<area shape="rect" id="Node000005" href="$group__trosenbergglottalpulse.html" title="Rosenberg glottal pulse approximator." alt="" coords="117,153,276,179"/>
+<area shape="rect" id="Node000008" href="$group__tsimpleretune.html" title="Wrapper for multiple pitch shifters with single&#45;channel output." alt="" coords="143,203,250,228"/>
+<area shape="rect" id="Node000006" href="$group__tsolad.html" title="pitch shifting algorithm that underlies tRetune etc from Katja Vetters http://www...." alt="" coords="161,252,232,278"/>
+<area shape="rect" id="Node000002" href="$group__ttalkbox.html" title="High resolution vocoder from mda using Levinson&#45;Durbin LPC algorithm." alt="" coords="161,301,232,327"/>
+<area shape="rect" id="Node000003" href="$group__ttalkbox_lfloat.html" title="High resolution vocoder from mda using Levinson&#45;Durbin LPC algorithm." alt="" coords="145,351,248,376"/>
+<area shape="rect" id="Node000004" href="$group__tvocoder.html" title="Channel vocoder from mda." alt="" coords="160,400,233,426"/>
+</map>

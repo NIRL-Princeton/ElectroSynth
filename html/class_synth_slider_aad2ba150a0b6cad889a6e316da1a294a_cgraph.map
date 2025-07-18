@@ -1,0 +1,9 @@
+<map id="SynthSlider::drawRotaryShadow" name="SynthSlider::drawRotaryShadow">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,216,56"/>
+<area shape="rect" id="Node000002" href="$class_synth_slider.html#a6ae11745343c02eecfc10c7701b07e83" title=" " alt="" coords="266,5,415,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="216,29,250,25,250,31,216,35"/>
+<area shape="rect" id="Node000004" href="$class_open_gl_slider.html#afb98992928c2b58b61d96cadfaa8cb8c" title=" " alt="" coords="264,55,417,80"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="216,52,248,55,248,61,216,57"/>
+<area shape="rect" id="Node000003" href="$class_open_gl_slider.html#a256a6d4c64853c43cbf3200444fd211d" title=" " alt="" coords="465,5,624,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="416,16,449,16,449,21,416,21"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="tDattorroReverb_setFreeze" name="tDattorroReverb_setFreeze">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,185,56"/>
+<area shape="rect" id="Node000002" href="$leaf-filters_8c.html#acee09be607defc013168723834afc351" title=" " alt="" coords="233,5,353,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="184,29,217,25,218,30,185,35"/>
+<area shape="rect" id="Node000003" href="$leaf-oscillators_8c.html#a7421a30b72cf55e1353f92f5dd1a3832" title=" " alt="" coords="238,55,348,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="185,52,223,56,222,62,184,57"/>
+</map>

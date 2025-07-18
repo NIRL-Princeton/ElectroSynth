@@ -1,0 +1,7 @@
+<map id="AudioChainSection::reset" name="AudioChainSection::reset">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,35,146,75"/>
+<area shape="rect" id="Node000002" href="$class_synth_gui_interface.html#a4e948c6a5558b838582d7476f079251d" title=" " alt="" coords="195,5,329,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="146,41,179,36,180,41,147,47"/>
+<area shape="rect" id="Node000003" href="$class_synth_section.html#ad074869d252b25b094f23d61124720cb" title=" " alt="" coords="194,70,330,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="147,63,179,68,178,73,146,68"/>
+</map>

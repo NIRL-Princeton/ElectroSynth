@@ -1,0 +1,9 @@
+<map id="tTalkboxLfloat_update" name="tTalkboxLfloat_update">
+<area shape="rect" id="Node000001" title="update internal parameters..." alt="" coords="427,31,575,56"/>
+<area shape="rect" id="Node000002" href="$group__ttalkbox_lfloat.html#gac0c5c191b684879c3df5ae69169ec7ae" title="Initialize a tTalkboxLfloat to a specified mempool." alt="" coords="196,5,362,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="411,36,363,30,363,25,412,31"/>
+<area shape="rect" id="Node000004" href="$leaf-effects_8c.html#af52dfce30ff839512f041cff4137b97f" title=" " alt="" coords="180,55,379,80"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="412,56,380,59,379,54,411,51"/>
+<area shape="rect" id="Node000003" href="$group__ttalkbox_lfloat.html#gad73937a1ce80943d0d6f0d6c8e938b90" title="Initialize a tTalkboxLfloat to the default mempool of a LEAF instance." alt="" coords="5,5,132,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="181,21,132,21,132,16,181,16"/>
+</map>

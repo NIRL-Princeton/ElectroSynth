@@ -1,0 +1,9 @@
+<map id="SynthBase::presetChangedThroughMidi" name="SynthBase::presetChangedThroughMidi">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,55,187,96"/>
+<area shape="rect" id="Node000002" href="$class_synth_base.html#aa01fc274a43910828fe96b66bb6da06e" title=" " alt="" coords="235,5,417,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="179,52,256,33,257,38,181,57"/>
+<area shape="rect" id="Node000003" href="$class_synth_gui_interface.html#aee2dc7c0d91f1dc959225d2e2edade26" title=" " alt="" coords="259,55,393,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="187,73,243,73,243,78,187,78"/>
+<area shape="rect" id="Node000004" href="$class_synth_gui_interface.html#ae026d18eef053aed9d73797400f236d4" title=" " alt="" coords="259,120,393,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="171,94,244,115,243,120,169,99"/>
+</map>

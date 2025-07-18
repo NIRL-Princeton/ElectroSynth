@@ -1,0 +1,14 @@
+<map id="SynthSection::addSubSection" name="SynthSection::addSubSection">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,120,201,146"/>
+<area shape="rect" id="Node000002" href="$class_synth_section.html#ac2e7f3da2ffce7711d1ec90e7b1294da" title=" " alt="" coords="258,5,443,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="121,117,176,80,248,41,268,33,270,38,250,46,178,84,124,122"/>
+<area shape="rect" id="Node000003" href="$class_synth_section.html#ac6106e2f9305a0010729da533fe9eb82" title=" " alt="" coords="249,55,452,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="161,117,244,97,245,103,162,122"/>
+<area shape="rect" id="Node000004" href="$class_synth_section.html#a30eee9ad9c36ce3609535557eea2d737" title=" " alt="" coords="260,120,440,146"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="201,130,245,130,245,136,201,136"/>
+<area shape="rect" id="Node000005" href="$class_synth_section.html#ae7500185b489a4a19ea4b7e841d305e0" title=" " alt="" coords="269,169,432,195"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="172,144,268,163,267,168,171,149"/>
+<area shape="rect" id="Node000006" href="$class_synth_section.html#aacbd2a0f89359676471964d630ca9c21" title=" " alt="" coords="500,195,685,220"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="124,144,179,177,213,193,249,205,309,216,370,220,484,218,484,223,370,226,308,221,248,210,211,198,176,181,121,148"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="433,188,485,194,484,199,432,193"/>
+</map>

@@ -1,0 +1,21 @@
+<map id="tRingBuffer_init" name="tRingBuffer_init">
+<area shape="rect" id="Node000001" title="Initialize a tRingBuffer to the default mempool of a LEAF instance." alt="" coords="5,80,117,106"/>
+<area shape="rect" id="Node000002" href="$group__tringbuffer.html#ga42849a91b882ee8231fe494617f8e441" title="Initialize a tRingBuffer to a specified mempool." alt="" coords="165,80,316,106"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="117,90,150,90,150,96,117,96"/>
+<area shape="rect" id="Node000003" href="$leaf-mempool_8c.html#a98a115a6f85f30795e172fd18db7fba4" title=" " alt="" coords="368,55,458,80"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="316,79,352,74,352,79,317,84"/>
+<area shape="rect" id="Node000008" href="$leaf-mempool_8c.html#aa39debf1310a40b850cf115751abd65e" title=" " alt="" coords="364,104,461,130"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="317,101,349,105,348,111,316,106"/>
+<area shape="rect" id="Node000004" href="$leaf-mempool_8c.html#a03d72131ceaf28939aa5fd5ebd87807c" title=" " alt="" coords="554,104,647,130"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="459,77,540,98,539,103,458,82"/>
+<area shape="rect" id="Node000005" href="$leaf-mempool_8c.html#a1cac56e9fbf416e1410563bfb49290b4" title=" " alt="" coords="555,153,646,179"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="446,79,463,89,478,103,487,116,496,128,511,140,541,153,539,158,508,144,492,132,483,119,474,107,460,94,443,83"/>
+<area shape="rect" id="Node000006" href="$leaf_8c.html#a389f39fbcc732ce345106b995b3a434d" title=" " alt="" coords="509,5,692,31"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="458,53,533,33,535,38,459,58"/>
+<area shape="rect" id="Node000007" href="$leaf-mempool_8c.html#a86e9ff1e29b71d059a27641ff1b4c00e" title=" " alt="" coords="555,55,646,80"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="458,65,540,65,540,70,458,70"/>
+<area shape="poly" id="edge8_Node000008_Node000004" title=" " alt="" coords="462,114,539,114,539,120,462,120"/>
+<area shape="poly" id="edge9_Node000008_Node000005" title=" " alt="" coords="462,127,541,148,539,153,461,132"/>
+<area shape="poly" id="edge10_Node000008_Node000006" title=" " alt="" coords="443,101,460,91,474,78,483,65,492,52,508,40,517,35,520,40,511,44,496,56,487,68,478,81,463,95,446,106"/>
+<area shape="poly" id="edge11_Node000008_Node000007" title=" " alt="" coords="461,102,539,81,541,86,462,107"/>
+</map>

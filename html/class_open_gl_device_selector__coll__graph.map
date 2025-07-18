@@ -1,0 +1,11 @@
+<map id="OpenGlDeviceSelector" name="OpenGlDeviceSelector">
+<area shape="rect" id="Node000001" title=" " alt="" coords="76,302,220,328"/>
+<area shape="rect" id="Node000002" href="$class_open_gl_auto_image_component.html" title=" " alt="" coords="20,212,276,253"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="150,268,150,303,145,303,145,268"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,80,170,121"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="105,133,141,211,136,214,100,135"/>
+<area shape="rect" id="Node000004" href="$class_open_gl_auto_image_component.html" title=" " alt="" coords="194,80,379,121"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="257,133,170,214,166,210,254,129"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="234,5,339,31"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="289,46,289,81,284,81,284,46"/>
+</map>

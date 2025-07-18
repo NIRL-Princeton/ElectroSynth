@@ -1,0 +1,7 @@
+<map id="SynthSection::sliderValueChanged" name="SynthSection::sliderValueChanged">
+<area shape="rect" id="Node000001" title=" " alt="" coords="232,39,402,79"/>
+<area shape="rect" id="Node000002" href="$class_header_section.html#a836a1ca43ce4ecc236a75c64c0b5c463" title=" " alt="" coords="5,5,184,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="216,47,184,42,185,36,217,41"/>
+<area shape="rect" id="Node000003" href="$class_modulation_manager.html#ab8e56b435c6b72a7aea8443c13a86d68" title=" " alt="" coords="23,71,166,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="217,76,166,83,166,78,216,71"/>
+</map>

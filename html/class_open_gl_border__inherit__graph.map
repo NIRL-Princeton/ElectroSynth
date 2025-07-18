@@ -1,0 +1,11 @@
+<map id="OpenGlBorder" name="OpenGlBorder">
+<area shape="rect" id="Node000001" title=" " alt="" coords="127,282,220,308"/>
+<area shape="rect" id="Node000002" href="$class_open_gl_auto_image_component.html" title=" " alt="" coords="59,192,288,233"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="176,248,176,282,171,282,171,248"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,88,211,114"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="125,125,165,191,160,194,120,128"/>
+<area shape="rect" id="Node000004" href="$class_open_gl_auto_image_component.html" title=" " alt="" coords="234,80,419,121"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="289,132,201,194,198,190,286,128"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="274,5,380,31"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="330,46,330,81,324,81,324,46"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="ModulationManager::hasFreeConnection" name="ModulationManager::hasFreeConnection">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,63,148,103"/>
+<area shape="rect" id="Node000002" href="$classelectrosynth_1_1_modulation_connection_bank.html#a8c15c5b53d23641fc1eb63876e06504e" title=" " alt="" coords="214,5,382,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="148,62,202,48,203,53,149,67"/>
+<area shape="rect" id="Node000003" href="$class_synth_base.html#ae52dfe228270655971aea89f7346ad99" title=" " alt="" coords="196,70,400,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="148,80,180,80,180,86,148,86"/>
+<area shape="rect" id="Node000004" href="$class_synth_gui_interface.html#a4e948c6a5558b838582d7476f079251d" title=" " alt="" coords="231,120,365,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="149,99,217,117,215,122,148,104"/>
+</map>

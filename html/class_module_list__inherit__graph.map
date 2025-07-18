@@ -1,0 +1,11 @@
+<map id="ModuleList&lt; T &gt;" name="ModuleList&lt; T &gt;">
+<area shape="rect" id="Node000001" title=" " alt="" coords="151,95,257,121"/>
+<area shape="rect" id="Node000003" href="$class_module_list.html" title=" " alt="" coords="5,192,192,218"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="155,129,130,147,114,170,104,193,99,191,109,167,126,143,152,125"/>
+<area shape="rect" id="Node000005" href="$class_module_list.html" title=" " alt="" coords="216,192,400,218"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="236,127,256,143,301,190,297,194,253,147,233,131"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="124,5,284,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="207,61,207,96,201,96,201,61"/>
+<area shape="rect" id="Node000004" href="$class_effect_list.html" title=" " alt="" coords="65,267,132,293"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="101,233,101,267,96,267,96,233"/>
+</map>

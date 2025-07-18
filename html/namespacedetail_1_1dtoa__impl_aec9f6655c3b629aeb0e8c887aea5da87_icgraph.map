@@ -1,0 +1,10 @@
+<map id="detail::dtoa_impl::append_exponent" name="detail::dtoa_impl::append_exponent">
+<area shape="rect" id="Node000001" title="appends a decimal representation of e to buf" alt="" coords="336,29,460,70"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="426,16,415,10,398,8,382,10,372,14,369,20,370,28,365,29,363,19,369,10,381,5,398,3,417,5,428,11"/>
+<area shape="rect" id="Node000002" href="$namespacedetail_1_1dtoa__impl.html#afab91abfdd1cdf43cc2fcd5b9c4a7456" title="prettify v = buf * 10^decimal_exponent" alt="" coords="164,29,288,70"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="321,52,288,52,288,47,321,47"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="252,16,242,10,226,8,210,10,201,14,198,20,199,28,194,29,192,19,198,11,209,5,226,3,244,5,255,11"/>
+<area shape="rect" id="Node000003" href="$namespacedetail.html#a3f0588f1a546b169113e6e1e293168f4" title="generates a decimal representation of the floating&#45;point number value in [first, last)." alt="" coords="5,37,116,62"/>
+<area shape="poly" id="edge4_Node000002_Node000003" title=" " alt="" coords="148,52,116,52,116,47,148,47"/>
+<area shape="poly" id="edge5_Node000003_Node000003" title=" " alt="" coords="88,24,79,18,60,15,43,17,34,22,32,28,37,35,32,38,27,28,30,19,42,12,61,10,81,13,91,19"/>
+</map>

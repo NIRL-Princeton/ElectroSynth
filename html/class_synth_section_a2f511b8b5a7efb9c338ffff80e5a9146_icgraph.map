@@ -1,0 +1,11 @@
+<map id="SynthSection::addToggleButton" name="SynthSection::addToggleButton">
+<area shape="rect" id="Node000001" title=" " alt="" coords="550,55,754,80"/>
+<area shape="rect" id="Node000002" href="$class_synth_section.html#a9e74664c317da17e6c479b23ee77f109" title=" " alt="" coords="330,5,496,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="571,54,478,34,479,29,572,48"/>
+<area shape="rect" id="Node000003" href="$class_synth_section.html#a98013478e89ec21a3e488d2d81594f24" title=" " alt="" coords="330,55,496,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="534,70,496,70,496,65,534,65"/>
+<area shape="rect" id="Node000005" href="$class_modules_interface.html#a6ffba6477150f893dc15e4f641607c83" title=" " alt="" coords="324,104,502,145"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="581,87,501,106,500,101,580,82"/>
+<area shape="rect" id="Node000004" href="$classelectrosynth_1_1parameters__view__detail_1_1_boolean_parameter_component.html#a09d047cd994e887f4aaf2bf466a26827" title=" " alt="" coords="5,40,276,95"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="314,70,276,70,276,65,314,65"/>
+</map>

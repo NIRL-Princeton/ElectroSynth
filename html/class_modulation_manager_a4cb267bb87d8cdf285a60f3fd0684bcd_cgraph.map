@@ -1,0 +1,39 @@
+<map id="ModulationManager::setModulationSettings" name="ModulationManager::setModulationSettings">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,262,156,302"/>
+<area shape="rect" id="Node000002" href="$class_modulation_manager.html#a31312a56281864d17c744b7ace5dc517" title=" " alt="" coords="204,98,391,154"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="100,259,145,216,202,171,220,160,222,164,205,175,148,220,103,263"/>
+<area shape="rect" id="Node000008" href="$class_modulation_amount_knob.html#a73e6021f410fe3ca73b52251272610b0" title=" " alt="" coords="696,132,855,173"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="112,259,154,235,203,214,275,202,402,187,680,159,681,164,403,192,276,207,204,219,156,240,114,263"/>
+<area shape="rect" id="Node000009" href="$class_modulation_amount_knob.html#ad74af59dd6b8e2e6080927f0ed9be11b" title=" " alt="" coords="218,294,377,334"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="157,291,202,297,202,303,156,296"/>
+<area shape="rect" id="Node000010" href="$class_modulation_amount_knob.html#a25e65ee42ee95a8bab02f30355c8d3b6" title=" " alt="" coords="218,359,377,400"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="120,301,205,344,221,351,219,356,203,349,117,306"/>
+<area shape="rect" id="Node000011" href="$class_modulation_amount_knob.html#a5db2e213dd53817d926fd8c7cbd2da30" title=" " alt="" coords="218,424,377,465"/>
+<area shape="poly" id="edge11_Node000001_Node000011" title=" " alt="" coords="98,301,143,355,172,384,205,409,214,415,212,419,202,414,169,388,139,358,94,305"/>
+<area shape="rect" id="Node000012" href="$class_modulation_manager.html#a70b2311c37fc652d9303cd84f5ce8cec" title=" " alt="" coords="226,228,368,269"/>
+<area shape="poly" id="edge12_Node000001_Node000012" title=" " alt="" coords="156,268,210,259,211,265,157,273"/>
+<area shape="rect" id="Node000003" href="$class_modulation_manager.html#a2308a7cb6b1375e64a790ab20440c95f" title=" " alt="" coords="461,48,603,89"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="391,101,445,87,446,92,392,106"/>
+<area shape="rect" id="Node000007" href="$class_modulation_manager.html#a6d19dc38246fc22522fd5e1f8756b114" title=" " alt="" coords="439,114,625,154"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="392,127,424,128,423,133,391,132"/>
+<area shape="rect" id="Node000004" href="$classelectrosynth_1_1_modulation_connection_bank.html#a8c15c5b53d23641fc1eb63876e06504e" title=" " alt="" coords="691,55,860,96"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="604,68,676,70,676,75,604,73"/>
+<area shape="rect" id="Node000005" href="$class_synth_base.html#ae52dfe228270655971aea89f7346ad99" title=" " alt="" coords="673,5,878,31"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="603,51,695,32,696,37,604,57"/>
+<area shape="rect" id="Node000006" href="$class_synth_gui_interface.html#a4e948c6a5558b838582d7476f079251d" title=" " alt="" coords="708,222,843,262"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="605,86,627,100,645,121,653,142,660,162,675,183,714,212,711,216,671,187,655,164,648,143,640,124,624,104,602,91"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="626,139,681,143,680,148,626,144"/>
+<area shape="rect" id="Node000013" href="$class_modulation_manager.html#a308afcc5d03adf6451466e77b722c515" title=" " alt="" coords="461,294,603,334"/>
+<area shape="poly" id="edge13_Node000012_Node000013" title=" " alt="" coords="370,266,447,288,445,293,368,271"/>
+<area shape="rect" id="Node000015" href="$class_modulation_manager.html#a4cbea6ad8727463628f813a2ec3b58e7" title=" " alt="" coords="444,228,620,269"/>
+<area shape="poly" id="edge16_Node000012_Node000015" title=" " alt="" coords="369,246,429,246,429,252,369,252"/>
+<area shape="rect" id="Node000016" href="$class_modulation_manager.html#a3e8e1ba31f8ebc56d84eb984b1a15ad3" title=" " alt="" coords="445,359,619,400"/>
+<area shape="poly" id="edge17_Node000012_Node000016" title=" " alt="" coords="370,267,393,280,409,297,417,313,426,329,441,344,448,349,445,353,437,348,421,332,413,315,404,300,389,284,368,272"/>
+<area shape="poly" id="edge15_Node000013_Node000006" title=" " alt="" coords="602,291,693,264,694,269,604,296"/>
+<area shape="rect" id="Node000014" href="$class_synth_base.html#af7bb381c4193cfb86245a5fbd5ad762b" title=" " alt="" coords="687,294,864,334"/>
+<area shape="poly" id="edge14_Node000013_Node000014" title=" " alt="" coords="604,312,671,312,671,317,604,317"/>
+<area shape="rect" id="Node000017" href="$class_modulation_manager.html#a9c53b6c34003a18ff139b10b0391b5aa" title=" " alt="" coords="691,359,860,400"/>
+<area shape="poly" id="edge18_Node000016_Node000017" title=" " alt="" coords="620,377,676,377,676,382,620,382"/>
+<area shape="rect" id="Node000018" href="$class_modulation_manager.html#a1669597a01afc6041842bc63598b8545" title=" " alt="" coords="692,424,859,465"/>
+<area shape="poly" id="edge19_Node000016_Node000018" title=" " alt="" coords="611,398,683,417,682,422,610,403"/>
+</map>

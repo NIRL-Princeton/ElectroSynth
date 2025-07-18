@@ -1,0 +1,21 @@
+<map id="OpenGlAutoImageComponent&lt; ComponentType &gt;" name="OpenGlAutoImageComponent&lt; ComponentType &gt;">
+<area shape="rect" id="Node000001" title=" " alt="" coords="369,80,554,121"/>
+<area shape="rect" id="Node000003" href="$class_open_gl_auto_image_component.html" title=" " alt="" coords="5,212,190,253"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="355,107,272,119,230,131,190,147,167,162,146,179,114,214,110,211,142,175,164,157,187,143,228,126,271,114,354,101"/>
+<area shape="rect" id="Node000005" href="$class_open_gl_auto_image_component.html" title=" " alt="" coords="214,212,443,253"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="359,128,338,147,330,162,326,179,327,212,322,212,321,178,325,160,334,143,355,124"/>
+<area shape="rect" id="Node000007" href="$class_open_gl_auto_image_component.html" title=" " alt="" coords="467,212,723,253"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="542,126,565,143,577,159,586,178,595,212,590,213,581,180,572,162,561,147,539,130"/>
+<area shape="rect" id="Node000009" href="$class_open_gl_auto_image_component.html" title=" " alt="" coords="747,212,931,253"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="569,106,683,120,732,130,767,143,788,157,805,175,831,211,827,214,801,179,784,161,764,147,731,135,682,125,568,112"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="409,5,514,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="464,46,464,81,459,81,459,46"/>
+<area shape="rect" id="Node000004" href="$class_open_g_l_combo_box.html" title=" " alt="" coords="36,302,160,328"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="100,268,100,303,95,303,95,268"/>
+<area shape="rect" id="Node000006" href="$class_open_gl_border.html" title=" " alt="" coords="282,302,375,328"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="331,268,331,303,326,303,326,268"/>
+<area shape="rect" id="Node000008" href="$class_open_gl_device_selector.html" title=" " alt="" coords="523,302,667,328"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="598,268,598,303,592,303,592,268"/>
+<area shape="rect" id="Node000010" href="$class_open_gl_text_editor.html" title=" " alt="" coords="782,302,896,328"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="842,268,842,303,836,303,836,268"/>
+</map>

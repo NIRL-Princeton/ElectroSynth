@@ -1,0 +1,16 @@
+<map id="SynthSection::getLabelBackgroundBounds" name="SynthSection::getLabelBackgroundBounds">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1021,56,1246,97"/>
+<area shape="rect" id="Node000002" href="$class_synth_section.html#a30c41b16dd66c5bc3c6552c84c72f67d" title=" " alt="" coords="488,13,655,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1005,58,972,54,803,39,655,31,656,26,804,34,973,48,1006,52"/>
+<area shape="rect" id="Node000005" href="$class_synth_section.html#a151256f4baeb58d4d820ee3ea7aaed9c" title=" " alt="" coords="737,64,973,89"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="1005,79,973,79,973,74,1005,74"/>
+<area shape="rect" id="Node000007" href="$class_synth_section.html#a737f6aff42f3b91809a532845bacfaeb" title=" " alt="" coords="742,113,968,154"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="1017,103,958,115,957,110,1016,98"/>
+<area shape="rect" id="Node000003" href="$class_synth_section.html#a7f14dd38873d3b3a43d490201ff44eaf" title=" " alt="" coords="221,5,406,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="473,28,407,28,407,23,473,23"/>
+<area shape="rect" id="Node000004" href="$classelectrosynth_1_1_parameters_view.html#ae7f33d136de799f6972493fb7dbd63ef" title=" " alt="" coords="5,5,173,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="205,28,173,28,173,23,205,23"/>
+<area shape="poly" id="edge5_Node000005_Node000002" title=" " alt="" coords="764,63,647,42,648,36,765,58"/>
+<area shape="rect" id="Node000006" href="$class_synth_section.html#a7f68fe27f584da784d541131761bcc7e" title=" " alt="" coords="454,63,689,103"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="722,82,690,83,690,78,722,77"/>
+</map>

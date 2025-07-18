@@ -1,0 +1,8 @@
+<map id="detail::is_compatible_integer_type_impl&lt; RealIntegerType, CompatibleNumberIntegerType, enable_if_t&lt; std::is_integral&lt; RealIntegerType &gt;::value &amp;&amp;std::is_integral&lt; CompatibleNumberIntegerType &gt;::value &amp;&amp;!std::is_same&lt; bool, CompatibleNumberIntegerType &gt;::value &gt; &gt;" name="detail::is_compatible_integer_type_impl&lt; RealIntegerType, CompatibleNumberIntegerType, enable_if_t&lt; std::is_integral&lt; RealIntegerType &gt;::value &amp;&amp;std::is_integral&lt; CompatibleNumberIntegerType &gt;::value &amp;&amp;!std::is_same&lt; bool, CompatibleNumberIntegerType &gt;::value &gt; &gt;">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,344,364,475"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="131,5,228,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="182,46,186,344,181,344,177,46"/>
+<area shape="rect" id="Node000003" href="$structdetail_1_1is__compatible__integer__type__impl.html" title=" " alt="" coords="201,80,432,151"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="210,37,269,79,266,83,207,42"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="298,166,216,345,211,343,293,163"/>
+</map>

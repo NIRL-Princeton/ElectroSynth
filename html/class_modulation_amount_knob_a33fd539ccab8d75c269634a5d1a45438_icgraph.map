@@ -1,0 +1,8 @@
+<map id="ModulationAmountKnob::isCurrentModulator" name="ModulationAmountKnob::isCurrentModulator">
+<area shape="rect" id="Node000001" title=" " alt="" coords="459,5,618,46"/>
+<area shape="rect" id="Node000002" href="$class_modulation_manager.html#ab0822cffc9d74a4fb432c5c5f66dc5f7" title=" " alt="" coords="5,5,148,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="443,25,411,24,196,24,148,26,148,20,196,19,411,19,443,20"/>
+<area shape="rect" id="Node000003" href="$class_modulation_manager.html#a6c8526d8c8183fc658ec361f41ca9b57" title=" " alt="" coords="196,33,411,74"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="444,40,412,43,411,38,443,34"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="180,41,148,37,148,32,180,36"/>
+</map>

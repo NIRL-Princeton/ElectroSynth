@@ -1,0 +1,16 @@
+<map id="PresetList::loadBrowserCache" name="PresetList::loadBrowserCache">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,128,204,154"/>
+<area shape="rect" id="Node000002" href="$class_synth_section.html#a78dd0f15e5945a73e881ed882173358e" title=" " alt="" coords="252,5,451,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="120,125,175,83,212,60,251,40,266,34,268,39,253,45,214,65,178,88,123,130"/>
+<area shape="rect" id="Node000003" href="$class_preset_list.html#ac3d7e4125ac06e07483b63b6e750c10b" title=" " alt="" coords="266,55,437,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="142,125,251,89,276,82,278,87,252,94,144,130"/>
+<area shape="rect" id="Node000004" href="$class_fonts.html#ae7669a3eeb9db437c7d34feff9e99707" title=" " alt="" coords="296,128,407,154"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="204,138,280,138,280,144,204,144"/>
+<area shape="rect" id="Node000006" href="$class_fonts.html#ad3f42cf6c33957340cc7689bca94b90a" title=" " alt="" coords="287,178,416,218"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="164,152,272,177,271,182,162,157"/>
+<area shape="rect" id="Node000007" href="$class_paths.html#a41c5322b6e8cb88b26e0e177078d9843" title=" " alt="" coords="309,243,394,268"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="125,152,181,189,253,228,295,242,293,247,251,233,178,194,122,156"/>
+<area shape="poly" id="edge5_Node000004_Node000004" title=" " alt="" coords="319,129,312,119,316,110,329,103,351,101,375,104,388,111,385,116,374,109,351,107,331,109,320,113,317,119,323,126"/>
+<area shape="rect" id="Node000005" href="$class_fonts.html#a45eefc38057ad57973216627645d60c9" title=" " alt="" coords="499,128,594,154"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="407,138,483,138,483,144,407,144"/>
+</map>

@@ -1,0 +1,14 @@
+<map id="ModulationButton::paintBackground" name="ModulationButton::paintBackground">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,63,233,88"/>
+<area shape="rect" id="Node000002" href="$class_synth_section.html#aa01a2cf1cb512707d217490aa89a8b2f" title=" " alt="" coords="291,5,452,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="178,59,296,32,297,38,179,65"/>
+<area shape="rect" id="Node000004" href="$class_modulation_button.html#a5203bca146a5a9da1b5aaacc69eb77a8" title=" " alt="" coords="281,55,462,96"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="233,73,265,73,265,78,233,78"/>
+<area shape="rect" id="Node000005" href="$class_fonts.html#ae7669a3eeb9db437c7d34feff9e99707" title=" " alt="" coords="316,144,427,170"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="162,86,315,136,314,141,161,91"/>
+<area shape="rect" id="Node000003" href="$class_skin.html#a9ce18118f19d0503a1581ec8521b7c9b" title=" " alt="" coords="510,5,668,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="452,16,494,16,494,21,452,21"/>
+<area shape="poly" id="edge6_Node000005_Node000005" title=" " alt="" coords="335,145,328,135,332,126,347,119,371,117,398,120,412,127,409,132,397,125,371,123,348,125,336,129,333,135,339,142"/>
+<area shape="rect" id="Node000006" href="$class_fonts.html#a45eefc38057ad57973216627645d60c9" title=" " alt="" coords="542,144,637,170"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="428,154,526,154,526,160,428,160"/>
+</map>

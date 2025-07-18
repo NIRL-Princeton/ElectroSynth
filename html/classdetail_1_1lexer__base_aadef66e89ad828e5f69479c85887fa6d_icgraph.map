@@ -1,0 +1,17 @@
+<map id="detail::lexer_base::token_type_name" name="detail::lexer_base::token_type_name">
+<area shape="rect" id="Node000001" title="return name of values of type token_type (only used for errors)" alt="" coords="763,64,895,105"/>
+<area shape="rect" id="Node000002" href="$classdetail_1_1parser.html#a13621f12e55437efd6c1af970f071a92" title=" " alt="" coords="554,64,715,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="747,88,715,88,715,82,747,82"/>
+<area shape="rect" id="Node000003" href="$classdetail_1_1parser.html#a59f4b745d4aa146bf7a60a30060f592f" title="public parser interface" alt="" coords="197,5,333,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="582,60,545,44,506,31,462,23,416,19,333,17,333,12,417,14,462,18,507,26,547,39,584,55"/>
+<area shape="rect" id="Node000004" href="$classdetail_1_1parser.html#ae9084759356689163fee9ae37e69b050" title=" " alt="" coords="202,94,328,134"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="549,112,507,119,444,122,381,119,328,119,328,113,381,114,444,117,506,114,548,107"/>
+<area shape="rect" id="Node000006" href="$classdetail_1_1parser.html#a362fc204b9a1027d6288deabc3b3360a" title=" " alt="" coords="381,64,506,105"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="539,88,506,88,506,82,539,82"/>
+<area shape="poly" id="edge5_Node000004_Node000004" title=" " alt="" coords="294,81,283,75,265,72,248,74,238,79,234,85,236,93,231,94,229,84,234,75,247,69,265,67,284,70,296,76"/>
+<area shape="rect" id="Node000005" href="$classdetail_1_1parser.html#ac46da3262cbe66ade670c5b4782451e6" title="public accept interface" alt="" coords="5,101,149,127"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="187,117,149,117,149,112,187,112"/>
+<area shape="poly" id="edge7_Node000006_Node000003" title=" " alt="" coords="372,61,301,34,303,29,374,56"/>
+<area shape="poly" id="edge8_Node000006_Node000004" title=" " alt="" coords="366,100,328,106,328,101,365,95"/>
+<area shape="poly" id="edge9_Node000006_Node000006" title=" " alt="" coords="472,51,462,45,444,43,427,45,417,50,413,56,415,63,409,64,408,55,413,46,425,40,444,38,463,40,475,47"/>
+</map>

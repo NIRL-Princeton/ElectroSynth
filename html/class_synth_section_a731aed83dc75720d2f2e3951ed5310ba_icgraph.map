@@ -1,0 +1,7 @@
+<map id="SynthSection::setActive" name="SynthSection::setActive">
+<area shape="rect" id="Node000001" title=" " alt="" coords="231,31,393,56"/>
+<area shape="rect" id="Node000002" href="$class_synth_section.html#a0560a8c64f960482b5b77ff6654c4fb5" title=" " alt="" coords="6,5,182,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="215,35,182,31,183,26,216,30"/>
+<area shape="rect" id="Node000003" href="$class_synth_section.html#aabf4f96c8241d9fb729c782e144dbee1" title=" " alt="" coords="5,55,183,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="216,57,183,60,183,55,215,51"/>
+</map>

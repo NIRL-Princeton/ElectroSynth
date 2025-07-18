@@ -1,0 +1,6 @@
+<map id="basic_json::cbegin" name="basic_json::cbegin">
+<area shape="rect" id="Node000001" title="returns a const iterator to the first element" alt="" coords="205,37,334,62"/>
+<area shape="rect" id="Node000002" href="$classbasic__json.html#a699ef418df577e75f28dfce6b04d6c2f" title=" " alt="" coords="5,29,157,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="189,52,157,52,157,47,189,47"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="111,16,100,10,81,8,63,10,53,15,48,20,50,28,45,29,43,19,49,10,62,5,81,3,102,5,114,11"/>
+</map>

@@ -1,0 +1,10 @@
+<map id="tTriLFO_tick" name="tTriLFO_tick">
+<area shape="rect" id="Node000001" title=" " alt="" coords="541,5,635,31"/>
+<area shape="rect" id="Node000002" href="$_l_f_o_module_8cpp.html#ab156d628de52ca62d2e33c721509dc6d" title=" " alt="" coords="170,5,326,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="526,21,326,21,326,16,526,16"/>
+<area shape="rect" id="Node000004" href="$leaf-oscillators_8c.html#a8522789d1bfdb2cd3938ba1c32e14d6c" title=" " alt="" coords="374,31,493,56"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="526,31,494,36,493,31,525,26"/>
+<area shape="rect" id="Node000003" href="$_l_f_o_module_8cpp.html#a596a28cefca83f9dd6d02c47032796ba" title=" " alt="" coords="5,5,122,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="154,21,122,21,122,16,154,16"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="358,36,326,31,326,26,359,31"/>
+</map>

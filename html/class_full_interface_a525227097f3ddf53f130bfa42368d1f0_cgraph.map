@@ -1,0 +1,11 @@
+<map id="FullInterface::reset" name="FullInterface::reset">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,42,136,68"/>
+<area shape="rect" id="Node000002" href="$class_full_interface.html#a45a06d1c0e1571e842e331c879863cad" title=" " alt="" coords="184,5,382,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="136,43,168,39,168,44,136,49"/>
+<area shape="rect" id="Node000005" href="$class_synth_section.html#ad074869d252b25b094f23d61124720cb" title=" " alt="" coords="215,70,351,96"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="136,61,200,69,199,75,136,66"/>
+<area shape="rect" id="Node000003" href="$class_synth_section.html#aa01a2cf1cb512707d217490aa89a8b2f" title=" " alt="" coords="430,13,590,38"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="382,23,414,23,414,28,382,28"/>
+<area shape="rect" id="Node000004" href="$class_skin.html#a9ce18118f19d0503a1581ec8521b7c9b" title=" " alt="" coords="638,13,797,38"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="591,23,623,23,623,28,591,28"/>
+</map>

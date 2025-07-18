@@ -1,0 +1,7 @@
+<map id="ModulationManager::destroyOpenGlComponents" name="ModulationManager::destroyOpenGlComponents">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,188,46"/>
+<area shape="rect" id="Node000002" href="$class_synth_section.html#a7bf7d9913a60e1fadcf3f270bdf38813" title=" " alt="" coords="236,5,417,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="188,23,220,23,220,28,188,28"/>
+<area shape="rect" id="Node000003" href="$class_open_gl_component.html#aca4d87abef370d37877f83dda44909a3" title=" " alt="" coords="465,13,648,38"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="418,23,449,23,449,28,418,28"/>
+</map>

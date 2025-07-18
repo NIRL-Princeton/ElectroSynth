@@ -1,0 +1,26 @@
+var struct__t_compressor =
+[
+    [ "atodbOffset", "struct__t_compressor.html#a2085365eb4f0b6001d2cb001aca84d6f", null ],
+    [ "atodbScalar", "struct__t_compressor.html#a690c809824330da53131604e6e712929", null ],
+    [ "atodbTable", "struct__t_compressor.html#aa3eea4f2461e7d8d21baaa59f72171fd", null ],
+    [ "atodbTableSizeMinus1", "struct__t_compressor.html#a0745f80a694a936df4dff33027999ac6", null ],
+    [ "dbtoaOffset", "struct__t_compressor.html#abb5a45802191528e052f6b61dbc87f8b", null ],
+    [ "dbtoaScalar", "struct__t_compressor.html#a138ed42872f8c6feab0454477c0e2070", null ],
+    [ "dbtoaTable", "struct__t_compressor.html#ab8051058eb9693f59e09519f03f4eeda", null ],
+    [ "dbtoaTableSizeMinus1", "struct__t_compressor.html#a52a706f55619716a33659d45f167b586", null ],
+    [ "inv4W", "struct__t_compressor.html#a8db30aed0eb63f4e0bb143ccb63bacaa", null ],
+    [ "invR", "struct__t_compressor.html#a8e38db1d52b7825cdb8ae1c3f5468f54", null ],
+    [ "isActive", "struct__t_compressor.html#a2c87e8144de537e6c15d2d7789ef9af8", null ],
+    [ "M", "struct__t_compressor.html#ab778bde42638df33e582f225c54fdf78", null ],
+    [ "mempool", "struct__t_compressor.html#ab3ebf31865328269fa523a5fde43ada0", null ],
+    [ "R", "struct__t_compressor.html#a96e94ba5c8fa3bdb0d68e2e0a4c68622", null ],
+    [ "sampleRate", "struct__t_compressor.html#adb5331a70739878bae216f2ceed9b0ea", null ],
+    [ "T", "struct__t_compressor.html#a5d0c71683f969f31b2cb0c433fb49dd9", null ],
+    [ "tauAttack", "struct__t_compressor.html#a4bf09e9f75213b0cc948c832a0419343", null ],
+    [ "tauRelease", "struct__t_compressor.html#a818399d6d765198e3e9c64544c5adb43", null ],
+    [ "W", "struct__t_compressor.html#a7871488a9ccad40301f100f026bbc557", null ],
+    [ "x_G", "struct__t_compressor.html#ae653a58ada1ce156ba6c7b7086b4d0f4", null ],
+    [ "x_T", "struct__t_compressor.html#ae1b5527b195875049561fdcac0875776", null ],
+    [ "y_G", "struct__t_compressor.html#a1639f9c980db8cd6ef7aa3c6899f0074", null ],
+    [ "y_T", "struct__t_compressor.html#a862c223a9d16b8bc53a544e478893795", null ]
+];

@@ -1,0 +1,4 @@
+<map id="tThreshold" name="tThreshold">
+<area shape="rect" id="Node000002" href="$group__dynamics.html" title="Compression and levelling." alt="" coords="5,5,86,31"/>
+<area shape="rect" id="Node000001" title="Threshold with hysteresis (like Max/MSP thresh~ object)" alt="" coords="134,5,216,31"/>
+</map>

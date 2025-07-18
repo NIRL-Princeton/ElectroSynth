@@ -48,6 +48,7 @@ namespace electrosynth {
        }
       processors.resize(10);
       chainPostGain.reserve(10);
+      chainPostGain.resize(10);
 
       for (auto &processor : processors) {
           processor.reserve(10);
@@ -141,10 +142,7 @@ namespace electrosynth {
       for (int i = offset; i < samples + offset; i++){
           for (int v = 0; v < voiceHandler.numVoicesActive; ++v)
         {
-
             float tempNote = (float)tSimplePoly_getPitch(voiceHandler.voices[v*mpe],(uint8_t) (v*impe));
-
-
             //added this check because if there is no active voice "getPitch" returns -1
             if (tempNote >= 0.0f)
             {

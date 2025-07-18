@@ -1,0 +1,24 @@
+<map id="tSimplePoly_init" name="tSimplePoly_init">
+<area shape="rect" id="Node000001" title="Initialize a tSimplePoly to the default mempool of a LEAF instance." alt="" coords="5,56,121,82"/>
+<area shape="rect" id="Node000002" href="$group__tsimplepoly.html#ga67391919fd2cf8b80b80b9a74f0a2f02" title="Initialize a tSimplePoly to a specified mempool." alt="" coords="169,56,324,82"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="121,66,153,66,153,72,121,72"/>
+<area shape="rect" id="Node000003" href="$leaf-mempool_8c.html#a98a115a6f85f30795e172fd18db7fba4" title=" " alt="" coords="547,56,637,82"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="325,66,531,66,531,72,325,72"/>
+<area shape="rect" id="Node000008" href="$leaf-mempool_8c.html#aa39debf1310a40b850cf115751abd65e" title=" " alt="" coords="543,105,641,131"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="325,77,528,107,528,112,324,83"/>
+<area shape="rect" id="Node000009" href="$group__tstack.html#gac6a330c5c8f6fc6138b22c157e527c81" title="Initialize a tStack to a specified mempool." alt="" coords="372,5,495,31"/>
+<area shape="poly" id="edge12_Node000002_Node000009" title=" " alt="" coords="296,53,368,33,370,38,297,58"/>
+<area shape="rect" id="Node000004" href="$leaf-mempool_8c.html#a03d72131ceaf28939aa5fd5ebd87807c" title=" " alt="" coords="734,105,826,131"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="638,78,719,100,718,105,637,83"/>
+<area shape="rect" id="Node000005" href="$leaf-mempool_8c.html#a1cac56e9fbf416e1410563bfb49290b4" title=" " alt="" coords="735,155,825,180"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="625,80,642,91,657,105,666,118,675,130,690,141,721,154,719,159,687,146,672,133,662,121,653,108,639,95,622,85"/>
+<area shape="rect" id="Node000006" href="$leaf_8c.html#a389f39fbcc732ce345106b995b3a434d" title=" " alt="" coords="689,7,871,32"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="637,54,713,34,714,39,638,60"/>
+<area shape="rect" id="Node000007" href="$leaf-mempool_8c.html#a86e9ff1e29b71d059a27641ff1b4c00e" title=" " alt="" coords="735,56,825,82"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="638,66,719,66,719,72,638,72"/>
+<area shape="poly" id="edge8_Node000008_Node000004" title=" " alt="" coords="641,116,718,116,718,121,641,121"/>
+<area shape="poly" id="edge9_Node000008_Node000005" title=" " alt="" coords="642,128,720,149,719,154,640,133"/>
+<area shape="poly" id="edge10_Node000008_Node000006" title=" " alt="" coords="622,102,639,92,653,79,662,66,672,54,687,41,696,36,699,41,690,46,675,57,666,69,657,82,642,96,625,107"/>
+<area shape="poly" id="edge11_Node000008_Node000007" title=" " alt="" coords="640,103,719,82,720,87,642,108"/>
+<area shape="poly" id="edge13_Node000009_Node000003" title=" " alt="" coords="477,29,536,48,535,53,475,34"/>
+</map>

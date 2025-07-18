@@ -1,0 +1,38 @@
+<map id="tPeriodDetector_init" name="tPeriodDetector_init">
+<area shape="rect" id="Node000001" title="Initialize a tPeriodDetector to the default mempool of a LEAF instance." alt="" coords="5,96,142,121"/>
+<area shape="rect" id="Node000002" href="$group__tperioddetector.html#ga5f11741e3025ffd41e30a96f56424b9f" title="Initialize a tPeriodDetector to a specified mempool." alt="" coords="190,96,366,121"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="142,106,174,106,174,111,142,111"/>
+<area shape="rect" id="Node000003" href="$leaf-mempool_8c.html#a98a115a6f85f30795e172fd18db7fba4" title=" " alt="" coords="858,96,948,121"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="295,93,346,59,378,42,413,30,523,7,568,3,611,4,654,10,699,19,808,51,842,66,873,84,870,89,840,71,806,56,698,25,653,15,611,9,569,8,524,12,415,35,381,47,348,64,298,97"/>
+<area shape="rect" id="Node000008" href="$leaf-analysis_8c.html#a997078da89ef0e9689f2af4009c91032" title=" " alt="" coords="429,45,554,71"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="335,92,419,72,420,77,336,98"/>
+<area shape="rect" id="Node000009" href="$leaf-analysis_8c.html#a63f7ae54e48f388c1beccbf33a574a61" title=" " alt="" coords="650,96,774,121"/>
+<area shape="poly" id="edge9_Node000002_Node000009" title=" " alt="" coords="366,106,635,106,635,111,366,111"/>
+<area shape="rect" id="Node000011" href="$leaf-analysis_8c.html#a3fc6cb4fe548fc09218b611a3f2c097d" title=" " alt="" coords="414,232,569,273"/>
+<area shape="poly" id="edge16_Node000002_Node000011" title=" " alt="" coords="295,120,346,166,415,217,425,222,422,227,413,221,342,170,291,124"/>
+<area shape="rect" id="Node000012" href="$leaf-analysis_8c.html#aff9fc165aab7fe51c4a153f492aca419" title=" " alt="" coords="414,167,569,207"/>
+<area shape="poly" id="edge17_Node000002_Node000012" title=" " alt="" coords="316,119,421,158,419,163,314,124"/>
+<area shape="rect" id="Node000004" href="$leaf-mempool_8c.html#a03d72131ceaf28939aa5fd5ebd87807c" title=" " alt="" coords="1045,145,1137,171"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="950,118,1031,139,1029,144,948,123"/>
+<area shape="rect" id="Node000005" href="$leaf-mempool_8c.html#a1cac56e9fbf416e1410563bfb49290b4" title=" " alt="" coords="1046,194,1136,220"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="937,120,954,130,968,144,977,157,987,169,1001,181,1032,194,1030,199,999,185,983,173,973,160,964,148,950,135,934,124"/>
+<area shape="rect" id="Node000006" href="$leaf_8c.html#a389f39fbcc732ce345106b995b3a434d" title=" " alt="" coords="1000,46,1182,72"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="948,94,1024,74,1025,79,950,99"/>
+<area shape="rect" id="Node000007" href="$leaf-mempool_8c.html#a86e9ff1e29b71d059a27641ff1b4c00e" title=" " alt="" coords="1046,96,1136,121"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="949,106,1031,106,1031,111,949,111"/>
+<area shape="poly" id="edge8_Node000008_Node000003" title=" " alt="" coords="555,57,672,64,807,80,844,89,843,94,806,86,672,69,555,62"/>
+<area shape="poly" id="edge10_Node000009_Node000003" title=" " alt="" coords="774,106,842,106,842,111,774,111"/>
+<area shape="rect" id="Node000010" href="$leaf-mempool_8c.html#aa39debf1310a40b850cf115751abd65e" title=" " alt="" coords="855,145,952,171"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="766,119,840,139,839,144,764,124"/>
+<area shape="poly" id="edge12_Node000010_Node000004" title=" " alt="" coords="952,155,1030,155,1030,160,952,160"/>
+<area shape="poly" id="edge13_Node000010_Node000005" title=" " alt="" coords="953,168,1031,189,1030,194,952,173"/>
+<area shape="poly" id="edge14_Node000010_Node000006" title=" " alt="" coords="934,142,950,132,964,118,973,106,983,93,999,81,1008,76,1010,81,1001,85,987,97,977,109,968,122,954,136,937,146"/>
+<area shape="poly" id="edge15_Node000010_Node000007" title=" " alt="" coords="952,142,1030,122,1031,127,953,148"/>
+<area shape="poly" id="edge19_Node000012_Node000003" title=" " alt="" coords="569,173,681,155,806,131,842,122,843,128,807,136,682,160,570,179"/>
+<area shape="poly" id="edge20_Node000012_Node000010" title=" " alt="" coords="551,206,571,218,586,236,594,254,602,269,619,282,669,303,712,310,755,303,805,282,834,262,857,237,888,183,893,186,861,240,837,266,808,287,757,308,712,315,667,308,616,287,598,272,589,256,582,239,568,222,548,210"/>
+<area shape="rect" id="Node000013" href="$leaf-math_8h.html#a7708eaca709c177cb121ef574d8963c3" title=" " alt="" coords="685,197,739,223"/>
+<area shape="poly" id="edge18_Node000012_Node000013" title=" " alt="" coords="570,192,670,203,670,208,569,198"/>
+<area shape="rect" id="Node000014" href="$leaf-analysis_8c.html#a3d876c022fdb38a5be2f1a50dffba9db" title=" " alt="" coords="617,246,807,272"/>
+<area shape="poly" id="edge21_Node000012_Node000014" title=" " alt="" coords="544,206,618,233,640,239,639,244,616,238,542,211"/>
+<area shape="poly" id="edge22_Node000014_Node000010" title=" " alt="" coords="779,243,805,233,845,207,877,179,881,183,848,212,808,237,781,248"/>
+</map>

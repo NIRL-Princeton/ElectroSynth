@@ -1,0 +1,22 @@
+<map id="electrosynth::SoundEngine::VoiceHandler" name="electrosynth::SoundEngine::VoiceHandler">
+<area shape="rect" id="Node000001" title=" " alt="" coords="179,468,346,509"/>
+<area shape="rect" id="Node000002" href="$struct__t_simple_poly.html" title=" " alt="" coords="72,371,160,397"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="134,395,223,456,220,461,131,399"/>
+<area shape="rect" id="Node000003" href="$struct__t_mempool.html" title=" " alt="" coords="196,120,270,145"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="225,147,199,178,173,218,143,291,125,356,120,354,138,289,168,215,195,175,220,144"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="271,121,289,123,297,132,289,141,286,138,292,132,286,128,270,126"/>
+<area shape="rect" id="Node000004" href="$struct_l_e_a_f.html" title="Struct for an instance of LEAF." alt="" coords="254,371,298,397"/>
+<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="246,143,271,174,292,215,298,253,298,291,287,355,282,354,292,290,293,253,287,217,266,177,242,147"/>
+<area shape="rect" id="Node000005" href="$struct__t_lookup_table.html" title=" " alt="" coords="467,225,562,251"/>
+<area shape="poly" id="edge7_Node000005_Node000003" title=" " alt="" coords="268,143,338,167,470,217,469,222,336,172,267,148"/>
+<area shape="rect" id="Node000007" href="$struct__t_stack.html" title=" " alt="" coords="5,225,61,251"/>
+<area shape="poly" id="edge11_Node000007_Node000003" title=" " alt="" coords="196,137,101,146,57,156,41,163,30,171,24,188,25,209,20,209,18,188,26,168,38,158,55,151,100,141,196,132"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="271,372,250,260,235,163,240,162,255,259,276,371"/>
+<area shape="poly" id="edge6_Node000004_Node000005" title=" " alt="" coords="497,253,339,350,312,365,309,361,336,345,495,249"/>
+<area shape="rect" id="Node000006" href="$structmpool__node__t.html" title=" " alt="" coords="187,14,279,40"/>
+<area shape="poly" id="edge8_Node000003_Node000006" title=" " alt="" coords="236,40,236,103,230,103,230,40"/>
+<area shape="poly" id="edge9_Node000006_Node000006" title=" " alt="" coords="279,14,297,17,306,27,298,37,294,33,300,27,295,22,278,19"/>
+<area shape="poly" id="edge10_Node000002_Node000007" title=" " alt="" coords="34,251,34,295,40,322,51,346,68,361,64,365,47,349,35,323,29,296,29,251"/>
+<area shape="rect" id="Node000008" href="$structt_event_emitter.html" title=" " alt="" coords="321,371,412,397"/>
+<area shape="poly" id="edge12_Node000001_Node000008" title=" " alt="" coords="357,399,296,458,292,454,353,395"/>
+</map>

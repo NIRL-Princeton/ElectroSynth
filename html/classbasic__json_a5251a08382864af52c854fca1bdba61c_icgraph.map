@@ -1,0 +1,10 @@
+<map id="basic_json::begin" name="basic_json::begin">
+<area shape="rect" id="Node000001" title="returns an iterator to the first element" alt="" coords="253,102,375,128"/>
+<area shape="rect" id="Node000002" href="$classbasic__json.html#a699ef418df577e75f28dfce6b04d6c2f" title=" " alt="" coords="29,29,181,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="255,100,172,73,173,68,257,94"/>
+<area shape="rect" id="Node000003" href="$classbasic__json.html#a8676ac2433fe299b8d420f00a0741395" title=" " alt="" coords="5,95,205,135"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="237,118,205,118,205,112,237,112"/>
+<area shape="rect" id="Node000004" href="$classbasic__json.html#a693812b31e106dec9166e93d8f6dd7d7" title=" " alt="" coords="27,159,183,215"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="261,136,185,162,183,157,259,131"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="139,16,126,10,105,8,85,10,73,15,69,20,71,28,65,29,63,19,70,10,84,5,105,3,128,5,141,11"/>
+</map>

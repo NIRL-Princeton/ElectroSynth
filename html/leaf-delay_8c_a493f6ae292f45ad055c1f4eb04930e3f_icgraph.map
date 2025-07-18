@@ -1,0 +1,20 @@
+<map id="tTapeDelay_setDelay" name="tTapeDelay_setDelay">
+<area shape="rect" id="Node000001" title=" " alt="" coords="667,83,814,108"/>
+<area shape="rect" id="Node000002" href="$leaf-reverb_8c.html#a135abfea613e6c96aeee0f9589305f42" title=" " alt="" coords="451,75,619,116"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="652,98,620,98,620,93,652,93"/>
+<area shape="rect" id="Node000006" href="$leaf-reverb_8c.html#a3075f1cd7d0d9d4c7608037d3c2df42d" title=" " alt="" coords="452,140,618,166"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="678,116,585,142,583,137,676,111"/>
+<area shape="rect" id="Node000007" href="$group__ttapedelay.html#ga46d49ac77938aefe546fd638615f3bd3" title="Initialize a tTapeDelay to a specified mempool." alt="" coords="460,25,611,51"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="676,80,583,54,585,49,678,75"/>
+<area shape="rect" id="Node000003" href="$group__tdattorroreverb.html#gae51b1343ff796699056c38c8b0284457" title="Initialize a tDattorroReverb to a specified mempool." alt="" coords="208,55,386,80"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="436,87,386,81,387,75,436,81"/>
+<area shape="rect" id="Node000005" href="$leaf-reverb_8c.html#a00cc8ef69742bc1d794ca90f01740e89" title=" " alt="" coords="192,104,403,130"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="436,107,404,110,403,105,436,102"/>
+<area shape="rect" id="Node000004" href="$group__tdattorroreverb.html#ga1fbf4d2737ea1b0b97a01178e4d1877d" title="Initialize a tDattorroReverb to the default mempool of a LEAF instance." alt="" coords="5,55,144,80"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="193,70,144,70,144,65,193,65"/>
+<area shape="poly" id="edge6_Node000006_Node000005" title=" " alt="" coords="437,141,386,133,387,128,437,135"/>
+<area shape="poly" id="edge8_Node000007_Node000003" title=" " alt="" coords="445,52,387,59,387,54,444,47"/>
+<area shape="poly" id="edge9_Node000007_Node000005" title=" " alt="" coords="470,59,452,66,429,81,404,95,372,106,370,101,402,90,426,76,450,61,468,54"/>
+<area shape="rect" id="Node000008" href="$group__ttapedelay.html#gab5823d4795e2605f9c8123c67a1f786e" title="Initialize a tTapeDelay to the default mempool of a LEAF instance." alt="" coords="242,5,353,31"/>
+<area shape="poly" id="edge10_Node000007_Node000008" title=" " alt="" coords="444,33,353,25,354,20,444,28"/>
+</map>

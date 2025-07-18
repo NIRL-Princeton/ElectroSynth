@@ -58,7 +58,7 @@ int loadAudioFile(AudioSampleBuffer& destination, InputStream* audio_stream) {
 
 class SynthApplication : public JUCEApplication {
   public:
-    class MainWindow : public DocumentWindow, public ApplicationCommandTarget, private AsyncUpdater {
+    class MainWindow : public DocumentWindow, private AsyncUpdater {
       public:
         enum PresetCommand {
           kSave = 0x5001,
@@ -120,42 +120,13 @@ class SynthApplication : public JUCEApplication {
           editor_->shutdownAudio();
         }
 
-        ApplicationCommandTarget* getNextCommandTarget() override {
-          return editor_->getGuiInterface()->commandHandler.get();
-        }
-
-
-
-//        //empty resized function fixes flickering
-//        void resized() override
-//        {
-//          if (editor_ != nullptr)
-//          {
-//            const auto scaleFactor = static_cast<float> (getWidth()) / electrosynth::kDefaultWindowWidth;
-//            editor_->setTransform (AffineTransform::scale (scaleFactor));
-//            editor_->setBounds(0, 0, electrosynth::kDefaultWindowWidth, electrosynth::kDefaultWindowHeight);
-//          }
-//
-//        }
-        void getAllCommands(Array<CommandID>& commands) override {
-          editor_->getGuiInterface()->commandHandler.get()->getAllCommands(commands);
-        }
-
-        void getCommandInfo(const CommandID commandID, ApplicationCommandInfo& result) override {
-          editor_->getGuiInterface()->commandHandler.get()->getCommandInfo(commandID, result);
-        }
-
-        bool perform(const InvocationInfo& info) override {
-          return editor_->getGuiInterface()->commandHandler.get()->perform(info);
-        }
-
         void handleAsyncUpdate() override {
-          if (command_manager_ == nullptr) {
-            command_manager_ = std::make_unique<ApplicationCommandManager>();
-            command_manager_->registerAllCommandsForTarget(JUCEApplication::getInstance());
-            command_manager_->registerAllCommandsForTarget(this);
-            addKeyListener(command_manager_->getKeyMappings());
-          }
+          // if (command_manager_ == nullptr) {
+          //   command_manager_ = std::make_unique<ApplicationCommandManager>();
+          //   command_manager_->registerAllCommandsForTarget(JUCEApplication::getInstance());
+          //   command_manager_->registerAllCommandsForTarget(this);
+          //   addKeyListener(command_manager_->getKeyMappings());
+          // }
           
           if (file_to_load_.exists()) {
             loadFileAsyncUpdate();
@@ -164,6 +135,7 @@ class SynthApplication : public JUCEApplication {
           
           editor_->setFocus();
         }
+        SynthEditor* editor_;
 
       private:
         void loadFileAsyncUpdate() {
@@ -174,12 +146,55 @@ class SynthApplication : public JUCEApplication {
         }
       
         File file_to_load_;
-        SynthEditor* editor_;
         std::unique_ptr<ApplicationCommandManager> command_manager_;
         BorderBoundsConstrainer constrainer_;
       
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainWindow)
     };
+    bool perform (const InvocationInfo& info) override
+    {
+        switch (info.commandID)
+        {
+            case SynthGuiInterface::CommandIDs::save:
+            {
+                main_window_->editor_->getGuiInterface()->openSaveDialog();
+                return true;
+            }
+
+            case SynthGuiInterface::CommandIDs::load:
+            {
+                main_window_->editor_->getGuiInterface()->openLoadDialog();
+                return true;
+            }
+        }
+
+        return false;
+    }
+    void getCommandInfo (const juce::CommandID commandID, juce::ApplicationCommandInfo& info) override
+    {
+        switch (commandID)
+        {
+            case SynthGuiInterface::CommandIDs::save:
+                info.setInfo ("Save", "Save Current Preset", "File", 0);
+            info.addDefaultKeypress ('s', juce::ModifierKeys::commandModifier);
+            break;
+            case SynthGuiInterface::CommandIDs::load:
+                info.setInfo ("Load", "Load New Preset", "File", 0);
+            info.addDefaultKeypress ('l', juce::ModifierKeys::commandModifier);
+            break;
+        }
+    }
+    void getAllCommands (juce::Array<juce::CommandID>& commands) override
+    {
+        commands.add (SynthGuiInterface::CommandIDs::save);
+        commands.add (SynthGuiInterface::CommandIDs::load);
+    }
+    // ApplicationCommandTarget* getNextCommandTarget() override {
+    //   return editor_->getGuiInterface()->commandHandler.get();
+    // }
+
+
+
 
     SynthApplication() = default;
 

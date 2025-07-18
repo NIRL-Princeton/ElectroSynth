@@ -1,0 +1,7 @@
+<map id="tADSRS_free" name="tADSRS_free">
+<area shape="rect" id="Node000001" title="Free a tADSRS from its mempool." alt="" coords="196,31,297,56"/>
+<area shape="rect" id="Node000002" href="$group__t808_kick_small.html#ga1560972a3f337ebb176c68be0bab86b4" title="Free a t808KickSmall from its mempool." alt="" coords="9,5,144,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,36,143,31,144,26,181,31"/>
+<area shape="rect" id="Node000003" href="$group__t808_snare_small.html#ga05b361a4f89dd47d8d3772739c02c6c4" title="Free a t808SnareSmall from its mempool." alt="" coords="5,55,148,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="181,55,148,60,148,55,180,50"/>
+</map>

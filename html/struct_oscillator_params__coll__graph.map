@@ -1,0 +1,27 @@
+<map id="OscillatorParams" name="OscillatorParams">
+<area shape="rect" id="Node000001" title=" " alt="" coords="110,543,221,569"/>
+<area shape="rect" id="Node000002" href="$struct_l_e_a_f_params.html" title=" " alt="" coords="70,468,260,494"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="168,509,168,543,163,543,163,509"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,225,152,251"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="81,266,85,327,91,362,102,396,127,436,155,466,151,470,123,439,98,398,86,363,80,328,75,266"/>
+<area shape="rect" id="Node000010" href="$struct_l_e_a_f_params.html" title=" " alt="" coords="112,371,232,397"/>
+<area shape="poly" id="edge15_Node000010_Node000003" title=" " alt="" coords="96,262,167,370,162,373,92,265"/>
+<area shape="rect" id="Node000004" href="$struct__t_osc_module.html" title=" " alt="" coords="262,371,349,397"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="305,398,296,422,278,446,247,464,245,460,274,442,291,419,300,396"/>
+<area shape="rect" id="Node000005" href="$struct__t_exp_smooth.html" title=" " alt="" coords="295,225,385,251"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="334,252,317,285,310,320,308,354,302,354,305,320,312,283,329,250"/>
+<area shape="rect" id="Node000006" href="$struct__t_mempool.html" title=" " alt="" coords="396,120,471,145"/>
+<area shape="poly" id="edge13_Node000004_Node000006" title=" " alt="" coords="397,138,352,144,302,157,254,181,233,198,216,218,208,236,207,255,212,274,221,293,248,329,279,359,275,362,244,333,216,296,207,276,202,255,203,235,211,215,229,194,251,177,300,152,351,139,396,133"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="397,142,370,153,348,171,340,189,339,209,333,208,335,187,344,168,367,148,395,137"/>
+<area shape="poly" id="edge6_Node000006_Node000006" title=" " alt="" coords="471,121,489,123,497,132,489,141,486,138,492,132,486,128,470,126"/>
+<area shape="rect" id="Node000007" href="$struct_l_e_a_f.html" title="Struct for an instance of LEAF." alt="" coords="586,371,630,397"/>
+<area shape="poly" id="edge8_Node000007_Node000006" title=" " alt="" coords="434,145,432,197,437,229,448,258,474,293,506,322,541,346,572,364,570,368,538,351,503,327,470,297,443,261,432,230,427,197,429,145"/>
+<area shape="rect" id="Node000008" href="$struct__t_lookup_table.html" title=" " alt="" coords="582,225,677,251"/>
+<area shape="poly" id="edge10_Node000008_Node000006" title=" " alt="" coords="456,143,593,215,591,220,454,148"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="629,379,669,371,689,361,705,346,720,313,721,282,709,251,687,218,668,197,646,179,593,155,538,142,487,136,488,131,539,137,595,150,648,175,672,193,691,215,714,249,726,281,726,314,709,349,692,365,671,376,630,385"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="625,252,612,284,608,321,608,354,603,355,603,320,607,283,620,250"/>
+<area shape="rect" id="Node000009" href="$structmpool__node__t.html" title=" " alt="" coords="388,14,479,40"/>
+<area shape="poly" id="edge11_Node000006_Node000009" title=" " alt="" coords="436,40,436,103,431,103,431,40"/>
+<area shape="poly" id="edge12_Node000009_Node000009" title=" " alt="" coords="479,14,497,17,506,27,498,37,494,33,501,27,495,22,479,19"/>
+<area shape="poly" id="edge14_Node000002_Node000010" title=" " alt="" coords="171,412,170,421,168,468,163,468,164,421,165,411"/>
+</map>

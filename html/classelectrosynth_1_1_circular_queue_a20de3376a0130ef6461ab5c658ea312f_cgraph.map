@@ -1,0 +1,10 @@
+<map id="electrosynth::CircularQueue::reserve" name="electrosynth::CircularQueue::reserve">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,48,189,89"/>
+<area shape="rect" id="Node000002" href="$classelectrosynth_1_1_circular_queue.html#a6a3e0dbbd5e5096823719fbd1c8f751b" title=" " alt="" coords="237,5,439,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="188,47,258,32,259,37,190,52"/>
+<area shape="rect" id="Node000003" href="$classelectrosynth_1_1_circular_queue.html#adfa0278ab23f138aaf4aac5623fb6ab6" title=" " alt="" coords="487,23,670,64"/>
+<area shape="poly" id="edge4_Node000001_Node000003" title=" " alt="" coords="189,61,472,46,472,52,189,67"/>
+<area shape="rect" id="Node000004" href="$classelectrosynth_1_1_circular_queue.html#a7a166787da1b4e7156211ea599b2bdf5" title=" " alt="" coords="246,106,430,146"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="186,87,235,99,234,104,185,92"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="440,26,472,30,471,35,439,31"/>
+</map>

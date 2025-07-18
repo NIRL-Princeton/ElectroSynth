@@ -1,0 +1,6 @@
+<map id="ModulationButton::select" name="ModulationButton::select">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,171,55"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="51,31,44,21,48,11,63,5,88,3,115,5,129,12,126,17,114,10,88,8,65,10,52,15,49,20,55,27"/>
+<area shape="rect" id="Node000002" href="$class_modulation_button.html#a325f2cf59aa7e10d77b44000a4a4e6a0" title=" " alt="" coords="219,22,400,62"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="171,40,203,40,203,45,171,45"/>
+</map>

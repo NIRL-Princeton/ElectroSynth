@@ -1,0 +1,10 @@
+<map id="SynthSection::drawLabelBackground" name="SynthSection::drawLabelBackground">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,241,31"/>
+<area shape="rect" id="Node000002" href="$class_synth_section.html#aa01a2cf1cb512707d217490aa89a8b2f" title=" " alt="" coords="562,5,722,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="241,12,289,12,514,12,546,12,546,18,514,17,289,17,241,18"/>
+<area shape="rect" id="Node000004" href="$class_synth_section.html#a988ae340fb5be83419a90fb6ab3e2c07" title=" " alt="" coords="289,26,514,66"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="242,27,273,31,273,36,241,33"/>
+<area shape="rect" id="Node000003" href="$class_skin.html#a9ce18118f19d0503a1581ec8521b7c9b" title=" " alt="" coords="770,5,929,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="723,16,755,16,755,21,723,21"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="514,30,546,27,547,32,515,36"/>
+</map>

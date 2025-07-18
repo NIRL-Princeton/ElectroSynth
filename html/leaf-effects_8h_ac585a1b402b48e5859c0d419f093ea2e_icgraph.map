@@ -1,0 +1,9 @@
+<map id="tTalkbox_update" name="tTalkbox_update">
+<area shape="rect" id="Node000001" title="update internal parameters..." alt="" coords="363,31,479,56"/>
+<area shape="rect" id="Node000002" href="$group__ttalkbox.html#ga8f10b76186682cda5b4a546df84c35e3" title="Initialize a tTalkbox to a specified mempool." alt="" coords="164,5,298,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="347,36,299,30,299,25,348,31"/>
+<area shape="rect" id="Node000004" href="$leaf-effects_8c.html#aebe045216411db2919a0e0c0edf80235" title=" " alt="" coords="148,55,315,80"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="348,55,316,60,315,54,347,50"/>
+<area shape="rect" id="Node000003" href="$group__ttalkbox.html#ga18a1ddfa2f61e60d6ebef394d65f08c6" title="Initialize a tTalkbox to the default mempool of a LEAF instance." alt="" coords="5,5,100,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="149,21,100,21,100,16,149,16"/>
+</map>

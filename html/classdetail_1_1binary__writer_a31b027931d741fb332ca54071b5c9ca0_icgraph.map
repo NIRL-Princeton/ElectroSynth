@@ -1,0 +1,20 @@
+<map id="detail::binary_writer::calc_bson_unsigned_size" name="detail::binary_writer::calc_bson_unsigned_size">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1205,43,1384,83"/>
+<area shape="rect" id="Node000002" href="$classdetail_1_1binary__writer.html#accdf775201461343bd5a2c420b4d6db9" title="Calculates the size necessary to serialize the JSON value j with its name." alt="" coords="985,43,1157,83"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1190,66,1158,66,1158,60,1190,60"/>
+<area shape="rect" id="Node000003" href="$classdetail_1_1binary__writer.html#af8d6408cc5daa2e485d3f7d6cdb0eb58" title=" " alt="" coords="782,43,937,83"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="970,75,938,74,938,69,970,69"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="953,51,985,51,985,57,953,57"/>
+<area shape="rect" id="Node000004" href="$classdetail_1_1binary__writer.html#a3da500027916d93a83e7922006ddc331" title="Writes a BSON element with key name and array value." alt="" coords="599,43,734,83"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="766,66,734,66,734,60,766,60"/>
+<area shape="rect" id="Node000005" href="$classdetail_1_1binary__writer.html#a882debd723dd172f42e0690f84d4b94f" title="Serializes the JSON value j to BSON and associates it with the key name." alt="" coords="406,43,551,83"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="584,75,551,74,552,69,584,69"/>
+<area shape="poly" id="edge6_Node000005_Node000004" title=" " alt="" coords="567,51,599,52,599,57,567,57"/>
+<area shape="rect" id="Node000006" href="$classdetail_1_1binary__writer.html#a93441bda8d804f4e93742f3cf3868da4" title=" " alt="" coords="224,13,358,54"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="390,52,358,47,359,41,391,47"/>
+<area shape="rect" id="Node000007" href="$classdetail_1_1binary__writer.html#a1aae361b7492825979cbb80245b9c0d6" title=" " alt="" coords="23,5,158,46"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="208,33,158,31,158,26,208,28"/>
+<area shape="rect" id="Node000008" href="$classdetail_1_1binary__writer.html#aec965617342a951a3b60f89fcf2e633d" title="Writes a BSON element with key name and object value." alt="" coords="5,71,176,111"/>
+<area shape="poly" id="edge9_Node000006_Node000008" title=" " alt="" coords="209,60,165,73,163,67,208,55"/>
+<area shape="poly" id="edge10_Node000008_Node000005" title=" " alt="" coords="191,81,406,66,406,71,192,86"/>
+</map>

@@ -1,0 +1,15 @@
+<map id="ModulationManager::getConnectionForModulationSlider" name="ModulationManager::getConnectionForModulationSlider">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,118,193,174"/>
+<area shape="rect" id="Node000002" href="$class_modulation_manager.html#a2308a7cb6b1375e64a790ab20440c95f" title=" " alt="" coords="263,92,405,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="193,130,247,122,247,127,193,135"/>
+<area shape="rect" id="Node000006" href="$class_modulation_manager.html#a6d19dc38246fc22522fd5e1f8756b114" title=" " alt="" coords="241,157,427,198"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="193,156,226,160,225,166,193,161"/>
+<area shape="rect" id="Node000003" href="$classelectrosynth_1_1_modulation_connection_bank.html#a8c15c5b53d23641fc1eb63876e06504e" title=" " alt="" coords="493,5,661,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="385,89,474,55,492,49,494,54,476,60,387,94"/>
+<area shape="rect" id="Node000004" href="$class_synth_base.html#ae52dfe228270655971aea89f7346ad99" title=" " alt="" coords="475,70,679,96"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="405,101,459,94,460,100,406,106"/>
+<area shape="rect" id="Node000005" href="$class_synth_gui_interface.html#a4e948c6a5558b838582d7476f079251d" title=" " alt="" coords="510,120,644,161"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="406,118,495,128,494,134,405,123"/>
+<area shape="rect" id="Node000007" href="$class_modulation_amount_knob.html#a73e6021f410fe3ca73b52251272610b0" title=" " alt="" coords="498,185,657,226"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="428,186,482,192,482,197,427,191"/>
+</map>

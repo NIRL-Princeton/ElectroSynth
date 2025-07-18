@@ -1,0 +1,8 @@
+<map id="tStiffString_setPickupPos" name="tStiffString_setPickupPos">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,177,31"/>
+<area shape="rect" id="Node000002" href="$leaf-math_8h.html#ad4bddb22c798cb40b789a727a48b81fd" title=" " alt="" coords="441,5,522,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="177,13,225,12,393,12,425,13,425,18,393,17,225,17,177,18"/>
+<area shape="rect" id="Node000003" href="$leaf-physical_8c.html#ac89792efb67b9bcdfbb59a0d22f28d7a" title=" " alt="" coords="225,26,393,66"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="177,27,209,31,209,36,176,32"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="393,30,425,25,426,30,394,35"/>
+</map>

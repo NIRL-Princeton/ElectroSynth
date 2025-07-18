@@ -1,0 +1,5 @@
+<map id="tWDF_initToPool" name="tWDF_initToPool">
+<area shape="rect" id="Node000001" title="Initialize a tWDF to a specified mempool." alt="" coords="134,5,254,31"/>
+<area shape="rect" id="Node000002" href="$group__twdf.html#ga8d1df9f37020a71ffd7e163045259bc8" title="Initialize a tWDF to the default mempool of a LEAF instance." alt="" coords="5,5,86,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="118,21,86,21,86,16,118,16"/>
+</map>

@@ -1,0 +1,38 @@
+<map id="electrosynth::SoundEngine::SoundEngine" name="electrosynth::SoundEngine::SoundEngine">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,116,183,157"/>
+<area shape="rect" id="Node000002" href="$group__leaf.html#ga68fe7b0d7f49b0389e9eb5ddfdafcab1" title="Initialize the LEAF instance." alt="" coords="502,55,580,80"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="183,117,230,109,486,72,487,77,231,114,184,122"/>
+<area shape="rect" id="Node000008" href="$group__tsimplepoly.html#gaad03d289d4860fd6fc570e359da13f15" title="Initialize a tSimplePoly to the default mempool of a LEAF instance." alt="" coords="265,124,380,150"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="183,134,250,134,250,140,183,140"/>
+<area shape="rect" id="Node000015" href="$group__tsimplepoly.html#gae11bb769f332621148bfe4e9e966cc1d" title="Set the number of voices available to play notes." alt="" coords="231,173,415,199"/>
+<area shape="poly" id="edge21_Node000001_Node000015" title=" " alt="" coords="183,153,246,167,244,172,182,159"/>
+<area shape="rect" id="Node000003" href="$leaf_8c.html#aea755d7519f65470a2058ad64a941d68" title="The default callback function for LEAF errors." alt="" coords="666,55,846,80"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="580,65,651,65,651,70,580,70"/>
+<area shape="rect" id="Node000004" href="$leaf-mempool_8c.html#af4d32681a72fc05fa9f6fe76cf8b16a5" title=" " alt="" coords="707,5,805,31"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="579,56,692,30,693,35,581,61"/>
+<area shape="rect" id="Node000005" href="$leaf-mempool_8c.html#ab27ffb9bdb7b0f888a40f334ff51c8eb" title=" " alt="" coords="894,81,993,107"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="806,26,847,40,909,71,907,76,845,45,804,32"/>
+<area shape="rect" id="Node000006" href="$leaf-mempool_8c.html#a03d72131ceaf28939aa5fd5ebd87807c" title=" " alt="" coords="1086,81,1178,107"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="994,92,1070,92,1070,97,994,97"/>
+<area shape="rect" id="Node000007" href="$leaf-mempool_8c.html#a86e9ff1e29b71d059a27641ff1b4c00e" title=" " alt="" coords="1087,131,1177,156"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="994,105,1073,125,1071,130,993,110"/>
+<area shape="rect" id="Node000009" href="$group__tsimplepoly.html#ga67391919fd2cf8b80b80b9a74f0a2f02" title="Initialize a tSimplePoly to a specified mempool." alt="" coords="463,131,618,156"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="381,136,448,138,448,143,381,141"/>
+<area shape="rect" id="Node000010" href="$leaf-mempool_8c.html#a98a115a6f85f30795e172fd18db7fba4" title=" " alt="" coords="898,131,988,156"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="619,141,883,141,883,146,619,146"/>
+<area shape="rect" id="Node000013" href="$leaf-mempool_8c.html#aa39debf1310a40b850cf115751abd65e" title=" " alt="" coords="895,180,992,206"/>
+<area shape="poly" id="edge14_Node000009_Node000013" title=" " alt="" coords="568,155,613,175,667,192,722,199,779,202,879,197,879,203,779,207,722,204,666,197,611,180,566,159"/>
+<area shape="rect" id="Node000014" href="$group__tstack.html#gac6a330c5c8f6fc6138b22c157e527c81" title="Initialize a tStack to a specified mempool." alt="" coords="694,156,818,182"/>
+<area shape="poly" id="edge19_Node000009_Node000014" title=" " alt="" coords="619,150,679,157,678,162,618,155"/>
+<area shape="poly" id="edge10_Node000010_Node000006" title=" " alt="" coords="988,129,1070,107,1072,113,989,134"/>
+<area shape="poly" id="edge13_Node000010_Node000007" title=" " alt="" coords="989,141,1071,141,1071,146,989,146"/>
+<area shape="rect" id="Node000011" href="$leaf-mempool_8c.html#a1cac56e9fbf416e1410563bfb49290b4" title=" " alt="" coords="1087,180,1177,206"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="989,153,1072,175,1071,180,988,158"/>
+<area shape="rect" id="Node000012" href="$leaf_8c.html#a389f39fbcc732ce345106b995b3a434d" title=" " alt="" coords="1041,229,1223,255"/>
+<area shape="poly" id="edge12_Node000010_Node000012" title=" " alt="" coords="977,155,995,165,1009,179,1019,192,1028,204,1042,216,1051,221,1049,225,1040,220,1024,208,1014,195,1005,183,991,170,974,159"/>
+<area shape="poly" id="edge15_Node000013_Node000006" title=" " alt="" coords="974,177,991,167,1005,154,1014,141,1024,128,1040,116,1070,103,1072,108,1042,120,1028,132,1019,144,1009,157,995,171,977,182"/>
+<area shape="poly" id="edge18_Node000013_Node000007" title=" " alt="" coords="992,178,1072,156,1073,162,993,183"/>
+<area shape="poly" id="edge16_Node000013_Node000011" title=" " alt="" coords="993,190,1072,190,1072,196,993,196"/>
+<area shape="poly" id="edge17_Node000013_Node000012" title=" " alt="" coords="993,203,1067,222,1065,228,992,208"/>
+<area shape="poly" id="edge20_Node000014_Node000010" title=" " alt="" coords="818,158,882,149,883,154,819,163"/>
+</map>

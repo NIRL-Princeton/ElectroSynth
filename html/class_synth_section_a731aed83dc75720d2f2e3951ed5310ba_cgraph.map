@@ -1,0 +1,12 @@
+<map id="SynthSection::setActive" name="SynthSection::setActive">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,42,168,68"/>
+<area shape="rect" id="Node000002" href="$class_synth_section.html#af3bc1e4797ef2a7399f9040e564d8ec1" title=" " alt="" coords="216,42,431,68"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="168,52,200,52,200,58,168,58"/>
+<area shape="rect" id="Node000003" href="$class_full_interface.html#a5a0c9556c4c86ee5dd4b03d380fd8431" title=" " alt="" coords="479,35,649,75"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="432,52,463,52,463,58,432,58"/>
+<area shape="rect" id="Node000004" href="$class_synth_section.html#a615c5863bef49b7ad6eab201c75c79ea" title=" " alt="" coords="697,5,863,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="649,41,681,36,682,42,650,46"/>
+<area shape="rect" id="Node000005" href="$class_synth_section.html#aacbd2a0f89359676471964d630ca9c21" title=" " alt="" coords="911,42,1096,68"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="650,54,697,55,863,55,895,55,895,60,863,60,697,60,650,60"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="863,34,895,38,895,43,863,39"/>
+</map>

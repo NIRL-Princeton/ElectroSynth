@@ -1,0 +1,9 @@
+<map id="ModulationAmountKnob::withBypassSaturation" name="ModulationAmountKnob::withBypassSaturation">
+<area shape="rect" id="Node000001" title=" " alt="" coords="213,71,372,111"/>
+<area shape="rect" id="Node000002" href="$class_modulation_amount_knob.html#a8958707dba9aff3f392f6209c99504fa" title=" " alt="" coords="5,5,165,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="211,68,151,49,153,44,212,63"/>
+<area shape="rect" id="Node000003" href="$class_modulation_amount_knob.html#ad6cab49606706cc881ef2ca2aca36f2c" title=" " alt="" coords="5,71,165,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="197,94,165,94,165,88,197,88"/>
+<area shape="rect" id="Node000004" href="$class_modulation_amount_knob.html#a3d120cca8a627c310c93392a7c31c654" title=" " alt="" coords="5,136,165,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="212,119,153,138,151,133,211,114"/>
+</map>

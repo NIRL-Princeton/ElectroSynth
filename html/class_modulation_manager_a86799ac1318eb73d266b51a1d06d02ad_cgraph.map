@@ -1,0 +1,15 @@
+<map id="ModulationManager::setDestinationQuadBounds" name="ModulationManager::setDestinationQuadBounds">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,169,186,210"/>
+<area shape="rect" id="Node000002" href="$class_modulation_destination.html#af80e09a0bdcb48ba4fd7ad4f75072b8d" title=" " alt="" coords="249,5,399,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="112,167,162,113,196,83,232,57,242,51,245,56,235,61,199,87,166,117,116,171"/>
+<area shape="rect" id="Node000003" href="$class_modulation_destination.html#a6a3efc24df748ccaf9ca788f07c93ae0" title=" " alt="" coords="249,71,399,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="137,166,233,122,249,115,251,120,235,127,139,171"/>
+<area shape="rect" id="Node000004" href="$class_modulation_destination.html#aacb48928e4601e2f6b4246c71657b754" title=" " alt="" coords="249,136,399,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="186,174,233,167,234,172,186,179"/>
+<area shape="rect" id="Node000005" href="$class_modulation_destination.html#a953330e707ee15850206db728e95e904" title=" " alt="" coords="234,201,414,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="186,200,219,204,218,210,186,205"/>
+<area shape="rect" id="Node000006" href="$class_modulation_destination.html#a0f6ed784dafe3995d9316ff915e6739d" title=" " alt="" coords="249,267,399,307"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="140,208,235,251,252,258,250,263,233,256,138,213"/>
+<area shape="rect" id="Node000007" href="$class_modulation_destination.html#ab923cb17860a357eab78c8c08b51141c" title=" " alt="" coords="249,332,399,373"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="116,208,166,262,199,291,235,317,245,322,242,327,232,321,196,295,163,266,112,212"/>
+</map>

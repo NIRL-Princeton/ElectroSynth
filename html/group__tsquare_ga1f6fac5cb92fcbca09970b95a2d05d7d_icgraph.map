@@ -1,0 +1,9 @@
+<map id="tSquare_free" name="tSquare_free">
+<area shape="rect" id="Node000001" title="Free a tSquare from its mempool." alt="" coords="176,55,271,80"/>
+<area shape="rect" id="Node000002" href="$group__t808cowbell.html#gaf582d380f2b6af70344a3a8b4ae04d09" title="Free a t808Cowbell from its mempool." alt="" coords="5,5,128,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="165,52,109,34,111,29,166,47"/>
+<area shape="rect" id="Node000003" href="$group__t808hihat.html#gacdf51e9c89696dfe6347bbf5bd750795" title="Free a t808Hihat from its mempool." alt="" coords="13,55,120,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="160,70,120,70,120,65,160,65"/>
+<area shape="rect" id="Node000004" href="$leaf_2test_2oscillators__test_8cpp.html#a8bccd673633959b2bd04a8baf1173ce9" title=" " alt="" coords="17,104,116,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="166,88,111,106,109,101,165,83"/>
+</map>

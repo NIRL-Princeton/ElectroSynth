@@ -1,0 +1,17 @@
+<map id="PopupList::getBrowseWidth" name="PopupList::getBrowseWidth">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,43,189,68"/>
+<area shape="rect" id="Node000002" href="$class_popup_list.html#aead7124591edbe3d7a66ec08d2ed1e4f" title=" " alt="" coords="260,67,391,92"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="189,62,245,68,244,74,189,68"/>
+<area shape="rect" id="Node000007" href="$class_popup_list.html#a8cfa97b33035abcad33559fd1024e18b" title=" " alt="" coords="237,12,414,38"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="188,41,221,36,221,41,189,46"/>
+<area shape="rect" id="Node000003" href="$class_popup_list.html#af0f5c24547e59448f7db87ccf9f6e487" title=" " alt="" coords="462,5,632,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="374,63,482,33,484,38,375,69"/>
+<area shape="rect" id="Node000004" href="$class_fonts.html#ae7669a3eeb9db437c7d34feff9e99707" title=" " alt="" coords="492,79,603,104"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="391,80,476,85,476,90,391,86"/>
+<area shape="rect" id="Node000006" href="$class_fonts.html#ad3f42cf6c33957340cc7689bca94b90a" title=" " alt="" coords="482,128,612,169"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="370,90,468,122,467,127,368,95"/>
+<area shape="poly" id="edge5_Node000004_Node000004" title=" " alt="" coords="517,80,511,70,514,60,527,54,547,52,569,55,581,61,578,66,567,60,547,57,528,59,518,64,516,69,521,77"/>
+<area shape="rect" id="Node000005" href="$class_fonts.html#a45eefc38057ad57973216627645d60c9" title=" " alt="" coords="680,79,776,104"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="603,89,665,89,665,94,603,94"/>
+<area shape="poly" id="edge8_Node000007_Node000003" title=" " alt="" coords="414,19,446,19,446,24,415,25"/>
+</map>

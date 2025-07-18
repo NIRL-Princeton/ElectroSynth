@@ -1,0 +1,16 @@
+<map id="tRamp_tick" name="tRamp_tick">
+<area shape="rect" id="Node000001" title=" " alt="" coords="369,80,457,106"/>
+<area shape="rect" id="Node000002" href="$leaf-midi_8c.html#ae59dc1ca86c880b379339d7dc031d50e" title=" " alt="" coords="182,5,321,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="376,74,320,45,294,34,296,29,322,40,379,69"/>
+<area shape="rect" id="Node000004" href="$leaf-midi_8c.html#a75425542c5583f833245ab5597a251b8" title=" " alt="" coords="182,55,321,80"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="353,86,321,81,322,76,354,81"/>
+<area shape="rect" id="Node000005" href="$leaf-sampling_8c.html#a9258b69e9a73a8013005e53f277aeb7a" title=" " alt="" coords="201,104,302,130"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="354,104,303,112,302,107,353,99"/>
+<area shape="rect" id="Node000007" href="$leaf-sampling_8c.html#a0f1f946d42a69a2d885725401b5299bb" title=" " alt="" coords="182,153,321,179"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="378,116,322,145,295,155,293,150,320,140,375,111"/>
+<area shape="rect" id="Node000003" href="$leaf-midi_8c.html#ab815176ec120edeede287090e7b5fb01" title=" " alt="" coords="15,31,124,56"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="166,33,125,39,124,33,166,27"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="166,59,124,53,125,48,166,54"/>
+<area shape="rect" id="Node000006" href="$leaf-sampling_8c.html#aa44b6cb41c90aab47a979f6b71ec30f6" title=" " alt="" coords="5,104,134,130"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="185,120,134,120,134,114,185,114"/>
+</map>

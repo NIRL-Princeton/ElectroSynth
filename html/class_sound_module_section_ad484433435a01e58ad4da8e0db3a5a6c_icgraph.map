@@ -1,0 +1,11 @@
+<map id="SoundModuleSection::setEffectPositions" name="SoundModuleSection::setEffectPositions">
+<area shape="rect" id="Node000001" title=" " alt="" coords="590,39,735,79"/>
+<area shape="rect" id="Node000002" href="$class_sound_module_section.html#ad75b4b1b57529fef42629e160e5e561c" title=" " alt="" coords="398,39,542,79"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="575,62,542,62,542,56,575,56"/>
+<area shape="rect" id="Node000003" href="$class_sound_module_section.html#a12056619c222f5ccbda62484bf0164d2" title=" " alt="" coords="206,5,350,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="382,47,350,41,351,36,383,41"/>
+<area shape="rect" id="Node000005" href="$class_sound_module_section.html#acd68669c0c62d9a32ddb4f3338ca0e09" title=" " alt="" coords="206,71,350,111"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="383,76,351,82,350,76,382,71"/>
+<area shape="rect" id="Node000004" href="$class_sound_module_section.html#af5868fcc0765daf7d95fede97f0fc925" title=" " alt="" coords="5,5,158,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="190,28,158,28,158,23,190,23"/>
+</map>

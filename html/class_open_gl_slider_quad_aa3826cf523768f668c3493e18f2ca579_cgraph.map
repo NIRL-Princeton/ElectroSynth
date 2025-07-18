@@ -1,0 +1,9 @@
+<map id="OpenGlSliderQuad::init" name="OpenGlSliderQuad::init">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,35,160,60"/>
+<area shape="rect" id="Node000002" href="$class_open_gl_component.html#ad78b342a43cf1e61d4875b6137ed8127" title=" " alt="" coords="232,5,389,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="160,35,216,28,217,33,160,40"/>
+<area shape="rect" id="Node000003" href="$class_open_gl_multi_quad.html#a4a4b4e97e03cac610dbaadb2c8c73f0d" title=" " alt="" coords="208,55,413,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="160,54,193,58,192,64,160,60"/>
+<area shape="rect" id="Node000004" href="$class_open_gl_multi_quad.html#a8c30d5cde1f0e9699172fc249f9c4b11" title=" " alt="" coords="461,63,632,88"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="413,73,445,73,445,78,413,78"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="tTalkbox_initToPool" name="tTalkbox_initToPool">
+<area shape="rect" id="Node000001" title="Initialize a tTalkbox to a specified mempool." alt="" coords="148,5,282,31"/>
+<area shape="rect" id="Node000002" href="$group__ttalkbox.html#ga18a1ddfa2f61e60d6ebef394d65f08c6" title="Initialize a tTalkbox to the default mempool of a LEAF instance." alt="" coords="5,5,100,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="132,21,100,21,100,16,132,16"/>
+</map>

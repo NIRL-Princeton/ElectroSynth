@@ -1,0 +1,11 @@
+<map id="tDelay_getDelay" name="tDelay_getDelay">
+<area shape="rect" id="Node000001" title=" " alt="" coords="623,31,742,56"/>
+<area shape="rect" id="Node000002" href="$leaf-reverb_8c.html#a6ae94732a8b11ac7baee866e10323663" title=" " alt="" coords="382,5,575,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="608,37,576,33,576,28,608,32"/>
+<area shape="rect" id="Node000003" href="$leaf-reverb_8c.html#a4007e6b13d2cbbd7b2d333fae5fec6ed" title=" " alt="" coords="407,55,550,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="608,55,551,62,551,56,607,50"/>
+<area shape="rect" id="Node000004" href="$group__tprcreverb.html#gac9306654aa3df1e34a3e342a1d0dd966" title="Initialize a tPRCReverb to a specified mempool." alt="" coords="174,55,334,80"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="391,70,335,70,335,65,391,65"/>
+<area shape="rect" id="Node000005" href="$group__tprcreverb.html#ga01e3732fab4359c125516e8ac5e28c16" title="Initialize a tPRCReverb to the default mempool of a LEAF instance." alt="" coords="5,55,126,80"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="158,70,126,70,126,65,158,65"/>
+</map>

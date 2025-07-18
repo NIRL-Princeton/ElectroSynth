@@ -1,0 +1,7 @@
+<map id="t808Hihat_setStickBandPassFreq" name="t808Hihat_setStickBandPassFreq">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,224,31"/>
+<area shape="rect" id="Node000002" href="$leaf-filters_8c.html#a16646ef9497a89b50214cfebb99df4ba" title=" " alt="" coords="272,5,374,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="224,16,256,16,256,21,224,21"/>
+<area shape="rect" id="Node000003" href="$leaf-math_8h.html#ad4bddb22c798cb40b789a727a48b81fd" title=" " alt="" coords="422,5,503,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="374,16,406,16,406,21,374,21"/>
+</map>

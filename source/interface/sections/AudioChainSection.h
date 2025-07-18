@@ -30,7 +30,7 @@ class AudioChainSection : public SynthSection , public ChainList<ProcessorBase>:
 public juce::ScrollBar::Listener, EffectsViewport::Listener {
 
 public:
-    AudioChainSection(ChainList<ProcessorBase>&,ModulationManager* m);// : SynthSection("AudioChainSection") {}
+    AudioChainSection(ChainList<ProcessorBase>&,ModulationManager* m, juce::UndoManager& um);// : SynthSection("AudioChainSection") {}
     ~AudioChainSection();
     void chainAdded(ModuleList<ProcessorBase> *newModule) override;
     void chainChanged() override;
@@ -95,6 +95,7 @@ public:
     std::vector<std::unique_ptr<SoundModuleSection>> sound_module_sections;
     ModulationManager* modulation_manager_;
     std::shared_ptr<OpenGlQuad> footer_quad_;
+    juce::UndoManager& undo;
     void added() override {
 
         resized();

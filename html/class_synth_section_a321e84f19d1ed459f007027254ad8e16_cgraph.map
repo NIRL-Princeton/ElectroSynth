@@ -1,0 +1,10 @@
+<map id="SynthSection::setSkinValues" name="SynthSection::setSkinValues">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,55,196,80"/>
+<area shape="rect" id="Node000002" href="$class_skin.html#a6604addefe3496634f4ed20756a0b97c" title=" " alt="" coords="244,5,422,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="164,51,254,32,255,37,165,57"/>
+<area shape="rect" id="Node000004" href="$class_skin.html#aa1b41fc426158dce6ec419c259bc29e4" title=" " alt="" coords="244,55,423,80"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="196,74,228,74,228,79,196,79"/>
+<area shape="rect" id="Node000003" href="$class_skin.html#a31e3f1f281fead4256c5b093d51f8ec9" title=" " alt="" coords="471,5,575,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="423,16,455,16,455,21,423,21"/>
+<area shape="poly" id="edge4_Node000004_Node000001" title=" " alt="" coords="243,61,211,61,211,56,243,56"/>
+</map>

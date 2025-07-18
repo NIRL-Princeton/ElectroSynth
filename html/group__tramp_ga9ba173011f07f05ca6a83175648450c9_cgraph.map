@@ -1,0 +1,15 @@
+<map id="tRamp_init" name="tRamp_init">
+<area shape="rect" id="Node000001" title="Initialize a tRamp to the default mempool of a LEAF instance." alt="" coords="5,80,90,106"/>
+<area shape="rect" id="Node000002" href="$group__tramp.html#ga338123b61fd63883eed0bafadf144266" title="Initialize a tRamp to a specified mempool." alt="" coords="138,80,262,106"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="90,90,122,90,122,96,90,96"/>
+<area shape="rect" id="Node000003" href="$leaf-mempool_8c.html#a98a115a6f85f30795e172fd18db7fba4" title=" " alt="" coords="310,80,400,106"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="262,90,295,90,295,96,262,96"/>
+<area shape="rect" id="Node000004" href="$leaf-mempool_8c.html#a03d72131ceaf28939aa5fd5ebd87807c" title=" " alt="" coords="493,5,586,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="376,77,409,58,447,40,477,30,479,35,449,45,411,63,379,82"/>
+<area shape="rect" id="Node000005" href="$leaf-mempool_8c.html#a1cac56e9fbf416e1410563bfb49290b4" title=" " alt="" coords="494,55,585,80"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="401,84,479,73,480,78,401,89"/>
+<area shape="rect" id="Node000006" href="$leaf_8c.html#a389f39fbcc732ce345106b995b3a434d" title=" " alt="" coords="448,104,631,130"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="401,96,433,100,433,106,401,101"/>
+<area shape="rect" id="Node000007" href="$leaf-mempool_8c.html#a86e9ff1e29b71d059a27641ff1b4c00e" title=" " alt="" coords="494,153,585,179"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="379,104,449,140,480,150,479,155,447,145,377,109"/>
+</map>

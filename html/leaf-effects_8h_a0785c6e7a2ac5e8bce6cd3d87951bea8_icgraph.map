@@ -1,0 +1,27 @@
+<map id="tSOLAD_setPitchFactor" name="tSOLAD_setPitchFactor">
+<area shape="rect" id="Node000001" title=" " alt="" coords="598,104,761,130"/>
+<area shape="rect" id="Node000002" href="$leaf-effects_8c.html#ae0067ef5835fec4e8e7574a2a99a09ef" title=" " alt="" coords="404,55,550,80"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="608,102,532,84,534,78,610,97"/>
+<area shape="rect" id="Node000008" href="$leaf-effects_8c.html#a12a9ec21c50d763e79e21370764bee1c" title=" " alt="" coords="412,104,542,130"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="583,120,543,120,543,114,583,114"/>
+<area shape="rect" id="Node000011" href="$leaf-effects_8c.html#ab7235d6328be9d10064bbc421b2bd510" title=" " alt="" coords="413,153,541,179"/>
+<area shape="poly" id="edge12_Node000001_Node000011" title=" " alt="" coords="610,137,534,155,532,150,608,131"/>
+<area shape="rect" id="Node000003" href="$leaf-effects_8c.html#a753594df3f542dc580c35527bc3b5757" title=" " alt="" coords="217,5,324,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="405,53,323,33,325,28,406,48"/>
+<area shape="rect" id="Node000004" href="$leaf-effects_8c.html#a6a747f6f1163b3af53a4adb1526b95c1" title=" " alt="" coords="205,104,336,130"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="406,87,328,106,327,101,405,82"/>
+<area shape="rect" id="Node000006" href="$leaf-effects_8c.html#a9865009238e1213b489386e69b3c5bdc" title=" " alt="" coords="185,55,356,80"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="389,70,357,70,357,65,389,65"/>
+<area shape="rect" id="Node000005" href="$leaf-effects_8c.html#a51e8c7034f00a4d82d850fb75e75fe99" title=" " alt="" coords="25,104,117,130"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="189,120,117,120,117,114,189,114"/>
+<area shape="rect" id="Node000007" href="$leaf-effects_8c.html#a784c1e1a514c47322281d2c0f3a0dbfd" title=" " alt="" coords="5,55,137,80"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="169,70,137,70,137,65,169,65"/>
+<area shape="poly" id="edge8_Node000008_Node000004" title=" " alt="" coords="397,120,337,120,337,114,397,114"/>
+<area shape="poly" id="edge10_Node000008_Node000006" title=" " alt="" coords="405,102,327,84,328,78,406,97"/>
+<area shape="rect" id="Node000009" href="$leaf-effects_8c.html#acecfdf2e871894d2fbe89c6cce8413fd" title=" " alt="" coords="208,203,332,228"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="413,139,406,143,391,155,382,168,373,181,357,194,334,205,332,200,355,189,369,177,378,165,387,152,402,139,410,134"/>
+<area shape="rect" id="Node000010" href="$leaf-effects_8c.html#a2bd522bc60a373483409d85e369bc1d5" title=" " alt="" coords="188,153,352,179"/>
+<area shape="poly" id="edge11_Node000008_Node000010" title=" " alt="" coords="406,136,328,155,327,150,405,131"/>
+<area shape="poly" id="edge13_Node000011_Node000009" title=" " alt="" coords="406,186,328,205,327,199,405,181"/>
+<area shape="poly" id="edge14_Node000011_Node000010" title=" " alt="" coords="397,169,353,169,353,164,397,164"/>
+</map>

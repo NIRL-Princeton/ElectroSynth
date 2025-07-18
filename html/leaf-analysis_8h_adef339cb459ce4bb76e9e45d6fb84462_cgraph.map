@@ -1,0 +1,27 @@
+<map id="tPeriodDetection_tick" name="tPeriodDetection_tick">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,55,152,80"/>
+<area shape="rect" id="Node000002" href="$leaf-analysis_8c.html#ae89c89d02977975395281910f108c4b1" title=" " alt="" coords="200,5,353,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="133,51,206,33,208,38,134,57"/>
+<area shape="rect" id="Node000003" href="$leaf-analysis_8c.html#a7189e22d1c062d86ac3321f87b36509b" title=" " alt="" coords="214,55,339,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="152,65,198,65,198,70,152,70"/>
+<area shape="rect" id="Node000004" href="$leaf-analysis_8c.html#a6ce1c9791defd7c2ac1da98a228af60e" title=" " alt="" coords="211,104,342,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="134,78,208,97,206,102,133,84"/>
+<area shape="rect" id="Node000005" href="$leaf-analysis_8c.html#a7af9c9ea513c60e44f35271c0af5c8b1" title=" " alt="" coords="401,104,535,130"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="342,114,386,114,386,120,342,120"/>
+<area shape="rect" id="Node000006" href="$leaf-analysis_8c.html#a7655cc8cc62237e72b17e60577bd3995" title=" " alt="" coords="588,29,729,55"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="496,101,582,64,598,58,600,63,584,69,498,106"/>
+<area shape="rect" id="Node000007" href="$leaf-analysis_8c.html#acbec760282f47e82580ae032bf044cc6" title=" " alt="" coords="602,79,715,104"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="535,105,587,98,587,104,536,111"/>
+<area shape="rect" id="Node000008" href="$leaf-analysis_8c.html#aed3c8ddacc25202becd19f7d1c328d19" title=" " alt="" coords="583,177,734,203"/>
+<area shape="poly" id="edge7_Node000005_Node000008" title=" " alt="" coords="499,128,584,164,600,169,598,174,582,169,497,133"/>
+<area shape="rect" id="Node000012" href="$leaf-analysis_8c.html#afffb772d7699e4fbad1e413435b05186" title=" " alt="" coords="604,128,713,154"/>
+<area shape="poly" id="edge12_Node000005_Node000012" title=" " alt="" coords="536,123,589,129,589,135,535,128"/>
+<area shape="rect" id="Node000009" href="$leaf-math_8h.html#a1ee3e4086396777ff69eefabcd272b6e" title=" " alt="" coords="790,127,904,152"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="708,174,781,154,783,159,710,179"/>
+<area shape="rect" id="Node000010" href="$leaf-math_8h.html#a978cb38ced435c7f0a6c6ff3669e6537" title=" " alt="" coords="960,203,1083,228"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="734,193,945,208,945,213,734,198"/>
+<area shape="rect" id="Node000011" href="$leaf-analysis_8c.html#a5d3293cd1ff555f262781c23da773e96" title=" " alt="" coords="782,228,912,254"/>
+<area shape="poly" id="edge10_Node000008_Node000011" title=" " alt="" coords="710,201,783,221,781,226,708,206"/>
+<area shape="poly" id="edge11_Node000011_Node000010" title=" " alt="" coords="912,229,944,224,945,229,913,234"/>
+<area shape="poly" id="edge13_Node000012_Node000009" title=" " alt="" coords="713,138,774,137,774,143,713,143"/>
+</map>

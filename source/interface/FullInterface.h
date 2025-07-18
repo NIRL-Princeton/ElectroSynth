@@ -118,6 +118,7 @@ private :
     //std::unique_ptr<OpenGlToggleButton> inspectButton;
     OpenGlBackground background_;
     std::unique_ptr<ModulationManager> modulation_manager;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FullInterface)
 };
 

@@ -1,0 +1,7 @@
+<map id="tPlutaQuadOsc_tick" name="tPlutaQuadOsc_tick">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,144,31"/>
+<area shape="rect" id="Node000002" href="$leaf-filters_8c.html#af6b42900df7cb8f021537d29a6aca3f1" title=" " alt="" coords="192,5,312,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="144,16,176,16,176,21,144,21"/>
+<area shape="rect" id="Node000003" href="$leaf-filters_8c.html#a7d7352960344d632ff1631119dd49ddb" title=" " alt="" coords="360,5,439,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="313,16,344,16,344,21,313,21"/>
+</map>

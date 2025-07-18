@@ -1,0 +1,11 @@
+<map id="tPBSineTriangle_free" name="tPBSineTriangle_free">
+<area shape="rect" id="Node000001" title=" " alt="" coords="419,55,563,80"/>
+<area shape="rect" id="Node000002" href="$leaf_2test_2oscillators__test_8cpp.html#a0b05e776ef5b58a464a91c44c81a391b" title=" " alt="" coords="249,5,348,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="422,53,348,33,349,28,424,48"/>
+<area shape="rect" id="Node000003" href="$_simple_osc_module_8cpp.html#a5383cd617cdfc3344bdb9adfc5d3f23d" title=" " alt="" coords="239,55,359,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="403,70,359,70,359,65,403,65"/>
+<area shape="rect" id="Node000004" href="$_simple_osc_module_8cpp.html#a0b6606d8d528017253776e824fa25fb2" title=" " alt="" coords="227,104,371,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="424,87,353,106,351,101,423,82"/>
+<area shape="rect" id="Node000005" href="$_simple_osc_module_8cpp.html#a7734e136f8220c3762956671822ceffa" title=" " alt="" coords="5,104,179,130"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="211,120,179,120,179,114,211,114"/>
+</map>

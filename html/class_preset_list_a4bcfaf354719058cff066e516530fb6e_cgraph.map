@@ -1,0 +1,18 @@
+<map id="PresetList::redoCache" name="PresetList::redoCache">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,128,157,154"/>
+<area shape="rect" id="Node000002" href="$class_preset_list.html#a011fe02fa648998b28e3f9da693a1d02" title=" " alt="" coords="205,128,403,154"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="157,138,189,138,189,144,157,144"/>
+<area shape="rect" id="Node000003" href="$class_synth_section.html#a78dd0f15e5945a73e881ed882173358e" title=" " alt="" coords="451,5,650,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="319,125,374,83,411,60,450,40,465,34,467,39,452,45,414,65,378,88,322,130"/>
+<area shape="rect" id="Node000004" href="$class_preset_list.html#ac3d7e4125ac06e07483b63b6e750c10b" title=" " alt="" coords="465,55,636,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="341,125,450,89,476,82,477,87,452,94,343,130"/>
+<area shape="rect" id="Node000005" href="$class_fonts.html#ae7669a3eeb9db437c7d34feff9e99707" title=" " alt="" coords="495,128,606,154"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="403,138,479,138,479,144,403,144"/>
+<area shape="rect" id="Node000007" href="$class_fonts.html#ad3f42cf6c33957340cc7689bca94b90a" title=" " alt="" coords="486,178,615,218"/>
+<area shape="poly" id="edge7_Node000002_Node000007" title=" " alt="" coords="363,152,471,177,470,182,362,157"/>
+<area shape="rect" id="Node000008" href="$class_paths.html#a41c5322b6e8cb88b26e0e177078d9843" title=" " alt="" coords="508,243,593,268"/>
+<area shape="poly" id="edge8_Node000002_Node000008" title=" " alt="" coords="325,152,380,189,452,228,494,242,492,247,450,233,377,194,322,156"/>
+<area shape="poly" id="edge6_Node000005_Node000005" title=" " alt="" coords="518,129,512,119,515,110,529,103,551,101,575,104,587,111,584,116,573,109,551,107,530,109,519,113,517,119,522,126"/>
+<area shape="rect" id="Node000006" href="$class_fonts.html#a45eefc38057ad57973216627645d60c9" title=" " alt="" coords="698,128,794,154"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="607,138,683,138,683,144,607,144"/>
+</map>

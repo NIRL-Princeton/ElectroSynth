@@ -1,0 +1,7 @@
+<map id="tDelay_free" name="tDelay_free">
+<area shape="rect" id="Node000001" title="Free a tDelay from its mempool." alt="" coords="247,31,335,56"/>
+<area shape="rect" id="Node000002" href="$group__tprcreverb.html#ga38fca3e880e0c5876453d680aa4ed02f" title="Free a tPRCReverb from its mempool." alt="" coords="39,5,165,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="231,38,165,29,166,24,232,33"/>
+<area shape="rect" id="Node000003" href="$leaf-reverb_8c.html#a6ae94732a8b11ac7baee866e10323663" title=" " alt="" coords="5,55,199,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="232,54,200,58,199,52,231,48"/>
+</map>

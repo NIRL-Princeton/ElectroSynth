@@ -1,0 +1,9 @@
+<map id="SinglePopupSelector::resized" name="SinglePopupSelector::resized">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,23,148,64"/>
+<area shape="rect" id="Node000002" href="$class_synth_section.html#aa01a2cf1cb512707d217490aa89a8b2f" title=" " alt="" coords="196,5,356,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="148,32,180,28,180,33,149,37"/>
+<area shape="rect" id="Node000004" href="$class_synth_section.html#a549f91a2b81b419368a578990cb2e6c2" title=" " alt="" coords="201,55,350,80"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="149,49,186,54,185,59,148,55"/>
+<area shape="rect" id="Node000003" href="$class_skin.html#a9ce18118f19d0503a1581ec8521b7c9b" title=" " alt="" coords="404,5,562,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="356,16,389,16,389,21,356,21"/>
+</map>

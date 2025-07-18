@@ -1,0 +1,25 @@
+<map id="tButterworth_tick" name="tButterworth_tick">
+<area shape="rect" id="Node000001" title=" " alt="" coords="566,104,687,130"/>
+<area shape="rect" id="Node000002" href="$leaf-oscillators_8c.html#aa7a9a2c56f676b87e784774949e1c949" title=" " alt="" coords="352,5,490,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="597,96,560,69,517,45,488,34,490,29,519,40,563,65,600,92"/>
+<area shape="rect" id="Node000003" href="$group__twavetable.html#ga58dfe4bed395ee4b851f7922781c7b04" title="Initialize a tWaveTable to a specified mempool." alt="" coords="344,55,497,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="554,102,477,84,478,78,555,97"/>
+<area shape="rect" id="Node000007" href="$leaf-oscillators_8c.html#a272ae322d2262e71ce129c56902470d5" title=" " alt="" coords="328,104,514,130"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="551,120,514,120,514,114,551,114"/>
+<area shape="rect" id="Node000008" href="$group__ttwavetables.html#ga283a12a88b35dfab587dcb167fd2b2c5" title="Initialize a tWaveTableS to a specified mempool." alt="" coords="340,153,502,179"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="555,137,478,155,477,150,554,131"/>
+<area shape="rect" id="Node000012" href="$leaf-oscillators_8c.html#ad00b659f59bcff42c1c7c43b3131c15d" title=" " alt="" coords="323,203,518,228"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="600,142,563,169,519,194,490,205,488,200,517,189,560,165,597,138"/>
+<area shape="rect" id="Node000004" href="$group__twavetable.html#ga4c46616cfc668a8eb2226e189220129b" title="Initialize a tWaveTable to the default mempool of a LEAF instance." alt="" coords="157,55,270,80"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="329,70,271,70,271,65,329,65"/>
+<area shape="rect" id="Node000005" href="$leaf_2test_2oscillators__test_8cpp.html#aab362e167309269155fe5ac65ffa3c77" title=" " alt="" coords="5,29,105,55"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="141,59,105,53,106,47,142,53"/>
+<area shape="rect" id="Node000006" href="$leaf_2test_2oscillators__test_8cpp.html#a9a8ed933cbcb9d02293d28275d93786a" title=" " alt="" coords="5,79,105,104"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="142,81,106,87,105,81,141,76"/>
+<area shape="rect" id="Node000009" href="$group__ttwavetables.html#ga8a09cbc46aad477ae425aa83a04cc388" title="Initialize a tWaveTableS to the default mempool of a LEAF instance." alt="" coords="153,153,275,179"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="324,169,275,169,275,164,324,164"/>
+<area shape="rect" id="Node000010" href="$leaf_2test_2oscillators__test_8cpp.html#a4779d95e98ca8b5e1f4668578d9be209" title=" " alt="" coords="5,140,105,166"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="137,162,105,160,105,154,137,157"/>
+<area shape="rect" id="Node000011" href="$leaf_2test_2oscillators__test_8cpp.html#a7180a6e911871c5d9d1f9fb04678069f" title=" " alt="" coords="5,189,105,215"/>
+<area shape="poly" id="edge10_Node000009_Node000011" title=" " alt="" coords="140,186,106,193,105,188,139,180"/>
+</map>

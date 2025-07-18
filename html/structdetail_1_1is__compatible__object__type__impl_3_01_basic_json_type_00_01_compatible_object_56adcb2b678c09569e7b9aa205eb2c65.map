@@ -1,0 +1,8 @@
+<map id="detail::is_compatible_object_type_impl&lt; BasicJsonType, CompatibleObjectType, enable_if_t&lt; is_detected&lt; mapped_type_t, CompatibleObjectType &gt;::value &amp;&amp;is_detected&lt; key_type_t, CompatibleObjectType &gt;::value &gt; &gt;" name="detail::is_compatible_object_type_impl&lt; BasicJsonType, CompatibleObjectType, enable_if_t&lt; is_detected&lt; mapped_type_t, CompatibleObjectType &gt;::value &amp;&amp;is_detected&lt; key_type_t, CompatibleObjectType &gt;::value &gt; &gt;">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,324,249,439"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="74,5,170,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="125,46,129,324,124,324,120,46"/>
+<area shape="rect" id="Node000003" href="$structdetail_1_1is__compatible__object__type__impl.html" title=" " alt="" coords="144,80,332,151"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="149,38,198,79,195,83,145,42"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="220,166,153,325,148,323,215,164"/>
+</map>

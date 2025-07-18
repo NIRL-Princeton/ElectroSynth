@@ -1,0 +1,16 @@
+<map id="OpenGlTextEditor::resized" name="OpenGlTextEditor::resized">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,108,180,134"/>
+<area shape="rect" id="Node000002" href="$class_open_gl_text_editor.html#a40fba41ef66cdd5d63e211b65e3fa44c" title=" " alt="" coords="228,108,417,134"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,118,212,118,212,124,180,124"/>
+<area shape="rect" id="Node000003" href="$class_fonts.html#ae7669a3eeb9db437c7d34feff9e99707" title=" " alt="" coords="512,29,623,55"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="354,105,464,64,496,55,498,60,466,69,356,110"/>
+<area shape="rect" id="Node000005" href="$class_fonts.html#a0257f51670ef6eb7a024f72a1ba109b2" title=" " alt="" coords="503,79,632,104"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="417,107,487,98,488,104,418,112"/>
+<area shape="rect" id="Node000006" href="$class_fonts.html#ad3f42cf6c33957340cc7689bca94b90a" title=" " alt="" coords="503,128,632,169"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="418,129,488,137,487,142,417,134"/>
+<area shape="rect" id="Node000007" href="$class_open_gl_auto_image_component.html#a7e5a7cab563a269a12a7e70c54280ae0" title=" " alt="" coords="465,194,670,234"/>
+<area shape="poly" id="edge7_Node000002_Node000007" title=" " alt="" coords="354,132,466,178,487,186,485,191,464,183,352,137"/>
+<area shape="poly" id="edge4_Node000003_Node000003" title=" " alt="" coords="534,30,528,21,532,11,545,5,568,3,592,5,605,12,602,17,590,10,568,8,547,10,536,15,533,20,539,27"/>
+<area shape="rect" id="Node000004" href="$class_fonts.html#a45eefc38057ad57973216627645d60c9" title=" " alt="" coords="718,29,814,55"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="624,40,703,40,703,45,624,45"/>
+</map>

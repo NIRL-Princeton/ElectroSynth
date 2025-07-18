@@ -1,0 +1,9 @@
+<map id="BarRenderer::rightAt" name="BarRenderer::rightAt">
+<area shape="rect" id="Node000001" title=" " alt="" coords="618,5,759,31"/>
+<area shape="rect" id="Node000002" href="$class_bar_renderer.html#a90f3f66910d32f5639415edcc7d39eb3" title=" " alt="" coords="397,5,570,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="603,21,571,21,571,16,603,16"/>
+<area shape="rect" id="Node000003" href="$class_bar_renderer.html#ad9c1f05ddbaa0bcd84ec9584ff1c2a91" title=" " alt="" coords="192,5,349,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="382,21,349,21,349,16,382,16"/>
+<area shape="rect" id="Node000004" href="$class_bar_renderer.html#acc4b3fa29ee13b2594f951b5f3cbb7ef" title=" " alt="" coords="5,5,144,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="176,21,144,21,144,16,176,16"/>
+</map>

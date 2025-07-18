@@ -1,0 +1,7 @@
+<map id="electrosynth::utils::clamp" name="electrosynth::utils::clamp">
+<area shape="rect" id="Node000001" title=" " alt="" coords="502,5,626,46"/>
+<area shape="rect" id="Node000002" href="$class_modulation_meter.html#a42b471e6a378ca47db2f9d11093f0958" title=" " alt="" coords="242,13,454,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="486,28,454,28,454,23,486,23"/>
+<area shape="rect" id="Node000003" href="$class_modulation_meter.html#a00ed064c7c5ecd91eb78448a9a6d71f1" title=" " alt="" coords="5,5,194,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="226,28,194,28,194,23,226,23"/>
+</map>

@@ -1,0 +1,19 @@
+<map id="ModulationManager::createModulationSlider" name="ModulationManager::createModulationSlider">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,35,159,75"/>
+<area shape="rect" id="Node000002" href="$class_synth_slider.html#ad6509e8bd04446614caa9e25a8b50121" title=" " alt="" coords="217,5,387,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="159,42,201,36,201,42,160,47"/>
+<area shape="rect" id="Node000003" href="$class_open_gl_slider.html#a4b3ac6a2a46dcaaa025f584ad26b7199" title=" " alt="" coords="207,70,397,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="160,62,191,66,191,72,159,67"/>
+<area shape="rect" id="Node000004" href="$class_curve_look_and_feel.html#af6028cf5c3b146cd26458bcb53ec01a6" title=" " alt="" coords="445,37,634,62"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="397,67,429,62,430,68,398,72"/>
+<area shape="rect" id="Node000006" href="$class_open_gl_slider.html#a2110b50988a7a944eb94e797addfc2d1" title=" " alt="" coords="469,94,610,120"/>
+<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="398,90,454,96,453,101,397,95"/>
+<area shape="poly" id="edge5_Node000004_Node000004" title=" " alt="" coords="500,38,493,28,497,18,513,12,540,10,569,13,584,20,582,25,568,18,540,15,514,18,501,22,498,28,504,35"/>
+<area shape="rect" id="Node000005" href="$class_curve_look_and_feel.html#af49ba9562100d2f1670e5dfc7ab5733e" title=" " alt="" coords="682,21,886,62"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="635,44,667,43,667,48,635,49"/>
+<area shape="rect" id="Node000007" href="$class_text_look_and_feel.html#a3723dc598c94042165d4981963649828" title=" " alt="" coords="694,110,874,136"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="611,109,679,113,679,119,611,114"/>
+<area shape="poly" id="edge8_Node000007_Node000007" title=" " alt="" coords="744,112,736,102,741,92,757,86,784,84,814,86,829,93,827,98,813,91,784,89,758,91,745,96,742,101,748,108"/>
+<area shape="rect" id="Node000008" href="$class_text_look_and_feel.html#a48831b370d4897c9a018842d531c8210" title=" " alt="" coords="934,103,1117,143"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="874,120,918,120,918,126,874,126"/>
+</map>

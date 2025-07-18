@@ -1,0 +1,17 @@
+<map id="Skin::setComponentColors" name="Skin::setComponentColors">
+<area shape="rect" id="Node000001" title=" " alt="" coords="698,63,877,88"/>
+<area shape="rect" id="Node000002" href="$class_skin.html#a28fb18613190190f761702145a9d34f5" title=" " alt="" coords="466,5,644,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="717,61,610,34,611,29,718,56"/>
+<area shape="rect" id="Node000003" href="$class_open_gl_component.html#afc2939aab3358db8ed9c34889bc2649a" title=" " alt="" coords="463,55,647,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="683,78,648,78,648,73,683,73"/>
+<area shape="rect" id="Node000004" href="$class_synth_section.html#a321e84f19d1ed459f007027254ad8e16" title=" " alt="" coords="460,120,650,146"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="718,95,611,122,610,117,717,90"/>
+<area shape="rect" id="Node000005" href="$class_full_interface.html#a24a9e154bf7b2fe32ad3d8b93812efa3" title=" " alt="" coords="236,71,409,96"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="475,119,386,100,387,94,477,114"/>
+<area shape="rect" id="Node000006" href="$class_skin.html#aa1b41fc426158dce6ec419c259bc29e4" title=" " alt="" coords="233,120,412,146"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="445,144,413,144,413,139,445,139"/>
+<area shape="rect" id="Node000007" href="$class_skin.html#ae8f3a3f801de4af364b1fd822416f0ab" title=" " alt="" coords="5,145,185,171"/>
+<area shape="poly" id="edge8_Node000004_Node000007" title=" " alt="" coords="477,152,412,161,294,166,185,165,185,160,294,161,412,156,477,146"/>
+<area shape="poly" id="edge7_Node000006_Node000004" title=" " alt="" coords="428,121,460,121,460,127,428,127"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="218,147,186,151,185,145,217,142"/>
+</map>

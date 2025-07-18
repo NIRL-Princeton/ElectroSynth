@@ -1,0 +1,20 @@
+<map id="ModulationManager::ModulationManager" name="ModulationManager::ModulationManager">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,106,148,146"/>
+<area shape="rect" id="Node000002" href="$class_synth_section.html#a106e35d5a7f591a72016b2a595d33e43" title=" " alt="" coords="444,5,683,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="98,103,140,70,167,54,195,41,253,25,313,14,428,8,428,13,313,20,254,30,197,46,169,58,143,74,101,107"/>
+<area shape="rect" id="Node000003" href="$class_synth_section.html#a0b0e9e5d68f1b7cf57bbace00128a235" title=" " alt="" coords="215,56,376,82"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="148,104,195,92,226,83,228,89,196,97,149,109"/>
+<area shape="rect" id="Node000007" href="$classelectrosynth_1_1_modulation_connection_bank.html#a8c15c5b53d23641fc1eb63876e06504e" title=" " alt="" coords="212,106,380,146"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="148,124,196,124,196,129,148,129"/>
+<area shape="rect" id="Node000008" href="$class_synth_section.html#ae4b092420f64f8d195dd2fdb406bfccf" title=" " alt="" coords="196,171,396,196"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="149,143,196,156,228,164,226,169,195,161,148,148"/>
+<area shape="rect" id="Node000009" href="$class_synth_section.html#aacbd2a0f89359676471964d630ca9c21" title=" " alt="" coords="203,220,388,246"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="104,145,146,177,197,206,211,212,209,217,195,211,143,181,100,149"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="367,53,477,32,478,37,368,58"/>
+<area shape="rect" id="Node000004" href="$class_open_gl_slider.html#a02ef213ae7c9b9f82d303a4dec5750a2" title=" " alt="" coords="450,55,677,80"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="377,66,435,65,435,71,377,71"/>
+<area shape="rect" id="Node000005" href="$class_open_gl_slider.html#a92bba6166b9a6a274f15882cca5da19e" title=" " alt="" coords="452,104,675,130"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="372,80,474,98,473,103,371,85"/>
+<area shape="rect" id="Node000006" href="$class_synth_slider.html#ae60289c83459c00eab2b0bd272fef10d" title=" " alt="" coords="477,154,650,194"/>
+<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="370,80,397,92,413,104,422,117,431,129,445,140,464,149,461,154,443,144,427,132,418,120,409,108,395,96,368,85"/>
+</map>

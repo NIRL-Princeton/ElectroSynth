@@ -1,0 +1,37 @@
+<map id="detail::dtoa_impl::grisu2" name="detail::dtoa_impl::grisu2">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,251,130,291"/>
+<area shape="rect" id="Node000002" href="$namespacedetail_1_1dtoa__impl.html#a6a5ccf11847aab7a0f42f587b33935df" title=" " alt="" coords="356,109,497,150"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="120,248,357,154,359,159,122,253"/>
+<area shape="rect" id="Node000007" href="$namespacedetail_1_1dtoa__impl.html#ad549352ed1a9676a092d143a2daa3dee" title=" " alt="" coords="178,291,302,331"/>
+<area shape="poly" id="edge9_Node000001_Node000007" title=" " alt="" coords="131,283,163,291,162,296,129,288"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="391,109,389,99,395,90,407,85,426,83,447,85,459,91,456,96,445,90,426,88,409,90,398,95,394,100,396,108"/>
+<area shape="rect" id="Node000003" href="$structdetail_1_1dtoa__impl_1_1diyfp.html#a5bad735c2cb50b194938a8a89b82f6ed" title="normalize x such that the significand is &gt;= 2^(q&#45;1)" alt="" coords="555,5,679,46"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="461,106,549,57,559,51,562,56,552,61,464,111"/>
+<area shape="rect" id="Node000005" href="$structdetail_1_1dtoa__impl_1_1diyfp.html#a5a9ce83c6c1663c9aaac7ffd9009b971" title="normalize x such that the result has the exponent E" alt="" coords="551,71,683,111"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="496,113,535,105,536,110,498,118"/>
+<area shape="rect" id="Node000006" href="$namespacedetail_1_1dtoa__impl.html#a3c879bf97b806cacbcbb2da07a5ff5c8" title=" " alt="" coords="555,160,679,201"/>
+<area shape="poly" id="edge7_Node000002_Node000006" title=" " alt="" coords="498,146,541,157,539,163,496,151"/>
+<area shape="rect" id="Node000004" href="$structdetail_1_1dtoa__impl_1_1diyfp.html#a7c8377d2b931fcb3088d54c41b99c53b" title=" " alt="" coords="732,237,856,278"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="669,45,686,57,719,97,747,141,783,222,778,224,742,144,715,100,682,61,666,49"/>
+<area shape="poly" id="edge6_Node000005_Node000004" title=" " alt="" coords="667,110,685,122,735,173,773,223,769,226,731,176,682,126,664,114"/>
+<area shape="poly" id="edge8_Node000006_Node000006" title=" " alt="" coords="583,160,581,150,587,141,599,135,617,133,636,136,648,142,645,147,635,141,617,139,600,141,590,145,587,151,588,159"/>
+<area shape="poly" id="edge12_Node000007_Node000007" title=" " alt="" coords="207,290,205,281,210,272,222,266,240,264,259,266,270,273,267,277,257,272,240,269,224,271,214,276,210,282,212,290"/>
+<area shape="rect" id="Node000008" href="$namespacedetail_1_1dtoa__impl.html#a29ae6574f6be09a5c8ab08da9a3f71b4" title=" " alt="" coords="350,235,502,291"/>
+<area shape="poly" id="edge10_Node000007_Node000008" title=" " alt="" coords="302,292,335,284,336,289,303,298"/>
+<area shape="rect" id="Node000009" href="$namespacedetail_1_1dtoa__impl.html#ae877aa13ab872c99a1c614e5e1524807" title=" " alt="" coords="364,339,488,379"/>
+<area shape="poly" id="edge13_Node000007_Node000009" title=" " alt="" coords="303,324,350,337,349,342,302,330"/>
+<area shape="rect" id="Node000013" href="$structdetail_1_1dtoa__impl_1_1diyfp.html#a046c61f2c13411677eedfb5b9b7a8226" title="returns x * y" alt="" coords="364,432,488,473"/>
+<area shape="poly" id="edge21_Node000007_Node000013" title=" " alt="" coords="270,330,387,420,384,424,267,334"/>
+<area shape="poly" id="edge11_Node000008_Node000008" title=" " alt="" coords="389,235,390,225,396,216,409,211,426,209,446,211,458,218,456,223,444,216,426,214,410,216,400,220,395,227,394,235"/>
+<area shape="poly" id="edge16_Node000009_Node000009" title=" " alt="" coords="391,339,389,329,395,320,407,314,426,312,447,314,459,321,456,325,445,320,426,317,409,319,398,324,394,330,396,338"/>
+<area shape="rect" id="Node000010" href="$namespacedetail_1_1dtoa__impl.html#a04eb234a28617519974fc962cd4da666" title=" " alt="" coords="550,249,684,290"/>
+<area shape="poly" id="edge14_Node000009_Node000010" title=" " alt="" coords="470,336,557,295,559,299,473,340"/>
+<area shape="rect" id="Node000011" href="$namespacedetail_1_1dtoa__impl.html#a73a15efcb5c2157ea0e1375b98ef0e83" title=" " alt="" coords="555,339,679,379"/>
+<area shape="poly" id="edge17_Node000009_Node000011" title=" " alt="" coords="489,356,539,356,539,362,489,362"/>
+<area shape="rect" id="Node000012" href="$structdetail_1_1dtoa__impl_1_1diyfp.html#a75142bace0b78b1e1433b1d35a7ff252" title="returns x &#45; y" alt="" coords="555,404,679,445"/>
+<area shape="poly" id="edge19_Node000009_Node000012" title=" " alt="" coords="488,377,542,396,541,401,487,382"/>
+<area shape="poly" id="edge15_Node000010_Node000010" title=" " alt="" coords="583,249,581,239,587,230,599,225,617,223,636,225,648,231,645,236,635,230,617,228,600,230,590,234,587,240,588,248"/>
+<area shape="poly" id="edge18_Node000011_Node000011" title=" " alt="" coords="583,339,581,329,587,320,599,314,617,312,636,314,648,321,645,325,635,320,617,317,600,319,590,324,587,330,588,338"/>
+<area shape="poly" id="edge20_Node000012_Node000004" title=" " alt="" coords="664,401,682,389,731,339,769,289,773,292,735,343,685,393,667,406"/>
+<area shape="poly" id="edge22_Node000013_Node000004" title=" " alt="" coords="489,468,534,476,584,478,635,472,660,465,682,454,703,439,721,421,750,377,770,332,782,292,787,293,775,334,754,380,725,424,706,443,685,459,662,470,637,478,585,484,534,481,488,473"/>
+</map>

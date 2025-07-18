@@ -1,0 +1,7 @@
+<map id="tMapping_initToPool" name="tMapping_initToPool">
+<area shape="rect" id="Node000001" title=" " alt="" coords="350,5,488,31"/>
+<area shape="rect" id="Node000002" href="$mapping_8cpp.html#a186cd4e16ecf5a18c53ba03f88a35467" title=" " alt="" coords="204,5,302,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="334,21,302,21,302,16,334,16"/>
+<area shape="rect" id="Node000003" href="$midi__sysex_8cpp.html#ad2639159ec46f62a62d4d534ed98bfe7" title=" " alt="" coords="5,5,156,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="188,21,156,21,156,16,188,16"/>
+</map>

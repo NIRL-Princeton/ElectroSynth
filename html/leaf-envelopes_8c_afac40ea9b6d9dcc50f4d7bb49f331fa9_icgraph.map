@@ -1,0 +1,33 @@
+<map id="calcADSR3Coef" name="calcADSR3Coef">
+<area shape="rect" id="Node000001" title=" " alt="" coords="643,155,762,180"/>
+<area shape="rect" id="Node000002" href="$group__tadsrs.html#ga59fe261194e11baca1c7d67f7d9bf3a5" title="Initialize a tADSRS to a specified mempool." alt="" coords="454,80,591,106"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="661,150,594,119,566,109,567,104,596,114,663,145"/>
+<area shape="rect" id="Node000008" href="$leaf-envelopes_8c.html#a122001009f53fb4afe8fd1ec9149a4d8" title=" " alt="" coords="455,129,590,155"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="628,160,590,154,591,149,629,154"/>
+<area shape="rect" id="Node000010" href="$leaf-envelopes_8c.html#a240c415337c19a8da498eba03e7611af" title=" " alt="" coords="455,228,590,254"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="662,190,596,219,567,230,566,225,594,214,660,185"/>
+<area shape="rect" id="Node000015" href="$leaf-envelopes_8c.html#a92f9bf31d64d99653d729b21a7529db0" title=" " alt="" coords="450,179,595,204"/>
+<area shape="poly" id="edge15_Node000001_Node000015" title=" " alt="" coords="629,180,596,184,595,179,628,175"/>
+<area shape="rect" id="Node000003" href="$group__t808_kick_small.html#ga3625f919b4ea28ad62024ec0021e731d" title="Initialize a t808KickSmall to a specified mempool." alt="" coords="212,5,381,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="479,76,401,45,363,34,365,29,403,40,481,71"/>
+<area shape="rect" id="Node000005" href="$group__t808_snare_small.html#ga987dd3103c1bcbd4ef1cc6c27e070281" title="Initialize a t808SnareSmall to a specified mempool." alt="" coords="208,55,385,80"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="439,86,385,80,386,75,439,81"/>
+<area shape="rect" id="Node000007" href="$group__tadsrs.html#ga2cdd458b1121b1522ba86e347059448a" title="Initialize a tADSRS to the default mempool of a LEAF instance." alt="" coords="248,104,344,130"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="439,104,345,114,345,109,439,99"/>
+<area shape="rect" id="Node000004" href="$group__t808_kick_small.html#ga3ec048f1f4b75c4041ed8c9f62723e9b" title="Initialize a t808KickSmall to the default mempool of a LEAF instance." alt="" coords="9,5,139,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="196,21,139,21,139,16,196,16"/>
+<area shape="rect" id="Node000006" href="$group__t808_snare_small.html#gafe59054003df8b725bec86a7ebfebff9" title="Initialize a t808SnareSmall to the default mempool of a LEAF instance." alt="" coords="5,55,143,80"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="192,70,143,70,143,65,192,65"/>
+<area shape="rect" id="Node000009" href="$leaf-envelopes_8c.html#a0eaeed4f5b8bd36a892882d7deb89527" title=" " alt="" coords="212,153,381,179"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="440,154,382,160,381,155,440,148"/>
+<area shape="poly" id="edge14_Node000010_Node000009" title=" " alt="" coords="462,225,449,219,425,205,401,193,368,182,369,177,403,188,427,201,451,214,464,220"/>
+<area shape="rect" id="Node000011" href="$leaf-instruments_8c.html#a36e7ee06720df46cbff656f914bcab8b" title=" " alt="" coords="198,203,394,228"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="440,234,395,229,395,224,440,229"/>
+<area shape="rect" id="Node000012" href="$leaf-instruments_8c.html#a695661b69613e4ea92faef2da94108db" title=" " alt="" coords="191,252,402,278"/>
+<area shape="poly" id="edge11_Node000010_Node000012" title=" " alt="" coords="440,252,402,256,402,251,439,247"/>
+<area shape="rect" id="Node000013" href="$leaf-instruments_8c.html#a8d2ba02838a77fee359090a4334712d1" title=" " alt="" coords="191,301,402,327"/>
+<area shape="poly" id="edge12_Node000010_Node000013" title=" " alt="" coords="480,263,403,293,364,303,363,298,401,288,478,258"/>
+<area shape="rect" id="Node000014" href="$leaf-instruments_8c.html#ae866606c48bd37efbb03526ba04bace9" title=" " alt="" coords="191,351,402,376"/>
+<area shape="poly" id="edge13_Node000010_Node000014" title=" " alt="" coords="501,267,458,306,403,342,376,353,374,348,401,337,455,302,497,263"/>
+<area shape="poly" id="edge16_Node000015_Node000009" title=" " alt="" coords="435,184,381,178,382,173,435,179"/>
+</map>

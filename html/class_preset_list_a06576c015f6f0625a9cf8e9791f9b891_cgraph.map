@@ -1,0 +1,13 @@
+<map id="PresetList::moveQuadToRow" name="PresetList::moveQuadToRow">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,55,198,80"/>
+<area shape="rect" id="Node000002" href="$class_preset_list.html#ac3d7e4125ac06e07483b63b6e750c10b" title=" " alt="" coords="252,5,424,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="166,51,257,32,259,37,167,57"/>
+<area shape="rect" id="Node000003" href="$class_synth_section.html#ae0397399d283628b325650e0b7b60c6f" title=" " alt="" coords="246,55,430,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="198,65,230,65,230,70,198,70"/>
+<area shape="rect" id="Node000006" href="$class_open_gl_multi_quad.html#a35c108ca44accfef5055ac8df84a579d" title=" " alt="" coords="247,104,428,130"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="167,78,259,98,257,103,166,84"/>
+<area shape="rect" id="Node000004" href="$class_synth_section.html#aa01a2cf1cb512707d217490aa89a8b2f" title=" " alt="" coords="478,55,638,80"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="430,65,463,65,463,70,430,70"/>
+<area shape="rect" id="Node000005" href="$class_skin.html#a9ce18118f19d0503a1581ec8521b7c9b" title=" " alt="" coords="686,55,845,80"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="639,65,671,65,671,70,639,70"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="tStereoRotation_tick" name="tStereoRotation_tick">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,55,146,80"/>
+<area shape="rect" id="Node000002" href="$leaf-filters_8c.html#acd5b781b5e1c4e54d69ce60fa1f30894" title=" " alt="" coords="210,5,318,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="127,51,197,33,198,38,128,57"/>
+<area shape="rect" id="Node000003" href="$leaf-delay_8c.html#ac10f95139483e08aa0e3e24e50aa7d7c" title=" " alt="" coords="194,55,334,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="146,65,178,65,178,70,146,70"/>
+<area shape="rect" id="Node000004" href="$leaf-filters_8c.html#a53e2717772dba0b64d915a635383e13c" title=" " alt="" coords="212,104,316,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="128,78,198,97,197,102,127,84"/>
+</map>

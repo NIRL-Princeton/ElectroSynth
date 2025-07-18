@@ -1,0 +1,7 @@
+<map id="tWaveOsc_setSampleRate" name="tWaveOsc_setSampleRate">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,185,31"/>
+<area shape="rect" id="Node000002" href="$leaf-oscillators_8c.html#ad99d479db3395d736f618c2d9cd2fc16" title=" " alt="" coords="233,5,366,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="185,16,217,16,217,21,185,21"/>
+<area shape="rect" id="Node000003" href="$leaf-math_8h.html#ae7dc8f2b0489153976428c0753dfa917" title=" " alt="" coords="414,5,509,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="367,16,399,16,399,21,367,21"/>
+</map>

@@ -1,0 +1,11 @@
+<map id="tMBSampler_setEnd" name="tMBSampler_setEnd">
+<area shape="rect" id="Node000001" title=" " alt="" coords="381,55,522,80"/>
+<area shape="rect" id="Node000002" href="$group__tmbsampler.html#ga0cf8b1c9137072b7c99deeb3749a8f13" title="Initialize a tMBSampler to a specified mempool." alt="" coords="173,5,330,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="381,53,306,34,308,29,382,48"/>
+<area shape="rect" id="Node000004" href="$leaf-sampling_8c.html#ab679d6c0e7dde549187d2c4985aa24db" title=" " alt="" coords="173,55,330,80"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="365,70,331,70,331,65,365,65"/>
+<area shape="rect" id="Node000005" href="$leaf-sampling_8c.html#aaa286a637a5ee0ca9a9591656ea9a1d5" title=" " alt="" coords="171,104,333,130"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="382,87,308,106,306,101,381,82"/>
+<area shape="rect" id="Node000003" href="$group__tmbsampler.html#gaca3e3353a058e3b2d2231daba80e2cba" title="Initialize a tMBSampler to the default mempool of a LEAF instance." alt="" coords="5,5,123,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="157,21,123,21,123,16,157,16"/>
+</map>

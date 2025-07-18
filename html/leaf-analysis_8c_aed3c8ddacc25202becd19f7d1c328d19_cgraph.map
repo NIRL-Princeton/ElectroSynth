@@ -1,0 +1,10 @@
+<map id="snac_periodandfidelity" name="snac_periodandfidelity">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,56,156,82"/>
+<area shape="rect" id="Node000002" href="$leaf-math_8h.html#a1ee3e4086396777ff69eefabcd272b6e" title=" " alt="" coords="212,5,326,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="130,53,203,33,205,38,132,58"/>
+<area shape="rect" id="Node000003" href="$leaf-math_8h.html#a978cb38ced435c7f0a6c6ff3669e6537" title=" " alt="" coords="382,81,505,107"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="156,71,367,86,367,92,156,77"/>
+<area shape="rect" id="Node000004" href="$leaf-analysis_8c.html#a5d3293cd1ff555f262781c23da773e96" title=" " alt="" coords="204,107,334,132"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="132,80,205,100,203,105,130,85"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="334,107,366,103,367,108,335,113"/>
+</map>

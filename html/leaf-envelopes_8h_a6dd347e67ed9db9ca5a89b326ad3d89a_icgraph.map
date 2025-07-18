@@ -1,0 +1,15 @@
+<map id="tRamp_setVal" name="tRamp_setVal">
+<area shape="rect" id="Node000001" title=" " alt="" coords="575,55,679,80"/>
+<area shape="rect" id="Node000002" href="$leaf-midi_8c.html#a612c71ce9b70930985795675e2cb91f5" title=" " alt="" coords="408,5,509,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="565,52,504,34,506,29,567,47"/>
+<area shape="rect" id="Node000003" href="$leaf-midi_8c.html#a6c255768cb885de98325ab48a175b864" title=" " alt="" coords="408,55,509,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="560,70,509,70,509,65,560,65"/>
+<area shape="rect" id="Node000004" href="$leaf-sampling_8c.html#a2413ab5a3d90072617695c3feb88b837" title=" " alt="" coords="390,104,527,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="567,88,506,106,504,101,565,83"/>
+<area shape="rect" id="Node000005" href="$leaf-sampling_8c.html#aa2cc96a4bfb94bfb3aa4777c828ef347" title=" " alt="" coords="178,79,342,104"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="375,109,342,105,343,99,375,104"/>
+<area shape="rect" id="Node000007" href="$group__tsampler.html#gabe6b68ce1ad3be371e341671e131d8d1" title="Initialize a tSampler to the default mempool of a LEAF instance." alt="" coords="211,128,308,154"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="376,130,309,138,309,132,375,124"/>
+<area shape="rect" id="Node000006" href="$group__tautosampler.html#gafbc477a175f7abfd083b150e7fb425eb" title="Initialize a tAutoSampler to the default mempool of a LEAF instance." alt="" coords="5,79,130,104"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="163,94,130,94,130,89,163,89"/>
+</map>

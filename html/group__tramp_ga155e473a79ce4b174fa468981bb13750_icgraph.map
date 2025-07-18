@@ -1,0 +1,9 @@
+<map id="tRamp_free" name="tRamp_free">
+<area shape="rect" id="Node000001" title="Free a tRamp from its mempool." alt="" coords="333,31,422,56"/>
+<area shape="rect" id="Node000002" href="$group__tpoly.html#ga03c02b27b16f700b55d8536256d310b5" title="Free a tPoly from its mempool." alt="" coords="194,5,274,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="317,36,274,28,275,23,318,30"/>
+<area shape="rect" id="Node000003" href="$group__tsampler.html#ga8294d4396e241ff583d5a0208a262a6f" title="Free a tSampler from its mempool." alt="" coords="183,55,285,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="318,56,286,62,285,56,317,51"/>
+<area shape="rect" id="Node000004" href="$group__tautosampler.html#ga1317602e4195ebc58d6df3f0263c4bb8" title="Free a tAutoSampler from its mempool." alt="" coords="5,55,135,80"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="167,70,135,70,135,65,167,65"/>
+</map>

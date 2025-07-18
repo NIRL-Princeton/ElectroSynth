@@ -1,0 +1,5 @@
+<map id="SynthEditor::getGuiInterface" name="SynthEditor::getGuiInterface">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,13,192,38"/>
+<area shape="rect" id="Node000002" href="$class_synth_gui_interface.html#a2ce3e83d5f656f423d2b37f6c88955db" title=" " alt="" coords="240,5,374,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="192,23,224,23,224,28,192,28"/>
+</map>

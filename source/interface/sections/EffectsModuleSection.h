@@ -12,7 +12,7 @@ class EffectList;
 class EffectModuleSection : public ModulesInterface<ProcessorBase>
 {
 public:
-    explicit EffectModuleSection( ModulationManager* m, EffectList &,const juce::ValueTree &);
+    explicit EffectModuleSection( ModulationManager* m, EffectList &,const juce::ValueTree &, juce::UndoManager& um);
     virtual ~EffectModuleSection();
 
     void setEffectPositions() override;
@@ -41,5 +41,7 @@ public:
     int mouse_down_y_;
     int dragged_starting_y_;
     int height;
+
+    juce::UndoManager& undo;
 };
 

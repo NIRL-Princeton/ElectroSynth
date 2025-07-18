@@ -1,0 +1,9 @@
+<map id="AudioChainSection::resized" name="AudioChainSection::resized">
+<area shape="rect" id="Node000001" title=" " alt="" coords="194,71,334,111"/>
+<area shape="rect" id="Node000002" href="$class_audio_chain_section.html#a914c286e7a83b34f3924239726f8fe1b" title=" " alt="" coords="5,5,146,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="188,68,135,49,137,44,190,63"/>
+<area shape="rect" id="Node000003" href="$class_audio_chain_section.html#a7a7f9fefb105737cbea99fabd79ba5ac" title=" " alt="" coords="5,71,146,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="178,94,146,94,146,88,178,88"/>
+<area shape="rect" id="Node000004" href="$class_audio_chain_section.html#af7454a3f88675e1fc029cf0c9279ab96" title=" " alt="" coords="5,136,146,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="190,119,137,138,135,133,188,114"/>
+</map>

@@ -1,0 +1,23 @@
+<map id="tWDF_getPortResistance" name="tWDF_getPortResistance">
+<area shape="rect" id="Node000001" title=" " alt="" coords="600,161,771,186"/>
+<area shape="rect" id="Node000002" href="$leaf-electrical_8c.html#aa2d95ac0e606d8e785547be48f4b7e35" title=" " alt="" coords="416,5,552,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="656,152,608,111,550,67,522,49,525,44,553,62,611,107,660,148"/>
+<area shape="rect" id="Node000003" href="$leaf-electrical_8c.html#a1c42e075ca784ef25bf59e8bbfc81618" title=" " alt="" coords="302,128,368,153"/>
+<area shape="poly" id="edge12_Node000001_Node000003" title=" " alt="" coords="651,155,605,130,551,111,514,104,484,102,417,111,389,119,364,129,362,124,387,114,416,106,484,96,514,98,552,106,607,125,653,150"/>
+<area shape="rect" id="Node000006" href="$leaf-electrical_8c.html#af3f3c51d10ce0e8798a2717516bc5478" title=" " alt="" coords="416,120,552,161"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="588,160,551,154,552,149,589,155"/>
+<area shape="rect" id="Node000007" href="$leaf-electrical_8c.html#a1bc5b9244554c118803ab86e9dbe57a8" title=" " alt="" coords="416,185,552,226"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="586,192,552,198,552,192,585,187"/>
+<area shape="rect" id="Node000008" href="$leaf-electrical_8c.html#a253afd4cfc4e1b5d979ac5f480417efc" title=" " alt="" coords="416,251,552,291"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="644,196,529,253,527,248,642,191"/>
+<area shape="rect" id="Node000009" href="$leaf-electrical_8c.html#a56f30fa55c51e58f77b32cc89b5d42d5" title=" " alt="" coords="442,316,526,341"/>
+<area shape="poly" id="edge11_Node000001_Node000009" title=" " alt="" coords="666,200,618,252,587,280,553,305,528,318,525,313,550,301,583,276,614,249,662,197"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="432,57,418,66,380,99,351,129,347,125,377,95,415,62,429,52"/>
+<area shape="rect" id="Node000004" href="$group__twdf.html#ga56db3e9eb7db14bb9bb47a2fdd8f9e03" title="Initialize a tWDF to a specified mempool." alt="" coords="134,128,254,153"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="287,143,254,143,254,138,287,138"/>
+<area shape="rect" id="Node000005" href="$group__twdf.html#ga8d1df9f37020a71ffd7e163045259bc8" title="Initialize a tWDF to the default mempool of a LEAF instance." alt="" coords="5,128,86,153"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="118,143,86,143,86,138,118,138"/>
+<area shape="poly" id="edge6_Node000006_Node000003" title=" " alt="" coords="401,143,369,143,369,138,401,138"/>
+<area shape="poly" id="edge8_Node000007_Node000003" title=" " alt="" coords="421,181,366,156,368,151,423,176"/>
+<area shape="poly" id="edge10_Node000008_Node000003" title=" " alt="" coords="421,244,415,240,372,196,343,155,347,152,376,192,418,236,424,240"/>
+</map>

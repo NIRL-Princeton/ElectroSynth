@@ -1,0 +1,13 @@
+<map id="t808Hihat_setSampleRate" name="t808Hihat_setSampleRate">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,55,180,80"/>
+<area shape="rect" id="Node000002" href="$leaf-filters_8c.html#a1fb1b9e8bc1babe0057b024f1b57c11e" title=" " alt="" coords="228,5,405,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="154,51,239,32,241,38,155,57"/>
+<area shape="rect" id="Node000003" href="$leaf-oscillators_8c.html#a200b53d13f81f8b1a5bf809a9e7ce0f9" title=" " alt="" coords="235,55,398,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="180,65,219,65,219,70,180,70"/>
+<area shape="rect" id="Node000006" href="$leaf-filters_8c.html#a2ea5447028693c9a101557b86e905a12" title=" " alt="" coords="242,104,390,130"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="155,78,241,97,239,103,154,84"/>
+<area shape="rect" id="Node000004" href="$leaf-oscillators_8c.html#a2cc34f92b247b53027d8bc495c90577f" title=" " alt="" coords="453,55,570,80"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="398,65,438,65,438,70,398,70"/>
+<area shape="rect" id="Node000005" href="$leaf-math_8h.html#ae7dc8f2b0489153976428c0753dfa917" title=" " alt="" coords="618,55,714,80"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="571,65,603,65,603,70,571,70"/>
+</map>

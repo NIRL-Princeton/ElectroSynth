@@ -1,0 +1,11 @@
+<map id="tEnvelope_free" name="tEnvelope_free">
+<area shape="rect" id="Node000001" title="Free a tEnvelope from its mempool." alt="" coords="176,80,284,106"/>
+<area shape="rect" id="Node000002" href="$group__t808cowbell.html#gaf582d380f2b6af70344a3a8b4ae04d09" title="Free a t808Cowbell from its mempool." alt="" coords="5,5,128,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="189,75,127,45,102,34,104,29,129,40,191,70"/>
+<area shape="rect" id="Node000003" href="$group__t808hihat.html#gacdf51e9c89696dfe6347bbf5bd750795" title="Free a t808Hihat from its mempool." alt="" coords="13,55,120,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="160,85,120,78,120,73,161,79"/>
+<area shape="rect" id="Node000004" href="$group__t808kick.html#ga29c6085b72a735d53c2112d574b53019" title="Free a t808Kick from its mempool." alt="" coords="16,104,117,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="161,106,118,112,117,107,160,100"/>
+<area shape="rect" id="Node000005" href="$group__t808snare.html#ga61d0f7d53b904cf9919a767abe274d10" title="Free a t808Snare from its mempool." alt="" coords="12,153,121,179"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="190,115,129,145,103,155,101,150,127,140,188,110"/>
+</map>

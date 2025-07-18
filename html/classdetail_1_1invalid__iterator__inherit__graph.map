@@ -1,0 +1,7 @@
+<map id="detail::invalid_iterator" name="detail::invalid_iterator">
+<area shape="rect" id="Node000001" title="exception indicating errors with iterators" alt="" coords="5,153,139,178"/>
+<area shape="rect" id="Node000002" href="$classdetail_1_1exception.html" title="general exception of the basic_json class" alt="" coords="19,79,125,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="75,120,75,153,70,153,70,120"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="26,5,118,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="75,46,75,79,70,79,70,46"/>
+</map>

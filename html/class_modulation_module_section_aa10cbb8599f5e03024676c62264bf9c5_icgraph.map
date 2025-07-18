@@ -1,0 +1,13 @@
+<map id="ModulationModuleSection::setScrollBarRange" name="ModulationModuleSection::setScrollBarRange">
+<area shape="rect" id="Node000001" title=" " alt="" coords="660,39,831,79"/>
+<area shape="rect" id="Node000002" href="$class_modulation_module_section.html#af95577c7b282f39c61d2b595ae765d23" title=" " alt="" coords="442,5,612,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="645,46,613,41,613,36,646,41"/>
+<area shape="rect" id="Node000003" href="$class_modulation_module_section.html#a8dda8168cbfe6b9c7c3a7810c9789abc" title=" " alt="" coords="442,71,612,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="646,76,613,81,613,76,645,71"/>
+<area shape="rect" id="Node000004" href="$class_modulation_module_section.html#a1fc8a2d0aef987a637da1c36734df668" title=" " alt="" coords="224,71,394,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="427,94,395,94,395,88,427,88"/>
+<area shape="rect" id="Node000005" href="$class_modulation_module_section.html#ab271f28e6a0d6658a816b535003e4b9b" title=" " alt="" coords="5,37,176,78"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="208,78,176,73,177,68,209,73"/>
+<area shape="rect" id="Node000006" href="$class_modulation_module_section.html#a0012fa31beee7965b155983b28028b98" title=" " alt="" coords="5,103,176,143"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="209,108,177,113,176,108,208,103"/>
+</map>

@@ -229,6 +229,34 @@ void SynthBase::removeProcessor(ModulatorBase *processor) {
         }
     }
 }
+
+void SynthBase::removeChainRouting(RoutingProcessor *processor) {
+
+
+    auto it = std::find_if(engine_->chainPostGain.begin(), engine_->chainPostGain.end(),
+                       [&](const auto &proc) {
+                           return proc.get() == processor;
+                       });
+    if (it != engine_->chainPostGain.end())
+    {
+        // Transfer ownership out before erasing
+        std::unique_ptr<RoutingProcessor> released = std::move(*engine_->chainPostGain.erase(it));
+        // Create task as a std::function
+        DeleteThreadAction task = [ptr = std::move(released)]() mutable {
+            ptr.reset(); // optional; unique_ptr will go out of scope
+        };
+
+        // Try enqueue
+        if (!processorDeleteQueue.try_enqueue(std::move(task))) {
+            // If failed to enqueue, consider logging or handling fallback
+            jassertfalse; // or fallbackDeleteList.push_back(std::move(ptr));
+        }
+
+    }
+            return; // Caller is now responsible or the pointer
+
+
+}
 void SynthBase::addChainRouting(std::unique_ptr<RoutingProcessor> processor, int chain_index) {
     processor->prepareToPlay(engine_->getSampleRate(), engine_->getBufferSize());
 

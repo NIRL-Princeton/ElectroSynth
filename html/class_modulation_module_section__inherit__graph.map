@@ -1,0 +1,27 @@
+<map id="ModulationModuleSection" name="ModulationModuleSection">
+<area shape="rect" id="Node000001" title=" " alt="" coords="195,342,355,368"/>
+<area shape="rect" id="Node000002" href="$class_modules_interface.html" title=" " alt="" coords="185,252,365,293"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="278,308,278,342,272,342,272,308"/>
+<area shape="rect" id="Node000003" href="$class_synth_section.html" title=" " alt="" coords="206,80,295,106"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="237,119,224,149,221,165,223,180,240,219,261,251,257,254,235,221,218,182,216,164,219,147,232,117"/>
+<area shape="rect" id="Node000011" href="$class_modules_interface.html" title=" " alt="" coords="233,155,376,181"/>
+<area shape="poly" id="edge11_Node000011_Node000003" title=" " alt="" coords="270,117,298,154,294,157,266,120"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="5,5,115,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="105,34,222,78,220,83,103,39"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="139,5,237,31"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="210,41,243,79,239,82,206,44"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="261,5,364,31"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="295,44,263,82,259,79,291,41"/>
+<area shape="rect" id="Node000007" href="$class_synth_button_1_1_button_listener.html" title=" " alt="" coords="388,5,562,31"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="426,38,287,83,285,78,424,33"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="33,80,183,106"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="128,116,172,168,226,226,253,250,249,254,222,230,168,171,124,119"/>
+<area shape="poly" id="edge12_Node000011_Node000008" title=" " alt="" coords="154,109,274,153,272,158,153,114"/>
+<area shape="rect" id="Node000009" href="$class_effects_viewport_1_1_listener.html" title=" " alt="" coords="503,80,660,106"/>
+<area shape="poly" id="edge8_Node000002_Node000009" title=" " alt="" coords="562,119,502,174,462,204,420,230,360,255,358,250,418,226,459,200,498,170,558,115"/>
+<area shape="poly" id="edge13_Node000011_Node000009" title=" " alt="" coords="523,112,349,158,347,153,522,107"/>
+<area shape="rect" id="Node000010" href="$class_module_list_1_1_listener.html" title=" " alt="" coords="319,80,479,106"/>
+<area shape="poly" id="edge9_Node000002_Node000010" title=" " alt="" coords="409,120,413,145,414,174,410,203,397,230,383,244,366,255,363,251,379,240,393,226,404,201,409,173,408,146,403,121"/>
+<area shape="poly" id="edge14_Node000011_Node000010" title=" " alt="" coords="374,117,321,157,318,153,370,113"/>
+<area shape="poly" id="edge10_Node000002_Node000011" title=" " alt="" coords="285,194,278,206,274,230,275,252,269,253,269,229,273,204,280,191"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="set_incident_wave_for_inverter" name="set_incident_wave_for_inverter">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,157,46"/>
+<area shape="rect" id="Node000002" href="$leaf-electrical_8c.html#adcfe63de2f407e035f7c743e532a09fa" title=" " alt="" coords="205,13,365,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="157,23,189,23,189,28,157,28"/>
+</map>

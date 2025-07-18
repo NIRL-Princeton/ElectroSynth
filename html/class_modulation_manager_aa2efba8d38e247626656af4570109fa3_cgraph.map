@@ -1,0 +1,9 @@
+<map id="ModulationManager::modulationWheelMoved" name="ModulationManager::modulationWheelMoved">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,166,79"/>
+<area shape="rect" id="Node000002" href="$class_modulation_manager.html#a308afcc5d03adf6451466e77b722c515" title=" " alt="" coords="214,39,356,79"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="166,56,198,56,198,62,166,62"/>
+<area shape="rect" id="Node000003" href="$class_synth_base.html#af7bb381c4193cfb86245a5fbd5ad762b" title=" " alt="" coords="404,5,581,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="356,45,388,40,389,45,357,50"/>
+<area shape="rect" id="Node000004" href="$class_synth_gui_interface.html#a4e948c6a5558b838582d7476f079251d" title=" " alt="" coords="426,71,560,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="357,67,411,76,410,81,356,73"/>
+</map>

@@ -1,0 +1,15 @@
+<map id="tPoly_free" name="tPoly_free">
+<area shape="rect" id="Node000001" title="Free a tPoly from its mempool." alt="" coords="5,31,86,56"/>
+<area shape="rect" id="Node000002" href="$leaf-mempool_8c.html#ab22403c96346dcc0a1c2437a00e616fc" title=" " alt="" coords="271,31,356,56"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="84,27,133,16,178,11,223,16,260,23,259,28,223,21,178,17,134,21,85,33"/>
+<area shape="rect" id="Node000005" href="$group__tramp.html#ga155e473a79ce4b174fa468981bb13750" title="Free a tRamp from its mempool." alt="" coords="134,31,223,56"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="86,41,118,41,118,46,86,46"/>
+<area shape="rect" id="Node000006" href="$group__tstack.html#gabf348064227f55c30cd2bcac3d899881" title="Free a tStack from its mempool." alt="" coords="134,80,222,106"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="83,54,128,72,127,77,81,59"/>
+<area shape="rect" id="Node000003" href="$leaf-mempool_8c.html#a1cac56e9fbf416e1410563bfb49290b4" title=" " alt="" coords="450,5,541,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="356,35,434,24,435,29,357,40"/>
+<area shape="rect" id="Node000004" href="$leaf_8c.html#a389f39fbcc732ce345106b995b3a434d" title=" " alt="" coords="404,55,587,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="357,46,389,51,389,56,356,52"/>
+<area shape="poly" id="edge5_Node000005_Node000002" title=" " alt="" coords="223,41,255,41,255,46,223,46"/>
+<area shape="poly" id="edge7_Node000006_Node000002" title=" " alt="" coords="215,77,261,60,263,65,217,82"/>
+</map>

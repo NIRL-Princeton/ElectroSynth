@@ -1,0 +1,4 @@
+<map id="tWaveTableS" name="tWaveTableS">
+<area shape="rect" id="Node000002" href="$group__oscillators.html" title="Oscillators and generators." alt="" coords="5,5,89,31"/>
+<area shape="rect" id="Node000001" title="A more space&#45;efficient anti&#45;aliased wavetable generator than tWaveTable but with slightly worse fidel..." alt="" coords="137,5,235,31"/>
+</map>

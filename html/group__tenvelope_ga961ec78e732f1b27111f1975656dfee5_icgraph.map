@@ -1,0 +1,21 @@
+<map id="tEnvelope_initToPool" name="tEnvelope_initToPool">
+<area shape="rect" id="Node000001" title="Initialize a tEnvelope to a specified mempool." alt="" coords="376,104,519,130"/>
+<area shape="rect" id="Node000002" href="$group__t808cowbell.html#ga99059721c541953474999ddd3bb59913" title="Initialize a t808Cowbell to a specified mempool." alt="" coords="171,5,328,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="414,97,374,70,327,45,300,34,302,29,329,40,376,65,417,92"/>
+<area shape="rect" id="Node000004" href="$group__t808hihat.html#ga1aa220309fb3475977ea7878105a8d1d" title="Initialize a t808Hihat to a specified mempool." alt="" coords="179,55,320,80"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="378,102,303,84,305,78,379,97"/>
+<area shape="rect" id="Node000006" href="$group__t808kick.html#ga0126a59483e835ffb84686ded5ffe4db" title="Initialize a t808Kick to a specified mempool." alt="" coords="181,104,318,130"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="360,120,318,120,318,114,360,114"/>
+<area shape="rect" id="Node000008" href="$group__t808snare.html#ga2aca77d2a4474881901ede4e03bd6209" title="Initialize a t808Snare to a specified mempool." alt="" coords="177,153,322,179"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="379,137,305,155,303,150,378,131"/>
+<area shape="rect" id="Node000010" href="$group__tenvelope.html#ga13092d62e8bac555b48c11728dc68773" title="Initialize a tEnvelope to the default mempool of a LEAF instance." alt="" coords="198,203,301,228"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="417,141,376,168,329,194,302,205,300,200,327,189,374,164,414,137"/>
+<area shape="rect" id="Node000003" href="$group__t808cowbell.html#gad73082119a3ea30b5531c683617d007b" title="Initialize a t808Cowbell to the default mempool of a LEAF instance." alt="" coords="5,5,123,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="155,21,123,21,123,16,155,16"/>
+<area shape="rect" id="Node000005" href="$group__t808hihat.html#ga90cf7603e94540308461463f738d120a" title="Initialize a t808Hihat to the default mempool of a LEAF instance." alt="" coords="13,55,115,80"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="163,70,115,70,115,65,163,65"/>
+<area shape="rect" id="Node000007" href="$group__t808kick.html#gadf0610a6f55caa8fe2bce29be8ae5866" title="Initialize a t808Kick to the default mempool of a LEAF instance." alt="" coords="16,104,112,130"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="165,120,113,120,113,114,165,114"/>
+<area shape="rect" id="Node000009" href="$group__t808snare.html#gacd0d752096b9eb8c14b7bd5e7088f6df" title="Initialize a t808Snare to the default mempool of a LEAF instance." alt="" coords="12,153,116,179"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="162,169,117,169,117,164,162,164"/>
+</map>

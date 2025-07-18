@@ -1,0 +1,14 @@
+<map id="SynthBase::connectModulation" name="SynthBase::connectModulation">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,106,208,132"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="63,108,55,98,60,88,77,82,107,80,139,82,155,89,153,94,138,87,106,85,78,87,63,92,60,97,67,104"/>
+<area shape="rect" id="Node000002" href="$classelectrosynth_1_1_modulation_connection_bank.html#ab27457c266af23d5ecb5780f10161283" title=" " alt="" coords="256,41,483,82"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="168,103,257,83,259,89,169,108"/>
+<area shape="rect" id="Node000005" href="$class_synth_base.html#a8dc1d767beced6772f2c5c2220aacda9" title=" " alt="" coords="281,106,458,132"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="208,116,265,116,265,122,208,122"/>
+<area shape="rect" id="Node000006" href="$class_synth_base.html#ae52dfe228270655971aea89f7346ad99" title=" " alt="" coords="267,156,472,181"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="179,130,282,149,281,155,178,135"/>
+<area shape="rect" id="Node000003" href="$classelectrosynth_1_1_modulation_connection_bank.html#a594c446633d0829b0138a0df0022ee93" title=" " alt="" coords="531,5,741,46"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="483,44,515,39,516,45,484,49"/>
+<area shape="rect" id="Node000004" href="$structelectrosynth_1_1_modulation_connection.html#aec9088e7094642a26671a4b82a952367" title=" " alt="" coords="532,70,741,126"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="484,74,516,79,516,84,483,80"/>
+</map>

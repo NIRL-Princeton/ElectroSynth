@@ -1,0 +1,17 @@
+<map id="SynthEditor::getNextAudioBlock" name="SynthEditor::getNextAudioBlock">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,112,182,153"/>
+<area shape="rect" id="Node000002" href="$class_synth_editor.html#a8d81c0f736e77b1bda63717189e13016" title=" " alt="" coords="249,5,405,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="127,109,174,82,229,55,243,49,245,54,231,60,177,87,130,114"/>
+<area shape="rect" id="Node000003" href="$class_synth_base.html#ab19269ee60c5ee640a71947bb0ba1d30" title=" " alt="" coords="235,70,418,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="181,111,247,97,248,102,183,116"/>
+<area shape="rect" id="Node000004" href="$class_synth_base.html#a357f32577e5b4825ef0f225d12f020fd" title=" " alt="" coords="241,120,413,145"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="182,130,225,130,225,135,182,135"/>
+<area shape="rect" id="Node000007" href="$class_synth_base.html#a5d1202f11b5c8af3b4c6ff124e4cec6f" title=" " alt="" coords="230,169,424,210"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="179,151,227,163,226,168,178,156"/>
+<area shape="rect" id="Node000008" href="$class_synth_base.html#ae42970518d951c778ee1ef2a6751fbc0" title=" " alt="" coords="245,234,408,260"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="122,151,171,186,231,219,249,227,247,232,229,224,168,190,119,155"/>
+<area shape="rect" id="Node000005" href="$class_synth_base.html#a560904d8cf991eee36f7bde0671f6da6" title=" " alt="" coords="472,112,660,153"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="414,130,457,130,457,135,414,135"/>
+<area shape="rect" id="Node000006" href="$class_synth_base.html#a3e2d45e6d4dd945a4d1632085fad9a6f" title=" " alt="" coords="708,112,911,153"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="661,130,693,130,693,135,661,135"/>
+</map>

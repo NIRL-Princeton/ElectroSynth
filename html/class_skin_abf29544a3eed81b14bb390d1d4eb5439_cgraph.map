@@ -1,0 +1,11 @@
+<map id="Skin::loadFromFile" name="Skin::loadFromFile">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,136,56"/>
+<area shape="rect" id="Node000002" href="$class_skin.html#a1d247b72f474ba449b0867fe0cc3384e" title=" " alt="" coords="184,31,316,56"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="136,41,168,41,168,46,136,46"/>
+<area shape="rect" id="Node000003" href="$class_skin.html#a5d0acec39e23947af3132471a45e8799" title=" " alt="" coords="364,31,488,56"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="316,41,349,41,349,46,316,46"/>
+<area shape="rect" id="Node000004" href="$class_skin.html#af1f87616051907ceb045f8b0db046120" title=" " alt="" coords="543,5,652,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="488,32,527,26,528,31,489,37"/>
+<area shape="rect" id="Node000005" href="$class_skin.html#a2a1d533875f2c3073bb438c57f73094e" title=" " alt="" coords="536,55,659,80"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="489,50,521,54,520,59,488,55"/>
+</map>

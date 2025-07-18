@@ -1,0 +1,17 @@
+<map id="OpenGlMultiQuad::OpenGlMultiQuad" name="OpenGlMultiQuad::OpenGlMultiQuad">
+<area shape="rect" id="Node000001" title=" " alt="" coords="492,62,727,88"/>
+<area shape="rect" id="Node000002" href="$class_open_gl_corners.html#a9fa3f2e0ac7f549b798dd4cabaf38293" title=" " alt="" coords="235,13,444,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="520,61,413,42,414,37,521,56"/>
+<area shape="rect" id="Node000003" href="$class_open_gl_quad.html#a27f1ffaed171a28f058ffd0e5266c43f" title=" " alt="" coords="250,62,429,88"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="476,78,430,78,430,72,476,72"/>
+<area shape="rect" id="Node000004" href="$class_open_gl_quad.html#ad1550e395996319953aaedef70329b2b" title=" " alt="" coords="250,112,429,137"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="521,94,414,113,413,108,520,89"/>
+<area shape="rect" id="Node000005" href="$class_modulation_expansion_box.html#a734d1aaea1cbff833d63bcc8b3859482" title=" " alt="" coords="8,5,184,46"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="246,108,233,103,218,93,208,82,199,72,185,61,160,49,163,44,188,57,203,68,212,78,222,88,236,98,248,104"/>
+<area shape="rect" id="Node000006" href="$class_synth_section_1_1_off_overlay.html#afcddfe58328f23a14203d4a1dc822d7d" title=" " alt="" coords="11,71,181,111"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="234,113,181,105,182,100,235,107"/>
+<area shape="rect" id="Node000007" href="$class_open_gl_scroll_quad.html#a5b679755e1be099763461315308188e4" title=" " alt="" coords="5,136,187,177"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="235,141,187,147,187,142,234,135"/>
+<area shape="rect" id="Node000008" href="$class_open_gl_slider_quad.html#a4157bca253f363d5c084ede6e1b18845" title=" " alt="" coords="5,201,187,242"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="295,146,188,191,156,203,154,198,186,186,293,141"/>
+</map>

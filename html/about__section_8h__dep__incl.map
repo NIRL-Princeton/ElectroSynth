@@ -1,0 +1,9 @@
+<map id="source/interface/sections/about_section.h" name="source/interface/sections/about_section.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="245,5,413,46"/>
+<area shape="rect" id="Node000002" href="$_full_interface_8cpp.html" title=" " alt="" coords="5,102,221,127"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="267,55,144,103,142,99,265,50"/>
+<area shape="rect" id="Node000003" href="$_audio_chain_section_8cpp.html" title=" " alt="" coords="245,94,413,135"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="332,62,332,94,326,94,326,62"/>
+<area shape="rect" id="Node000004" href="$about__section_8cpp.html" title=" " alt="" coords="437,94,605,135"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="387,50,479,91,477,96,385,55"/>
+</map>

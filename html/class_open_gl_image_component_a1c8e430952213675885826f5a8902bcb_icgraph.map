@@ -1,0 +1,17 @@
+<map id="OpenGlImageComponent::setActive" name="OpenGlImageComponent::setActive">
+<area shape="rect" id="Node000001" title=" " alt="" coords="478,160,646,201"/>
+<area shape="rect" id="Node000002" href="$class_modulation_button.html#a0023ccef88b96e4b91e8e4f7145a39fb" title=" " alt="" coords="233,103,426,143"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="463,159,414,147,416,141,464,153"/>
+<area shape="rect" id="Node000007" href="$class_modulation_button.html#aa043356381ebd4b05116a35ece8f3434" title=" " alt="" coords="230,168,430,193"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="463,183,430,183,430,178,463,178"/>
+<area shape="rect" id="Node000008" href="$class_modulation_button.html#a65aa3f6527e774a39633123dd3f3b7a6" title=" " alt="" coords="247,217,413,242"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="464,204,394,219,393,214,463,199"/>
+<area shape="rect" id="Node000003" href="$class_modulation_button_1_1_listener.html#a6b2239476e8226a6cebe80a8124fa6b2" title=" " alt="" coords="5,5,182,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="267,98,181,61,150,49,152,44,183,57,269,93"/>
+<area shape="rect" id="Node000004" href="$class_modulation_button_1_1_listener.html#a87ec09949fcacbb8cffba438a76e7bd1" title=" " alt="" coords="5,71,182,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="217,110,182,106,183,100,218,105"/>
+<area shape="rect" id="Node000005" href="$class_modulation_button_1_1_listener.html#aea41682e2e26ac2c0c1613b3f941d26f" title=" " alt="" coords="5,136,182,177"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="218,141,183,147,182,141,217,136"/>
+<area shape="rect" id="Node000006" href="$class_modulation_button_1_1_listener.html#adf25154c8d8c6e9956cd24cd827cf9dd" title=" " alt="" coords="5,201,182,242"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="243,152,231,157,207,174,183,191,156,203,154,198,180,186,204,169,228,153,241,147"/>
+</map>

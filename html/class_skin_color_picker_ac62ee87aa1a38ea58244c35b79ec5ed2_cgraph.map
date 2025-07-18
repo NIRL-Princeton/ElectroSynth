@@ -1,0 +1,15 @@
+<map id="SkinColorPicker::SkinColorPicker" name="SkinColorPicker::SkinColorPicker">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,120,186,161"/>
+<area shape="rect" id="Node000002" href="$class_skin_color_picker.html#a5073774e73c82a5861ce9a7e262ba600" title=" " alt="" coords="243,5,418,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="119,118,169,79,232,41,250,34,252,39,235,46,172,83,122,122"/>
+<area shape="rect" id="Node000003" href="$class_skin_color_picker.html#a772ac5e6f74e6c76cbc2ada25877aed7" title=" " alt="" coords="234,55,427,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="170,117,239,98,240,103,172,123"/>
+<area shape="rect" id="Node000004" href="$class_skin_color_picker.html#af1a41a73ef8447b26e4a92d9b82c391e" title=" " alt="" coords="242,120,418,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="186,138,227,138,227,144,186,144"/>
+<area shape="rect" id="Node000005" href="$class_skin_color_picker.html#acdc1486b45f6625dc54bd9ab26abc9fd" title=" " alt="" coords="235,185,426,211"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="182,159,260,178,259,184,181,164"/>
+<area shape="rect" id="Node000007" href="$class_skin_color_picker.html#a636e5123f6a9acfdfc78979e806d304f" title=" " alt="" coords="243,235,418,276"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="128,159,177,190,235,221,248,227,245,232,233,226,175,195,125,164"/>
+<area shape="rect" id="Node000006" href="$class_skin_color_picker.html#ac95c07f3b749a9adbcdbe29f156002db" title=" " alt="" coords="475,178,654,218"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="426,196,459,196,459,201,426,201"/>
+</map>

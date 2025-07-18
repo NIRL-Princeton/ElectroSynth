@@ -1,0 +1,11 @@
+<map id="AudioChainSection::mouseDown" name="AudioChainSection::mouseDown">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,35,146,75"/>
+<area shape="rect" id="Node000002" href="$class_audio_chain_section.html#acf4742b80e07f7c730c2110e8ede5d53" title=" " alt="" coords="235,5,376,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="146,43,219,34,220,39,147,49"/>
+<area shape="rect" id="Node000004" href="$class_synth_section.html#a02cffa44898631905c06f4d0595899df" title=" " alt="" coords="194,70,417,96"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="147,61,180,65,179,70,146,66"/>
+<area shape="rect" id="Node000003" href="$struct_popup_items.html#a091b6aac3301c664924f0c520e32635a" title=" " alt="" coords="484,13,630,38"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="376,23,469,23,469,28,376,28"/>
+<area shape="rect" id="Node000005" href="$class_full_interface.html#af56ac6d0d3cc0fffaa22a0a4c64964fd" title=" " alt="" coords="465,70,649,96"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="417,80,449,80,449,86,417,86"/>
+</map>

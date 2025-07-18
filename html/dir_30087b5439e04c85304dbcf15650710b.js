@@ -1,0 +1,28 @@
+var dir_30087b5439e04c85304dbcf15650710b =
+[
+    [ "templates", "dir_cecc0837c3fa810c6cfab42a3b37db88.html", "dir_cecc0837c3fa810c6cfab42a3b37db88" ],
+    [ "ApplicationCommandHandler.cpp", "_application_command_handler_8cpp.html", null ],
+    [ "ApplicationCommandHandler.h", "_application_command_handler_8h.html", "_application_command_handler_8h" ],
+    [ "BenchMarkProcessBlock.h", "_bench_mark_process_block_8h.html", "_bench_mark_process_block_8h" ],
+    [ "border_bounds_constrainer.cpp", "border__bounds__constrainer_8cpp.html", null ],
+    [ "border_bounds_constrainer.h", "border__bounds__constrainer_8h.html", "border__bounds__constrainer_8h" ],
+    [ "buffer_debugger.cpp", "buffer__debugger_8cpp.html", "buffer__debugger_8cpp" ],
+    [ "buffer_debugger.h", "buffer__debugger_8h.html", "buffer__debugger_8h" ],
+    [ "circular_queue.h", "common_2circular__queue_8h.html", "common_2circular__queue_8h" ],
+    [ "common.h", "common_8h.html", "common_8h" ],
+    [ "Factory.h", "_factory_8h.html", "_factory_8h" ],
+    [ "Identifiers.h", "_identifiers_8h.html", "_identifiers_8h" ],
+    [ "load_save.cpp", "load__save_8cpp.html", "load__save_8cpp" ],
+    [ "load_save.h", "load__save_8h.html", "load__save_8h" ],
+    [ "midi_manager.cpp", "midi__manager_8cpp.html", "midi__manager_8cpp" ],
+    [ "midi_manager.h", "midi__manager_8h.html", "midi__manager_8h" ],
+    [ "ModulationConnection.cpp", "_modulation_connection_8cpp.html", null ],
+    [ "ModulationConnection.h", "_modulation_connection_8h.html", "_modulation_connection_8h" ],
+    [ "module_type_info.h", "module__type__info_8h.html", "module__type__info_8h" ],
+    [ "startup.cpp", "startup_8cpp.html", null ],
+    [ "startup.h", "startup_8h.html", "startup_8h" ],
+    [ "synth_gui_interface.cpp", "synth__gui__interface_8cpp.html", null ],
+    [ "synth_gui_interface.h", "synth__gui__interface_8h.html", "synth__gui__interface_8h" ],
+    [ "value_tree_debugger.cpp", "value__tree__debugger_8cpp.html", "value__tree__debugger_8cpp" ],
+    [ "value_tree_debugger.h", "value__tree__debugger_8h.html", "value__tree__debugger_8h" ]
+];

@@ -1,0 +1,9 @@
+<map id="SynthBase::disconnectModulation" name="SynthBase::disconnectModulation">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,38,225,64"/>
+<area shape="rect" id="Node000002" href="$class_synth_base.html#a42fd04183ba969b1e17f6e12ba3fec93" title=" " alt="" coords="273,13,492,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="225,38,257,35,257,40,225,43"/>
+<area shape="rect" id="Node000004" href="$class_synth_base.html#a8dc1d767beced6772f2c5c2220aacda9" title=" " alt="" coords="294,62,471,88"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="225,58,278,63,278,68,225,64"/>
+<area shape="rect" id="Node000003" href="$class_synth_base.html#ae2a8de0bf18b6761b72c7d1bae2cc32c" title=" " alt="" coords="540,5,718,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="493,23,524,23,524,28,493,28"/>
+</map>

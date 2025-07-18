@@ -1,0 +1,17 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" title=" " alt="" coords="5,72,109,98"/>
+<area shape="rect" id="Node000001" href="$struct_loki_1_1_default_factory_error_1_1_exception.html" title=" " alt="" coords="157,24,369,79"/>
+<area shape="poly" id="edge304_Node000000_Node000001" title=" " alt="" coords="124,71,156,66,157,71,125,77"/>
+<area shape="rect" id="Node000002" href="$classdetail_1_1exception.html" title="general exception of the basic_json class" alt="" coords="205,104,321,130"/>
+<area shape="poly" id="edge305_Node000000_Node000002" title=" " alt="" coords="125,93,205,105,204,110,124,98"/>
+<area shape="rect" id="Node000003" href="$classdetail_1_1invalid__iterator.html" title="exception indicating errors with iterators" alt="" coords="417,5,561,31"/>
+<area shape="poly" id="edge306_Node000002_Node000003" title=" " alt="" coords="335,103,368,89,382,78,391,66,400,53,416,40,437,29,440,34,418,44,404,56,395,69,386,82,370,94,337,108"/>
+<area shape="rect" id="Node000004" href="$classdetail_1_1other__error.html" title="exception indicating other library errors" alt="" coords="428,55,550,80"/>
+<area shape="poly" id="edge307_Node000002_Node000004" title=" " alt="" coords="336,98,427,78,428,83,337,104"/>
+<area shape="rect" id="Node000005" href="$classdetail_1_1out__of__range.html" title="exception indicating access out of the defined range" alt="" coords="422,104,557,130"/>
+<area shape="poly" id="edge308_Node000002_Node000005" title=" " alt="" coords="336,114,421,114,421,120,336,120"/>
+<area shape="rect" id="Node000006" href="$classdetail_1_1parse__error.html" title="exception indicating a parse error" alt="" coords="426,153,552,179"/>
+<area shape="poly" id="edge309_Node000002_Node000006" title=" " alt="" coords="337,130,428,150,426,155,336,135"/>
+<area shape="rect" id="Node000007" href="$classdetail_1_1type__error.html" title="exception indicating executing a member function with a wrong type" alt="" coords="430,203,548,228"/>
+<area shape="poly" id="edge310_Node000002_Node000007" title=" " alt="" coords="304,135,418,189,446,200,444,205,416,194,301,140"/>
+</map>

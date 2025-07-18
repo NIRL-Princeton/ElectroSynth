@@ -10,8 +10,8 @@
 #include "synth_base.h"
 #include "EffectList.h"
 EffectModuleSection::EffectModuleSection(ModulationManager *m,
-                                     EffectList &module_list,const juce::ValueTree &v) :
-ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRectangleFragment)), state(v)
+                                     EffectList &module_list,const juce::ValueTree &v, juce::UndoManager& um) :
+ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRectangleFragment)), state(v), undo(um)
 {
     scroll_bar_ = std::make_unique<OpenGlScrollBar>();
     addAndMakeVisible(scroll_bar_.get());
@@ -47,7 +47,8 @@ void EffectModuleSection::handlePopupResult(int result) {
     if (result == 1) {
         juce::ValueTree t(IDs::EFFECTMODULE);
         t.setProperty(IDs::type, "filt", nullptr);
-        list.appendChild(t, nullptr);
+        undo.beginNewTransaction();
+        list.appendChild(t, &undo);
     }
     // } else if (result == 3) {
     //     juce::ValueTree t(IDs::EffectMODULE);

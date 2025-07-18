@@ -1,0 +1,7 @@
+<map id="ModulationManager::setModulationSliderValues" name="ModulationManager::setModulationSliderValues">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,180,79"/>
+<area shape="rect" id="Node000002" href="$class_modulation_manager.html#a9c53b6c34003a18ff139b10b0391b5aa" title=" " alt="" coords="228,5,396,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,43,212,38,212,43,180,48"/>
+<area shape="rect" id="Node000003" href="$class_modulation_manager.html#a1669597a01afc6041842bc63598b8545" title=" " alt="" coords="228,71,396,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="180,69,213,74,212,79,180,74"/>
+</map>

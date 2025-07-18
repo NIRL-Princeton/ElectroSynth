@@ -1,0 +1,28 @@
+var struct__t_osc_module =
+[
+    [ "amp", "struct__t_osc_module.html#afa97ec1981b9fb9856478fd6d6c6a812", null ],
+    [ "finalFreq", "struct__t_osc_module.html#adce3f367f870d3cc94de02308031e8c7", null ],
+    [ "fine", "struct__t_osc_module.html#a69682936e13fadac584d6c95dacd876c", null ],
+    [ "freq_set_func", "struct__t_osc_module.html#af34ad3d6369b0a234d09737d9e055aea", null ],
+    [ "freqOffset", "struct__t_osc_module.html#a72a3a82a0ef76392e9bfb88ee477fd80", null ],
+    [ "harmonicMultiplier", "struct__t_osc_module.html#a46389271552c144dcfd0432870e64288", null ],
+    [ "hStepped", "struct__t_osc_module.html#a22b253494b63609c7a40d1e6651d644b", null ],
+    [ "inputNote", "struct__t_osc_module.html#a0f11cc906717e180b2a3ce95f4711f8d", null ],
+    [ "invSr", "struct__t_osc_module.html#a6e9aea1df6022ddb53608624b106a581", null ],
+    [ "mempool", "struct__t_osc_module.html#aaf4f6bfcfec206703a839c95d6fadb50", null ],
+    [ "moduleType", "struct__t_osc_module.html#a59345dabb54a8013cb703b93a5cdadc0", null ],
+    [ "mtofTable", "struct__t_osc_module.html#a68bbd6bca068e5e3dcc7f14b1eeee0f2", null ],
+    [ "octaveOffset", "struct__t_osc_module.html#af0f07e82d2beb31d88c16b06ff7567dd", null ],
+    [ "osctype", "struct__t_osc_module.html#a61cd00deab8456208e647c03f770bb69", null ],
+    [ "outputs", "struct__t_osc_module.html#a1cdf10593807cedecf9476a83301f48d", null ],
+    [ "params", "struct__t_osc_module.html#a5432efc5d89bfea9075650c2a010be5e", null ],
+    [ "pitchOffset", "struct__t_osc_module.html#a05e47b9ae64c3ada211b13b546b3080b", null ],
+    [ "pitchSmoother", "struct__t_osc_module.html#a0667b1a2db242eae86f19ffb730a1c5d", null ],
+    [ "pStepped", "struct__t_osc_module.html#a3e9256df1be9ada697a1b976a09d08e2", null ],
+    [ "setterFunctions", "struct__t_osc_module.html#a3a4267cdb4109a8aac93ad3726f0c0f5", null ],
+    [ "sr", "struct__t_osc_module.html#a51495b1cdde366d3345e0182aa274c9d", null ],
+    [ "syncMode", "struct__t_osc_module.html#aa8beed7e90278e516f7c6ebafe25ed17", null ],
+    [ "theOsc", "struct__t_osc_module.html#a9beb098e70c32db1d81a1d577ccf25aa", null ],
+    [ "tick", "struct__t_osc_module.html#a5df92cc90f00c1b9f2282ca5f74fadee", null ],
+    [ "uniqueID", "struct__t_osc_module.html#ae29bff1cf583c7bccd15b0a3e73ac52e", null ]
+];

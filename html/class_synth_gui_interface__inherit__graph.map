@@ -1,0 +1,7 @@
+<map id="SynthGuiInterface" name="SynthGuiInterface">
+<area shape="rect" id="Node000001" title=" " alt="" coords="40,5,156,31"/>
+<area shape="rect" id="Node000002" href="$class_plugin_editor.html" title=" " alt="" coords="5,79,86,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="83,44,56,81,52,78,79,41"/>
+<area shape="rect" id="Node000003" href="$class_synth_editor.html" title=" " alt="" coords="110,79,189,105"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="117,41,144,78,139,81,113,44"/>
+</map>

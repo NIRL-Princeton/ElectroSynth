@@ -1,0 +1,9 @@
+<map id="tStack_remove" name="tStack_remove">
+<area shape="rect" id="Node000001" title=" " alt="" coords="274,55,383,80"/>
+<area shape="rect" id="Node000002" href="$leaf-midi_8c.html#a612c71ce9b70930985795675e2cb91f5" title=" " alt="" coords="65,5,166,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="259,53,225,45,166,31,167,26,226,40,260,48"/>
+<area shape="rect" id="Node000003" href="$leaf-midi_8c.html#ae93cd3ea5b3fdf9f523409af736fe4b6" title=" " alt="" coords="5,55,226,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="258,70,226,70,226,65,258,65"/>
+<area shape="rect" id="Node000004" href="$leaf-midi_8c.html#a178a60ef83acc46948d8e3ef58dd54f5" title=" " alt="" coords="45,104,186,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="260,87,226,95,180,106,178,101,225,90,259,82"/>
+</map>

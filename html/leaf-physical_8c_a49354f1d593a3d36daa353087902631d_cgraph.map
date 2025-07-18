@@ -1,0 +1,11 @@
+<map id="tStiffString_setFreq" name="tStiffString_setFreq">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,55,140,80"/>
+<area shape="rect" id="Node000002" href="$leaf-physical_8c.html#aa1ff86d91b7fe945907e640f4ec7d9a6" title=" " alt="" coords="188,55,379,80"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="140,65,172,65,172,70,140,70"/>
+<area shape="rect" id="Node000003" href="$leaf-math_8h.html#ae39abf4bc02c615883e34b894125555c" title=" " alt="" coords="446,5,519,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="338,51,430,28,431,33,339,57"/>
+<area shape="rect" id="Node000004" href="$leaf-math_8h.html#ad4bddb22c798cb40b789a727a48b81fd" title=" " alt="" coords="442,55,523,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="379,65,426,65,426,70,379,70"/>
+<area shape="rect" id="Node000005" href="$leaf-oscillators_8c.html#a7421a30b72cf55e1353f92f5dd1a3832" title=" " alt="" coords="427,104,537,130"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="339,78,413,97,412,102,338,84"/>
+</map>

@@ -1,0 +1,28 @@
+<map id="tTriLFO_setFreq" name="tTriLFO_setFreq">
+<area shape="rect" id="Node000001" title=" " alt="" coords="821,45,937,71"/>
+<area shape="rect" id="Node000002" href="$_l_f_o_module_8cpp.html#ab156d628de52ca62d2e33c721509dc6d" title=" " alt="" coords="170,32,326,58"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="834,41,772,22,711,14,649,10,525,11,412,21,321,34,320,29,411,16,525,6,649,4,712,8,773,17,836,36"/>
+<area shape="rect" id="Node000004" href="$leaf-oscillators_8c.html#a1586f5f85873d9271cf7de2f8476766c" title=" " alt="" coords="620,32,763,58"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="805,56,763,53,763,47,805,50"/>
+<area shape="rect" id="Node000005" href="$group__t_tri_l_f_o.html#ga4914cbf5e97840f3eacf4ef72eefa4f6" title="Initialize a tTriLFO to a specified mempool." alt="" coords="627,96,756,122"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="814,78,742,98,741,93,813,73"/>
+<area shape="rect" id="Node000011" href="$leaf-oscillators_8c.html#afe2a05be7df3e612d9887cac34a8498c" title=" " alt="" coords="610,169,773,195"/>
+<area shape="poly" id="edge13_Node000001_Node000011" title=" " alt="" coords="850,83,774,136,718,171,715,166,771,132,847,78"/>
+<area shape="rect" id="Node000003" href="$_l_f_o_module_8cpp.html#a596a28cefca83f9dd6d02c47032796ba" title=" " alt="" coords="5,32,122,58"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="154,47,122,47,122,42,154,42"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="605,47,326,47,326,42,605,42"/>
+<area shape="poly" id="edge6_Node000005_Node000002" title=" " alt="" coords="611,100,326,59,327,53,612,95"/>
+<area shape="rect" id="Node000006" href="$leaf-oscillators_8c.html#abd7fbd23e7567dc79d977ae75509f87b" title=" " alt="" coords="390,108,546,134"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="611,116,547,119,546,114,611,110"/>
+<area shape="rect" id="Node000009" href="$group__t_tri_l_f_o.html#ga68e7b7f7c28bc56c3a43b6a6894a7725" title="Initialize a tTriLFO to the default mempool of a LEAF instance." alt="" coords="424,157,513,183"/>
+<area shape="poly" id="edge11_Node000005_Node000009" title=" " alt="" coords="632,129,563,149,514,162,513,156,562,144,630,124"/>
+<area shape="poly" id="edge8_Node000006_Node000002" title=" " alt="" coords="413,105,373,91,286,61,288,56,375,86,414,100"/>
+<area shape="rect" id="Node000007" href="$leaf-oscillators_8c.html#a84609b21d5dda7214ef63aa33b30cec0" title="sinetri" alt="" coords="190,108,306,134"/>
+<area shape="poly" id="edge9_Node000006_Node000007" title=" " alt="" coords="375,123,306,123,306,118,375,118"/>
+<area shape="rect" id="Node000008" href="$leaf_2test_2oscillators__test_8cpp.html#a0dbb2d6e565ddf99a1c7cced678d74e0" title=" " alt="" coords="14,108,113,134"/>
+<area shape="poly" id="edge10_Node000007_Node000008" title=" " alt="" coords="174,123,114,123,114,118,174,118"/>
+<area shape="rect" id="Node000010" href="$leaf_2test_2oscillators__test_8cpp.html#aa49295b37ae87c823c42cdeb6151ed6b" title=" " alt="" coords="198,157,298,183"/>
+<area shape="poly" id="edge12_Node000009_Node000010" title=" " alt="" coords="408,173,298,173,298,167,408,167"/>
+<area shape="rect" id="Node000012" href="$leaf-oscillators_8c.html#a9fc7c7c71236a8fa6c94afb1ed202e0e" title=" " alt="" coords="374,207,562,232"/>
+<area shape="poly" id="edge14_Node000011_Node000012" title=" " alt="" coords="596,201,549,209,549,203,595,195"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="tNReverb_tickStereo" name="tNReverb_tickStereo">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,149,56"/>
+<area shape="rect" id="Node000002" href="$leaf-delay_8c.html#ac002a3281d4c30937dbcda3c3e553609" title=" " alt="" coords="197,5,362,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="149,32,181,28,181,33,150,37"/>
+<area shape="rect" id="Node000003" href="$leaf-delay_8c.html#a50b682c825e8b084808575cdc6f1f150" title=" " alt="" coords="218,55,340,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="150,49,203,56,202,61,149,55"/>
+</map>

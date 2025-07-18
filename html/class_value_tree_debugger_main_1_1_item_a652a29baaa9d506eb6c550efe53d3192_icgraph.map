@@ -1,0 +1,17 @@
+<map id="ValueTreeDebuggerMain::Item::Item" name="ValueTreeDebuggerMain::Item::Item">
+<area shape="rect" id="Node000001" title=" " alt="" coords="526,103,689,143"/>
+<area shape="rect" id="Node000002" href="$class_value_tree_debugger_main_1_1_item.html#a49daa1191797d5b0873cd8abdaf9d740" title=" " alt="" coords="260,48,478,118"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="510,109,478,104,479,99,511,104"/>
+<area shape="rect" id="Node000003" href="$class_value_tree_debugger_main_1_1_item.html#a75ac0873e76d4bfbdbe0698ecb689c0c" title=" " alt="" coords="287,143,450,183"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="511,142,451,152,450,147,510,137"/>
+<area shape="rect" id="Node000004" href="$class_value_tree_debugger_main_1_1_item.html#ac452b149f5d4f05d85776e0c854b0fad" title=" " alt="" coords="9,5,208,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="272,140,258,132,241,114,233,96,225,78,210,61,189,49,192,44,213,57,230,75,238,93,246,111,261,128,275,136"/>
+<area shape="rect" id="Node000005" href="$class_value_tree_debugger_main_1_1_item.html#a43278e440be3a646969e472aa5e3e27b" title=" " alt="" coords="15,71,202,111"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="277,141,184,115,186,109,279,135"/>
+<area shape="rect" id="Node000006" href="$class_value_tree_debugger_main_1_1_item.html#a4da6e5b8bf6f8ba653d0d37047b619f7" title=" " alt="" coords="17,135,200,191"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="272,166,200,166,200,160,272,160"/>
+<area shape="rect" id="Node000007" href="$class_value_tree_debugger_main_1_1_item.html#a4d736943be19faa38444c3682d30474c" title=" " alt="" coords="5,215,212,255"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="279,191,186,217,184,211,277,185"/>
+<area shape="rect" id="Node000008" href="$class_value_tree_debugger_main_1_1_item.html#ad411880f1365a0322c2a41e65c531b03" title=" " alt="" coords="17,280,200,321"/>
+<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="331,195,276,233,213,269,183,282,181,277,210,265,273,228,328,191"/>
+</map>

@@ -1,0 +1,12 @@
+<map id="SynthSlider::getTextFromValue" name="SynthSlider::getTextFromValue">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,35,175,75"/>
+<area shape="rect" id="Node000002" href="$class_synth_slider.html#a34be9ae7d6e74f895cb3d47097445def" title=" " alt="" coords="223,5,395,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="175,41,207,37,207,42,175,46"/>
+<area shape="rect" id="Node000003" href="$class_open_gl_slider.html#a2110b50988a7a944eb94e797addfc2d1" title=" " alt="" coords="238,70,380,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="175,63,223,69,223,75,175,68"/>
+<area shape="rect" id="Node000004" href="$class_text_look_and_feel.html#a3723dc598c94042165d4981963649828" title=" " alt="" coords="443,70,622,96"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="380,80,427,80,427,86,380,86"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="496,71,488,62,493,52,508,46,533,44,560,46,574,53,572,58,559,51,533,49,509,51,496,56,493,61,500,68"/>
+<area shape="rect" id="Node000005" href="$class_text_look_and_feel.html#a48831b370d4897c9a018842d531c8210" title=" " alt="" coords="670,63,854,103"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="623,80,654,80,654,86,623,86"/>
+</map>

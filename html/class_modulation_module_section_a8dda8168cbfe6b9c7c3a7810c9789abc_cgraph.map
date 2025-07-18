@@ -1,0 +1,15 @@
+<map id="ModulationModuleSection::setEffectPositions" name="ModulationModuleSection::setEffectPositions">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,169,176,210"/>
+<area shape="rect" id="Node000002" href="$class_synth_section.html#aa01a2cf1cb512707d217490aa89a8b2f" title=" " alt="" coords="247,5,438,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="105,167,153,112,186,82,222,57,235,50,237,55,225,61,189,86,157,116,109,170"/>
+<area shape="rect" id="Node000003" href="$class_synth_section.html#a419d77d2995e49ddbf684d4b67921161" title=" " alt="" coords="224,71,461,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="128,167,223,122,245,114,247,119,225,127,130,171"/>
+<area shape="rect" id="Node000004" href="$class_synth_section.html#aab9bab4cc6657d3836887da39dc57e63" title=" " alt="" coords="242,136,443,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="176,176,226,169,227,174,177,181"/>
+<area shape="rect" id="Node000005" href="$class_synth_section.html#a0c688d2a15f8849c09912f4bd1f92c9f" title=" " alt="" coords="247,201,438,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="177,198,232,205,232,210,176,203"/>
+<area shape="rect" id="Node000006" href="$class_synth_section.html#af3bc1e4797ef2a7399f9040e564d8ec1" title=" " alt="" coords="247,267,438,307"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="131,208,225,251,247,259,245,264,223,256,129,213"/>
+<area shape="rect" id="Node000007" href="$class_modulation_module_section.html#aa10cbb8599f5e03024676c62264bf9c5" title=" " alt="" coords="257,332,428,373"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="109,209,157,263,190,292,225,317,244,326,242,331,222,321,186,296,154,267,105,212"/>
+</map>

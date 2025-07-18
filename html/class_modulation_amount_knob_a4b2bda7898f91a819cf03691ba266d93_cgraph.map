@@ -1,0 +1,23 @@
+<map id="ModulationAmountKnob::handleModulationMenuCallback" name="ModulationAmountKnob::handleModulationMenuCallback">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,88,219,129"/>
+<area shape="rect" id="Node000002" href="$class_synth_slider.html#a9182c679039559128442bca015d74339" title=" " alt="" coords="267,55,438,95"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="219,91,251,86,251,92,220,96"/>
+<area shape="rect" id="Node000003" href="$class_modulation_amount_knob.html#a36aa8b6508a06911150489dbc906ced6" title=" " alt="" coords="273,120,432,161"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="220,120,258,125,257,130,219,125"/>
+<area shape="rect" id="Node000004" href="$class_open_gl_slider.html#a6dbe0f52d14567488fe304fc22ff264f" title=" " alt="" coords="486,128,648,153"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="432,138,471,138,471,143,432,143"/>
+<area shape="rect" id="Node000005" href="$class_open_gl_slider.html#a81e8b13cf8e7c8f2595937162926641b" title=" " alt="" coords="697,5,891,46"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="584,125,633,91,695,55,708,50,710,54,698,60,636,96,587,129"/>
+<area shape="rect" id="Node000006" href="$class_open_gl_slider.html#a8fe97721d36f45ec76fffc8569b2af8a" title=" " alt="" coords="704,70,884,96"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="620,124,725,98,726,103,622,129"/>
+<area shape="rect" id="Node000007" href="$class_open_gl_slider.html#af32298301857662e7fec045f362bbef9" title=" " alt="" coords="706,120,882,161"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="649,138,691,138,691,143,649,143"/>
+<area shape="rect" id="Node000009" href="$class_open_gl_slider.html#a053586493669ab72583ca9892123b9c0" title=" " alt="" coords="696,185,892,210"/>
+<area shape="poly" id="edge8_Node000004_Node000009" title=" " alt="" coords="622,151,726,178,725,183,620,156"/>
+<area shape="rect" id="Node000010" href="$class_open_gl_slider.html#adfd0b57fc07d5364cbc417cb866abe62" title=" " alt="" coords="699,235,889,275"/>
+<area shape="poly" id="edge10_Node000004_Node000010" title=" " alt="" coords="587,151,636,185,698,221,710,226,708,231,695,225,633,190,584,156"/>
+<area shape="rect" id="Node000008" href="$class_open_gl_slider.html#ae8e89f8723a3286a317bb2287589fe4c" title=" " alt="" coords="940,185,1149,210"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="883,158,971,178,970,183,882,163"/>
+<area shape="poly" id="edge9_Node000009_Node000008" title=" " alt="" coords="892,195,924,195,924,200,892,200"/>
+<area shape="poly" id="edge11_Node000010_Node000008" title=" " alt="" coords="885,231,969,212,971,217,886,237"/>
+</map>

@@ -1,0 +1,18 @@
+<map id="SynthSlider::mouseDoubleClick" name="SynthSlider::mouseDoubleClick">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,63,182,103"/>
+<area shape="rect" id="Node000002" href="$class_synth_slider.html#a971cbd259f47fa91acb50c23bbf1c7f2" title=" " alt="" coords="230,70,394,96"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="182,80,214,80,214,86,182,86"/>
+<area shape="rect" id="Node000003" href="$class_synth_slider.html#a04d13190e8a988b54aadf3a100bcf135" title=" " alt="" coords="460,33,629,74"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="394,70,444,64,444,69,394,75"/>
+<area shape="rect" id="Node000008" href="$class_synth_slider.html#a13fd5d229f0ba989f45e4e16dfc51be3" title=" " alt="" coords="442,98,646,124"/>
+<area shape="poly" id="edge8_Node000002_Node000008" title=" " alt="" coords="394,90,427,94,426,99,394,96"/>
+<area shape="rect" id="Node000004" href="$class_synth_slider.html#a34be9ae7d6e74f895cb3d47097445def" title=" " alt="" coords="694,5,867,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="629,41,678,35,679,40,630,46"/>
+<area shape="rect" id="Node000005" href="$class_open_gl_slider.html#a2110b50988a7a944eb94e797addfc2d1" title=" " alt="" coords="710,70,851,96"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="630,62,695,70,694,75,629,67"/>
+<area shape="rect" id="Node000006" href="$class_text_look_and_feel.html#a3723dc598c94042165d4981963649828" title=" " alt="" coords="915,70,1094,96"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="852,80,899,80,899,86,852,86"/>
+<area shape="poly" id="edge6_Node000006_Node000006" title=" " alt="" coords="967,71,960,62,964,52,979,46,1004,44,1032,46,1046,53,1043,58,1030,51,1004,49,981,51,968,56,965,61,971,68"/>
+<area shape="rect" id="Node000007" href="$class_text_look_and_feel.html#a48831b370d4897c9a018842d531c8210" title=" " alt="" coords="1142,63,1325,103"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="1095,80,1126,80,1126,86,1095,86"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="SynthSection::drawLabel" name="SynthSection::drawLabel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="454,13,620,38"/>
+<area shape="rect" id="Node000002" href="$class_synth_section.html#a7f14dd38873d3b3a43d490201ff44eaf" title=" " alt="" coords="221,5,406,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="438,28,406,28,406,23,438,23"/>
+<area shape="rect" id="Node000003" href="$classelectrosynth_1_1_parameters_view.html#ae7f33d136de799f6972493fb7dbd63ef" title=" " alt="" coords="5,5,173,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="205,28,173,28,173,23,205,23"/>
+</map>

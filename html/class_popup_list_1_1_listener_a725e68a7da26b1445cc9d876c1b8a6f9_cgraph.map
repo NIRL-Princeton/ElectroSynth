@@ -1,0 +1,9 @@
+<map id="PopupList::Listener::doubleClickedSelected" name="PopupList::Listener::doubleClickedSelected">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,23,168,64"/>
+<area shape="rect" id="Node000002" href="$class_popup_list.html#a5aaab423bed5aea054acc96342efdc66" title=" " alt="" coords="216,31,361,56"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="168,41,200,41,200,46,168,46"/>
+<area shape="rect" id="Node000003" href="$class_synth_section.html#a106e35d5a7f591a72016b2a595d33e43" title=" " alt="" coords="409,5,648,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="361,33,393,30,394,35,362,38"/>
+<area shape="rect" id="Node000004" href="$class_synth_section.html#aacbd2a0f89359676471964d630ca9c21" title=" " alt="" coords="436,55,621,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="362,48,421,54,420,59,361,53"/>
+</map>

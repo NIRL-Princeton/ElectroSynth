@@ -1,0 +1,9 @@
+<map id="DefaultLookAndFeel" name="DefaultLookAndFeel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="72,79,201,105"/>
+<area shape="rect" id="Node000003" href="$class_curve_look_and_feel.html" title=" " alt="" coords="5,153,127,178"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="117,117,79,155,75,151,113,113"/>
+<area shape="rect" id="Node000004" href="$class_text_look_and_feel.html" title=" " alt="" coords="152,153,263,178"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="160,113,198,151,194,155,156,117"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="66,5,208,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="140,46,140,79,134,79,134,46"/>
+</map>

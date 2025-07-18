@@ -1,0 +1,11 @@
+<map id="tLivingString_setSampleRate" name="tLivingString_setSampleRate">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,55,196,80"/>
+<area shape="rect" id="Node000002" href="$leaf-envelopes_8c.html#a466b28cf3b04814007f041b2fe6e58f5" title=" " alt="" coords="259,5,406,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="164,51,253,32,254,37,165,57"/>
+<area shape="rect" id="Node000003" href="$leaf-filters_8c.html#a1fb1b9e8bc1babe0057b024f1b57c11e" title=" " alt="" coords="244,55,421,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="196,65,228,65,228,70,196,70"/>
+<area shape="rect" id="Node000004" href="$leaf-filters_8c.html#a90314662b95612edf9f6ab43d6d9ff5b" title=" " alt="" coords="246,104,418,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="165,78,254,98,253,103,164,84"/>
+<area shape="rect" id="Node000005" href="$leaf-math_8h.html#ad4bddb22c798cb40b789a727a48b81fd" title=" " alt="" coords="469,104,550,130"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="419,114,453,114,453,120,419,120"/>
+</map>

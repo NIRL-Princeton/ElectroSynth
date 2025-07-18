@@ -1,0 +1,24 @@
+<map id="tTriangle_setFreq" name="tTriangle_setFreq">
+<area shape="rect" id="Node000001" title=" " alt="" coords="599,107,722,132"/>
+<area shape="rect" id="Node000002" href="$group__t808snare.html#ga2aca77d2a4474881901ede4e03bd6209" title="Initialize a t808Snare to a specified mempool." alt="" coords="174,56,318,82"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="639,96,601,55,577,36,550,22,513,12,475,8,435,10,397,16,328,36,275,58,273,53,326,31,396,11,435,5,475,3,514,6,552,17,580,32,605,51,643,92"/>
+<area shape="rect" id="Node000004" href="$leaf-instruments_8c.html#ada8c55ef7c9e2a834d1ac323ce6c243a" title=" " alt="" coords="384,32,550,58"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="619,102,550,71,519,61,521,56,552,66,621,97"/>
+<area shape="rect" id="Node000005" href="$leaf-instruments_8c.html#a6487f5c2a5ca4cd703797788e879922d" title=" " alt="" coords="384,81,550,107"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="583,112,550,108,551,102,584,107"/>
+<area shape="rect" id="Node000006" href="$leaf-instruments_8c.html#a24c02a0fa18f38b929838de22812d63e" title=" " alt="" coords="413,131,521,156"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="584,132,522,139,522,134,584,126"/>
+<area shape="rect" id="Node000007" href="$group__ttriangle.html#gac50568ee121737e782e495e9afd0d523" title="Initialize a tTriangle to a specified mempool." alt="" coords="400,180,535,206"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="620,142,552,171,520,182,518,177,550,166,618,137"/>
+<area shape="rect" id="Node000010" href="$leaf-oscillators_8c.html#a1de25f1ff5ca46ca7f6fc329fa48f148" title=" " alt="" coords="383,229,551,255"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="640,146,602,184,553,221,528,231,526,226,550,216,599,180,637,142"/>
+<area shape="rect" id="Node000003" href="$group__t808snare.html#gacd0d752096b9eb8c14b7bd5e7088f6df" title="Initialize a t808Snare to the default mempool of a LEAF instance." alt="" coords="5,56,110,82"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="159,72,110,72,110,66,159,66"/>
+<area shape="poly" id="edge7_Node000007_Node000002" title=" " alt="" coords="394,177,382,171,346,150,312,127,260,84,264,80,315,122,348,146,384,166,396,172"/>
+<area shape="rect" id="Node000008" href="$group__ttriangle.html#ga50f2f0c7a69471479484560a94a11fbb" title="Initialize a tTriangle to the default mempool of a LEAF instance." alt="" coords="199,180,294,206"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="384,196,295,196,295,190,384,190"/>
+<area shape="rect" id="Node000009" href="$leaf_2test_2oscillators__test_8cpp.html#a1ddb0ca7dc3caa22f9f3c8d9d32ec436" title=" " alt="" coords="8,180,107,206"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="183,196,108,196,108,190,183,190"/>
+<area shape="rect" id="Node000011" href="$leaf-instruments_8c.html#a7408c23a363c14acbf38c82f0be433a2" title=" " alt="" coords="158,229,335,255"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="368,245,336,245,336,240,368,240"/>
+</map>

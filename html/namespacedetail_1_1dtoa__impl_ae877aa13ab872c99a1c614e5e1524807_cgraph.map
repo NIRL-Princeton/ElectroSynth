@@ -1,0 +1,14 @@
+<map id="detail::dtoa_impl::grisu2_digit_gen" name="detail::dtoa_impl::grisu2_digit_gen">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,119,130,159"/>
+<area shape="poly" id="edge3_Node000001_Node000001" title=" " alt="" coords="34,119,32,109,37,100,49,94,68,92,87,94,98,101,96,105,85,100,67,97,51,99,41,104,37,110,39,118"/>
+<area shape="rect" id="Node000002" href="$namespacedetail_1_1dtoa__impl.html#a04eb234a28617519974fc962cd4da666" title=" " alt="" coords="178,29,311,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="108,116,176,81,187,75,190,80,179,85,110,121"/>
+<area shape="rect" id="Node000003" href="$namespacedetail_1_1dtoa__impl.html#a73a15efcb5c2157ea0e1375b98ef0e83" title=" " alt="" coords="182,119,306,159"/>
+<area shape="poly" id="edge4_Node000001_Node000003" title=" " alt="" coords="130,136,166,136,166,142,130,142"/>
+<area shape="rect" id="Node000004" href="$structdetail_1_1dtoa__impl_1_1diyfp.html#a75142bace0b78b1e1433b1d35a7ff252" title="returns x &#45; y" alt="" coords="182,184,306,225"/>
+<area shape="poly" id="edge6_Node000001_Node000004" title=" " alt="" coords="125,157,174,176,172,181,123,162"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="210,29,209,19,214,10,226,5,244,3,264,5,275,11,273,16,262,10,244,8,228,10,218,14,214,20,216,28"/>
+<area shape="poly" id="edge5_Node000003_Node000003" title=" " alt="" coords="210,119,209,109,214,100,226,94,244,92,264,94,275,101,273,105,262,100,244,97,228,99,218,104,214,110,216,118"/>
+<area shape="rect" id="Node000005" href="$structdetail_1_1dtoa__impl_1_1diyfp.html#a7c8377d2b931fcb3088d54c41b99c53b" title=" " alt="" coords="359,184,483,225"/>
+<area shape="poly" id="edge7_Node000004_Node000005" title=" " alt="" coords="307,202,343,202,343,207,307,207"/>
+</map>

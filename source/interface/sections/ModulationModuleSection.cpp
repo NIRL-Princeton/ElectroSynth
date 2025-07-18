@@ -15,7 +15,7 @@ namespace electrosynth {
     class SoundEngine;
 }
 
-ModulationModuleSection::ModulationModuleSection(ModulationManager *modulation_manager,ModuleList<ModulatorBase>& module_list) : ModulesInterface(module_list), modulation_manager(modulation_manager)
+ModulationModuleSection::ModulationModuleSection(ModulationManager *modulation_manager,ModuleList<ModulatorBase>& module_list, juce::UndoManager& um) : ModulesInterface(module_list), modulation_manager(modulation_manager), undo(um)
 {
     scroll_bar_ = std::make_unique<OpenGlScrollBar>(false);
 //    scroll_bar_->setShrinkLeft(true)
@@ -66,13 +66,15 @@ void ModulationModuleSection::handlePopupResult(int result) {
     {
         juce::ValueTree t(IDs::MODULATOR);
         t.setProperty(IDs::type, "env", nullptr);
-        list.appendChild(t,nullptr);
+        undo.beginNewTransaction();
+        list.appendChild(t,&undo);
     }
     else if (result == 2 )
     {
         juce::ValueTree t(IDs::MODULATOR);
         t.setProperty(IDs::type, "lfo", nullptr);
-        list.appendChild(t,nullptr);
+        undo.beginNewTransaction();
+        list.appendChild(t,&undo);
     }
 
 }

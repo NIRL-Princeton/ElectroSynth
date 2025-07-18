@@ -1,0 +1,9 @@
+<map id="Instruments" name="Instruments">
+<area shape="rect" id="Node000001" title="Instruments." alt="" coords="5,129,96,155"/>
+<area shape="rect" id="Node000007" href="$group__t808_kick_small.html" title="808 drum machine kick." alt="" coords="148,5,253,31"/>
+<area shape="rect" id="Node000005" href="$group__t808_snare_small.html" title="808 drum machine snare." alt="" coords="144,55,257,80"/>
+<area shape="rect" id="Node000002" href="$group__t808cowbell.html" title="808 drum machine cowbell." alt="" coords="154,104,247,130"/>
+<area shape="rect" id="Node000003" href="$group__t808hihat.html" title="808 drum machine hihat." alt="" coords="162,153,239,179"/>
+<area shape="rect" id="Node000006" href="$group__t808kick.html" title="808 drum machine kick." alt="" coords="164,203,236,228"/>
+<area shape="rect" id="Node000004" href="$group__t808snare.html" title="808 drum machine snare." alt="" coords="160,252,240,278"/>
+</map>

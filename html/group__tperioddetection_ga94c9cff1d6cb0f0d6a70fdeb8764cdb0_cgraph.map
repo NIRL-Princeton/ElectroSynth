@@ -1,0 +1,15 @@
+<map id="tPeriodDetection_free" name="tPeriodDetection_free">
+<area shape="rect" id="Node000001" title="Free a tPeriodDetection from its mempool." alt="" coords="5,31,153,56"/>
+<area shape="rect" id="Node000002" href="$leaf-mempool_8c.html#ab22403c96346dcc0a1c2437a00e616fc" title=" " alt="" coords="345,31,430,56"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="132,27,200,16,249,12,297,16,334,23,333,28,297,21,249,17,201,21,133,33"/>
+<area shape="rect" id="Node000005" href="$group__tenvpd.html#ga28ade0e2893d6e94bca4dfa6cdd0f0ea" title="Free a tEnvPD from its mempool." alt="" coords="201,31,297,56"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="153,41,185,41,185,46,153,46"/>
+<area shape="rect" id="Node000006" href="$group__tsnac.html#gad7fc6ce1e80847dfcd9da75d4c734f12" title="Free a tSNAC from its mempool." alt="" coords="203,80,295,106"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="127,54,189,73,187,78,125,60"/>
+<area shape="rect" id="Node000003" href="$leaf-mempool_8c.html#a1cac56e9fbf416e1410563bfb49290b4" title=" " alt="" coords="524,5,615,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="430,35,508,24,509,29,431,40"/>
+<area shape="rect" id="Node000004" href="$leaf_8c.html#a389f39fbcc732ce345106b995b3a434d" title=" " alt="" coords="478,55,661,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="431,46,463,51,463,56,430,52"/>
+<area shape="poly" id="edge5_Node000005_Node000002" title=" " alt="" coords="297,41,329,41,329,46,297,46"/>
+<area shape="poly" id="edge7_Node000006_Node000002" title=" " alt="" coords="286,77,334,60,336,65,288,82"/>
+</map>

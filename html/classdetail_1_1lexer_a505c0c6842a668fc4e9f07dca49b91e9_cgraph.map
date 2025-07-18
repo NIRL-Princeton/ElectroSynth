@@ -1,0 +1,7 @@
+<map id="detail::lexer::next_byte_in_range" name="detail::lexer::next_byte_in_range">
+<area shape="rect" id="Node000001" title="check if the next byte(s) are inside a given range" alt="" coords="5,23,127,64"/>
+<area shape="rect" id="Node000002" href="$classdetail_1_1lexer.html#ad59cacf0fdfe48d78b218e49da85797b" title="add a character to token_buffer" alt="" coords="175,5,292,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="127,32,159,27,160,32,128,37"/>
+<area shape="rect" id="Node000003" href="$classdetail_1_1lexer.html#a558196cb9fc24015d009969c9df8707b" title=" " alt="" coords="176,55,290,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="128,50,161,54,160,60,127,55"/>
+</map>

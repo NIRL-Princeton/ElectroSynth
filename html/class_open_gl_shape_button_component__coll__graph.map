@@ -1,0 +1,37 @@
+<map id="OpenGlShapeButtonComponent" name="OpenGlShapeButtonComponent">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,467,202,493"/>
+<area shape="rect" id="Node000002" href="$class_open_gl_component.html" title=" " alt="" coords="159,199,280,224"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="179,233,140,259,123,277,110,296,96,343,94,392,98,435,103,467,98,468,92,436,88,392,91,342,105,294,119,273,137,255,176,229"/>
+<area shape="rect" id="Node000004" href="$class_synth_section.html" title=" " alt="" coords="575,295,664,321"/>
+<area shape="poly" id="edge13_Node000004_Node000002" title=" " alt="" coords="234,222,284,269,335,283,407,292,558,302,558,308,407,298,334,288,282,274,230,226"/>
+<area shape="rect" id="Node000013" href="$class_open_gl_image_component.html" title=" " alt="" coords="120,295,277,321"/>
+<area shape="poly" id="edge16_Node000013_Node000002" title=" " alt="" coords="187,235,175,249,173,261,176,272,190,294,185,297,171,274,168,261,171,247,183,231"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="165,102,274,128"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="222,142,222,199,217,199,217,142"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="290,125,415,149,442,166,460,183,476,202,499,222,603,293,600,298,495,226,472,205,456,187,439,170,413,154,289,131"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="575,307,501,297,460,288,420,274,404,262,389,251,350,239,296,228,297,223,352,234,392,246,408,258,423,269,462,283,502,292,576,302"/>
+<area shape="poly" id="edge9_Node000004_Node000004" title=" " alt="" coords="664,298,682,301,691,308,683,315,679,311,685,308,680,305,663,304"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="510,199,607,224"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="576,235,615,294,610,297,571,238"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="631,199,734,224"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="669,238,629,297,625,294,664,235"/>
+<area shape="rect" id="Node000007" href="$class_synth_button_1_1_button_listener.html" title=" " alt="" coords="758,199,932,224"/>
+<area shape="poly" id="edge7_Node000004_Node000007" title=" " alt="" coords="805,232,648,298,646,293,803,227"/>
+<area shape="rect" id="Node000008" href="$class_open_gl_background.html" title=" " alt="" coords="956,199,1080,224"/>
+<area shape="poly" id="edge8_Node000004_Node000008" title=" " alt="" coords="970,227,681,295,679,290,969,222"/>
+<area shape="rect" id="Node000009" href="$class_synth_button.html" title=" " alt="" coords="1104,199,1186,224"/>
+<area shape="poly" id="edge10_Node000004_Node000009" title=" " alt="" coords="1116,227,1047,251,962,274,887,287,811,297,681,307,681,302,810,291,886,282,960,269,1045,246,1115,222"/>
+<area shape="rect" id="Node000010" href="$class_open_gl_toggle_button.html" title=" " alt="" coords="1080,102,1210,128"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="1148,142,1148,199,1142,199,1142,142"/>
+<area shape="rect" id="Node000011" title=" " alt="" coords="1102,5,1188,31"/>
+<area shape="poly" id="edge12_Node000010_Node000011" title=" " alt="" coords="1148,46,1148,102,1142,102,1142,46"/>
+<area shape="rect" id="Node000012" href="$class_plain_shape_component.html" title=" " alt="" coords="122,370,266,396"/>
+<area shape="poly" id="edge14_Node000001_Node000012" title=" " alt="" coords="185,398,128,457,124,453,182,394"/>
+<area shape="poly" id="edge15_Node000012_Node000013" title=" " alt="" coords="200,336,198,371,192,370,194,336"/>
+<area shape="rect" id="Node000014" href="$class_open_gl_image.html" title=" " alt="" coords="305,199,396,224"/>
+<area shape="poly" id="edge17_Node000013_Node000014" title=" " alt="" coords="306,225,239,240,202,250,196,263,195,279,190,278,191,262,198,246,237,234,305,219"/>
+<area shape="rect" id="Node000015" href="$struct_open_gl_wrapper.html" title=" " alt="" coords="299,102,402,128"/>
+<area shape="poly" id="edge18_Node000014_Node000015" title=" " alt="" coords="353,127,353,182,348,182,348,127"/>
+<area shape="rect" id="Node000016" href="$class_shaders.html" title=" " alt="" coords="321,5,380,31"/>
+<area shape="poly" id="edge19_Node000015_Node000016" title=" " alt="" coords="353,31,353,85,348,85,348,31"/>
+</map>

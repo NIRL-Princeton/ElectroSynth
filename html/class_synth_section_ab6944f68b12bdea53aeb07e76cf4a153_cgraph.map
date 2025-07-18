@@ -1,0 +1,11 @@
+<map id="SynthSection::getPowerButtonBounds" name="SynthSection::getPowerButtonBounds">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,35,206,75"/>
+<area shape="rect" id="Node000002" href="$class_synth_section.html#af6bde877f66c7451d89dd961baf2f1f1" title=" " alt="" coords="254,5,454,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="206,41,238,37,239,42,206,46"/>
+<area shape="rect" id="Node000003" href="$class_synth_section.html#ae0397399d283628b325650e0b7b60c6f" title=" " alt="" coords="262,70,446,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="206,64,247,68,246,74,206,69"/>
+<area shape="rect" id="Node000004" href="$class_synth_section.html#aa01a2cf1cb512707d217490aa89a8b2f" title=" " alt="" coords="502,70,662,96"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="446,80,486,80,486,86,446,86"/>
+<area shape="rect" id="Node000005" href="$class_skin.html#a9ce18118f19d0503a1581ec8521b7c9b" title=" " alt="" coords="710,70,869,96"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="663,80,695,80,695,86,663,86"/>
+</map>

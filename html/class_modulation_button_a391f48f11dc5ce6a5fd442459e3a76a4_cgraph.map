@@ -1,0 +1,7 @@
+<map id="ModulationButton::resized" name="ModulationButton::resized">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,42,178,68"/>
+<area shape="rect" id="Node000002" href="$class_modulation_button.html#a5203bca146a5a9da1b5aaacc69eb77a8" title=" " alt="" coords="226,5,408,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="178,41,211,37,211,42,179,46"/>
+<area shape="rect" id="Node000003" href="$class_open_gl_component.html#a2bd142dbb0cb7690829cb0a99f84e993" title=" " alt="" coords="226,70,408,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="179,63,210,67,210,72,178,68"/>
+</map>

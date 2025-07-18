@@ -1,0 +1,10 @@
+<map id="tPoly_tickPitch" name="tPoly_tickPitch">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,115,56"/>
+<area shape="rect" id="Node000002" href="$leaf-midi_8c.html#ae59dc1ca86c880b379339d7dc031d50e" title=" " alt="" coords="163,5,302,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="115,33,147,28,148,33,115,38"/>
+<area shape="rect" id="Node000004" href="$leaf-midi_8c.html#a75425542c5583f833245ab5597a251b8" title=" " alt="" coords="163,55,302,80"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="115,48,148,53,147,58,115,54"/>
+<area shape="rect" id="Node000003" href="$leaf-envelopes_8c.html#a9d1841741c60dc4266c73076b7204049" title=" " alt="" coords="350,31,438,56"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="303,26,335,32,334,37,302,32"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="302,54,334,50,335,55,303,60"/>
+</map>

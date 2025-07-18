@@ -1,0 +1,7 @@
+<map id="ModulationButton::setActiveModulation" name="ModulationButton::setActiveModulation">
+<area shape="rect" id="Node000001" title=" " alt="" coords="257,35,442,75"/>
+<area shape="rect" id="Node000002" href="$class_modulation_manager.html#a71800eb7dc01f64ded4151304e9e1e7c" title=" " alt="" coords="34,5,180,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="241,45,180,37,180,32,241,39"/>
+<area shape="rect" id="Node000003" href="$class_modulation_button.html#ab6f1e3f4abac9e5bdb7fa3991ae1a76b" title=" " alt="" coords="5,70,209,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="241,70,210,74,209,69,240,65"/>
+</map>

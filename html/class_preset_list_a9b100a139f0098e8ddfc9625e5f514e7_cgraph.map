@@ -1,0 +1,11 @@
+<map id="PresetList::getViewPosition" name="PresetList::getViewPosition">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,188,56"/>
+<area shape="rect" id="Node000002" href="$class_preset_list.html#ac3d7e4125ac06e07483b63b6e750c10b" title=" " alt="" coords="242,5,414,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="188,31,226,27,227,32,189,36"/>
+<area shape="rect" id="Node000003" href="$class_synth_section.html#ae0397399d283628b325650e0b7b60c6f" title=" " alt="" coords="236,55,420,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="188,50,221,54,220,59,188,56"/>
+<area shape="rect" id="Node000004" href="$class_synth_section.html#aa01a2cf1cb512707d217490aa89a8b2f" title=" " alt="" coords="468,55,628,80"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="420,65,453,65,453,70,420,70"/>
+<area shape="rect" id="Node000005" href="$class_skin.html#a9ce18118f19d0503a1581ec8521b7c9b" title=" " alt="" coords="676,55,835,80"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="629,65,661,65,661,70,629,70"/>
+</map>

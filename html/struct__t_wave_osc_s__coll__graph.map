@@ -1,0 +1,27 @@
+<map id="_tWaveOscS" name="_tWaveOscS">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,565,93,590"/>
+<area shape="rect" id="Node000002" href="$struct__t_mempool.html" title=" " alt="" coords="306,120,381,145"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="307,136,213,142,159,153,106,172,52,195,36,211,30,237,30,482,34,517,42,548,37,549,29,518,25,482,25,236,32,208,49,191,104,167,157,148,212,137,307,130"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="381,121,399,123,408,132,400,141,396,138,402,132,397,128,381,126"/>
+<area shape="rect" id="Node000003" href="$struct_l_e_a_f.html" title="Struct for an instance of LEAF." alt="" coords="187,371,231,397"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="340,146,226,357,221,355,335,144"/>
+<area shape="rect" id="Node000004" href="$struct__t_lookup_table.html" title=" " alt="" coords="66,225,160,251"/>
+<area shape="poly" id="edge6_Node000004_Node000002" title=" " alt="" coords="307,137,203,146,154,156,136,163,123,171,114,188,112,209,107,208,109,187,120,168,133,158,152,151,202,140,307,132"/>
+<area shape="rect" id="Node000006" href="$struct__t_wave_table_s.html" title=" " alt="" coords="568,468,663,494"/>
+<area shape="poly" id="edge10_Node000006_Node000002" title=" " alt="" coords="381,133,548,144,628,154,656,160,672,167,692,187,706,207,715,228,719,249,716,295,702,348,691,379,674,409,640,457,635,454,670,406,686,377,697,347,710,294,713,249,710,229,701,210,688,191,669,172,654,165,627,159,548,150,381,138"/>
+<area shape="rect" id="Node000007" href="$struct__t_butterworth.html" title=" " alt="" coords="496,371,584,397"/>
+<area shape="poly" id="edge12_Node000007_Node000002" title=" " alt="" coords="381,131,436,140,465,150,490,167,507,188,521,211,538,262,544,312,545,354,539,354,539,313,533,263,516,213,503,191,486,171,462,155,435,145,380,136"/>
+<area shape="rect" id="Node000008" href="$struct__t_s_v_f.html" title=" " alt="" coords="444,225,492,251"/>
+<area shape="poly" id="edge14_Node000008_Node000002" title=" " alt="" coords="359,143,443,212,439,216,356,147"/>
+<area shape="rect" id="Node000009" href="$struct__t_oversampler.html" title=" " alt="" coords="592,303,688,328"/>
+<area shape="poly" id="edge16_Node000009_Node000002" title=" " alt="" coords="381,131,465,140,513,150,560,167,593,186,617,215,632,251,640,285,635,287,627,252,612,218,589,190,557,172,512,155,464,145,381,137"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="205,372,205,303,211,259,226,215,239,194,257,177,297,150,300,155,261,181,244,198,231,217,216,260,210,304,211,372"/>
+<area shape="poly" id="edge5_Node000003_Node000004" title=" " alt="" coords="108,252,98,272,90,296,87,322,96,346,111,360,129,370,171,380,170,385,128,375,108,365,91,349,82,323,84,295,93,270,104,249"/>
+<area shape="rect" id="Node000005" href="$structmpool__node__t.html" title=" " alt="" coords="298,14,390,40"/>
+<area shape="poly" id="edge7_Node000002_Node000005" title=" " alt="" coords="346,40,346,103,341,103,341,40"/>
+<area shape="poly" id="edge8_Node000005_Node000005" title=" " alt="" coords="390,14,408,17,416,27,408,37,404,33,411,27,405,22,389,19"/>
+<area shape="poly" id="edge9_Node000001_Node000006" title=" " alt="" coords="569,493,111,569,110,563,569,487"/>
+<area shape="poly" id="edge11_Node000006_Node000007" title=" " alt="" coords="551,395,598,453,594,457,547,398"/>
+<area shape="poly" id="edge13_Node000007_Node000008" title=" " alt="" coords="470,251,472,295,478,321,489,346,503,360,499,364,485,349,473,323,467,296,464,251"/>
+<area shape="poly" id="edge15_Node000006_Node000009" title=" " alt="" coords="641,328,623,452,617,451,636,328"/>
+</map>

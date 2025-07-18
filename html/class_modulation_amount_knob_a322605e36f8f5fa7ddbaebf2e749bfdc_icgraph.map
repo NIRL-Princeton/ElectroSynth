@@ -1,0 +1,11 @@
+<map id="ModulationAmountKnob::ModulationAmountKnob" name="ModulationAmountKnob::ModulationAmountKnob">
+<area shape="rect" id="Node000001" title=" " alt="" coords="263,104,430,145"/>
+<area shape="rect" id="Node000002" href="$class_modulation_amount_knob_1_1_listener.html#a870591b1c98b23a039029b7a6c4fed64" title=" " alt="" coords="5,5,215,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="293,99,214,61,180,49,182,44,216,57,295,94"/>
+<area shape="rect" id="Node000003" href="$class_modulation_amount_knob_1_1_listener.html#a10edab1a30d30e4ea8cf7996d4676b1e" title=" " alt="" coords="8,71,212,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="247,113,212,108,213,103,248,108"/>
+<area shape="rect" id="Node000004" href="$class_modulation_amount_knob_1_1_listener.html#a24867d510e9613e1c487d94d94bced74" title=" " alt="" coords="6,136,214,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="248,140,215,145,214,140,247,135"/>
+<area shape="rect" id="Node000005" href="$class_modulation_amount_knob_1_1_listener.html#af9a67612671e30f5cd9fd6bedb3e98cd" title=" " alt="" coords="9,201,211,242"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="294,154,216,191,182,203,180,198,214,186,292,150"/>
+</map>

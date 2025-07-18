@@ -1,0 +1,29 @@
+<map id="SynthSection::getAllSliders" name="SynthSection::getAllSliders">
+<area shape="rect" id="Node000001" title=" " alt="" coords="520,317,700,342"/>
+<area shape="rect" id="Node000002" href="$class_synth_section.html#a2573d4aea8a5e984e674cf70a512ea15" title=" " alt="" coords="266,292,461,317"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="505,322,461,317,462,312,505,316"/>
+<area shape="rect" id="Node000014" href="$class_synth_section.html#aec26dec810ea523b22f53516f6d1a85b" title=" " alt="" coords="255,341,472,366"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="505,343,473,346,472,340,504,337"/>
+<area shape="rect" id="Node000003" href="$class_audio_chain_section.html#a0d322c7a95a9a96ba1af3641c856ab3e" title=" " alt="" coords="36,5,176,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="349,278,329,231,298,173,256,113,232,85,205,61,175,44,178,40,208,57,236,81,261,109,302,170,334,229,354,276"/>
+<area shape="rect" id="Node000004" href="$class_dual_popup_selector.html#a7deb748d20439cf0ba845d75dcfd4d83" title=" " alt="" coords="35,71,177,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="344,280,289,203,250,161,205,125,176,110,178,106,208,121,253,158,293,200,349,277"/>
+<area shape="rect" id="Node000005" href="$class_full_interface.html#a24a9e154bf7b2fe32ad3d8b93812efa3" title=" " alt="" coords="19,136,193,161"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="339,282,282,227,245,199,205,175,179,164,181,159,208,170,248,194,285,223,342,278"/>
+<area shape="rect" id="Node000006" href="$class_header_section.html#a9755888ee41f17e9723ef1b74c59bfde" title=" " alt="" coords="5,185,207,210"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="327,286,271,254,206,224,172,214,174,209,208,219,274,249,330,281"/>
+<area shape="rect" id="Node000007" href="$class_main_section.html#a9f283cb147198ac15ca610d18d1080c9" title=" " alt="" coords="19,234,193,260"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="287,290,167,263,168,258,288,285"/>
+<area shape="rect" id="Node000008" href="$class_master_voice_envelope_section.html#a9ea898d33c0c81780614cfacfe0f2f4e" title=" " alt="" coords="6,284,206,325"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="250,307,206,307,206,302,250,302"/>
+<area shape="rect" id="Node000009" href="$class_modulation_section.html#a803b7d5d26e4a8e95f6f95ae9206f7b3" title=" " alt="" coords="38,349,174,390"/>
+<area shape="poly" id="edge8_Node000002_Node000009" title=" " alt="" coords="285,324,255,331,175,353,174,347,254,326,284,318"/>
+<area shape="rect" id="Node000010" href="$class_module_section.html#a1b0b1d6895f4a602026f5ec35d9523a9" title=" " alt="" coords="5,414,207,440"/>
+<area shape="poly" id="edge9_Node000002_Node000010" title=" " alt="" coords="263,326,256,330,240,347,233,366,225,385,208,404,185,416,183,411,205,400,221,382,228,364,236,345,253,326,260,322"/>
+<area shape="rect" id="Node000011" href="$class_modules_interface.html#a6ffba6477150f893dc15e4f641607c83" title=" " alt="" coords="17,464,195,505"/>
+<area shape="poly" id="edge10_Node000002_Node000011" title=" " alt="" coords="260,328,257,330,244,345,237,359,233,390,229,422,222,438,209,454,193,466,190,461,205,450,217,436,223,421,227,389,232,358,239,342,253,326,256,324"/>
+<area shape="rect" id="Node000012" href="$class_full_interface.html#a3ce0e4ae4e3f07485cc282cc5d0a8000" title=" " alt="" coords="9,529,203,570"/>
+<area shape="poly" id="edge11_Node000002_Node000012" title=" " alt="" coords="259,328,257,330,240,352,232,375,230,398,232,421,234,445,233,469,225,494,209,518,193,531,190,527,205,515,221,491,228,468,229,445,227,421,225,398,227,374,235,350,253,327,255,324"/>
+<area shape="rect" id="Node000013" href="$class_single_popup_selector.html#ade5e776ddbf020b3b0fa461fd3f909cd" title=" " alt="" coords="31,595,181,635"/>
+<area shape="poly" id="edge12_Node000002_Node000013" title=" " alt="" coords="258,329,257,330,235,360,227,391,227,422,232,453,237,485,237,518,230,550,209,583,183,602,180,598,205,580,225,548,232,517,231,486,226,454,222,422,221,390,230,358,253,327,254,325"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="detail::parser::parser" name="detail::parser::parser">
+<area shape="rect" id="Node000001" title="a parser reading from an input adapter" alt="" coords="5,13,146,38"/>
+<area shape="rect" id="Node000002" href="$classdetail_1_1parser.html#aea40f4e5d5dd7f2860282804e1df5a6d" title="get next token from lexer" alt="" coords="194,5,316,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="146,23,178,23,178,28,146,28"/>
+</map>

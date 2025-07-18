@@ -1,0 +1,21 @@
+<map id="tSquareLFO_setPulseWidth" name="tSquareLFO_setPulseWidth">
+<area shape="rect" id="Node000001" title=" " alt="" coords="807,5,990,31"/>
+<area shape="rect" id="Node000002" href="$_l_f_o_module_8cpp.html#ab156d628de52ca62d2e33c721509dc6d" title=" " alt="" coords="170,5,326,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="791,17,597,13,374,14,326,16,326,11,374,9,597,8,791,12"/>
+<area shape="rect" id="Node000004" href="$group__t_square_l_f_o.html#gaa977d1ac7500bc8c79c9766d721bbb9c" title="Initialize a tSquareLFO to a specified mempool." alt="" coords="603,31,759,56"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="792,33,759,37,759,32,791,28"/>
+<area shape="rect" id="Node000003" href="$_l_f_o_module_8cpp.html#a596a28cefca83f9dd6d02c47032796ba" title=" " alt="" coords="5,5,122,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="154,21,122,21,122,16,154,16"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="587,41,326,25,327,20,588,35"/>
+<area shape="rect" id="Node000005" href="$leaf-oscillators_8c.html#ae82718f071adf5928b44834fa3afe6eb" title=" " alt="" coords="374,56,555,82"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="588,57,556,61,556,56,588,52"/>
+<area shape="rect" id="Node000008" href="$group__t_square_l_f_o.html#gaab40da16e9148cc4b15868df2427580e" title="Initialize a tSquareLFO to the default mempool of a LEAF instance." alt="" coords="407,105,522,131"/>
+<area shape="poly" id="edge9_Node000004_Node000008" title=" " alt="" coords="637,65,556,97,521,107,519,102,554,92,635,60"/>
+<area shape="poly" id="edge6_Node000005_Node000002" title=" " alt="" coords="391,55,305,34,307,29,392,49"/>
+<area shape="rect" id="Node000006" href="$leaf-oscillators_8c.html#a4a7c16000b1c0d90eefc5f824a9dc98f" title=" " alt="" coords="177,56,318,82"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="359,72,319,72,319,66,359,66"/>
+<area shape="rect" id="Node000007" href="$leaf_2test_2oscillators__test_8cpp.html#a923654defb66e3a38dd0250afed9f141" title=" " alt="" coords="14,56,113,82"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="162,72,114,72,114,66,162,66"/>
+<area shape="rect" id="Node000009" href="$leaf_2test_2oscillators__test_8cpp.html#ad18ab604bc9b2dca97b62f361997ac40" title=" " alt="" coords="198,105,298,131"/>
+<area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="391,121,298,121,298,116,391,116"/>
+</map>

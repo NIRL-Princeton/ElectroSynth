@@ -1,0 +1,7 @@
+<map id="SynthApplication::MainWindow::MainWindow" name="SynthApplication::MainWindow::MainWindow">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,23,208,64"/>
+<area shape="rect" id="Node000002" href="$main_8cpp.html#aa2bf9f3233795775351b5921521af5af" title=" " alt="" coords="274,5,442,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="208,31,258,25,259,31,209,36"/>
+<area shape="rect" id="Node000003" href="$class_startup.html#a18f63979243f2c5c47a6f729eec69ccc" title=" " alt="" coords="256,55,460,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="209,51,241,54,240,59,208,56"/>
+</map>

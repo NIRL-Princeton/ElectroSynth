@@ -1,0 +1,14 @@
+<map id="tVZFilter_calcCoeffsEfficientBP" name="tVZFilter_calcCoeffsEfficientBP">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,43,213,68"/>
+<area shape="rect" id="Node000002" href="$leaf-math_8h.html#a69e2e346c7566931bdc94d89f3168109" title=" " alt="" coords="538,5,614,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="179,39,260,28,402,18,522,15,522,21,402,23,261,33,179,45"/>
+<area shape="rect" id="Node000003" href="$leaf-math_8h.html#ad4bddb22c798cb40b789a727a48b81fd" title=" " alt="" coords="335,43,416,68"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="213,53,319,53,319,58,213,58"/>
+<area shape="rect" id="Node000004" href="$leaf-filters_8c.html#a69011b06013a6520db3a9a9458321581" title=" " alt="" coords="261,92,490,118"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="183,66,288,86,287,91,182,72"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="459,89,489,78,521,60,548,39,551,43,523,65,491,83,461,94"/>
+<area shape="rect" id="Node000005" href="$leaf-math_8h.html#a2efaf6219114b1d7a8d31cbd3205e133" title=" " alt="" coords="540,67,613,92"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="482,89,524,83,524,89,482,94"/>
+<area shape="rect" id="Node000006" href="$leaf-math_8h.html#a0e844a72861fecf6934c56d8d8f4ab6a" title=" " alt="" coords="542,116,611,142"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="488,116,526,120,526,126,488,121"/>
+</map>

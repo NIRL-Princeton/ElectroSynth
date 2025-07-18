@@ -1,0 +1,12 @@
+<map id="tTriLFO_free" name="tTriLFO_free">
+<area shape="rect" id="Node000001" title="Free a tTriLFO from its mempool." alt="" coords="343,56,437,82"/>
+<area shape="rect" id="Node000002" href="$leaf_2test_2oscillators__test_8cpp.html#aa49295b37ae87c823c42cdeb6151ed6b" title=" " alt="" coords="185,5,284,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="333,53,275,34,277,29,335,48"/>
+<area shape="rect" id="Node000003" href="$_l_f_o_module_8cpp.html#a0733631cba0bcabee51cdbaa3d131fa9" title=" " alt="" coords="5,57,127,83"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="327,72,127,73,127,67,327,66"/>
+<area shape="rect" id="Node000004" href="$leaf-oscillators_8c.html#a2e5abb464d6fdc88dc661e22bd669301" title=" " alt="" coords="175,107,295,132"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="335,89,277,109,275,104,333,84"/>
+<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="173,104,112,86,113,81,175,99"/>
+<area shape="rect" id="Node000005" href="$leaf_2test_2oscillators__test_8cpp.html#a0dbb2d6e565ddf99a1c7cced678d74e0" title=" " alt="" coords="16,107,116,132"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="159,122,116,122,116,117,159,117"/>
+</map>

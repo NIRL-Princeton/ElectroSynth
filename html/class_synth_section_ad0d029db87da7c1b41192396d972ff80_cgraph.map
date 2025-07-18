@@ -1,0 +1,14 @@
+<map id="SynthSection::showPopupDisplay" name="SynthSection::showPopupDisplay">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,59,225,84"/>
+<area shape="rect" id="Node000002" href="$class_full_interface.html#a56c86cc13cacffa54e61cd4459a2bbd1" title=" " alt="" coords="273,59,453,84"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="225,69,257,69,257,74,225,74"/>
+<area shape="rect" id="Node000003" href="$class_popup_display.html#aae05029af9437e177ad1cfca3b729b44" title=" " alt="" coords="501,59,675,84"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="453,69,485,69,485,74,453,74"/>
+<area shape="rect" id="Node000004" href="$class_fonts.html#ae7669a3eeb9db437c7d34feff9e99707" title=" " alt="" coords="732,29,844,55"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="676,56,717,50,717,55,676,61"/>
+<area shape="rect" id="Node000006" href="$class_fonts.html#ad3f42cf6c33957340cc7689bca94b90a" title=" " alt="" coords="723,79,853,120"/>
+<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="676,81,708,86,707,91,676,86"/>
+<area shape="poly" id="edge5_Node000004_Node000004" title=" " alt="" coords="761,30,755,21,759,11,770,5,788,3,808,5,818,12,815,16,806,10,788,8,771,10,763,15,761,20,765,28"/>
+<area shape="rect" id="Node000005" href="$class_fonts.html#a45eefc38057ad57973216627645d60c9" title=" " alt="" coords="901,29,996,55"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="844,40,885,40,885,45,844,45"/>
+</map>

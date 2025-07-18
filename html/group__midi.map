@@ -1,0 +1,6 @@
+<map id="MIDI" name="MIDI">
+<area shape="rect" id="Node000001" title="MIDI handling." alt="" coords="5,55,56,80"/>
+<area shape="rect" id="Node000003" href="$group__tpoly.html" title="Polyphony handler with glide and pitch bend options." alt="" coords="124,5,175,31"/>
+<area shape="rect" id="Node000004" href="$group__tsimplepoly.html" title="Polyphony handler." alt="" coords="104,55,195,80"/>
+<area shape="rect" id="Node000002" href="$group__tstack.html" title="A basic stack of integers with a fixed capacity of 128, used by tPoly to keep track of MIDI notes." alt="" coords="120,104,179,130"/>
+</map>

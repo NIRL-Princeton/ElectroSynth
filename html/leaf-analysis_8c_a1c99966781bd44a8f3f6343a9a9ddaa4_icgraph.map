@@ -1,0 +1,9 @@
+<map id="tZeroCrossingCollector_setHysteresis" name="tZeroCrossingCollector_setHysteresis">
+<area shape="rect" id="Node000001" title=" " alt="" coords="675,5,831,46"/>
+<area shape="rect" id="Node000002" href="$leaf-analysis_8c.html#a5e6a3237bff5de64ba6580d49d00206b" title=" " alt="" coords="427,13,627,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="660,28,628,28,628,23,660,23"/>
+<area shape="rect" id="Node000003" href="$leaf-analysis_8c.html#ab721b61e5d412cd5ef5ad38b18e631ca" title=" " alt="" coords="186,13,379,38"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="412,28,380,28,380,23,412,23"/>
+<area shape="rect" id="Node000004" href="$leaf-analysis_8c.html#a7c3e97a26a5b0fd48b24626513437d11" title=" " alt="" coords="5,5,138,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="170,28,138,28,138,23,170,23"/>
+</map>

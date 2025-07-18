@@ -1,0 +1,34 @@
+<map id="EffectModuleSection::moduleAdded" name="EffectModuleSection::moduleAdded">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,164,148,205"/>
+<area shape="rect" id="Node000002" href="$class_processor_base.html#a8fcc80cb38e4f8d750217b9203347a84" title=" " alt="" coords="203,114,391,140"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="148,162,195,150,227,142,228,147,196,155,149,168"/>
+<area shape="rect" id="Node000003" href="$class_effect_module_section.html#ab346e87a6f3c00bf1fbec5a798868f54" title=" " alt="" coords="226,164,368,205"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="148,182,210,182,210,187,148,187"/>
+<area shape="rect" id="Node000014" href="$class_open_gl_component.html#adc3d2663aa41b8aa81699c35c53d213f" title=" " alt="" coords="196,283,398,323"/>
+<area shape="poly" id="edge16_Node000001_Node000014" title=" " alt="" coords="118,203,245,273,243,277,115,208"/>
+<area shape="rect" id="Node000004" href="$class_synth_section.html#aa01a2cf1cb512707d217490aa89a8b2f" title=" " alt="" coords="709,57,901,98"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="368,166,445,150,693,98,694,103,447,155,369,172"/>
+<area shape="rect" id="Node000005" href="$class_synth_section.html#a419d77d2995e49ddbf684d4b67921161" title=" " alt="" coords="686,123,924,163"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="368,176,670,151,671,157,369,181"/>
+<area shape="rect" id="Node000006" href="$class_synth_section.html#ae0397399d283628b325650e0b7b60c6f" title=" " alt="" coords="709,449,901,490"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="328,203,382,238,447,271,476,281,501,285,548,288,592,294,616,305,640,322,653,336,660,351,665,380,670,408,676,421,688,434,697,441,693,445,685,438,672,424,665,410,660,381,655,353,648,339,637,326,613,309,591,299,547,293,501,291,474,286,445,276,379,242,325,207"/>
+<area shape="rect" id="Node000007" href="$class_modules_interface.html#a7d39b2018f2d465ce672c73d61419641" title=" " alt="" coords="446,5,638,46"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="367,167,396,150,413,128,420,104,426,80,444,56,448,53,451,57,448,60,431,82,425,106,418,130,400,154,370,172"/>
+<area shape="rect" id="Node000008" href="$class_synth_section.html#a549f91a2b81b419368a578990cb2e6c2" title=" " alt="" coords="468,70,617,96"/>
+<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="367,163,397,150,420,132,445,113,476,99,478,104,447,117,424,136,399,155,369,168"/>
+<area shape="rect" id="Node000009" href="$class_effect_module_section.html#ab17711f27ddd21f3913f6901ba0415e0" title=" " alt="" coords="471,221,613,262"/>
+<area shape="poly" id="edge8_Node000003_Node000009" title=" " alt="" coords="369,198,456,219,455,224,368,204"/>
+<area shape="poly" id="edge9_Node000009_Node000004" title=" " alt="" coords="564,219,685,109,698,102,701,107,688,113,567,223"/>
+<area shape="poly" id="edge10_Node000009_Node000005" title=" " alt="" coords="597,218,637,201,661,187,685,174,706,166,707,171,687,179,663,192,640,205,599,223"/>
+<area shape="poly" id="edge13_Node000009_Node000006" title=" " alt="" coords="616,260,640,278,655,299,662,320,664,359,666,397,674,416,688,434,698,442,694,446,684,438,669,419,661,399,659,360,657,321,650,302,636,282,612,264"/>
+<area shape="rect" id="Node000010" href="$class_synth_section.html#aab9bab4cc6657d3836887da39dc57e63" title=" " alt="" coords="704,319,906,359"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="599,260,639,278,687,303,708,311,706,316,685,308,637,283,596,265"/>
+<area shape="rect" id="Node000011" href="$class_synth_section.html#a0c688d2a15f8849c09912f4bd1f92c9f" title=" " alt="" coords="709,384,901,425"/>
+<area shape="poly" id="edge12_Node000009_Node000011" title=" " alt="" coords="613,260,640,278,658,302,664,326,671,348,688,369,697,375,694,380,684,373,666,350,659,327,653,305,636,282,610,265"/>
+<area shape="rect" id="Node000012" href="$class_synth_section.html#af3bc1e4797ef2a7399f9040e564d8ec1" title=" " alt="" coords="709,188,901,229"/>
+<area shape="poly" id="edge14_Node000009_Node000012" title=" " alt="" coords="614,230,693,220,693,225,614,235"/>
+<area shape="rect" id="Node000013" href="$class_modules_interface.html#a6c984e0529bd9075afa47c503ebc5a47" title=" " alt="" coords="709,253,901,294"/>
+<area shape="poly" id="edge15_Node000009_Node000013" title=" " alt="" coords="614,248,693,257,693,263,614,253"/>
+<area shape="rect" id="Node000015" href="$class_full_interface.html#a9d7b80b786b131c4597e72179ba49650" title=" " alt="" coords="457,336,627,377"/>
+<area shape="poly" id="edge17_Node000014_Node000015" title=" " alt="" coords="394,321,443,332,441,337,393,327"/>
+</map>

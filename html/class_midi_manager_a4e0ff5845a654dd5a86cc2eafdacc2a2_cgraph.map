@@ -1,0 +1,11 @@
+<map id="MidiManager::processSustain" name="MidiManager::processSustain">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,46,199,72"/>
+<area shape="rect" id="Node000002" href="$class_midi_manager.html#a258a7525bea556188df298afe13c1854" title=" " alt="" coords="247,5,433,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="198,43,231,38,232,43,199,48"/>
+<area shape="rect" id="Node000004" href="$class_midi_manager.html#a59204068ee8beaf04278ba3d36d0b311" title=" " alt="" coords="247,71,433,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="200,69,232,74,231,79,199,75"/>
+<area shape="rect" id="Node000003" href="$class_midi_manager.html#af76be44264f35e11e98c40d840747572" title=" " alt="" coords="482,5,656,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="433,23,466,23,466,28,433,28"/>
+<area shape="rect" id="Node000005" href="$class_midi_manager.html#a87a04a3b0685a55dc1630f402d2c78c4" title=" " alt="" coords="481,71,656,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="433,88,465,88,465,94,433,94"/>
+</map>

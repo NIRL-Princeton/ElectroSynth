@@ -1,0 +1,27 @@
+<map id="ModulationManager::setModulationSliderBipolar" name="ModulationManager::setModulationSliderBipolar">
+<area shape="rect" id="Node000001" title=" " alt="" coords="653,169,829,210"/>
+<area shape="rect" id="Node000002" href="$class_modulation_manager.html#a70b2311c37fc652d9303cd84f5ce8cec" title=" " alt="" coords="463,169,605,210"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="638,192,606,192,606,187,638,187"/>
+<area shape="rect" id="Node000003" href="$class_modulation_manager.html#a30daed767b72230d38b6a68f0950a8d0" title=" " alt="" coords="217,5,398,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="509,158,468,108,442,83,414,61,390,49,392,44,416,57,445,79,472,104,513,155"/>
+<area shape="rect" id="Node000004" href="$class_modulation_manager.html#a7a687a2ad6a5137eae7d10659f77f716" title=" " alt="" coords="200,71,414,111"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="486,164,414,127,381,114,383,109,416,122,488,159"/>
+<area shape="rect" id="Node000006" href="$class_modulation_manager.html#a6c8526d8c8183fc658ec361f41ca9b57" title=" " alt="" coords="200,136,415,177"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="447,180,415,175,416,170,448,174"/>
+<area shape="rect" id="Node000007" href="$class_modulation_manager.html#a4cb267bb87d8cdf285a60f3fd0684bcd" title=" " alt="" coords="232,267,382,307"/>
+<area shape="poly" id="edge7_Node000002_Node000007" title=" " alt="" coords="487,221,416,256,383,269,381,264,414,251,484,216"/>
+<area shape="rect" id="Node000011" href="$class_modulation_manager.html#ad58db68902105556879da30178299b1c" title=" " alt="" coords="206,201,409,242"/>
+<area shape="poly" id="edge11_Node000002_Node000011" title=" " alt="" coords="448,204,410,210,409,205,447,199"/>
+<area shape="rect" id="Node000012" href="$class_modulation_manager.html#ab8e56b435c6b72a7aea8443c13a86d68" title=" " alt="" coords="236,332,378,373"/>
+<area shape="poly" id="edge13_Node000002_Node000012" title=" " alt="" coords="513,224,472,274,445,299,416,321,380,338,378,334,414,317,442,295,468,271,508,221"/>
+<area shape="rect" id="Node000005" href="$class_modulation_manager.html#ab0822cffc9d74a4fb432c5c5f66dc5f7" title=" " alt="" coords="7,136,150,177"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="220,119,151,139,149,133,218,114"/>
+<area shape="poly" id="edge6_Node000006_Node000005" title=" " alt="" coords="184,159,150,159,150,154,184,154"/>
+<area shape="rect" id="Node000008" href="$class_modulation_manager.html#a0e383f239d6c1823e5f2c1734d43e7cc" title=" " alt="" coords="7,201,150,242"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="218,264,149,245,151,239,220,259"/>
+<area shape="rect" id="Node000009" href="$class_modulation_manager.html#a8b72732620625af106a4c0f161311244" title=" " alt="" coords="5,267,152,307"/>
+<area shape="poly" id="edge9_Node000007_Node000009" title=" " alt="" coords="217,290,152,290,152,284,217,284"/>
+<area shape="rect" id="Node000010" href="$class_modulation_manager.html#af18566beee76d6348d967233460e2775" title=" " alt="" coords="7,332,150,373"/>
+<area shape="poly" id="edge10_Node000007_Node000010" title=" " alt="" coords="220,315,151,335,149,329,218,310"/>
+<area shape="poly" id="edge12_Node000011_Node000005" title=" " alt="" coords="218,199,149,179,151,174,220,194"/>
+</map>

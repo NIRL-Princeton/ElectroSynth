@@ -1,0 +1,7 @@
+<map id="detail::iterator_traits&lt; T, typename &gt;" name="detail::iterator_traits&lt; T, typename &gt;">
+<area shape="rect" id="Node000001" title=" " alt="" coords="121,5,247,46"/>
+<area shape="rect" id="Node000002" href="$structdetail_1_1iterator__traits_3_01_t_01_5_00_01enable__if__t_3_01std_1_1is__object_3_01_t_01_4_1_1value_01_4_01_4.html" title=" " alt="" coords="5,158,171,213"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="141,57,127,72,115,93,105,116,94,159,89,157,100,114,110,90,123,68,137,53"/>
+<area shape="rect" id="Node000003" href="$structdetail_1_1iterator__traits_3_01_t_00_01enable__if__t_3_01_9std_1_1is__pointer_3_01_t_01_4_1_1value_01_4_01_4.html" title=" " alt="" coords="195,158,365,213"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="238,53,253,68,265,90,274,114,281,157,276,158,268,115,260,92,249,72,235,57"/>
+</map>

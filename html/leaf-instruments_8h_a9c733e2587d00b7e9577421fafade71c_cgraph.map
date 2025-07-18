@@ -1,0 +1,7 @@
+<map id="t808Cowbell_setFreq" name="t808Cowbell_setFreq">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,150,31"/>
+<area shape="rect" id="Node000002" href="$leaf-oscillators_8c.html#a2cc34f92b247b53027d8bc495c90577f" title=" " alt="" coords="198,5,315,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="150,16,182,16,182,21,150,21"/>
+<area shape="rect" id="Node000003" href="$leaf-math_8h.html#ae7dc8f2b0489153976428c0753dfa917" title=" " alt="" coords="363,5,458,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="315,16,347,16,347,21,315,21"/>
+</map>

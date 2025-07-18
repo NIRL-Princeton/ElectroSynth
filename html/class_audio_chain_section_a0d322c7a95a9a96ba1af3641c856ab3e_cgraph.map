@@ -1,0 +1,23 @@
+<map id="AudioChainSection::AudioChainSection" name="AudioChainSection::AudioChainSection">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,162,146,202"/>
+<area shape="rect" id="Node000002" href="$class_audio_chain_section.html#a7262bb13ee96429b5b231575d65a317b" title=" " alt="" coords="243,55,384,96"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="103,159,144,131,193,105,227,92,229,97,195,110,147,136,106,163"/>
+<area shape="rect" id="Node000003" href="$class_synth_section.html#a106e35d5a7f591a72016b2a595d33e43" title=" " alt="" coords="194,120,433,146"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="145,164,193,154,230,147,231,152,194,159,147,170"/>
+<area shape="rect" id="Node000004" href="$class_synth_section.html#a2573d4aea8a5e984e674cf70a512ea15" title=" " alt="" coords="216,169,411,195"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="146,180,200,180,200,185,146,185"/>
+<area shape="rect" id="Node000009" href="$class_synth_section.html#aacbd2a0f89359676471964d630ca9c21" title=" " alt="" coords="732,220,918,246"/>
+<area shape="poly" id="edge11_Node000001_Node000009" title=" " alt="" coords="146,196,194,205,335,221,476,229,717,233,716,238,476,235,334,226,193,210,145,201"/>
+<area shape="rect" id="Node000010" href="$class_synth_section.html#a3cf02c8a895bb262e7b5205e24fc42c6" title=" " alt="" coords="222,320,404,361"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="94,201,136,251,164,277,195,300,217,312,215,316,192,304,161,281,132,254,90,205"/>
+<area shape="rect" id="Node000005" href="$class_synth_section.html#ac2e7f3da2ffce7711d1ec90e7b1294da" title=" " alt="" coords="490,5,675,31"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="410,169,431,156,443,143,450,130,455,101,459,71,466,56,479,42,485,37,488,41,483,45,471,59,464,72,460,102,455,131,448,146,435,160,413,173"/>
+<area shape="rect" id="Node000006" href="$class_synth_section.html#ac6106e2f9305a0010729da533fe9eb82" title=" " alt="" coords="481,55,684,96"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="407,166,432,156,446,144,455,132,464,118,479,105,487,101,490,105,483,110,468,122,460,135,450,148,434,160,409,171"/>
+<area shape="rect" id="Node000007" href="$class_synth_section.html#a30eee9ad9c36ce3609535557eea2d737" title=" " alt="" coords="492,120,673,146"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="387,166,493,146,494,152,388,171"/>
+<area shape="rect" id="Node000008" href="$class_synth_section.html#ae7500185b489a4a19ea4b7e841d305e0" title=" " alt="" coords="501,169,664,195"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="411,180,485,180,485,185,411,185"/>
+<area shape="poly" id="edge9_Node000004_Node000009" title=" " alt="" coords="395,193,481,205,717,224,717,230,481,210,395,198"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="648,193,746,214,745,219,647,198"/>
+</map>

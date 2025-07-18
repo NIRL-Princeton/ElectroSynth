@@ -1,0 +1,5 @@
+<map id="tRingBuffer_initToPool" name="tRingBuffer_initToPool">
+<area shape="rect" id="Node000001" title="Initialize a tRingBuffer to a specified mempool." alt="" coords="165,5,316,31"/>
+<area shape="rect" id="Node000002" href="$group__tringbuffer.html#gaa6e10d8ad89469f9868d1c8bf61c3369" title="Initialize a tRingBuffer to the default mempool of a LEAF instance." alt="" coords="5,5,117,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="149,21,117,21,117,16,149,16"/>
+</map>

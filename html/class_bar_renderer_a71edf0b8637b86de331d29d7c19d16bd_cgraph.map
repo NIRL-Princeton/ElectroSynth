@@ -1,0 +1,11 @@
+<map id="BarRenderer::setSquareScale" name="BarRenderer::setSquareScale">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,200,56"/>
+<area shape="rect" id="Node000002" href="$class_bar_renderer.html#a4becc282210011239e52d9c4cc6cb800" title=" " alt="" coords="252,5,412,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,30,236,26,237,31,200,35"/>
+<area shape="rect" id="Node000004" href="$class_bar_renderer.html#a75109994137b289ae0d4148f0da44c6a" title=" " alt="" coords="248,55,417,80"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="200,51,232,54,232,60,200,56"/>
+<area shape="rect" id="Node000003" href="$class_bar_renderer.html#a486897a21302672589244ba5234e4017" title=" " alt="" coords="468,5,591,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="413,16,453,16,453,21,413,21"/>
+<area shape="rect" id="Node000005" href="$class_bar_renderer.html#ae2668c540ae3be73425116b38209b863" title=" " alt="" coords="465,55,594,80"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="417,65,449,65,449,70,417,70"/>
+</map>

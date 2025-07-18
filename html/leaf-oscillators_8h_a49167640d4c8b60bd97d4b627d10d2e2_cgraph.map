@@ -1,0 +1,11 @@
+<map id="tSineTriLFO_setSampleRate" name="tSineTriLFO_setSampleRate">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,194,56"/>
+<area shape="rect" id="Node000002" href="$leaf-oscillators_8c.html#a390d6ca74fff7c4cd637c0fcbc781268" title=" " alt="" coords="245,5,401,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="193,30,229,26,229,31,194,35"/>
+<area shape="rect" id="Node000004" href="$leaf-oscillators_8c.html#afe2a05be7df3e612d9887cac34a8498c" title=" " alt="" coords="242,55,404,80"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="194,51,227,54,226,60,193,56"/>
+<area shape="rect" id="Node000003" href="$leaf-oscillators_8c.html#a7421a30b72cf55e1353f92f5dd1a3832" title=" " alt="" coords="455,5,565,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="401,16,439,16,439,21,401,21"/>
+<area shape="rect" id="Node000005" href="$leaf-oscillators_8c.html#a2f13a358aeb8cd8f125768e4b9cee5aa" title=" " alt="" coords="452,55,568,80"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="405,65,436,65,436,70,405,70"/>
+</map>

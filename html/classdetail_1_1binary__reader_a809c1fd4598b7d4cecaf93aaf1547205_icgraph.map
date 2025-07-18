@@ -1,0 +1,95 @@
+<map id="detail::binary_reader::get_number" name="detail::binary_reader::get_number">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1521,443,1659,484"/>
+<area shape="rect" id="Node000002" href="$classdetail_1_1binary__reader.html#afd4a59072e687d5d07f53d7320a4ac4d" title="Parses a byte array input of length len from the BSON input." alt="" coords="1323,114,1461,155"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1580,429,1568,375,1547,307,1515,237,1495,205,1471,175,1448,158,1451,153,1475,171,1499,202,1520,235,1552,305,1573,373,1586,428"/>
+<area shape="rect" id="Node000003" href="$classdetail_1_1binary__reader.html#a510e89bbd4e8940bc726f5840c318221" title="Read a BSON document element of the given element_type." alt="" coords="1098,107,1247,162"/>
+<area shape="poly" id="edge61_Node000001_Node000003" title=" " alt="" coords="1578,429,1565,383,1543,328,1512,273,1493,248,1471,226,1441,212,1384,194,1247,156,1248,151,1385,188,1443,207,1474,222,1497,244,1517,270,1548,326,1570,381,1584,428"/>
+<area shape="rect" id="Node000005" href="$classdetail_1_1binary__reader.html#a0c82ebf5d8e4007304e5d4a2158d47c8" title="Reads an array from the BSON input and passes it to the SAX&#45;parser." alt="" coords="665,57,803,97"/>
+<area shape="poly" id="edge60_Node000001_Node000005" title=" " alt="" coords="1587,428,1582,357,1566,268,1552,222,1532,178,1505,138,1471,105,1432,78,1391,57,1348,40,1303,27,1210,12,1115,9,1024,15,939,27,864,43,803,59,801,54,862,38,938,22,1023,10,1115,3,1210,6,1304,21,1350,35,1393,52,1435,74,1474,100,1509,135,1536,175,1557,220,1572,267,1588,357,1592,428"/>
+<area shape="rect" id="Node000006" href="$classdetail_1_1binary__reader.html#a66514e22cb51ce5030b77376c1f701ec" title="Reads in a BSON&#45;object and passes it to the SAX&#45;parser." alt="" coords="661,197,807,237"/>
+<area shape="poly" id="edge62_Node000001_Node000006" title=" " alt="" coords="1573,430,1557,396,1535,358,1507,323,1471,294,1418,272,1344,255,1256,242,1159,232,964,222,807,219,807,214,964,217,1159,227,1256,236,1345,249,1420,267,1474,290,1510,319,1540,355,1562,393,1578,428"/>
+<area shape="rect" id="Node000011" href="$classdetail_1_1binary__reader.html#a6fcde744e6311dc0646735123ee83831" title="reads a CBOR byte array" alt="" coords="1323,354,1461,395"/>
+<area shape="poly" id="edge16_Node000001_Node000011" title=" " alt="" coords="1532,439,1472,410,1443,398,1445,393,1474,405,1535,434"/>
+<area shape="rect" id="Node000012" href="$classdetail_1_1binary__reader.html#abf6970bcdc650b3290b25767eb696685" title=" " alt="" coords="1101,354,1243,395"/>
+<area shape="poly" id="edge63_Node000001_Node000012" title=" " alt="" coords="1570,431,1554,402,1532,371,1504,343,1471,321,1438,309,1403,305,1367,306,1331,312,1265,332,1211,356,1209,351,1263,327,1330,306,1366,300,1403,299,1439,304,1474,316,1507,338,1536,368,1558,399,1575,428"/>
+<area shape="rect" id="Node000015" href="$classdetail_1_1binary__reader.html#af739624b7c49bb1a0bc70ac6f5066a24" title="reads a CBOR string" alt="" coords="1323,443,1461,484"/>
+<area shape="poly" id="edge25_Node000001_Node000015" title=" " alt="" coords="1505,466,1461,466,1461,461,1505,461"/>
+<area shape="rect" id="Node000016" href="$classdetail_1_1binary__reader.html#aa2ebaeb5c91cb3065ffd8ad29c1e50e9" title="reads a MessagePack byte array" alt="" coords="1317,558,1467,599"/>
+<area shape="poly" id="edge29_Node000001_Node000016" title=" " alt="" coords="1548,495,1474,542,1440,560,1438,555,1471,537,1546,491"/>
+<area shape="rect" id="Node000017" href="$classdetail_1_1binary__reader.html#a2d96e387bda511bc8048c672113040f1" title=" " alt="" coords="1087,530,1257,571"/>
+<area shape="poly" id="edge64_Node000001_Node000017" title=" " alt="" coords="1506,490,1473,498,1258,540,1257,535,1472,493,1505,485"/>
+<area shape="rect" id="Node000020" href="$classdetail_1_1binary__reader.html#a39289c89b50b1d53cd6e066f50ad2f01" title="reads a MessagePack string" alt="" coords="1319,623,1465,664"/>
+<area shape="poly" id="edge36_Node000001_Node000020" title=" " alt="" coords="1571,499,1531,556,1504,586,1474,613,1454,625,1451,621,1471,608,1500,582,1527,553,1567,496"/>
+<area shape="rect" id="Node000021" href="$classdetail_1_1binary__reader.html#abcd1952c7d1c9f4b5f93da9f62e23320" title=" " alt="" coords="1311,689,1473,729"/>
+<area shape="poly" id="edge39_Node000001_Node000021" title=" " alt="" coords="1580,499,1565,540,1542,587,1512,635,1474,678,1457,690,1454,686,1471,674,1508,632,1537,585,1560,538,1575,497"/>
+<area shape="rect" id="Node000023" href="$classdetail_1_1binary__reader.html#a45cdf02020f3bc5c27fada582f37516c" title=" " alt="" coords="877,877,1016,917"/>
+<area shape="poly" id="edge59_Node000001_Node000023" title=" " alt="" coords="1584,500,1571,552,1549,616,1517,682,1497,714,1475,743,1425,788,1369,824,1307,851,1243,871,1179,885,1118,894,1016,901,1016,896,1118,889,1178,880,1242,866,1305,846,1366,819,1422,784,1471,739,1493,711,1513,680,1544,614,1566,551,1579,499"/>
+<area shape="rect" id="Node000029" href="$classdetail_1_1binary__reader.html#ade7bfc83c8db15b0b4e60dd89c4fbac6" title="reads a UBJSON string" alt="" coords="1103,921,1241,961"/>
+<area shape="poly" id="edge56_Node000001_Node000029" title=" " alt="" coords="1587,500,1573,595,1550,717,1534,777,1517,831,1497,875,1475,904,1449,923,1420,937,1359,953,1297,958,1241,955,1242,950,1297,952,1358,948,1418,932,1446,918,1471,901,1492,872,1512,829,1529,775,1544,716,1568,594,1582,499"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="1308,137,1247,137,1247,132,1308,132"/>
+<area shape="rect" id="Node000004" href="$classdetail_1_1binary__reader.html#a29ecec318fab8ccfa64b0e75536a40e4" title="Read a BSON element list (as specified in the BSON&#45;spec)" alt="" coords="860,114,1033,155"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="1082,137,1033,137,1033,132,1082,132"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="853,112,803,98,804,93,855,107"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="879,163,790,199,788,194,877,158"/>
+<area shape="poly" id="edge5_Node000005_Node000003" title=" " alt="" coords="819,78,922,86,1033,100,1098,113,1097,118,1033,105,921,91,819,84"/>
+<area shape="poly" id="edge7_Node000006_Node000003" title=" " alt="" coords="822,201,1032,164,1096,150,1098,155,1034,169,823,206"/>
+<area shape="rect" id="Node000007" href="$classdetail_1_1binary__reader.html#a8e1b5452ae426e1d7b48761859e7f52d" title=" " alt="" coords="470,411,608,452"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="706,251,561,413,557,409,702,247"/>
+<area shape="poly" id="edge15_Node000007_Node000007" title=" " alt="" coords="571,398,559,392,539,390,521,392,510,397,505,403,507,410,502,411,500,402,506,393,519,387,539,385,560,387,573,393"/>
+<area shape="rect" id="Node000008" href="$classbasic__json.html#ad018e709338c810c56eaad606186a77e" title=" " alt="" coords="5,353,190,393"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="491,406,457,390,421,378,362,368,302,364,190,366,190,361,302,359,363,363,423,373,459,385,493,401"/>
+<area shape="rect" id="Node000009" href="$classbasic__json.html#addedd5e53fa6eff6cd621f1615741c3d" title=" " alt="" coords="238,411,422,452"/>
+<area shape="poly" id="edge10_Node000007_Node000009" title=" " alt="" coords="454,434,423,434,423,429,454,429"/>
+<area shape="rect" id="Node000010" href="$classbasic__json.html#a94cbf1844fef86e9301282ad8ca0f822" title=" " alt="" coords="5,441,190,481"/>
+<area shape="poly" id="edge14_Node000007_Node000010" title=" " alt="" coords="460,459,422,466,362,472,301,474,190,471,190,466,301,469,362,467,422,461,459,454"/>
+<area shape="poly" id="edge11_Node000009_Node000008" title=" " alt="" coords="231,410,180,397,182,392,233,405"/>
+<area shape="poly" id="edge12_Node000009_Node000009" title=" " alt="" coords="364,398,351,392,330,390,310,392,298,397,293,403,295,410,290,411,288,402,295,392,309,387,330,385,353,387,366,393"/>
+<area shape="poly" id="edge13_Node000009_Node000010" title=" " alt="" coords="222,448,191,452,190,447,222,443"/>
+<area shape="poly" id="edge17_Node000011_Node000011" title=" " alt="" coords="1424,341,1412,335,1392,333,1373,335,1362,339,1358,345,1360,353,1354,354,1352,344,1359,335,1372,330,1392,327,1414,330,1426,336"/>
+<area shape="poly" id="edge18_Node000011_Node000012" title=" " alt="" coords="1308,377,1244,377,1244,372,1308,372"/>
+<area shape="poly" id="edge24_Node000012_Node000007" title=" " alt="" coords="1086,384,860,402,609,427,609,422,859,397,1085,378"/>
+<area shape="poly" id="edge23_Node000012_Node000012" title=" " alt="" coords="1208,341,1195,335,1172,333,1151,335,1139,339,1134,345,1136,353,1131,354,1129,344,1135,335,1150,329,1172,327,1196,330,1210,336"/>
+<area shape="rect" id="Node000013" href="$classdetail_1_1binary__reader.html#a90979b91cafd841cbb2014632274a96a" title=" " alt="" coords="877,297,1016,337"/>
+<area shape="poly" id="edge19_Node000012_Node000013" title=" " alt="" coords="1086,364,998,341,1000,335,1087,359"/>
+<area shape="rect" id="Node000014" href="$classdetail_1_1binary__reader.html#a6a8ec4dc630e18ebacca8fb90f2b9b37" title=" " alt="" coords="877,411,1016,452"/>
+<area shape="poly" id="edge21_Node000012_Node000014" title=" " alt="" coords="1106,402,1017,425,1015,420,1104,397"/>
+<area shape="poly" id="edge20_Node000013_Node000012" title=" " alt="" coords="1031,327,1120,351,1119,356,1030,332"/>
+<area shape="poly" id="edge22_Node000014_Node000012" title=" " alt="" coords="1013,404,1100,381,1102,387,1014,409"/>
+<area shape="poly" id="edge28_Node000015_Node000012" title=" " alt="" coords="1325,440,1223,398,1225,393,1327,435"/>
+<area shape="poly" id="edge26_Node000015_Node000014" title=" " alt="" coords="1307,460,1016,439,1016,434,1307,455"/>
+<area shape="poly" id="edge27_Node000015_Node000015" title=" " alt="" coords="1424,430,1412,424,1392,422,1373,424,1362,429,1358,435,1360,442,1354,443,1352,434,1359,425,1372,419,1392,417,1414,419,1426,425"/>
+<area shape="poly" id="edge30_Node000016_Node000017" title=" " alt="" coords="1302,570,1257,564,1258,559,1302,564"/>
+<area shape="poly" id="edge35_Node000017_Node000007" title=" " alt="" coords="1081,528,1032,517,800,474,609,444,609,439,801,468,1034,512,1082,523"/>
+<area shape="rect" id="Node000018" href="$classdetail_1_1binary__reader.html#a975b19d6df6ec36e98a893bde5c48a08" title=" " alt="" coords="875,526,1018,567"/>
+<area shape="poly" id="edge31_Node000017_Node000018" title=" " alt="" coords="1071,560,1018,559,1018,554,1072,555"/>
+<area shape="rect" id="Node000019" href="$classdetail_1_1binary__reader.html#a56e6f4b666a07df7687d43fc470a781d" title=" " alt="" coords="872,591,1021,632"/>
+<area shape="poly" id="edge33_Node000017_Node000019" title=" " alt="" coords="1109,578,1022,603,1021,597,1107,573"/>
+<area shape="poly" id="edge32_Node000018_Node000017" title=" " alt="" coords="1033,537,1087,538,1086,543,1033,542"/>
+<area shape="poly" id="edge34_Node000019_Node000017" title=" " alt="" coords="1010,584,1086,562,1087,567,1011,589"/>
+<area shape="poly" id="edge38_Node000020_Node000017" title=" " alt="" coords="1326,620,1310,613,1220,574,1222,569,1312,608,1328,615"/>
+<area shape="poly" id="edge37_Node000020_Node000019" title=" " alt="" coords="1303,640,1021,620,1022,614,1304,635"/>
+<area shape="rect" id="Node000022" href="$classdetail_1_1binary__reader.html#a3e86be40b4ec5679c13147056fb089c8" title=" " alt="" coords="1081,791,1263,846"/>
+<area shape="poly" id="edge40_Node000021_Node000022" title=" " alt="" coords="1342,740,1265,781,1240,792,1238,788,1262,776,1340,735"/>
+<area shape="rect" id="Node000027" href="$classdetail_1_1binary__reader.html#a468f6555260ea65d96b91dfd6547f2d6" title=" " alt="" coords="860,657,1033,697"/>
+<area shape="poly" id="edge50_Node000021_Node000027" title=" " alt="" coords="1296,712,1033,693,1034,688,1296,707"/>
+<area shape="rect" id="Node000028" href="$classdetail_1_1binary__reader.html#a0380c1d2d3332eddf36105009ff8f9fb" title="determine the type and size for a container" alt="" coords="1094,726,1250,767"/>
+<area shape="poly" id="edge52_Node000021_Node000028" title=" " alt="" coords="1296,728,1251,736,1250,731,1295,723"/>
+<area shape="poly" id="edge41_Node000022_Node000023" title=" " alt="" coords="1077,854,1008,879,1006,874,1075,849"/>
+<area shape="rect" id="Node000024" href="$classdetail_1_1binary__reader.html#a87e4355139f3a972aa456a3ed465606e" title=" " alt="" coords="470,817,608,857"/>
+<area shape="poly" id="edge42_Node000023_Node000024" title=" " alt="" coords="862,895,609,857,609,852,862,890"/>
+<area shape="rect" id="Node000025" href="$classdetail_1_1binary__reader.html#ad579eccbac92a913ebe15a4341c4daad" title=" " alt="" coords="470,951,608,992"/>
+<area shape="poly" id="edge44_Node000023_Node000025" title=" " alt="" coords="862,923,609,969,608,963,861,917"/>
+<area shape="rect" id="Node000026" href="$classdetail_1_1binary__reader.html#aabd1d5a1377a2f3b43a78fd765d95849" title=" " alt="" coords="656,757,812,797"/>
+<area shape="poly" id="edge46_Node000023_Node000026" title=" " alt="" coords="894,871,770,800,773,796,896,866"/>
+<area shape="poly" id="edge43_Node000024_Node000023" title=" " alt="" coords="624,839,877,877,876,883,624,845"/>
+<area shape="poly" id="edge45_Node000025_Node000023" title=" " alt="" coords="623,946,876,900,877,905,624,952"/>
+<area shape="poly" id="edge49_Node000026_Node000007" title=" " alt="" coords="712,745,550,454,554,451,716,742"/>
+<area shape="poly" id="edge47_Node000026_Node000024" title=" " alt="" coords="652,805,608,819,607,814,650,800"/>
+<area shape="poly" id="edge48_Node000026_Node000025" title=" " alt="" coords="672,808,658,818,635,842,607,879,556,953,552,950,603,876,631,839,655,814,668,804"/>
+<area shape="poly" id="edge51_Node000027_Node000021" title=" " alt="" coords="1049,674,1311,694,1311,699,1048,679"/>
+<area shape="poly" id="edge53_Node000028_Node000024" title=" " alt="" coords="1079,731,988,720,881,715,825,716,767,722,711,732,657,748,628,761,602,780,560,818,557,814,598,775,626,757,655,743,710,727,767,717,824,711,881,709,989,714,1079,726"/>
+<area shape="poly" id="edge55_Node000028_Node000025" title=" " alt="" coords="1081,771,883,827,769,865,657,909,574,953,572,949,655,904,767,860,882,822,1079,766"/>
+<area shape="poly" id="edge54_Node000028_Node000027" title=" " alt="" coords="1088,724,1014,701,1016,696,1090,718"/>
+<area shape="poly" id="edge58_Node000029_Node000023" title=" " alt="" coords="1087,927,1015,913,1016,908,1088,922"/>
+<area shape="poly" id="edge57_Node000029_Node000025" title=" " alt="" coords="1088,948,609,971,609,966,1087,943"/>
+</map>

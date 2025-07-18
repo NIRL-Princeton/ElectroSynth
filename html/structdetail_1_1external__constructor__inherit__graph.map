@@ -1,0 +1,19 @@
+<map id="detail::external_constructor&lt; value_t &gt;" name="detail::external_constructor&lt; value_t &gt;">
+<area shape="rect" id="Node000001" title=" " alt="" coords="675,5,842,46"/>
+<area shape="rect" id="Node000002" href="$structdetail_1_1external__constructor_3_01value__t_1_1array_01_4.html" title=" " alt="" coords="5,117,173,158"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="660,33,421,46,305,58,222,73,167,94,120,119,117,115,164,89,220,67,304,52,421,41,660,28"/>
+<area shape="rect" id="Node000003" href="$structdetail_1_1external__constructor_3_01value__t_1_1binary_01_4.html" title=" " alt="" coords="197,117,365,158"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="660,36,504,50,432,60,381,72,339,94,304,119,301,115,336,90,379,68,431,55,503,44,660,30"/>
+<area shape="rect" id="Node000004" href="$structdetail_1_1external__constructor_3_01value__t_1_1boolean_01_4.html" title=" " alt="" coords="389,117,557,158"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="661,33,594,46,561,57,530,72,505,94,486,119,482,116,501,90,527,68,559,52,593,41,660,28"/>
+<area shape="rect" id="Node000005" href="$structdetail_1_1external__constructor_3_01value__t_1_1number__float_01_4.html" title=" " alt="" coords="581,117,749,158"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="687,56,672,71,664,94,664,117,659,117,659,93,667,69,683,52"/>
+<area shape="rect" id="Node000006" href="$structdetail_1_1external__constructor_3_01value__t_1_1number__integer_01_4.html" title=" " alt="" coords="773,117,947,158"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="810,52,828,68,845,92,856,116,851,118,840,95,825,72,807,56"/>
+<area shape="rect" id="Node000007" href="$structdetail_1_1external__constructor_3_01value__t_1_1number__unsigned_01_4.html" title=" " alt="" coords="970,117,1157,158"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="857,33,951,46,992,56,1020,68,1043,90,1058,116,1054,119,1039,94,1017,72,990,61,950,51,856,38"/>
+<area shape="rect" id="Node000008" href="$structdetail_1_1external__constructor_3_01value__t_1_1object_01_4.html" title=" " alt="" coords="1188,117,1356,158"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="857,23,958,25,1066,31,1164,45,1203,55,1232,68,1254,90,1268,116,1263,119,1250,94,1229,72,1201,60,1163,50,1066,37,957,30,857,29"/>
+<area shape="rect" id="Node000009" href="$structdetail_1_1external__constructor_3_01value__t_1_1string_01_4.html" title=" " alt="" coords="1380,117,1548,158"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="857,25,988,27,1138,34,1276,47,1333,56,1375,68,1415,89,1447,115,1444,119,1412,94,1374,72,1331,61,1275,52,1137,39,988,32,857,30"/>
+</map>

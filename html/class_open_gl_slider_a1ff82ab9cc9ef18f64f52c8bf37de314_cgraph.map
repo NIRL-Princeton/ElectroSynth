@@ -1,0 +1,17 @@
+<map id="OpenGlSlider::isRotaryQuad" name="OpenGlSlider::isRotaryQuad">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,63,192,88"/>
+<area shape="rect" id="Node000002" href="$class_open_gl_slider.html#a4b3ac6a2a46dcaaa025f584ad26b7199" title=" " alt="" coords="240,63,430,88"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="192,73,224,73,224,78,192,78"/>
+<area shape="rect" id="Node000003" href="$class_curve_look_and_feel.html#af6028cf5c3b146cd26458bcb53ec01a6" title=" " alt="" coords="478,29,667,55"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="430,59,462,55,463,60,431,65"/>
+<area shape="rect" id="Node000005" href="$class_open_gl_slider.html#a2110b50988a7a944eb94e797addfc2d1" title=" " alt="" coords="502,87,643,112"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="431,82,487,88,486,94,430,88"/>
+<area shape="poly" id="edge4_Node000003_Node000003" title=" " alt="" coords="533,31,526,21,530,11,546,5,573,3,602,6,617,13,615,17,601,11,573,8,547,10,534,15,531,20,537,27"/>
+<area shape="rect" id="Node000004" href="$class_curve_look_and_feel.html#af49ba9562100d2f1670e5dfc7ab5733e" title=" " alt="" coords="715,14,919,54"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="668,36,700,35,700,41,668,42"/>
+<area shape="rect" id="Node000006" href="$class_text_look_and_feel.html#a3723dc598c94042165d4981963649828" title=" " alt="" coords="727,103,907,128"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="644,101,712,106,712,111,644,107"/>
+<area shape="poly" id="edge7_Node000006_Node000006" title=" " alt="" coords="777,104,769,94,774,84,790,78,817,76,847,79,862,86,860,91,846,84,817,81,791,83,778,88,775,93,781,101"/>
+<area shape="rect" id="Node000007" href="$class_text_look_and_feel.html#a48831b370d4897c9a018842d531c8210" title=" " alt="" coords="967,95,1150,136"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="907,113,951,113,951,118,907,118"/>
+</map>

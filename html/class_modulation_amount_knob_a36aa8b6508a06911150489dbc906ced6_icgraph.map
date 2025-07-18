@@ -1,0 +1,8 @@
+<map id="ModulationAmountKnob::toggleBypass" name="ModulationAmountKnob::toggleBypass">
+<area shape="rect" id="Node000001" title=" " alt="" coords="474,35,633,75"/>
+<area shape="rect" id="Node000002" href="$class_modulation_amount_knob.html#a4b2bda7898f91a819cf03691ba266d93" title=" " alt="" coords="213,5,426,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="459,46,426,42,427,36,459,41"/>
+<area shape="rect" id="Node000003" href="$class_modulation_amount_knob.html#a0964b41a49cb0cdfd7d1bb681cf83702" title=" " alt="" coords="5,35,165,75"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="458,60,426,60,213,60,165,60,165,54,213,55,426,55,458,55"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="198,44,165,48,165,42,197,38"/>
+</map>

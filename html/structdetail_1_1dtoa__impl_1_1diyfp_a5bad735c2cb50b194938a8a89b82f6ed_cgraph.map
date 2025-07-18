@@ -1,0 +1,5 @@
+<map id="detail::dtoa_impl::diyfp::normalize" name="detail::dtoa_impl::diyfp::normalize">
+<area shape="rect" id="Node000001" title="normalize x such that the significand is &gt;= 2^(q&#45;1)" alt="" coords="5,5,130,46"/>
+<area shape="rect" id="Node000002" href="$structdetail_1_1dtoa__impl_1_1diyfp.html#a7c8377d2b931fcb3088d54c41b99c53b" title=" " alt="" coords="178,5,302,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="130,23,162,23,162,28,130,28"/>
+</map>

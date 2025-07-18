@@ -1,0 +1,29 @@
+<map id="t808KickSmall_initToPool" name="t808KickSmall_initToPool">
+<area shape="rect" id="Node000001" title="Initialize a t808KickSmall to a specified mempool." alt="" coords="5,131,175,156"/>
+<area shape="rect" id="Node000002" href="$leaf-mempool_8c.html#a98a115a6f85f30795e172fd18db7fba4" title=" " alt="" coords="421,105,511,131"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="175,135,405,120,406,125,175,140"/>
+<area shape="rect" id="Node000007" href="$group__tadsrs.html#ga59fe261194e11baca1c7d67f7d9bf3a5" title="Initialize a tADSRS to a specified mempool." alt="" coords="223,255,359,280"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="107,155,157,196,224,241,233,246,231,250,221,246,154,201,104,159"/>
+<area shape="rect" id="Node000009" href="$group__tcycle.html#gacbd4afb6c3307d92e19a8e308ba7540b" title="Initialize a tCycle to a specified mempool." alt="" coords="229,205,352,231"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="126,154,224,192,238,197,237,202,222,197,124,159"/>
+<area shape="rect" id="Node000010" href="$leaf-oscillators_8c.html#a7421a30b72cf55e1353f92f5dd1a3832" title=" " alt="" coords="236,156,346,182"/>
+<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="175,152,221,157,220,163,174,157"/>
+<area shape="rect" id="Node000011" href="$group__tnoise.html#ga6eec0a5fbc79f448a89258d9b956dfa4" title="Initialize a tNoise to a specified mempool." alt="" coords="229,5,352,31"/>
+<area shape="poly" id="edge12_Node000001_Node000011" title=" " alt="" coords="104,128,154,86,221,40,231,35,233,40,224,44,157,90,107,132"/>
+<area shape="rect" id="Node000012" href="$group__tsvf.html#ga885c63faff567ce769a3112b93fbc27e" title="Initialize a tSVF to a specified mempool." alt="" coords="233,55,348,80"/>
+<area shape="poly" id="edge14_Node000001_Node000012" title=" " alt="" coords="125,128,240,84,242,89,127,133"/>
+<area shape="rect" id="Node000003" href="$leaf-mempool_8c.html#a03d72131ceaf28939aa5fd5ebd87807c" title=" " alt="" coords="618,31,711,56"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="491,102,572,65,603,55,604,60,574,70,493,107"/>
+<area shape="rect" id="Node000004" href="$leaf-mempool_8c.html#a1cac56e9fbf416e1410563bfb49290b4" title=" " alt="" coords="619,80,710,106"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="512,110,604,98,604,103,512,115"/>
+<area shape="rect" id="Node000005" href="$leaf_8c.html#a389f39fbcc732ce345106b995b3a434d" title=" " alt="" coords="573,129,756,155"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="512,121,558,127,558,132,512,126"/>
+<area shape="rect" id="Node000006" href="$leaf-mempool_8c.html#a86e9ff1e29b71d059a27641ff1b4c00e" title=" " alt="" coords="619,179,710,204"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="494,129,574,165,605,175,604,180,572,170,492,134"/>
+<area shape="poly" id="edge8_Node000007_Node000002" title=" " alt="" coords="338,252,358,241,385,219,409,193,447,143,451,146,414,196,389,223,360,246,341,256"/>
+<area shape="rect" id="Node000008" href="$leaf-envelopes_8c.html#afac40ea9b6d9dcc50f4d7bb49f331fa9" title=" " alt="" coords="407,255,525,280"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="359,265,391,265,391,270,359,270"/>
+<area shape="poly" id="edge10_Node000009_Node000002" title=" " alt="" coords="334,202,358,192,400,166,436,139,439,143,403,170,360,197,336,207"/>
+<area shape="poly" id="edge13_Node000011_Node000002" title=" " alt="" coords="336,29,360,40,403,66,439,93,436,98,400,70,358,45,334,34"/>
+<area shape="poly" id="edge15_Node000012_Node000002" title=" " alt="" coords="339,78,407,98,406,104,337,84"/>
+</map>

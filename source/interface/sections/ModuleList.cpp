@@ -40,6 +40,7 @@ void ModuleList<T>::deleteObject(T* processor_base) {
     DBG("deleteObject");
 
     synth_->removeProcessor(processor_base);
+
 }
 
 template <typename T>
@@ -154,6 +155,8 @@ template<typename T>
 void ChainList<T>::deleteObject(ModuleList<T>* processor_base) {
     DBG("deleteObject");
     processor_base->freeObjects();
+    if constexpr (std::is_same_v<T, ProcessorBase>)
+        synth_->removeChainRouting (processor_base->router_);
 
 }
 

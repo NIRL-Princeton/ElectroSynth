@@ -1,0 +1,9 @@
+<map id="ModulationAmountKnob::getThumbColor" name="ModulationAmountKnob::getThumbColor">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,27,165,68"/>
+<area shape="rect" id="Node000002" href="$class_open_gl_slider.html#a053586493669ab72583ca9892123b9c0" title=" " alt="" coords="213,5,408,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="164,35,197,30,198,36,165,40"/>
+<area shape="rect" id="Node000004" href="$class_modulation_amount_knob.html#a339bc7695073b9decd3aa60403c37fd0" title=" " alt="" coords="231,55,390,96"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="165,55,215,61,215,66,165,60"/>
+<area shape="rect" id="Node000003" href="$class_open_gl_slider.html#ae8e89f8723a3286a317bb2287589fe4c" title=" " alt="" coords="456,5,665,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="408,16,441,16,441,21,408,21"/>
+</map>

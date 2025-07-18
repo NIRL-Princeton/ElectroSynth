@@ -1,0 +1,17 @@
+<map id="tBiQuad_setB1" name="tBiQuad_setB1">
+<area shape="rect" id="Node000001" title=" " alt="" coords="906,31,1015,56"/>
+<area shape="rect" id="Node000002" href="$leaf-physical_8c.html#a36e6635e968f4c5d8c0d212149d23b3d" title=" " alt="" coords="683,31,858,56"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="890,46,858,46,858,41,890,41"/>
+<area shape="rect" id="Node000003" href="$leaf-physical_8c.html#a8f2a25ce268652d1df968f6a7e9e3e07" title=" " alt="" coords="437,5,635,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="668,35,636,32,636,26,668,30"/>
+<area shape="rect" id="Node000004" href="$leaf-physical_8c.html#aee76da79920fb7626019f4162259d4ad" title=" " alt="" coords="440,55,633,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="668,57,633,60,633,55,668,51"/>
+<area shape="rect" id="Node000005" href="$group__tkarplusstrong.html#ga8e5dece73d46617b45f6c8db17e4640f" title="Initialize a tKarplusStrong to a specified mempool." alt="" coords="201,5,372,31"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="452,54,355,34,356,29,453,48"/>
+<area shape="rect" id="Node000007" href="$leaf-physical_8c.html#a71a80a4c2691cff6ce1a957a2f0b3c1c" title=" " alt="" coords="209,55,365,80"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="424,70,366,70,366,65,424,65"/>
+<area shape="rect" id="Node000008" href="$leaf-physical_8c.html#aacb60faadabb978d00d7665ccf9ed391" title=" " alt="" coords="185,104,389,130"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="453,87,356,106,355,101,452,81"/>
+<area shape="rect" id="Node000006" href="$group__tkarplusstrong.html#gae3f330f8fef3c3263787a191f9488c14" title="Initialize a tKarplusStrong to the default mempool of a LEAF instance." alt="" coords="5,5,137,31"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="186,21,137,21,137,16,186,16"/>
+</map>

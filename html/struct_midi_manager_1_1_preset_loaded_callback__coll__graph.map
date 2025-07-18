@@ -1,0 +1,7 @@
+<map id="MidiManager::PresetLoadedCallback" name="MidiManager::PresetLoadedCallback">
+<area shape="rect" id="Node000001" title=" " alt="" coords="75,102,248,143"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,5,152,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="99,41,148,100,144,104,95,44"/>
+<area shape="rect" id="Node000003" href="$class_midi_manager_1_1_listener.html" title=" " alt="" coords="176,5,315,31"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="238,32,190,91,186,88,234,29"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="tWaveOsc" name="tWaveOsc">
+<area shape="rect" id="Node000002" href="$group__oscillators.html" title="Oscillators and generators." alt="" coords="5,5,89,31"/>
+<area shape="rect" id="Node000001" title="Set of anti&#45;aliased wavetable oscillators that can be faded between." alt="" coords="137,5,219,31"/>
+</map>

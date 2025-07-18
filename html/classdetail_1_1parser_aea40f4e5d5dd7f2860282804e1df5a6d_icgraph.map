@@ -1,0 +1,17 @@
+<map id="detail::parser::get_token" name="detail::parser::get_token">
+<area shape="rect" id="Node000001" title="get next token from lexer" alt="" coords="569,63,692,103"/>
+<area shape="rect" id="Node000002" href="$classdetail_1_1parser.html#a59f4b745d4aa146bf7a60a30060f592f" title="public parser interface" alt="" coords="197,18,333,44"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="591,56,558,35,521,19,469,10,416,9,365,13,322,20,321,15,365,8,416,3,469,5,522,14,560,30,594,51"/>
+<area shape="rect" id="Node000003" href="$classdetail_1_1parser.html#a4bb9ea1b0fddb8f46ff987bbf9e54045" title="a parser reading from an input adapter" alt="" coords="381,29,521,55"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="554,68,510,58,511,53,555,63"/>
+<area shape="rect" id="Node000004" href="$classdetail_1_1parser.html#ae9084759356689163fee9ae37e69b050" title=" " alt="" coords="202,132,328,173"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="597,116,562,139,522,158,472,168,420,172,328,166,328,161,420,166,471,163,521,153,560,135,594,111"/>
+<area shape="rect" id="Node000006" href="$classdetail_1_1parser.html#a362fc204b9a1027d6288deabc3b3360a" title=" " alt="" coords="388,103,514,143"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="555,103,515,112,514,107,554,98"/>
+<area shape="poly" id="edge5_Node000004_Node000004" title=" " alt="" coords="295,119,284,113,265,111,247,113,237,117,233,123,234,131,229,132,227,122,233,113,246,108,265,105,285,108,297,114"/>
+<area shape="rect" id="Node000005" href="$classdetail_1_1parser.html#ac46da3262cbe66ade670c5b4782451e6" title="public accept interface" alt="" coords="5,140,149,165"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="187,155,149,155,149,150,187,150"/>
+<area shape="poly" id="edge7_Node000006_Node000002" title=" " alt="" coords="394,98,292,47,294,42,396,93"/>
+<area shape="poly" id="edge8_Node000006_Node000004" title=" " alt="" coords="374,138,328,145,328,140,373,133"/>
+<area shape="poly" id="edge9_Node000006_Node000006" title=" " alt="" coords="480,90,469,84,451,81,434,83,424,88,420,94,422,102,417,103,415,93,421,84,433,78,451,76,471,79,483,85"/>
+</map>

@@ -1,0 +1,11 @@
+<map id="tPeriodDetector_setSampleRate" name="tPeriodDetector_setSampleRate">
+<area shape="rect" id="Node000001" title=" " alt="" coords="688,31,898,56"/>
+<area shape="rect" id="Node000002" href="$leaf-analysis_8c.html#a14764cae630e932b15019a8795ea33d8" title=" " alt="" coords="438,31,640,56"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="673,46,641,46,641,41,673,41"/>
+<area shape="rect" id="Node000003" href="$leaf-analysis_8c.html#a2ce62c8430f33ff006b5444a54f6f395" title=" " alt="" coords="258,23,390,64"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="423,46,390,46,390,41,423,41"/>
+<area shape="rect" id="Node000004" href="$leaf-effects_8c.html#af88e27897a9a06bb58a95c8b5f528c83" title=" " alt="" coords="25,5,190,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="242,37,190,30,191,25,242,31"/>
+<area shape="rect" id="Node000005" href="$leaf-effects_8c.html#a4af6c4a9cf7a37e8bd4164096edba948" title=" " alt="" coords="5,55,210,80"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="243,55,211,59,210,53,242,50"/>
+</map>

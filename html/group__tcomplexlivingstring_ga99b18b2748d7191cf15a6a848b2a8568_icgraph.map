@@ -1,0 +1,5 @@
+<map id="tComplexLivingString_initToPool" name="tComplexLivingString_initToPool">
+<area shape="rect" id="Node000001" title="Initialize a tComplexLivingString to a specified mempool." alt="" coords="223,5,368,46"/>
+<area shape="rect" id="Node000002" href="$group__tcomplexlivingstring.html#gaf00f24d3d131a0b899084d0b5e0b1b68" title="Initialize a tComplexLivingString to the default mempool of a LEAF instance." alt="" coords="5,13,175,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="207,28,175,28,175,23,207,23"/>
+</map>

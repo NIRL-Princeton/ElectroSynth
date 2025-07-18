@@ -1,0 +1,4 @@
+<map id="tZeroCrossingCounter" name="tZeroCrossingCounter">
+<area shape="rect" id="Node000002" href="$group__analysis.html" title="Signal analysis." alt="" coords="5,5,77,31"/>
+<area shape="rect" id="Node000001" title="Count the amount of zero crossings within a window of the input audio data." alt="" coords="125,5,274,31"/>
+</map>

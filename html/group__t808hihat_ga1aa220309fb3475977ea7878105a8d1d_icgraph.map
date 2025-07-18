@@ -1,0 +1,5 @@
+<map id="t808Hihat_initToPool" name="t808Hihat_initToPool">
+<area shape="rect" id="Node000001" title="Initialize a t808Hihat to a specified mempool." alt="" coords="155,5,296,31"/>
+<area shape="rect" id="Node000002" href="$group__t808hihat.html#ga90cf7603e94540308461463f738d120a" title="Initialize a t808Hihat to the default mempool of a LEAF instance." alt="" coords="5,5,107,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="139,21,107,21,107,16,139,16"/>
+</map>

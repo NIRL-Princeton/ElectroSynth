@@ -1,0 +1,19 @@
+<map id="detail::binary_writer::write_ubjson" name="detail::binary_writer::write_ubjson">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,143,140,183"/>
+<area shape="poly" id="edge10_Node000001_Node000001" title=" " alt="" coords="33,143,31,133,38,124,52,118,73,116,95,118,108,125,106,129,94,124,72,121,53,123,41,128,37,134,38,141"/>
+<area shape="rect" id="Node000002" href="$classdetail_1_1binary__writer.html#a2822d4a58bbb0dc2198686da430e8906" title=" " alt="" coords="212,5,346,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="90,140,132,99,186,57,197,51,200,55,189,61,135,103,94,144"/>
+<area shape="rect" id="Node000003" href="$classdetail_1_1binary__writer.html#ab4f174660b2ad22a9ac900f9e7cce278" title="determine the type prefix of container values" alt="" coords="212,71,346,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="132,140,204,114,205,119,134,145"/>
+<area shape="rect" id="Node000005" href="$classdetail_1_1binary__writer.html#a449ad96e1066a6a0c75ca983a086f46c" title=" " alt="" coords="205,215,354,255"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="114,181,191,210,189,215,112,186"/>
+<area shape="rect" id="Node000007" href="$classdetail_1_1binary__writer.html#a6df4a13e59faa87a72b0fbe8c5f838ba" title=" " alt="" coords="188,135,371,191"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="140,160,172,160,172,166,140,166"/>
+<area shape="rect" id="Node000004" href="$classdetail_1_1binary__writer.html#ab695ec5f8626b333a681c15adf5ab5e4" title=" " alt="" coords="419,109,582,150"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="347,100,405,110,404,115,346,105"/>
+<area shape="poly" id="edge6_Node000005_Node000001" title=" " alt="" coords="238,217,154,185,156,180,240,212"/>
+<area shape="rect" id="Node000006" href="$classdetail_1_1binary__writer.html#aab9bf30c969ca7694eed2bfd39d9274a" title=" " alt="" coords="434,177,568,218"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="354,220,418,209,419,214,355,225"/>
+<area shape="poly" id="edge8_Node000007_Node000004" title=" " alt="" coords="371,147,403,142,404,147,372,152"/>
+<area shape="poly" id="edge9_Node000007_Node000006" title=" " alt="" coords="372,175,419,182,418,187,371,180"/>
+</map>

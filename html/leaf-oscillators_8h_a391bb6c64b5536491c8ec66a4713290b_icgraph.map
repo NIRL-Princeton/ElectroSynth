@@ -1,0 +1,11 @@
+<map id="tSineTriLFO_initToPool" name="tSineTriLFO_initToPool">
+<area shape="rect" id="Node000001" title=" " alt="" coords="374,31,529,56"/>
+<area shape="rect" id="Node000002" href="$_l_f_o_module_8cpp.html#ab156d628de52ca62d2e33c721509dc6d" title=" " alt="" coords="170,5,326,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="358,35,326,31,327,25,359,29"/>
+<area shape="rect" id="Node000004" href="$leaf-oscillators_8c.html#a84609b21d5dda7214ef63aa33b30cec0" title="sinetri" alt="" coords="190,55,306,80"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="359,57,306,63,305,58,358,52"/>
+<area shape="rect" id="Node000003" href="$_l_f_o_module_8cpp.html#a596a28cefca83f9dd6d02c47032796ba" title=" " alt="" coords="5,5,122,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="154,21,122,21,122,16,154,16"/>
+<area shape="rect" id="Node000005" href="$leaf_2test_2oscillators__test_8cpp.html#a0dbb2d6e565ddf99a1c7cced678d74e0" title=" " alt="" coords="14,55,113,80"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="174,70,114,70,114,65,174,65"/>
+</map>

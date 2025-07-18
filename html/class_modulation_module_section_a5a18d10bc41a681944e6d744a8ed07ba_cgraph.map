@@ -1,0 +1,9 @@
+<map id="ModulationModuleSection::ModulationModuleSection" name="ModulationModuleSection::ModulationModuleSection">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,71,184,111"/>
+<area shape="rect" id="Node000002" href="$class_modules_interface.html#ac957db712f21f7da46e3c35e21dc7c22" title=" " alt="" coords="238,5,428,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="170,68,241,48,243,53,172,73"/>
+<area shape="rect" id="Node000003" href="$class_synth_section.html#a106e35d5a7f591a72016b2a595d33e43" title=" " alt="" coords="232,71,435,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="184,88,216,88,216,94,184,94"/>
+<area shape="rect" id="Node000004" href="$class_modules_interface.html#a6ffba6477150f893dc15e4f641607c83" title=" " alt="" coords="238,136,428,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="172,109,243,129,241,134,170,114"/>
+</map>

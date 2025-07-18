@@ -1,0 +1,11 @@
+<map id="OpenGlComponent::resized" name="OpenGlComponent::resized">
+<area shape="rect" id="Node000001" title=" " alt="" coords="233,80,415,106"/>
+<area shape="rect" id="Node000002" href="$class_modulation_button.html#a391f48f11dc5ce6a5fd442459e3a76a4" title=" " alt="" coords="9,5,181,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="274,77,184,45,148,34,150,29,185,40,275,72"/>
+<area shape="rect" id="Node000003" href="$class_open_gl_multi_image.html#aa3a5fcf1159608ce4c866de5a1bd4a2f" title=" " alt="" coords="5,55,185,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="217,84,185,80,186,75,218,78"/>
+<area shape="rect" id="Node000004" href="$class_open_gl_multi_quad.html#a6612c0cd7db9548864d8ad9955077d28" title=" " alt="" coords="8,104,182,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="218,107,183,110,182,105,217,101"/>
+<area shape="rect" id="Node000005" href="$class_plain_text_component.html#a03f64fa651d59d2efa96186dfaf5fefd" title=" " alt="" coords="24,154,166,194"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="272,114,155,156,154,151,270,109"/>
+</map>

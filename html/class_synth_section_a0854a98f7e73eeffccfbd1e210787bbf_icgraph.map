@@ -1,0 +1,7 @@
+<map id="SynthSection::buttonClicked" name="SynthSection::buttonClicked">
+<area shape="rect" id="Node000001" title=" " alt="" coords="249,35,436,60"/>
+<area shape="rect" id="Node000002" href="$class_header_section.html#adb2e976918b2e5e4dd0194c0b0a64091" title=" " alt="" coords="5,5,201,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="233,37,201,33,202,28,234,31"/>
+<area shape="rect" id="Node000003" href="$class_modulation_manager.html#a67f7c500ac965510552d16feaae04236" title=" " alt="" coords="32,55,174,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="233,63,175,70,174,65,233,58"/>
+</map>

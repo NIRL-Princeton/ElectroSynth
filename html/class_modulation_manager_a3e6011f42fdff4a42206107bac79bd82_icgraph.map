@@ -1,0 +1,9 @@
+<map id="ModulationManager::showModulationAmountCallout" name="ModulationManager::showModulationAmountCallout">
+<area shape="rect" id="Node000001" title=" " alt="" coords="530,41,731,82"/>
+<area shape="rect" id="Node000002" href="$class_modulation_manager.html#a67f7c500ac965510552d16feaae04236" title=" " alt="" coords="304,5,446,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="514,48,446,38,447,33,515,43"/>
+<area shape="rect" id="Node000003" href="$class_modulation_manager.html#a22e7f8761ffe567350f951fd37667948" title=" " alt="" coords="268,70,482,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="515,81,483,85,482,80,514,75"/>
+<area shape="rect" id="Node000004" href="$class_modulation_manager.html#a24380d87d57701f6be84d048530cb558" title=" " alt="" coords="5,77,220,118"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="252,100,220,100,220,95,252,95"/>
+</map>

@@ -1,0 +1,8 @@
+<map id="OpenGlButtonComponent::text" name="OpenGlButtonComponent::text">
+<area shape="rect" id="Node000001" title=" " alt="" coords="450,5,620,46"/>
+<area shape="rect" id="Node000002" href="$class_open_gl_text_button.html#ab772224e017f941921ea44cc3857880c" title=" " alt="" coords="5,13,184,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="434,25,402,24,232,24,184,25,184,20,232,19,402,19,434,20"/>
+<area shape="rect" id="Node000003" href="$class_open_gl_button_component.html#ac33d07bba0679f8a1a28b405fe3102c1" title=" " alt="" coords="232,33,402,74"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="435,41,403,45,402,40,434,36"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="216,44,184,40,185,34,217,38"/>
+</map>

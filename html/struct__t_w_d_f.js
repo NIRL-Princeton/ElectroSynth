@@ -1,0 +1,26 @@
+var struct__t_w_d_f =
+[
+    [ "child_left", "struct__t_w_d_f.html#a47d8809f2f8d4a5b726c6df1620f44d8", null ],
+    [ "child_right", "struct__t_w_d_f.html#a0aa539251f3c2a6e2435863bb93a3738", null ],
+    [ "gamma_zero", "struct__t_w_d_f.html#aa8e3dc10a548fa28e56ff7aed83f2440", null ],
+    [ "get_port_resistance", "struct__t_w_d_f.html#a9ef3b20cd7612150068134edb4d5ebf8", null ],
+    [ "get_reflected_wave_down", "struct__t_w_d_f.html#a44626d18f4d21f16870f803ae6bf8f46", null ],
+    [ "get_reflected_wave_up", "struct__t_w_d_f.html#a577a5a12e76b7d7871d710c5134a2cc6", null ],
+    [ "incident_wave_left", "struct__t_w_d_f.html#a538331faccdecc1c91db7c4d3d9198c2", null ],
+    [ "incident_wave_right", "struct__t_w_d_f.html#a86f8aa19d654fd26f9d922a1fc1fccdd", null ],
+    [ "incident_wave_up", "struct__t_w_d_f.html#a27b677dcda58806a5f3a93d7c08f81c7", null ],
+    [ "mempool", "struct__t_w_d_f.html#a81a1725f3cb90c0cf7b47d5d0f6e8e0e", null ],
+    [ "port_conductance_left", "struct__t_w_d_f.html#a171873b6609c262b5c0587546ecdfd47", null ],
+    [ "port_conductance_right", "struct__t_w_d_f.html#a38f195804173f0d59af009d49597e7fb", null ],
+    [ "port_conductance_up", "struct__t_w_d_f.html#a2dad620600154a1e5d9d5176ece201f1", null ],
+    [ "port_resistance_left", "struct__t_w_d_f.html#a9120872b50242bc297097958508f0ac4", null ],
+    [ "port_resistance_right", "struct__t_w_d_f.html#a5c2e75ae5fbcdb398d83db8b1b01afc1", null ],
+    [ "port_resistance_up", "struct__t_w_d_f.html#ac7a1cf9cf055d6716ead03f280cc7240", null ],
+    [ "reflected_wave_left", "struct__t_w_d_f.html#a4172ce3034f0482a905dd47878df2b32", null ],
+    [ "reflected_wave_right", "struct__t_w_d_f.html#a1e4268bc4c0114888d64e72ef5340aec", null ],
+    [ "reflected_wave_up", "struct__t_w_d_f.html#a685ba231e5fb8534bccfc55c70ebb749", null ],
+    [ "sample_rate", "struct__t_w_d_f.html#a98f7765c5ba6f998229ee59250d76d56", null ],
+    [ "set_incident_wave", "struct__t_w_d_f.html#ac36424dea913be2b7714d17c22bf63cf", null ],
+    [ "type", "struct__t_w_d_f.html#a5686fc910890e1d4c9ae15f3dbb41663", null ],
+    [ "value", "struct__t_w_d_f.html#adbc245e22a3bf9c82ff5937c2a957717", null ]
+];

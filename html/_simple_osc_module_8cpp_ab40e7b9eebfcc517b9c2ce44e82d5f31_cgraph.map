@@ -1,0 +1,10 @@
+<map id="tOscModule_tick" name="tOscModule_tick">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,79,125,104"/>
+<area shape="rect" id="Node000002" href="$leaf-math_8h.html#a8044ffce5759b3214e2582db877fd084" title=" " alt="" coords="222,29,270,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="114,75,207,50,208,55,116,81"/>
+<area shape="rect" id="Node000003" href="$leaf-envelopes_8c.html#a466b28cf3b04814007f041b2fe6e58f5" title=" " alt="" coords="173,79,319,104"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="125,89,157,89,157,94,125,94"/>
+<area shape="rect" id="Node000004" href="$leaf-envelopes_8c.html#a2fd81d1c4be199a187fb1211af8661d3" title=" " alt="" coords="185,128,306,154"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="116,102,182,121,181,126,114,108"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="220,34,210,24,211,13,224,5,246,3,274,8,281,14,282,21,277,22,276,16,272,12,246,8,226,10,216,16,215,22,224,30"/>
+</map>

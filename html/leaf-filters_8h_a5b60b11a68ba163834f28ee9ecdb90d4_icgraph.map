@@ -1,0 +1,9 @@
+<map id="tThiranAllpassSOCascade_setCoeff" name="tThiranAllpassSOCascade_setCoeff">
+<area shape="rect" id="Node000001" title=" " alt="" coords="355,23,530,64"/>
+<area shape="rect" id="Node000002" href="$leaf-physical_8c.html#afc2a797d85996300c7ad7ccc500b2a35" title=" " alt="" coords="160,5,292,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="340,34,291,28,292,23,340,29"/>
+<area shape="rect" id="Node000004" href="$leaf-physical_8c.html#a8ffc6e708b3b55d68543e14c7f268c1b" title=" " alt="" coords="145,55,307,80"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="340,58,308,61,307,56,339,52"/>
+<area shape="rect" id="Node000003" href="$leaf-physical_8c.html#ae1ebcb618a511cb6638867e81516eec9" title=" " alt="" coords="5,5,97,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="145,21,97,21,97,16,145,16"/>
+</map>

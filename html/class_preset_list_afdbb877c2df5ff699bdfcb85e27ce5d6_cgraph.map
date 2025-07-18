@@ -1,0 +1,11 @@
+<map id="PresetList::getScrollableRange" name="PresetList::getScrollableRange">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,23,169,64"/>
+<area shape="rect" id="Node000002" href="$class_preset_list.html#ac3d7e4125ac06e07483b63b6e750c10b" title=" " alt="" coords="223,5,394,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="169,31,208,27,208,32,170,37"/>
+<area shape="rect" id="Node000003" href="$class_synth_section.html#ae0397399d283628b325650e0b7b60c6f" title=" " alt="" coords="217,55,401,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="170,50,201,53,201,58,169,55"/>
+<area shape="rect" id="Node000004" href="$class_synth_section.html#aa01a2cf1cb512707d217490aa89a8b2f" title=" " alt="" coords="449,55,609,80"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="401,65,434,65,434,70,401,70"/>
+<area shape="rect" id="Node000005" href="$class_skin.html#a9ce18118f19d0503a1581ec8521b7c9b" title=" " alt="" coords="657,55,816,80"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="610,65,642,65,642,70,610,70"/>
+</map>

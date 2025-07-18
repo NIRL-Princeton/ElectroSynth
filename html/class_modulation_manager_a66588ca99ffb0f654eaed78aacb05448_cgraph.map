@@ -1,0 +1,30 @@
+<map id="ModulationManager::endModulationMap" name="ModulationManager::endModulationMap">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,153,148,194"/>
+<area shape="rect" id="Node000002" href="$class_modulation_manager.html#a505d68a809f82cf7574e28445cde03ca" title=" " alt="" coords="204,64,402,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="117,150,195,115,215,108,217,113,197,120,119,155"/>
+<area shape="rect" id="Node000003" href="$class_modulation_manager.html#aa99fdf280ea7e8a77be2a7b99ac9475b" title=" " alt="" coords="196,153,410,194"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="148,171,180,171,180,176,148,176"/>
+<area shape="rect" id="Node000004" href="$class_modulation_manager.html#a9d6158c243e5044fcd791e80c00b191d" title=" " alt="" coords="226,219,380,259"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="149,192,216,211,215,216,147,197"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="260,153,258,143,265,134,280,129,303,127,327,129,342,135,340,140,326,134,303,132,281,134,268,139,263,145,265,152"/>
+<area shape="rect" id="Node000005" href="$classelectrosynth_1_1_modulation_connection_bank.html#a8c15c5b53d23641fc1eb63876e06504e" title=" " alt="" coords="483,5,651,46"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="379,223,408,204,422,186,429,169,431,132,434,95,442,76,456,57,468,47,471,52,460,61,446,78,439,96,437,132,434,170,426,189,412,208,382,227"/>
+<area shape="rect" id="Node000006" href="$structelectrosynth_1_1_modulation_connection.html#a32008bfbe7b39c0c95829311589981b1" title=" " alt="" coords="458,71,676,111"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="379,220,408,204,424,184,431,163,439,142,456,121,461,117,464,122,460,125,443,145,436,165,429,187,412,208,382,225"/>
+<area shape="rect" id="Node000007" href="$class_synth_base.html#ae52dfe228270655971aea89f7346ad99" title=" " alt="" coords="465,136,669,161"/>
+<area shape="poly" id="edge7_Node000004_Node000007" title=" " alt="" coords="379,216,409,203,432,187,457,171,477,164,479,169,459,176,435,192,411,208,381,221"/>
+<area shape="rect" id="Node000008" href="$class_synth_gui_interface.html#a4e948c6a5558b838582d7476f079251d" title=" " alt="" coords="500,185,634,226"/>
+<area shape="poly" id="edge8_Node000004_Node000008" title=" " alt="" coords="380,227,484,213,485,219,381,232"/>
+<area shape="rect" id="Node000009" href="$structelectrosynth_1_1_modulation_connection.html#a43a1e92639225584680a2b6ae403e77e" title=" " alt="" coords="486,251,649,291"/>
+<area shape="poly" id="edge9_Node000004_Node000009" title=" " alt="" coords="381,246,470,257,470,262,380,251"/>
+<area shape="rect" id="Node000010" href="$structelectrosynth_1_1_modulation_connection.html#a75ea37859c78550f0a9f768ea559e190" title=" " alt="" coords="486,316,649,357"/>
+<area shape="poly" id="edge10_Node000004_Node000010" title=" " alt="" coords="352,257,459,301,481,308,479,313,457,305,350,262"/>
+<area shape="rect" id="Node000011" href="$structelectrosynth_1_1_modulation_connection.html#a1d2c6d70c175c3557c56cfaf650c075d" title=" " alt="" coords="486,381,649,422"/>
+<area shape="poly" id="edge11_Node000004_Node000011" title=" " alt="" coords="325,258,382,312,420,341,459,366,473,373,470,377,457,371,416,345,379,316,322,262"/>
+<area shape="rect" id="Node000012" href="$class_modulation_manager.html#a3e8e1ba31f8ebc56d84eb984b1a15ad3" title=" " alt="" coords="480,447,654,487"/>
+<area shape="poly" id="edge12_Node000004_Node000012" title=" " alt="" coords="317,258,339,295,371,342,411,390,460,432,469,437,466,442,456,436,408,394,366,345,334,298,312,261"/>
+<area shape="rect" id="Node000013" href="$class_modulation_manager.html#a9c53b6c34003a18ff139b10b0391b5aa" title=" " alt="" coords="724,413,893,454"/>
+<area shape="poly" id="edge13_Node000012_Node000013" title=" " alt="" coords="654,452,709,445,709,450,655,458"/>
+<area shape="rect" id="Node000014" href="$class_modulation_manager.html#a1669597a01afc6041842bc63598b8545" title=" " alt="" coords="725,479,892,519"/>
+<area shape="poly" id="edge14_Node000012_Node000014" title=" " alt="" coords="655,476,710,483,709,489,654,481"/>
+</map>

@@ -1,0 +1,34 @@
+<map id="OpenGlComponent::setScissorBounds" name="OpenGlComponent::setScissorBounds">
+<area shape="rect" id="Node000001" title=" " alt="" coords="767,113,970,154"/>
+<area shape="rect" id="Node000002" href="$class_effect_module_section.html#a92c0d2550e84a8969d7897d18f0515e1" title=" " alt="" coords="547,5,689,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="810,109,718,67,674,49,676,44,720,62,812,104"/>
+<area shape="rect" id="Node000004" href="$class_audio_chain_section.html#a0bf01486b235aa5503d5a413136889c5" title=" " alt="" coords="38,11,214,51"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="758,112,719,106,600,90,507,81,414,74,294,60,214,48,214,43,295,55,414,69,507,76,601,84,720,100,759,107"/>
+<area shape="rect" id="Node000005" href="$class_modules_interface.html#a3a81316f3663769f2b8b4608c6e2cef6" title=" " alt="" coords="43,76,209,117"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="752,131,209,103,209,98,752,125"/>
+<area shape="rect" id="Node000006" href="$class_preset_list.html#a498e6b9d297eb7ac4003b0c34ce4287f" title=" " alt="" coords="42,436,210,477"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="845,168,792,228,758,260,721,288,657,324,590,355,520,381,450,402,319,433,211,450,210,445,318,428,449,397,518,376,588,350,655,319,718,283,754,256,788,225,841,165"/>
+<area shape="rect" id="Node000007" href="$class_open_gl_component.html#acbffca8e69957f7f58b66b3d3724d1a9" title=" " alt="" coords="517,248,719,273"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="814,164,647,249,644,245,812,159"/>
+<area shape="rect" id="Node000003" href="$class_effect_module_section.html#ab093420dc7d066b8565298ccb260a2d0" title=" " alt="" coords="307,5,457,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="531,28,457,28,457,23,531,23"/>
+<area shape="rect" id="Node000008" href="$class_open_gl_image_component.html#ad35ef1d8a11f67a54fa658bc9fac4793" title=" " alt="" coords="298,272,466,313"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="504,279,467,284,466,278,503,273"/>
+<area shape="rect" id="Node000009" href="$class_open_gl_multi_quad.html#a4e30eb161abeeb1dbc07455fe390f8fa" title=" " alt="" coords="298,337,466,362"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="576,282,470,327,433,339,432,334,468,322,574,278"/>
+<area shape="rect" id="Node000010" href="$class_synth_section.html#a0b94a0f0b660853bfb868c2ece290d33" title=" " alt="" coords="295,207,469,247"/>
+<area shape="poly" id="edge9_Node000007_Node000010" title=" " alt="" coords="507,247,469,242,470,237,508,242"/>
+<area shape="poly" id="edge12_Node000010_Node000004" title=" " alt="" coords="359,195,312,129,281,95,245,67,213,51,215,46,248,62,285,91,317,125,363,191"/>
+<area shape="poly" id="edge15_Node000010_Node000005" title=" " alt="" coords="344,198,299,164,245,132,208,117,210,112,248,127,302,159,347,194"/>
+<area shape="poly" id="edge17_Node000010_Node000006" title=" " alt="" coords="300,259,297,262,282,282,276,303,274,344,272,385,265,406,249,426,231,439,211,448,209,444,228,435,245,422,260,403,267,384,269,343,271,302,278,280,293,259,296,255"/>
+<area shape="rect" id="Node000011" href="$class_full_interface.html#a0b2ef783ffe0ac5f3a9d76b0c72fb033" title=" " alt="" coords="33,386,219,412"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="301,258,297,262,285,276,279,290,274,319,269,349,262,363,248,377,220,393,218,388,245,373,257,360,264,347,269,319,274,289,281,274,293,259,297,254"/>
+<area shape="rect" id="Node000012" href="$class_about_section.html#a4b879e712ee9360bb5774eeab652068e" title=" " alt="" coords="39,141,213,182"/>
+<area shape="poly" id="edge11_Node000010_Node000012" title=" " alt="" coords="284,205,208,185,209,180,285,200"/>
+<area shape="rect" id="Node000013" href="$class_modulation_manager.html#a0d016f4d8084296a80c4e01d52b8a82d" title=" " alt="" coords="38,207,214,247"/>
+<area shape="poly" id="edge13_Node000010_Node000013" title=" " alt="" coords="279,230,214,230,214,224,279,224"/>
+<area shape="rect" id="Node000014" href="$class_modulation_module_section.html#a5ff1e78d6d849feae7814624949d52cc" title=" " alt="" coords="34,272,218,313"/>
+<area shape="poly" id="edge14_Node000010_Node000014" title=" " alt="" coords="285,254,209,274,208,269,284,249"/>
+<area shape="rect" id="Node000015" href="$class_popup_list.html#a60ed25b1e7b3e2665d886a7c15cf4894" title=" " alt="" coords="5,337,247,362"/>
+<area shape="poly" id="edge16_Node000010_Node000015" title=" " alt="" coords="304,257,296,262,282,278,274,294,265,311,248,327,224,339,221,334,245,322,261,308,269,292,277,275,293,258,300,253"/>
+</map>

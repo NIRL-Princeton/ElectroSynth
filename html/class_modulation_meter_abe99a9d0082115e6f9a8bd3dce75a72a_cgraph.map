@@ -1,0 +1,15 @@
+<map id="ModulationMeter::setActive" name="ModulationMeter::setActive">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,42,186,68"/>
+<area shape="rect" id="Node000002" href="$class_modulation_meter.html#a96fbd3002d279d59f16c2577abea18b3" title=" " alt="" coords="243,5,416,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="186,41,227,36,227,41,187,46"/>
+<area shape="rect" id="Node000003" href="$class_modulation_meter.html#a849b598d0b9b8b0155c2ae04f67fd4a1" title=" " alt="" coords="234,70,425,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="187,63,218,67,218,72,186,68"/>
+<area shape="rect" id="Node000004" href="$class_modulation_meter.html#aa1a972ef88a8416d13d66726898fcc19" title=" " alt="" coords="473,63,649,103"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="425,80,457,80,457,86,425,86"/>
+<area shape="rect" id="Node000005" href="$class_synth_section.html#afe5de4142a66eb31ff00c178fc4188e0" title=" " alt="" coords="697,70,903,96"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="650,80,682,80,682,86,650,86"/>
+<area shape="rect" id="Node000006" href="$class_synth_section.html#aa01a2cf1cb512707d217490aa89a8b2f" title=" " alt="" coords="951,70,1111,96"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="903,80,935,80,935,86,903,86"/>
+<area shape="rect" id="Node000007" href="$class_skin.html#a9ce18118f19d0503a1581ec8521b7c9b" title=" " alt="" coords="1159,70,1317,96"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="1111,80,1144,80,1144,86,1111,86"/>
+</map>

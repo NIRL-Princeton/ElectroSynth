@@ -1,0 +1,21 @@
+<map id="SynthGuiInterface::openLoadDialog" name="SynthGuiInterface::openLoadDialog">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,140,79"/>
+<area shape="rect" id="Node000002" href="$class_synth_gui_interface.html#aa55d27bbae5a7510b9b6487b980128ef" title=" " alt="" coords="188,5,322,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="140,44,172,38,173,43,141,49"/>
+<area shape="rect" id="Node000003" href="$class_synth_gui_interface.html#acf1cccc3bf3d4cd5f8d5a201a45e64b8" title=" " alt="" coords="188,71,322,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="141,68,173,74,172,79,140,73"/>
+<area shape="rect" id="Node000004" href="$class_synth_gui_interface.html#a4e948c6a5558b838582d7476f079251d" title=" " alt="" coords="387,41,521,82"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="322,79,371,71,372,76,323,84"/>
+<area shape="rect" id="Node000005" href="$class_synth_base.html#a4c958338fecc54e0db606ab236253492" title=" " alt="" coords="370,106,538,132"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="323,98,355,102,354,108,322,103"/>
+<area shape="rect" id="Node000006" href="$class_synth_base.html#aa01fc274a43910828fe96b66bb6da06e" title=" " alt="" coords="598,28,780,53"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="506,103,537,91,561,76,585,62,602,56,604,61,587,67,564,81,540,96,508,108"/>
+<area shape="rect" id="Node000007" href="$class_synth_base.html#a343ed6ffdc7ee60e1174f98592805e27" title=" " alt="" coords="586,77,792,102"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="538,106,571,102,571,107,539,111"/>
+<area shape="rect" id="Node000009" href="$class_synth_gui_interface.html#aee2dc7c0d91f1dc959225d2e2edade26" title=" " alt="" coords="622,127,756,167"/>
+<area shape="poly" id="edge8_Node000005_Node000009" title=" " alt="" coords="539,126,607,135,606,140,538,132"/>
+<area shape="rect" id="Node000010" href="$class_synth_gui_interface.html#ae026d18eef053aed9d73797400f236d4" title=" " alt="" coords="622,192,756,233"/>
+<area shape="poly" id="edge9_Node000005_Node000010" title=" " alt="" coords="483,130,587,177,608,184,606,189,585,181,481,135"/>
+<area shape="rect" id="Node000008" href="$class_synth_base.html#a61c53ea8670b76df78930447a3e57453" title=" " alt="" coords="840,77,1033,102"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="792,87,824,87,824,92,792,92"/>
+</map>

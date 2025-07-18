@@ -1,0 +1,27 @@
+var struct__t_filt_module =
+[
+    [ "amp", "struct__t_filt_module.html#ae45ce2abe1f1243026c2c0a23c2475b0", null ],
+    [ "cutoffKnob", "struct__t_filt_module.html#ad7ee549f469ca1947c20be716584fbca", null ],
+    [ "dbTableAddress", "struct__t_filt_module.html#aa2756ede4cab7a8ece59d61b3196fc83", null ],
+    [ "dbTableOffset", "struct__t_filt_module.html#a0d31ffd4dc668b9c5e9db1f2c1847424", null ],
+    [ "dbTableScalar", "struct__t_filt_module.html#ac93f193dbecdd2d147ec33f171a45ed6", null ],
+    [ "dbTableSizeMinusOne", "struct__t_filt_module.html#a9244a244228fb07ba29f5fb3477a9966", null ],
+    [ "freq_set_func", "struct__t_filt_module.html#a56fae3317c751281e84c33bc40137907", null ],
+    [ "gain_set_func", "struct__t_filt_module.html#a8cce3ad3e3c210b23f86a7cc5ff108d8", null ],
+    [ "inputNote", "struct__t_filt_module.html#a1b0fd685806890c8ac9772dbf8e8594e", null ],
+    [ "inputs", "struct__t_filt_module.html#ad0ae6537614446275d331255a0b24878", null ],
+    [ "invSr", "struct__t_filt_module.html#adcd7a79a50604898f9ed43532c505fd1", null ],
+    [ "keyFollow", "struct__t_filt_module.html#aadd92178d34af4757b85a309bde2db6a", null ],
+    [ "mempool", "struct__t_filt_module.html#addbda27a4a6dad4b0f03add6a993193b", null ],
+    [ "moduleType", "struct__t_filt_module.html#a50aa8d75d68ae25d09debd56e654f6d9", null ],
+    [ "outputs", "struct__t_filt_module.html#ab8f86110c8c0cc3a14ac9d7328d67db5", null ],
+    [ "params", "struct__t_filt_module.html#a7596b264d5c31171bcc9e78eb84a615c", null ],
+    [ "Q_set_func", "struct__t_filt_module.html#a7a3c673e613c7accaf09ba3886e01681", null ],
+    [ "resTableAddress", "struct__t_filt_module.html#abaaf5b5552ad77bae13e817b53dffad7", null ],
+    [ "resTableSizeMinusOne", "struct__t_filt_module.html#a9c73bcabed4290b1e51c356264b7b6df", null ],
+    [ "setterFunctions", "struct__t_filt_module.html#ab79c048c13d89ae211eb401127c56f07", null ],
+    [ "sr", "struct__t_filt_module.html#a4a892f6574c7d01a6e28bc27d33152fd", null ],
+    [ "theFilt", "struct__t_filt_module.html#ae4a9fefdb8786c6c88bc92f08c9312e3", null ],
+    [ "tick", "struct__t_filt_module.html#a6a0005489de2d6db0edaab19abf4ef3e", null ],
+    [ "uniqueID", "struct__t_filt_module.html#a4d44af81dfba50eda38a3c814887d98b", null ]
+];

@@ -1,0 +1,12 @@
+<map id="AboutSection::AboutSection" name="AboutSection::AboutSection">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,191,56"/>
+<area shape="rect" id="Node000002" href="$class_synth_section.html#a106e35d5a7f591a72016b2a595d33e43" title=" " alt="" coords="406,5,645,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="191,35,391,23,391,29,191,41"/>
+<area shape="rect" id="Node000003" href="$class_overlay.html#a001af01a202d283963becb340a106593" title=" " alt="" coords="239,56,358,82"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="192,53,223,57,223,62,191,58"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="351,53,405,40,440,32,441,37,407,45,352,58"/>
+<area shape="rect" id="Node000004" href="$class_synth_section.html#ae4b092420f64f8d195dd2fdb406bfccf" title=" " alt="" coords="426,55,626,80"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="358,66,410,66,410,71,358,71"/>
+<area shape="rect" id="Node000005" href="$class_synth_section.html#aacbd2a0f89359676471964d630ca9c21" title=" " alt="" coords="433,104,618,130"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="359,80,407,90,442,98,441,103,405,95,358,85"/>
+</map>

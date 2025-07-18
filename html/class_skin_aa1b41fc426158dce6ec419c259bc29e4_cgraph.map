@@ -1,0 +1,10 @@
+<map id="Skin::setComponentValues" name="Skin::setComponentValues">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,185,31"/>
+<area shape="rect" id="Node000002" href="$class_synth_section.html#a321e84f19d1ed459f007027254ad8e16" title=" " alt="" coords="233,5,423,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="185,24,217,24,217,30,185,30"/>
+<area shape="poly" id="edge4_Node000002_Node000001" title=" " alt="" coords="232,12,201,12,201,7,232,7"/>
+<area shape="rect" id="Node000003" href="$class_skin.html#a6604addefe3496634f4ed20756a0b97c" title=" " alt="" coords="471,5,649,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="423,16,455,16,455,21,423,21"/>
+<area shape="rect" id="Node000004" href="$class_skin.html#a31e3f1f281fead4256c5b093d51f8ec9" title=" " alt="" coords="697,5,802,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="650,16,682,16,682,21,650,21"/>
+</map>

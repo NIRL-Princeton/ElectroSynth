@@ -1,0 +1,9 @@
+<map id="ModulesContainer::paintBackground" name="ModulesContainer::paintBackground">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,46,237,72"/>
+<area shape="rect" id="Node000002" href="$class_synth_section.html#a623774aef917521bc02344077422832e" title=" " alt="" coords="285,5,468,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="224,43,269,37,270,42,225,48"/>
+<area shape="rect" id="Node000003" href="$class_synth_section.html#a6b2a568f009ee5b885ec949a41d9d779" title=" " alt="" coords="285,71,468,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="229,70,270,75,269,80,228,75"/>
+<area shape="rect" id="Node000004" href="$class_synth_section.html#aafa7f9d6160e6f4ce67ac859e2deb9ed" title=" " alt="" coords="516,71,681,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="468,88,500,88,500,94,468,94"/>
+</map>

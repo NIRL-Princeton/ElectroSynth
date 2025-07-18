@@ -70,6 +70,26 @@ SynthGuiInterface::SynthGuiInterface(SynthBase* synth, bool use_gui) : synth_(sy
 
 SynthGuiInterface::~SynthGuiInterface() { }
 
+bool SynthGuiInterface::perform(const InvocationInfo & info) {
+    {
+        switch (info.commandID) {
+            case undo:
+            {
+                synth_->um.undo();
+                // juce::AlertWindow::showMessageBoxAsync(juce::AlertWindow::InfoIcon, "Undo", " Undo triggered");
+                return true;
+            }
+            case redo:
+            {
+                juce::AlertWindow::showMessageBoxAsync(juce::AlertWindow::InfoIcon, "Redo", "Redo triggered");
+                return true;
+            }
+            default:
+                return false;
+        }
+    }
+}
+
 void SynthGuiInterface::updateFullGui() {
   if (gui_ == nullptr)
     return;

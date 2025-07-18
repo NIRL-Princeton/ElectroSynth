@@ -1,0 +1,5 @@
+<map id="tSimplePoly_isOn" name="tSimplePoly_isOn">
+<area shape="rect" id="Node000001" title="Get the current play state of a given voice." alt="" coords="231,13,356,38"/>
+<area shape="rect" id="Node000002" href="$classelectrosynth_1_1_sound_engine.html#aa44febde7c08c0cdaade47ddfba19e7d" title=" " alt="" coords="5,5,183,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="215,28,183,28,183,23,215,23"/>
+</map>

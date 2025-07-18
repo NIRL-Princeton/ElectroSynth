@@ -1,0 +1,27 @@
+<map id="SynthSlider::drawShadow" name="SynthSlider::drawShadow">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,81,177,107"/>
+<area shape="rect" id="Node000002" href="$class_synth_slider.html#aad2ba150a0b6cad889a6e316da1a294a" title=" " alt="" coords="225,56,435,82"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="177,82,209,79,210,84,177,88"/>
+<area shape="rect" id="Node000003" href="$class_synth_slider.html#a6ae11745343c02eecfc10c7701b07e83" title=" " alt="" coords="503,5,652,31"/>
+<area shape="poly" id="edge5_Node000001_Node000003" title=" " alt="" coords="119,78,167,58,224,41,292,29,362,21,487,15,487,20,362,26,293,34,225,46,169,63,121,83"/>
+<area shape="rect" id="Node000006" href="$class_curve_look_and_feel.html#af6028cf5c3b146cd26458bcb53ec01a6" title=" " alt="" coords="483,128,672,154"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="177,100,468,128,467,133,177,105"/>
+<area shape="rect" id="Node000008" href="$class_open_gl_slider.html#a4b3ac6a2a46dcaaa025f584ad26b7199" title=" " alt="" coords="235,157,425,183"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="132,105,225,136,270,150,269,155,224,141,131,110"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="396,53,496,32,497,37,397,58"/>
+<area shape="rect" id="Node000005" href="$class_open_gl_slider.html#afb98992928c2b58b61d96cadfaa8cb8c" title=" " alt="" coords="501,55,654,80"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="435,66,485,65,485,71,436,71"/>
+<area shape="rect" id="Node000004" href="$class_open_gl_slider.html#a256a6d4c64853c43cbf3200444fd211d" title=" " alt="" coords="742,5,902,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="653,16,727,16,727,21,653,21"/>
+<area shape="poly" id="edge8_Node000006_Node000006" title=" " alt="" coords="537,129,529,119,534,109,551,103,578,101,608,104,623,111,621,116,607,109,578,107,552,109,538,114,535,119,541,126"/>
+<area shape="rect" id="Node000007" href="$class_curve_look_and_feel.html#af49ba9562100d2f1670e5dfc7ab5733e" title=" " alt="" coords="720,112,924,153"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="673,135,705,134,705,139,673,140"/>
+<area shape="poly" id="edge10_Node000008_Node000006" title=" " alt="" coords="425,156,467,151,468,157,426,162"/>
+<area shape="rect" id="Node000009" href="$class_open_gl_slider.html#a2110b50988a7a944eb94e797addfc2d1" title=" " alt="" coords="507,185,648,211"/>
+<area shape="poly" id="edge11_Node000008_Node000009" title=" " alt="" coords="426,178,492,186,491,191,425,184"/>
+<area shape="rect" id="Node000010" href="$class_text_look_and_feel.html#a3723dc598c94042165d4981963649828" title=" " alt="" coords="732,201,912,227"/>
+<area shape="poly" id="edge12_Node000009_Node000010" title=" " alt="" coords="649,200,717,205,717,210,649,205"/>
+<area shape="poly" id="edge13_Node000010_Node000010" title=" " alt="" coords="782,203,774,193,779,183,795,177,822,175,852,177,867,185,865,189,851,183,822,180,796,182,783,187,780,192,786,199"/>
+<area shape="rect" id="Node000011" href="$class_text_look_and_feel.html#a48831b370d4897c9a018842d531c8210" title=" " alt="" coords="972,194,1155,234"/>
+<area shape="poly" id="edge14_Node000010_Node000011" title=" " alt="" coords="912,212,956,212,956,217,912,217"/>
+</map>

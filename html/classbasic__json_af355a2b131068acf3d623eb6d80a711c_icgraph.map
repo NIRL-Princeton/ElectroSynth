@@ -1,0 +1,15 @@
+<map id="basic_json::is_object" name="basic_json::is_object">
+<area shape="rect" id="Node000001" title="return whether value is an object" alt="" coords="672,136,816,161"/>
+<area shape="rect" id="Node000002" href="$classbasic__json.html#a5699c685383c0e4c824a084cb36e99ba" title=" " alt="" coords="457,71,624,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="680,133,615,115,616,109,682,128"/>
+<area shape="rect" id="Node000005" href="$classbasic__json.html#a8676ac2433fe299b8d420f00a0741395" title=" " alt="" coords="5,100,205,141"/>
+<area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="657,147,205,127,205,122,657,142"/>
+<area shape="rect" id="Node000006" href="$classbasic__json.html#a693812b31e106dec9166e93d8f6dd7d7" title=" " alt="" coords="462,186,619,242"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="688,169,620,191,618,186,687,164"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="574,57,561,52,541,49,521,51,510,56,505,62,507,69,502,71,500,61,506,52,520,46,541,44,563,46,576,53"/>
+<area shape="rect" id="Node000003" href="$classbasic__json.html#a437b81c6e968a4192a22bc0de6c4df80" title=" " alt="" coords="253,5,409,46"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="458,68,398,49,400,44,460,63"/>
+<area shape="rect" id="Node000004" href="$classbasic__json.html#a7d0fef086b1b72372113db6ce7446189" title=" " alt="" coords="253,71,409,111"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="442,94,410,94,410,88,442,88"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="237,106,206,110,205,105,237,101"/>
+</map>

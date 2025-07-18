@@ -37,7 +37,7 @@ std::unique_ptr<SynthSection> RoutingProcessor::createEditor() {
 
 }
 
-void RoutingProcessor::processBlock(juce::AudioBuffer<float> &, juce::MidiBuffer &) {
+void RoutingProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuffer &) {
     int numSamples = buffer.getNumSamples();
     //buffer.clear();
 

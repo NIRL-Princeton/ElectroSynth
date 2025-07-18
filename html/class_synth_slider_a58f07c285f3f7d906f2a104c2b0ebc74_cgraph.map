@@ -1,0 +1,14 @@
+<map id="SynthSlider::setRotaryTextEntryBounds" name="SynthSlider::setRotaryTextEntryBounds">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,35,184,76"/>
+<area shape="rect" id="Node000002" href="$class_synth_slider.html#a6ae11745343c02eecfc10c7701b07e83" title=" " alt="" coords="232,12,381,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="184,40,216,35,217,40,184,45"/>
+<area shape="rect" id="Node000004" href="$class_open_gl_slider.html#a2110b50988a7a944eb94e797addfc2d1" title=" " alt="" coords="236,67,377,92"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="184,63,221,67,220,72,184,68"/>
+<area shape="rect" id="Node000003" href="$class_open_gl_slider.html#a256a6d4c64853c43cbf3200444fd211d" title=" " alt="" coords="439,5,598,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="382,20,423,18,423,24,382,25"/>
+<area shape="rect" id="Node000005" href="$class_text_look_and_feel.html#a3723dc598c94042165d4981963649828" title=" " alt="" coords="429,79,608,104"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="378,81,413,83,413,88,377,86"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="483,80,476,70,481,60,495,54,519,52,545,55,558,62,556,66,543,60,519,57,496,59,484,64,482,69,488,77"/>
+<area shape="rect" id="Node000006" href="$class_text_look_and_feel.html#a48831b370d4897c9a018842d531c8210" title=" " alt="" coords="656,71,840,112"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="609,89,640,89,640,94,609,94"/>
+</map>

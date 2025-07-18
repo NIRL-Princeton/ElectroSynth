@@ -1,0 +1,22 @@
+<map id="PresetList::reloadPresets" name="PresetList::reloadPresets">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,153,174,179"/>
+<area shape="rect" id="Node000002" href="$class_preset_list.html#a4bcfaf354719058cff066e516530fb6e" title=" " alt="" coords="222,128,373,154"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="174,153,206,149,207,155,175,159"/>
+<area shape="rect" id="Node000010" href="$class_preset_list.html#a3caffe733c3990c671c4bf5fb3d573b6" title=" " alt="" coords="242,177,352,203"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="175,173,227,179,227,185,174,179"/>
+<area shape="rect" id="Node000003" href="$class_preset_list.html#a011fe02fa648998b28e3f9da693a1d02" title=" " alt="" coords="421,128,619,154"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="373,138,405,138,405,144,373,144"/>
+<area shape="rect" id="Node000004" href="$class_synth_section.html#a78dd0f15e5945a73e881ed882173358e" title=" " alt="" coords="667,5,867,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="535,125,591,83,627,60,666,40,681,34,683,39,668,45,630,65,594,88,539,130"/>
+<area shape="rect" id="Node000005" href="$class_preset_list.html#ac3d7e4125ac06e07483b63b6e750c10b" title=" " alt="" coords="681,55,853,80"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="558,125,667,89,692,82,694,87,668,94,559,130"/>
+<area shape="rect" id="Node000006" href="$class_fonts.html#ae7669a3eeb9db437c7d34feff9e99707" title=" " alt="" coords="711,128,823,154"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="620,138,696,138,696,144,620,144"/>
+<area shape="rect" id="Node000008" href="$class_fonts.html#ad3f42cf6c33957340cc7689bca94b90a" title=" " alt="" coords="702,178,832,218"/>
+<area shape="poly" id="edge8_Node000003_Node000008" title=" " alt="" coords="579,152,688,177,687,182,578,157"/>
+<area shape="rect" id="Node000009" href="$class_paths.html#a41c5322b6e8cb88b26e0e177078d9843" title=" " alt="" coords="724,243,810,268"/>
+<area shape="poly" id="edge9_Node000003_Node000009" title=" " alt="" coords="541,152,596,189,668,228,710,242,708,247,666,233,594,194,538,156"/>
+<area shape="poly" id="edge7_Node000006_Node000006" title=" " alt="" coords="734,129,728,119,732,110,745,103,767,101,791,104,803,111,801,116,789,109,767,107,746,109,736,113,733,119,739,126"/>
+<area shape="rect" id="Node000007" href="$class_fonts.html#a45eefc38057ad57973216627645d60c9" title=" " alt="" coords="915,128,1010,154"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="823,138,899,138,899,144,823,144"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="Paths::exitX" name="Paths::exitX">
+<area shape="rect" id="Node000001" title=" " alt="" coords="255,70,348,96"/>
+<area shape="rect" id="Node000002" href="$class_modulation_section.html#a803b7d5d26e4a8e95f6f95ae9206f7b3" title=" " alt="" coords="38,5,174,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="239,68,174,48,175,43,241,63"/>
+<area shape="rect" id="Node000003" href="$class_module_section.html#a1b0b1d6895f4a602026f5ec35d9523a9" title=" " alt="" coords="5,70,207,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="239,86,207,86,207,80,239,80"/>
+<area shape="rect" id="Node000004" href="$class_sound_module_section.html#af5868fcc0765daf7d95fede97f0fc925" title=" " alt="" coords="30,120,182,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="241,103,179,122,177,117,240,98"/>
+</map>
