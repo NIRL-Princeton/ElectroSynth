@@ -19,7 +19,7 @@ namespace electrosynth{
 
 struct StringParams : public LEAFParams<_tStringModule>
 {
-    StringParams(LEAF* leaf) : LEAFParams<_tStringModule>(leaf)
+    StringParams(LEAF* leaf,juce::TimeSliceThread & m) : LEAFParams<_tStringModule>(leaf,m)
     {
         add(
             oversample, freq, waveLength, dampFreq, decay, targetLevel,

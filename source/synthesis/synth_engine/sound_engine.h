@@ -174,7 +174,7 @@ namespace electrosynth {
 //      Value* legato_;
 //      Decimator* decimator_;
 //      PeakMeter* peak_meter_;
-
+        juce::TimeSliceThread paramThread{"paramchangethread"};
 //      std::unique_ptr<BufferDebugger> bufferDebugger;
       JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SoundEngine)
   };

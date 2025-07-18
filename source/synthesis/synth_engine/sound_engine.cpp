@@ -62,10 +62,12 @@ namespace electrosynth {
         //temp_voice_buffer.set
         for (auto &buffer: temp_fx_buffers)
             buffer.setSize(MAX_NUM_VOICES * 2, 1);
+        paramThread.startThread();
     }
 
     SoundEngine::~SoundEngine() {
         //voice_handler_->prepareDestroy();
+        paramThread.stopThread(1000); // Give it up to 1 second to stop
     }
 
     //  void SoundEngine::init() {

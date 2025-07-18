@@ -6,6 +6,7 @@
 #define ELECTROSYNTH_MODULATORBASE_H
 #include "PluginStateImpl_.h"
 #include "leaf.h"
+#include "sound_engine.h"
 #include "ParameterView/ParametersView.h"
 namespace electrosynth {
     class SoundEngine;
@@ -41,7 +42,7 @@ class ModulatorStateBase : public ModulatorBase{
 public :
     ModulatorStateBase(electrosynth::SoundEngine* engine, LEAF* leaf, juce::ValueTree& tree, juce::UndoManager* um = nullptr)
     : ModulatorBase(engine, leaf, tree, um),
-          state_(leaf)
+          state_(leaf,engine->paramThread)
     {
 
     }

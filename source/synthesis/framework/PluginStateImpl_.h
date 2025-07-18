@@ -43,7 +43,7 @@ constexpr std::array< float,MAX_NUM_PARAMS> empty_params =createArray();
 template <typename T>
 struct LEAFParams : public chowdsp::ParamHolder
 {
-    LEAFParams ( LEAF* leaf) : chowdsp::ParamHolder(module_strings[map.get<T>()])
+    LEAFParams ( LEAF* leaf, juce::TimeSliceThread& m) : chowdsp::ParamHolder(m,module_strings[map.get<T>()])
     {
         //reinterpret_cast<T> allows for type unsafe casting
         std::array<float,MAX_NUM_PARAMS> mutable_params = empty_params;
@@ -81,7 +81,7 @@ class PluginStateImpl_ : public chowdsp::PluginState
 
     public:
         /** Constructs a plugin state with no processor */
-        explicit PluginStateImpl_ (LEAF* leaf, juce::UndoManager* um = nullptr);
+        explicit PluginStateImpl_ (LEAF* leaf, juce::TimeSliceThread& m, juce::UndoManager* um = nullptr);
 
         /** Constructs the state and adds all the state parameters to the given processor */
         explicit PluginStateImpl_ ( LEAF* leaf, juce::AudioProcessor& proc, juce::UndoManager* um = nullptr);
@@ -116,7 +116,7 @@ class PluginStateImpl_ : public chowdsp::PluginState
     };
 
     template <typename ParameterState, typename NonParameterState, typename Serializer>
-    PluginStateImpl_<ParameterState,  NonParameterState, Serializer>::PluginStateImpl_ (LEAF* leaf, juce::UndoManager* um) : params(leaf)
+    PluginStateImpl_<ParameterState,  NonParameterState, Serializer>::PluginStateImpl_ (LEAF* leaf,juce::TimeSliceThread& m, juce::UndoManager* um) : params(leaf,m)
     {
         initialise (params, nullptr, um);
     }

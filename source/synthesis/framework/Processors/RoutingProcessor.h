@@ -19,7 +19,7 @@ enum RoutingMode {
 };
 
 struct RoutingParams : public LEAFParams<_tVCAModule> {
-    RoutingParams(LEAF *leaf) : LEAFParams<_tVCAModule>(leaf) {
+    RoutingParams(LEAF *leaf,juce::TimeSliceThread & m) : LEAFParams<_tVCAModule>(leaf,m) {
 
         add(gainparam, routing);
         int i= 0;

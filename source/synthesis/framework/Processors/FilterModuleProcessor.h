@@ -20,7 +20,7 @@ namespace electrosynth{
 
 struct FilterParams : public LEAFParams<_tFiltModule >
 {
-    FilterParams(LEAF* leaf) : LEAFParams<_tFiltModule>(leaf)
+    FilterParams(LEAF* leaf,juce::TimeSliceThread & m) : LEAFParams<_tFiltModule>(leaf,m)
     {
                                         add(cutoff,Q, amp);
     }

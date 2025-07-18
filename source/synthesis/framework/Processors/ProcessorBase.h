@@ -8,6 +8,8 @@
 #include "leaf.h"
 #include "ParameterView/ParametersView.h"
 #include "Identifiers.h"
+#include "sound_engine.h"
+
 namespace electrosynth {
     class SoundEngine;
 }
@@ -41,7 +43,7 @@ class ProcessorStateBase : public ProcessorBase{
 public :
     ProcessorStateBase(electrosynth::SoundEngine* engine,LEAF* leaf, const juce::ValueTree& tree, juce::UndoManager* um = nullptr)
     : ProcessorBase(engine,leaf, tree, um),
-          state_(leaf)
+          state_(leaf,engine->paramThread)
     {
     state.setProperty(IDs::uuid, state_.params.processors[0].processorUniqueID, nullptr);
     name = state.getProperty(IDs::type).toString() + state.getProperty(IDs::uuid).toString();

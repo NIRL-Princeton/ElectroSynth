@@ -13,7 +13,7 @@
 
 struct EnvParamHolder : public LEAFParams<_tEnvModule>
 {
-    EnvParamHolder(LEAF* leaf) : LEAFParams<_tEnvModule>(leaf)
+    EnvParamHolder(LEAF* leaf,juce::TimeSliceThread & m) : LEAFParams<_tEnvModule>(leaf,m)
     {
         add(decayParam,
             sustainParam,

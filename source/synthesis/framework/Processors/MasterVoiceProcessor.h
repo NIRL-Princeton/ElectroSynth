@@ -30,7 +30,7 @@ namespace electrosynth{
 
 struct MasterVoiceParams :  chowdsp::ParamHolder
 {
-    MasterVoiceParams(LEAF* leaf) : chowdsp::ParamHolder("MasterVoice" ),env(leaf)
+    MasterVoiceParams(LEAF* leaf,juce::TimeSliceThread & m) : chowdsp::ParamHolder(m,"MasterVoice" ),env(leaf,m)
     {
 
     }

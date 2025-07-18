@@ -74,7 +74,7 @@ enum class FlagOscTypes{
 } ;
 struct OscillatorParams : public LEAFParams<_tOscModule >
 {
-    OscillatorParams(LEAF* leaf) : LEAFParams<_tOscModule>(leaf)
+    OscillatorParams(LEAF* leaf,juce::TimeSliceThread & m) : LEAFParams<_tOscModule>(leaf,m)
     {
        add(harmonic, pitchOffset, pitchFine, freqOffset, glide, shape, harmonicstepped, amp, oscType);
         //add(pitchOffset);

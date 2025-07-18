@@ -10,7 +10,7 @@
 
 struct LFOParamHolder : public LEAFParams<_tLFOModule>
 {
-    LFOParamHolder(LEAF* leaf) : LEAFParams<_tLFOModule>(leaf)
+    LFOParamHolder(LEAF* leaf,juce::TimeSliceThread & m) : LEAFParams<_tLFOModule>(leaf,m)
     {
         add(rateParam);
     }
