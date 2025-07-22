@@ -230,7 +230,7 @@ void EffectModuleSection::removeModule(ProcessorBase *newModule) {
     {
         listener->removed();
     }
-    this->setSize(getWidth(),getHeight() - height_to_remove);
+    // this->setSize(getWidth(),getHeight() - height_to_remove);
     resized();
 }
 
