@@ -15,7 +15,7 @@ class ModulationManager;
 class ModulationSection : public SynthSection
 {
 public:
-    ModulationSection(  const juce::ValueTree &, std::unique_ptr<SynthSection> editor);
+    ModulationSection(  const juce::ValueTree &, std::unique_ptr<SynthSection> editor, juce::UndoManager& um);
 
     virtual ~ModulationSection();
 
@@ -35,7 +35,7 @@ private:
     std::unique_ptr<SynthSection> _view;
     std::shared_ptr<ModulationButton> mod_button;
     std::shared_ptr<OpenGlShapeButton> exit_button_;
-
+    juce::UndoManager& undo;
 };
 
 #endif //ELECTROSYNTH_MODULATIONSECTION_H

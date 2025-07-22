@@ -14,7 +14,7 @@
 class ModuleSection : public SynthSection
 {
 public:
-    ModuleSection(const juce::ValueTree &, std::unique_ptr<SynthSection> editor);
+    ModuleSection(const juce::ValueTree &, std::unique_ptr<SynthSection> editor, juce::UndoManager& um);
 
     virtual ~ModuleSection();
 
@@ -47,6 +47,7 @@ private:
     std::shared_ptr<OpenGlImageComponent> background_;
     std::unique_ptr<SynthSection> _view;
     std::vector<Listener*> listeners_;
+    juce::UndoManager& undo;
 };
 
 #endif //ELECTROSYNTH_MODULESECTION_H

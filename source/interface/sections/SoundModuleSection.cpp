@@ -11,8 +11,8 @@
 #include "synth_base.h"
 
 SoundModuleSection::SoundModuleSection(ModulationManager *m,
-                                       ModuleList<ProcessorBase> &module_list,const juce::ValueTree &v) :
-ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRectangleFragment)), state(v)
+                                       ModuleList<ProcessorBase> &module_list,const juce::ValueTree &v, juce::UndoManager& um) :
+ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRectangleFragment)), state(v), undo(um)
 {
     // scroll_bar_ = std::make_unique<OpenGlScrollBar>();
     // addAndMakeVisible(scroll_bar_.get());
@@ -54,15 +54,18 @@ void SoundModuleSection::handlePopupResult(int result) {
     if (result == 1) {
         juce::ValueTree t(IDs::SOUNDMODULE);
         t.setProperty(IDs::type, "osc", nullptr);
-        list.appendChild(t, nullptr);
+        undo.beginNewTransaction();
+        list.appendChild(t, &undo);
     } else if (result == 2) {
         juce::ValueTree t(IDs::SOUNDMODULE);
         t.setProperty(IDs::type, "filt", nullptr);
-        list.appendChild(t, nullptr);
+        undo.beginNewTransaction();
+        list.appendChild(t, &undo);
     } else if (result == 3) {
         juce::ValueTree t(IDs::SOUNDMODULE);
         t.setProperty(IDs::type, "string", nullptr);
-        list.appendChild(t, nullptr);
+        undo.beginNewTransaction();
+        list.appendChild(t, &undo);
     }
 
     //    if (result == kArmMidiLearn)
@@ -137,7 +140,7 @@ std::map<std::string, SynthSlider *> SoundModuleSection::getAllSliders() {
 }
 
 void SoundModuleSection::moduleAdded(ProcessorBase *newModule) {
-    auto module_section = std::make_unique<ModuleSection>(newModule->state,std::move (newModule->createEditor()));
+    auto module_section = std::make_unique<ModuleSection>(newModule->state,std::move (newModule->createEditor()), undo);
     { juce::ScopedLock lock(open_gl_critical_section_);
         container_->addSubSection(module_section.get());
     }
@@ -250,7 +253,8 @@ void SoundModuleSection::buttonClicked(juce::Button *button) {
     if (button == exit_button_.get()) {
         this->setVisible(false);
         //DBG("state " state.getParent())
-        state.getParent().removeChild(state,nullptr);
+        undo.beginNewTransaction();
+        state.getParent().removeChild(state,&undo);
     }
 }
 

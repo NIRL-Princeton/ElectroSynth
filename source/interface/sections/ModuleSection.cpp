@@ -3,7 +3,7 @@
 //
 
 #include "ModuleSection.h"
-ModuleSection::ModuleSection(const juce::ValueTree &v, std::unique_ptr<SynthSection> editor) : SynthSection(editor->getName()), state(v), _view(std::move(editor))
+ModuleSection::ModuleSection(const juce::ValueTree &v, std::unique_ptr<SynthSection> editor, juce::UndoManager& um) : SynthSection(editor->getName()), state(v), _view(std::move(editor)), undo(um)
 {
     setComponentID(_view->getName());
     addSubSection(_view.get());
@@ -52,6 +52,7 @@ void ModuleSection::buttonClicked(juce::Button *button) {
     if (button == exit_button_.get()) {
         this->setVisible(false);
         //DBG("state " state.getParent())
-        state.getParent().removeChild(state,nullptr);
+        undo.beginNewTransaction();
+        state.getParent().removeChild(state,&undo);
     }
 }

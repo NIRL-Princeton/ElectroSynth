@@ -13,7 +13,7 @@ void EffectList::deleteObject(ProcessorBase *base) {
 }
 ProcessorBase *EffectList::createNewObject(const juce::ValueTree &v) {
     auto* leaf  = synth_->getLeaf();
-    std::any args = std::make_tuple(synth_->getEngine(),v,leaf);
+    std::any args = std::make_tuple(synth_->getEngine(),v,leaf,&synth_->um);
     try {
         auto proc = factory.create(v.getProperty(IDs::type).toString().toStdString(),args);
         ProcessorBase* rawPtr = proc.get();

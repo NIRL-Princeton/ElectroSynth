@@ -13,7 +13,7 @@ class ModulationManager;
 class SoundModuleSection : public ModulesInterface<ProcessorBase>
 {
 public:
-    explicit SoundModuleSection( ModulationManager* m, ModuleList<ProcessorBase> &,const juce::ValueTree &);
+    explicit SoundModuleSection( ModulationManager* m, ModuleList<ProcessorBase> &,const juce::ValueTree &, juce::UndoManager& um);
     virtual ~SoundModuleSection();
 
     void setEffectPositions() override;
@@ -45,6 +45,7 @@ public:
     int dragged_starting_y_;
     int height;
     std::unique_ptr<RoutingView> routing_view_;
+    juce::UndoManager& undo;
 };
 
 #endif //ELECTROSYNTH_SOUNDMODULESECTION_H

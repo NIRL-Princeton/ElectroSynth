@@ -259,7 +259,7 @@ void AudioChainSection::removeChain(ModuleList<ProcessorBase> *moduleToRemove) {
 #include "FullInterface.h"
 
 void AudioChainSection::chainAdded(ModuleList<ProcessorBase> *module_list) {
-    auto sound_interface = std::make_unique<SoundModuleSection>(modulation_manager_, *module_list,module_list->state);
+    auto sound_interface = std::make_unique<SoundModuleSection>(modulation_manager_, *module_list,module_list->state, undo);
     sound_interface->onExpandChanged = [this] {
         resized(); //sound_interface->redoBackgroundImage();
         auto full = findParentComponentOfClass<FullInterface>();
