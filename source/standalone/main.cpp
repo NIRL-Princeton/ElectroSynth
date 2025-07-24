@@ -146,7 +146,7 @@ class SynthApplication : public JUCEApplication {
         }
       
         File file_to_load_;
-        std::unique_ptr<ApplicationCommandManager> command_manager_;
+        // std::unique_ptr<ApplicationCommandManager> command_manager_;
         BorderBoundsConstrainer constrainer_;
       
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainWindow)

@@ -82,6 +82,7 @@ SynthEditor::SynthEditor(bool use_gui) : SynthGuiInterface(this, use_gui) {
   // mainmenumodel on mac
 
   menuModel = std::make_unique<MainMenuModel>(commandManager);
+    jassert(menuModel != nullptr);
   juce::MenuBarModel::setMacMainMenu(menuModel.get());
 }
 

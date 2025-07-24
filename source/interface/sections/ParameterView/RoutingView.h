@@ -31,13 +31,15 @@ public:
     }
     void paintBackground(juce::Graphics& g) override
     {
-        SynthSection::paintContainer(g);
-        paintHeadingText(g);
-        paintBorder(g);
+        // SynthSection::paintContainer(g);
+        // paintHeadingText(g);
+        // paintBorder(g);
         paintKnobShadows(g);
         // for (auto& slider : _sliders) {
         //     drawLabelForComponent(g, slider->getName(), slider.get());
         // }
+        drawLabelBackgroundForComponent (g,gain_slider.get());
+        //(dg,gain_slider.get());
         paintChildrenBackgrounds(g);
     }
 

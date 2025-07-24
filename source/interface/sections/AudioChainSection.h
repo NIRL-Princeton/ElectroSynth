@@ -102,7 +102,8 @@ public:
         // setSize(getWidth(), getHeight()+100);
     }
     void removed() override{
-        setSize(getWidth(), getHeight()-100);
+    redoBackgroundImage();
+        // setSize(getWidth(), getHeight()-100);
     }
     void effectsMoved() override{
 

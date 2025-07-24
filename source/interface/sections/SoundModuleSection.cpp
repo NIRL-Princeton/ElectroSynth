@@ -48,6 +48,24 @@ ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRect
 SoundModuleSection::~SoundModuleSection() {
    module_sections.clear();
 }
+void SoundModuleSection::redoBackgroundImage()
+{
+    Colour background = findColour(Skin::kBackground, true);
+
+    int height = std::max(container_->getHeight(),static_cast<int> (viewport_.getHeight()));
+    if (height == 0)
+        height = getHeight();
+    int width = std::max(container_->getWidth(), getWidth());
+    int mult = juce::Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds())->scale;// getPixelMultiple();
+    Image background_image = Image(Image::ARGB, width * mult, height * mult, true);
+
+    Graphics background_graphics(background_image);
+    background_graphics.addTransform(AffineTransform::scale(mult));
+    background_graphics.fillAll(background);
+    container_->paintBackground(background_graphics);
+    paintChildBackground(background_graphics,routing_view_.get());
+    background_.setOwnImage(background_image);
+}
 
 void SoundModuleSection::handlePopupResult(int result) {
     //std::vector<vital::ModulationConnection*> connections = getConnections();
@@ -123,7 +141,7 @@ void SoundModuleSection::setEffectPositions() {
     // container_->setScrollWheelEnabled(container_->getHeight() <= viewport_.getHeight());
     // setScrollBarRange();
     repaintBackground();
-    height = y+padding + getTitleWidth();
+    height = y+padding + getTitleWidth()*2;
 }
 
 PopupItems SoundModuleSection::createPopupMenu() {
@@ -238,18 +256,20 @@ void SoundModuleSection::removeModule(ProcessorBase *newModule) {
     int height_to_remove = it->get()->height;
     module_sections.erase(it);
     DBG("deletesection");
-
+this->setSize(getWidth(),getHeight() - height_to_remove);
+    resized();
     for(auto listener : listeners_)
     {
         listener->removed();
     }
-    this->setSize(getWidth(),getHeight() - height_to_remove);
-    resized();
+    redoBackgroundImage();
+
 }
 
 void SoundModuleSection::moduleListChanged() {
 }
 void SoundModuleSection::buttonClicked(juce::Button *button) {
+    ModulesInterface<ProcessorBase>::buttonClicked(button);
     if (button == exit_button_.get()) {
         this->setVisible(false);
         //DBG("state " state.getParent())

@@ -260,10 +260,17 @@ void AudioChainSection::removeChain(ModuleList<ProcessorBase> *moduleToRemove) {
 
 void AudioChainSection::chainAdded(ModuleList<ProcessorBase> *module_list) {
     auto sound_interface = std::make_unique<SoundModuleSection>(modulation_manager_, *module_list,module_list->state, undo);
-    sound_interface->onExpandChanged = [this] {
+    auto* rawPtr = sound_interface.get();
+    sound_interface->onExpandChanged = [this,rawPtr]() {
+        if (rawPtr->isExpanded())
+        {
+            rawPtr->setSize (rawPtr->getWidth(), rawPtr->height);
+        }
         resized(); //sound_interface->redoBackgroundImage();
+        // rawPtr->setSize(getWidth(), rawPtr->height);
         auto full = findParentComponentOfClass<FullInterface>();
         full->redoBackground();
+
     };
     auto interface = findParentComponentOfClass<SynthGuiInterface>();
     if (interface != nullptr) {

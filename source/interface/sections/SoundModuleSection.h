@@ -29,7 +29,7 @@ public:
     {}
     void removeModule(ProcessorBase* newModule)   override;
     void moduleListChanged() ;
-
+    void redoBackgroundImage() override;
     std::shared_ptr<OpenGlQuad> footer_body;
     std::unique_ptr<OpenGlShapeButton> exit_button_;
 
