@@ -16,11 +16,12 @@
 
 #include "synth_gui_interface.h"
 
-#include "load_save.h"
-#include "synth_base.h"
 #include "../synthesis/synth_engine/sound_engine.h"
+#include "Modulators/EnvModuleProcessor.h"
 #include "Modulators/ModulatorBase.h"
 #include "Processors/ProcessorBase.h"
+#include "load_save.h"
+#include "synth_base.h"
 
 SynthGuiData::SynthGuiData(SynthBase* synth_base) : synth(synth_base),
                                                      tree(synth_base->tree),
@@ -141,11 +142,7 @@ void SynthGuiInterface::openSaveDialog() {
         juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::canSelectFiles |
         juce::FileBrowserComponent::canSelectDirectories,
         [this](const juce::FileChooser &chooser) {
-            getSynth()->tree.setProperty(IDs::sync, 1, nullptr);
 
-            juce::String mystr = (getSynth()->tree.toXmlString());
-            auto xml = getSynth()->tree.createXml();
-            juce::XmlElement xml_ = *xml;
 
             auto result = chooser.getURLResult();
             auto name = result.isEmpty()
@@ -154,6 +151,44 @@ void SynthGuiInterface::openSaveDialog() {
                                    ? result.getLocalFile().getFullPathName()
                                    : result.toString(true));
             juce::File file(name);
+
+            //savetofile(file)
+            for (auto outerVT : getSynth()->tree)
+            {
+                //get all IDs::CHAIN
+                if (outerVT.hasType (IDs::CHAINS))
+                    for (auto innerVT : outerVT)
+                    {
+                        if (innerVT.hasType (IDs::CHAIN))
+                            innerVT.setProperty(IDs::sync, 1, nullptr);
+                    }
+                //get all IDs::MODULATORS
+                if (outerVT.hasType (IDs::MODULATORS))
+                    outerVT.setProperty(IDs::sync, 1, nullptr);
+                //get All IDs::EFFECT
+                if (outerVT.hasType (IDs::EFFECTS))
+                    outerVT.setProperty(IDs::sync, 1, nullptr);
+            }
+
+            //get MASTER VOICE ENVELOPE IDs::MODULATOR (maybe we want to change this to  have a special ID)
+            juce::MemoryBlock data;
+            auto & obj = getSynth()->getEngine()->MasterVoiceEnvelopeProcessor;
+                obj->getStateInformation(data);
+                auto myxml = juce::parseXML(data.toString());
+                //auto xml = juce::AudioProcessor::getXmlF(data.getData(), (int)data.getSize());
+                if (obj->state.isValid() && myxml != nullptr) {
+                    auto uuid = obj->state.getProperty(IDs::uuid).toString();
+                    auto type = obj->state.getProperty(IDs::type).toString();
+                    obj->state.copyPropertiesFrom(juce::ValueTree::fromXml(*myxml),nullptr);
+                    obj->state.setProperty(IDs::type, type,nullptr);
+                    obj->state.setProperty(IDs::uuid, uuid,nullptr);
+                    //  state.addChild(juce::ValueTree::fromXml(*xml),0,nullptr);
+                }
+            // getSynth()->tree.getChildWithName(IDs::CHAINS).getChildWithName(IDs::CHAIN).setProperty(IDs::sync, 1, nullptr);
+
+            juce::String mystr = (getSynth()->tree.toXmlString());
+            auto xml = getSynth()->tree.createXml();
+            juce::XmlElement xml_ = *xml;
             if (!result.isEmpty()) {
                 juce::FileOutputStream output(file);
                 output.setPosition(0);
@@ -169,6 +204,7 @@ void SynthGuiInterface::openSaveDialog() {
                 //                                         }
                 output.flush();
             }
+            //savetofile
         });
 }
 

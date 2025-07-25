@@ -87,6 +87,19 @@ public:
     ; // Only usable when T == int
     // std::vector<std::shared_ptr<T>> modules_;
     Router* router_;
+    // void deleteAllGui();
+    // void deleteAllGui() {
+    //     for (auto obj : tracktion::ValueTreeObjectList<T>::objects)
+    //         for (auto listener: listeners_)
+    //             listener->removeModule(obj);
+    //
+    // }
+    // void rebuildAllGui() {
+    //     for (auto obj : tracktion::ValueTreeObjectList<T>::objects)
+    //         for (auto listener: listeners_)
+    //             listener->moduleAdded(obj);
+    // }
+
 protected:
     SynthBase* synth_;
     Factory<T> factory;

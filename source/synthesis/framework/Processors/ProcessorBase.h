@@ -46,6 +46,8 @@ public :
     state.setProperty(IDs::uuid, state_.params.processors[0].processorUniqueID, nullptr);
     name = state.getProperty(IDs::type).toString() + state.getProperty(IDs::uuid).toString();
     procArray = &state_.params.processors[0];
+    if(state.isValid())
+        chowdsp::Serialization::deserialize<chowdsp::XMLSerializer>(state.createXml(),state_);
     }
     PluginStateType state_;
     void getStateInformation(MemoryBlock &destData) override {
