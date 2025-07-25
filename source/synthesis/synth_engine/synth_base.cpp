@@ -322,18 +322,25 @@ bool SynthBase::loadFromFile(File preset, std::string &error) {
         error = "Error converting XML to ValueTree";
         return false;
     }
+
+    SynthGuiInterface *gui_interface = getGuiInterface();
+
+    // clear everything and update the GUI
+    // if (gui_interface) {
+    //     gui_interface->updateFullGui();
+    //     gui_interface->notifyFresh();
+    // }
+
+    // load your new value tree and update the GUI
     if (!loadFromValueTree(parsed_value_tree)) {
         error = "Error Initializing ValueTree";
         return false;
     }
-
+    if (gui_interface) {
+        gui_interface->updateFullGui();
+        gui_interface->notifyFresh();
+    }
     //setPresetName(preset.getFileNameWithoutExtension());
-
-        SynthGuiInterface *gui_interface = getGuiInterface();
-        if (gui_interface) {
-            gui_interface->updateFullGui();
-            gui_interface->notifyFresh();
-        }
 
     return true;
 }
@@ -553,11 +560,11 @@ void SynthBase::ValueChangedCallback::messageCallback() {
     }
 }
 
-// juce::ValueTree& SynthBase::getValueTree()
-// {
-//    return tree;
-// }
-//
+juce::ValueTree& SynthBase::getValueTree()
+{
+   return tree;
+}
+
 juce::UndoManager &SynthBase::getUndoManager() {
     return um;
 }

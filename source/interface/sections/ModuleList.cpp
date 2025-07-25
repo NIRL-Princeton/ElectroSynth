@@ -32,7 +32,7 @@ ModuleList<T>::ModuleList(SynthBase *synth,const ValueTree& v) : tracktion::engi
 
 template<typename T>
 ModuleList<T>::~ModuleList() {
-
+    // deleteAllGui();
     tracktion::ValueTreeObjectList<T>::freeObjects();
 }
 template<typename T>
@@ -40,14 +40,14 @@ void ModuleList<T>::deleteObject(T* processor_base) {
     DBG("deleteObject");
 
     synth_->removeProcessor(processor_base);
-
+    for (auto listener: listeners_) {
+        listener->removeModule(processor_base);
+    }
 }
 
 template <typename T>
 void ModuleList<T>::objectRemoved(T* processor_base) {
-    for (auto listener: listeners_) {
-        listener->removeModule(processor_base);
-    }
+
 
 }
 template<typename T>
@@ -86,6 +86,7 @@ void ModuleList<T>::newObjectAdded(T* processor) {
         listener->moduleAdded(processor);
     }
 }
+
 template<typename T>
 void ModuleList<T>::valueTreePropertyChanged(juce::ValueTree &v, const juce::Identifier &i) {
 
@@ -161,14 +162,15 @@ void ChainList<T>::deleteObject(ModuleList<T>* processor_base) {
     processor_base->freeObjects();
     if constexpr (std::is_same_v<T, ProcessorBase>)
         synth_->removeChainRouting (processor_base->router_);
+    for (auto listener: listeners_) {
+        listener->removeChain(processor_base);
+    }
 
 }
 
 template <typename T>
 void ChainList<T>::objectRemoved(ModuleList<T>* processor_base) {
-    for (auto listener: listeners_) {
-        listener->removeChain(processor_base);
-    }
+
 
 }
 // template<typename T>

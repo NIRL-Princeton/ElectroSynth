@@ -173,14 +173,14 @@ class PluginStateImpl_ : public chowdsp::PluginState
             expectedNumChildElements,
         };
 
-        if (Serializer::getNumChildElements (serial) != expectedNumChildElements)
-        {
-            jassertfalse; // state load error!
-            return;
-        }
+        // if (Serializer::getNumChildElements (serial) != expectedNumChildElements)
+        // {
+        //     jassertfalse; // state load error!
+        //     return;
+        // }
 
-        if ( Serializer::getChildElement (serial, object.params.getName()))
-            Serializer::template deserialize<Serializer, ParameterState> (Serializer::getChildElement (serial, object.params.getName()), object.params);
+        //if ( Serializer::getChildElement (serial, object.params.getName()))
+            Serializer::template deserialize<Serializer, ParameterState> (serial, object.params);
     }
 
     template <typename ParameterState, typename NonParameterState, typename Serializer>
