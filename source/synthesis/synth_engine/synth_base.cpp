@@ -560,10 +560,10 @@ void SynthBase::ValueChangedCallback::messageCallback() {
     }
 }
 
-juce::ValueTree& SynthBase::getValueTree()
-{
-   return tree;
-}
+// juce::ValueTree& SynthBase::getValueTree()
+// {
+//    return tree;
+// }
 
 juce::UndoManager &SynthBase::getUndoManager() {
     return um;

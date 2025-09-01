@@ -43,6 +43,7 @@
 #include "juce_audio_devices/juce_audio_devices.h"
 #include "tracktion_ValueTreeUtilities.h"
 #include "processors/mapping.h"
+#include "processor.h"
 class SynthBase;
 
 namespace electrosynth {

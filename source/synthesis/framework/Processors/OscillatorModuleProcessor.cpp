@@ -35,8 +35,9 @@ OscillatorModuleProcessor::OscillatorModuleProcessor(electrosynth::SoundEngine* 
             auto theType = state_.params.oscType.get();
             float val =  (float)theType->getIndex() / (float)OscTypes::OscNumTypes;
             for (auto mod: state_.params.modules) {
-                mod->setterFunctions[OscParams::OscType](mod,val);
-                mod->setterFunctions[OscParams::OscShapeParam](mod->theOsc, *mod->params[OscShapeParam]);
+                tOscModule_setParameter(mod, OscType,val);
+                tOscModule_setParameter(mod, OscShapeParam, *mod->params[OscShapeParam]);
+
             //also need to update the shape since the new oscillator type will default to its initial shape instead
             }
 

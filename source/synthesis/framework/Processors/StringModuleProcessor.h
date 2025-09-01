@@ -48,8 +48,8 @@ struct StringParams : public LEAFParams<_tStringModule>
         chowdsp::ParamUtils::createNormalisableRange(2.f,4.f, 3.f, 2.0f),
         2.f,
         all_params[StringOversample],
-        [this](float val) { for (auto mod: modules)
-            mod->setterFunctions[StringOversample](mod, val); }
+        [this](float val) { for (auto mod: modules) tStringModule_setParameter(mod,StringOversample,val);
+            }
         ,    &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal
     };
@@ -61,7 +61,7 @@ struct StringParams : public LEAFParams<_tStringModule>
       0.5f,
         all_params[StringFreq],
         [this](float val) {
-            for (auto mod: modules) mod->setterFunctions[StringFreq](mod, val);
+            for (auto mod: modules) tStringModule_setParameter(mod,StringFreq,val);
         },
         &chowdsp::ParamUtils::floatValToString,
     &chowdsp::ParamUtils::stringToFloatVal
@@ -73,7 +73,7 @@ struct StringParams : public LEAFParams<_tStringModule>
         chowdsp::ParamUtils::createNormalisableRange(0.f, 1.f, 0.5f),
         0.5f,
         all_params[StringWaveLength],
-        [this](float val) { for (auto mod: modules)  mod->setterFunctions[StringWaveLength](mod, val); },
+        [this](float val) { for (auto mod: modules)tStringModule_setParameter(mod,StringWaveLength,val); },
         &chowdsp::ParamUtils::floatValToString,
     &chowdsp::ParamUtils::stringToFloatVal
     };
@@ -84,7 +84,7 @@ struct StringParams : public LEAFParams<_tStringModule>
         chowdsp::ParamUtils::createNormalisableRange(0.f, 1.f, 0.5f),
       0.5f,
         all_params[StringDampFreq],
-        [this](float val) { for (auto mod: modules) mod->setterFunctions[StringDampFreq](mod, val); },    &chowdsp::ParamUtils::floatValToString,
+        [this](float val) { for (auto mod: modules)tStringModule_setParameter(mod,StringDampFreq,val);},    &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal
     };
 
@@ -94,7 +94,7 @@ struct StringParams : public LEAFParams<_tStringModule>
         chowdsp::ParamUtils::createNormalisableRange(0.01f, 1.f, 0.5f),
         0.5f,
         all_params[StringDecay],
-        [this](float val) { for (auto mod: modules)  mod->setterFunctions[StringDecay](mod, val); },
+        [this](float val) { for (auto mod: modules) tStringModule_setParameter(mod,StringDecay,val); },
         &chowdsp::ParamUtils::floatValToString,
     &chowdsp::ParamUtils::stringToFloatVal
     };
@@ -105,7 +105,7 @@ struct StringParams : public LEAFParams<_tStringModule>
         chowdsp::ParamUtils::createNormalisableRange(0.f, 1.f, 0.5f),
         0.5f,
         all_params[StringTargetLevel],
-        [this](float val) { for (auto mod: modules)  mod->setterFunctions[StringTargetLevel](mod, val); },
+        [this](float val) { for (auto mod: modules) tStringModule_setParameter(mod,StringTargetLevel,val);},
         &chowdsp::ParamUtils::floatValToString,
     &chowdsp::ParamUtils::stringToFloatVal
     };
@@ -116,7 +116,7 @@ struct StringParams : public LEAFParams<_tStringModule>
         chowdsp::ParamUtils::createNormalisableRange(0.f, 1.f, 0.5f),
       0.5f,
         all_params[StringLevelSmooth],
-        [this](float val) { for (auto mod: modules)  mod->setterFunctions[StringLevelSmooth](mod, val); },
+        [this](float val) { for (auto mod: modules) tStringModule_setParameter(mod,StringLevelSmooth,val); },
         &chowdsp::ParamUtils::floatValToString,
     &chowdsp::ParamUtils::stringToFloatVal
     };
@@ -127,7 +127,7 @@ struct StringParams : public LEAFParams<_tStringModule>
         chowdsp::ParamUtils::createNormalisableRange(0.f, 1.f, 0.5f),
       0.5f,
         all_params[StringLevelStrength],
-        [this](float val) { for (auto mod: modules)  mod->setterFunctions[StringLevelStrength](mod, val); }
+        [this](float val) { for (auto mod: modules) tStringModule_setParameter(mod,StringLevelStrength,val); }
         ,    &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal
     };
@@ -138,7 +138,7 @@ struct StringParams : public LEAFParams<_tStringModule>
         chowdsp::ParamUtils::createNormalisableRange(0.f, 1.f, 0.5f),
       0.5f,
         all_params[StringPickupPoint],
-        [this](float val) { for (auto mod: modules) mod->setterFunctions[StringPickupPoint](mod, val); },
+        [this](float val) { for (auto mod: modules)tStringModule_setParameter(mod,StringPickupPoint,val); },
         &chowdsp::ParamUtils::floatValToString,
     &chowdsp::ParamUtils::stringToFloatVal
     };
@@ -148,7 +148,7 @@ struct StringParams : public LEAFParams<_tStringModule>
         "Level Mode",
         false,
         all_params[StringLevelMode],
-        [this](float val) { for (auto mod: modules)  mod->setterFunctions[StringLevelMode](mod, val); }
+        [this](float val) { for (auto mod: modules) tStringModule_setParameter(mod,StringLevelMode,val); }
     };
 
     chowdsp::FloatParameter::Ptr rippleGain {
@@ -157,7 +157,7 @@ struct StringParams : public LEAFParams<_tStringModule>
         chowdsp::ParamUtils::createNormalisableRange(0.f, 1.f, 0.5f),
      0.5f,
         all_params[StringRippleGain],
-        [this](float val) { for (auto mod: modules)  mod->setterFunctions[StringRippleGain](mod, val); },
+        [this](float val) { for (auto mod: modules) tStringModule_setParameter(mod,StringRippleGain,val); },
         &chowdsp::ParamUtils::floatValToString,
     &chowdsp::ParamUtils::stringToFloatVal
     };
@@ -168,7 +168,7 @@ struct StringParams : public LEAFParams<_tStringModule>
         chowdsp::ParamUtils::createNormalisableRange(0.f, 1.f, 0.5f),
        0.5f,
         all_params[StringRippleDelay],
-        [this](float val) { for (auto mod: modules)  mod->setterFunctions[StringRippleDelay](mod, val); },
+        [this](float val) { for (auto mod: modules) tStringModule_setParameter(mod,StringRippleDelay,val);},
         &chowdsp::ParamUtils::floatValToString,
     &chowdsp::ParamUtils::stringToFloatVal
     };
@@ -179,7 +179,7 @@ struct StringParams : public LEAFParams<_tStringModule>
         chowdsp::ParamUtils::createNormalisableRange(0.f, 1.f, 0.5f),
       0.5f,
         all_params[StringPluckPosition],
-        [this](float val) { for (auto mod: modules)  mod->setterFunctions[StringPluckPosition](mod, val); },
+        [this](float val) { for (auto mod: modules) tStringModule_setParameter(mod,StringPluckPosition,val); },
         &chowdsp::ParamUtils::floatValToString,
     &chowdsp::ParamUtils::stringToFloatVal
     };

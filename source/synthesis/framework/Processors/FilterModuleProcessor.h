@@ -45,7 +45,8 @@ struct FilterParams : public LEAFParams<_tFiltModule >
         all_params[FiltParams::FiltCutoff],
         [this](float val)
         {
-            for (auto mod: modules) mod->setterFunctions[FiltParams::FiltCutoff](mod,val);
+            for (auto mod: modules)    tFiltModule_setParameter(mod,FiltCutoff,val);
+
         DBG("Filt [0 - 1]" + juce::String(val) + " .. .  Filt actual Val" + juce::String(modules[0]->cutoffKnob));
         }
     };
@@ -57,7 +58,8 @@ struct FilterParams : public LEAFParams<_tFiltModule >
         1.f,
         all_params[FiltParams::FiltResonance],
         [this](float val)
-        {for (auto mod: modules) mod->setterFunctions[FiltParams::FiltResonance](mod,val);
+        {for (auto mod: modules)                 tFiltModule_setParameter(mod,FiltResonance,val);
+
                                            },
         &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal
@@ -69,7 +71,7 @@ struct FilterParams : public LEAFParams<_tFiltModule >
         1.f,
         all_params[FiltParams::FiltGain],
         [this](float val)
-        {for (auto mod: modules) mod->setterFunctions[FiltParams::FiltGain](mod,val);
+        {for (auto mod: modules)    tFiltModule_setParameter(mod,FiltGain,val);
                                             },
     };
 
