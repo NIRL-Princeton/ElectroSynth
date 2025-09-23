@@ -60,6 +60,7 @@ void OpenGlBackground::init(OpenGlWrapper& open_gl) {
     position_ = OpenGlComponent::getAttribute(open_gl, *image_shader_, "position");
     texture_coordinates_ = OpenGlComponent::getAttribute(open_gl, *image_shader_, "tex_coord_in");
     texture_uniform_ = OpenGlComponent::getUniform(open_gl, *image_shader_, "image");
+    isInit = true;
 }
 
 void OpenGlBackground::destroy(juce::OpenGLContext& open_gl) {

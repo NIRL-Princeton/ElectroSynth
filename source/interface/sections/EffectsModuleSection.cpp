@@ -31,7 +31,7 @@ ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRect
     setName("section");
 
     toggle_button_->setVisible(false);
-
+    setInterceptsMouseClicks(true,true);
 }
 
 EffectModuleSection::~EffectModuleSection() {
@@ -64,34 +64,29 @@ void EffectModuleSection::setEffectPositions() {
         return;
 
     int padding = getPadding();
-    int large_padding = findValue(Skin::kLargePadding);
-    int shadow_width = getComponentShadowWidth();
-    int start_x = large_padding - shadow_width;
-    int effect_width = getWidth() - start_x - large_padding;
-    int knob_section_height = getKnobSectionHeight();
-    int widget_margin = findValue(Skin::kWidgetMargin);
-    int effect_height =  knob_section_height - widget_margin;
-    int y = 0;//+ getTitleWidth();
+    int start_y = 0;
 
-    juce::Point<int> position = viewport_.getViewPosition();
-    // DBG("position viewport: x: " + juce::String(position.getX()) + "y: " + juce::String(position.getY()));
-    //DBG("shadwo width: " + String(shadow_width));
-    for (auto &section: module_sections) {
-        section->setBounds(0, y, effect_width, section->height);
-        y += (section->height +padding);
+    for (int i = 0; i < module_sections.size(); ++i) {
+        // If placeholder is before this section, shift this section down
+        int y = start_y;
+        if ( i == placeholderIndex) {
+            y += placeholderHeight;
+        }
+
+        module_sections[i]->setBounds(0, y, getWidth(), module_sections[i]->height);
+        start_y = y + module_sections[i]->height + padding;
     }
-    container_->setBounds(0,getTitleWidth(), viewport_.getWidth(),y - padding + effect_height * 2);
-    viewport_.setViewPosition(position);
 
-    for (Listener *listener: listeners_)
-        listener->effectsMoved();
-    //DBG("container Height " + String(container_->getHeight()));
-    //DBG("viewport Height " + String(viewport_.getWidth()));
-    container_->setScrollWheelEnabled(container_->getHeight() <= viewport_.getHeight());
-    setScrollBarRange();
-    repaintBackground();
-    // height = y - padding + effect_height * 2;
+    // Update container height to include placeholder
+    int totalHeight = start_y;
+    if (placeholderIndex >= 0) {
+        totalHeight += placeholderHeight + padding;
+    }
+
+    container_->setBounds(0, getTitleWidth(), viewport_.getWidth(), totalHeight);
+    viewport_.setViewPosition(viewport_.getViewPosition());  // preserve scroll
 }
+
 
 PopupItems EffectModuleSection::createPopupMenu() {
     PopupItems options;
@@ -107,10 +102,110 @@ std::map<std::string, SynthSlider *> EffectModuleSection::getAllSliders() {
 
 void EffectModuleSection::moduleAdded(ProcessorBase *newModule) {
     auto module_section = std::make_unique<ModuleSection>(newModule->state,std::move (newModule->createEditor()), undo);
+    module_section->onDragMove = [this](ModuleSection* dragged, juce::Rectangle<int> bounds) {
+        int midY = bounds.getCentreY();
+
+        int targetIndex = 0;
+        int currModuleSection;
+        for (int i = 0; i < (int)module_sections.size(); ++i) {
+            if (module_sections[i].get() ==  dragged) {
+                currModuleSection = 0;
+                break;
+            }
+            // targetIndex = i + 1;
+        }
+        for (int i = 0; i < (int)module_sections.size(); ++i) {
+            if (midY < module_sections[i]->getBounds().getCentreY()) {
+                targetIndex = i;
+                break;
+            }
+            targetIndex = i + 1;
+        }
+
+
+        placeholderHeight = dragged->height;
+        reorderTargetIndex = targetIndex;
+        // // Update layout to show gap
+        if(placeholderIndex!= targetIndex) {
+            placeholderIndex = targetIndex;
+            auto it = std::find_if(module_sections.begin(), module_sections.end(),
+                              [dragged](auto& p) { return p.get() == dragged; });
+
+            if (it != module_sections.end()) {
+                auto target_it = module_sections.begin() + reorderTargetIndex;
+
+                if (it < target_it) std::rotate(it, it + 1, target_it);
+                else std::rotate(target_it, it, it + 1);
+
+                dragged->setAlwaysOnTop(false);
+            }
+
+            // Clear temporary placeholder
+            // placeholderIndex = -1;
+            placeholderHeight = dragged->height;
+
+            // Finalize positions
+            // setEffectPositions();
+            if (getWidth() <= 0 || getHeight() <= 0)
+                return;
+
+            int padding = getPadding();
+            int start_y = 0;
+
+            for (int i = 0; i < module_sections.size(); ++i) {
+                // If placeholder is before this section, shift this section down
+                int y = start_y;
+                if ( i == placeholderIndex) {
+                    start_y += placeholderHeight;
+                    continue;
+                }
+
+                module_sections[i]->setBounds(0, y, getWidth(), module_sections[i]->height);
+                start_y = y + module_sections[i]->height + padding;
+            }
+
+            // Update container height to include placeholder
+            int totalHeight = start_y;
+            if (placeholderIndex >= 0) {
+                totalHeight += placeholderHeight + padding;
+            }
+
+            container_->setBounds(0, getTitleWidth(), viewport_.getWidth(), totalHeight);
+            viewport_.setViewPosition(viewport_.getViewPosition());  // preserve scroll
+            // setEffectPositions();
+        }
+
+
+        dragged->setAlwaysOnTop(true);
+        reorderTargetIndex = targetIndex;
+    };
+
+
+    module_section->onDragEnd = [this](ModuleSection* dragged, juce::Rectangle<int>) {
+        auto it = std::find_if(module_sections.begin(), module_sections.end(),
+                               [dragged](auto& p) { return p.get() == dragged; });
+
+        if (it != module_sections.end()) {
+            auto target_it = module_sections.begin() + reorderTargetIndex;
+
+            if (it < target_it) std::rotate(it, it + 1, target_it);
+            else std::rotate(target_it, it, it + 1);
+
+            dragged->setAlwaysOnTop(false);
+        }
+
+        // Clear temporary placeholder
+        placeholderIndex = -1;
+        placeholderHeight = 0;
+
+        // Finalize positions
+        setEffectPositions();
+    };
+
     { juce::ScopedLock lock(open_gl_critical_section_);
         container_->addSubSection(module_section.get());
     }
-    module_section->setInterceptsMouseClicks(false, true);
+    module_section->setInterceptsMouseClicks(true, true);
     parentHierarchyChanged();
     //int height_to_add  = module_section->height;
     module_sections.emplace_back(std::move(module_section));
@@ -323,3 +418,39 @@ void EffectModuleSection::moduleListChanged() {
 //         moveEffect(last_dragged_index_, next_index);
 //         last_dragged_index_ = next_index;
 //     }
+void EffectModuleSection::paintBackground(Graphics &g) {
+
+    g.setColour(Colours::purple);
+    // Colour background = findColour(Skin::kBackground, true);
+    // g.setColour(background);
+    // g.fillRect(getLocalBounds().withRight(getWidth() - findValue(Skin::kLargePadding) / 2));
+
+    g.fillRoundedRectangle(getLocalBounds().toFloat(), findValue(Skin::kBodyRounding));
+
+    int body_rounding = findValue(Skin::kBodyRounding);
+    g.setColour(Colours::red);
+    g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(0.5f), body_rounding, 1.0f);
+    // paintContainer(g);
+    paintBody(g);
+    paintHeadingText(g);
+
+    // paintChildrenBackgrounds(g);
+    paintBorder(g);
+    // paintChildBackground(g,container_.get());
+    Colour background = findColour(Skin::kBackground, true);
+
+    int height = std::max(container_->getHeight(),static_cast<int> (viewport_.getHeight()));
+    if (height == 0)
+        height = getHeight();
+    int width = std::max(container_->getWidth(), getWidth());
+    int mult = juce::Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds())->scale;// getPixelMultiple();
+    Image background_image = Image(Image::ARGB, width * mult, height * mult, true);
+
+    Graphics background_graphics(background_image);
+    background_graphics.addTransform(AffineTransform::scale(mult));
+    background_graphics.fillAll(background);
+    // container_->paintBackground(background_graphics);
+    background_.setOwnImage(background_image);
+    // redoBackgroundImage();
+
+}
