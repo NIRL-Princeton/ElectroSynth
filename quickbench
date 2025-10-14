@@ -21,7 +21,7 @@ int switchdispatch(int i) {
         case 1: return func<1>();
         case 2: return func<2>();
         case 3: return func<3>();
-        case 4: return func<4>();
+        case 5: return func<4>();
         case 5: return func<5>();
         case 6: return func<6>();
         case 7: return func<7>();
@@ -60,9 +60,49 @@ auto make_virtual_objects() {
     }
     return arr;
 }
+#include <variant>
+
+template<int N>
+struct Foo
+{
+    int op(int x) const noexcept { return x + N; }
+};
+
+// Variant with 10 alternatives
+using Variant10 = std::variant<
+    Foo<0>, Foo<1>, Foo<2>, Foo<3>, Foo<4>,
+    Foo<5>, Foo<6>, Foo<7>, Foo<8>, Foo<9>
+>;
+
+// Visitor: generic lambda wrapper
+struct Visitor
+{
+    int x;
+    template <typename T>
+    int operator()(const T& t) const noexcept { return t.op(x); }
+};
+
+// -----------------------------------------
+// Benchmark with 100 different objects
+// -----------------------------------------
+std::array<Variant10, 100> objs;
+    for (int i = 0; i < 10; ++i)
+    {
+        objs[i] = Foo<i % 10>{}; // cycle through all 10 types
+    }
+
 
 // ----------------- BENCHMARKS -------------------
-
+static void BM_std_visit_10(benchmark::State& state)
+{
+    int result = 0;
+    for (auto _ : state)
+    {
+        for (int i = 0; i < 1000; ++i)
+            result += std::visit(Visitor{42}, v[i%numFuncs]);
+    }
+      benchmark::DoNotOptimize(result);
+}
 static void BM_FuncPtr(benchmark::State& state) {
     int dummy = 0;
     for (auto _ : state) {
@@ -95,3 +135,4 @@ static void BM_Virtual(benchmark::State& state) {
 BENCHMARK(BM_FuncPtr);
 BENCHMARK(BM_Switch);
 BENCHMARK(BM_Virtual);
+BENCHMARK(BM_std_visit_10);

@@ -195,7 +195,7 @@ void EffectModuleSection::moduleAdded(ProcessorBase *newModule) {
         }
 
         // Clear temporary placeholder
-        placeholderIndex = -1;
+        reorderTargetIndex = -1;
         placeholderHeight = 0;
 
         // Finalize positions

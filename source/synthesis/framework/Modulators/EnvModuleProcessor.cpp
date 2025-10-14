@@ -20,7 +20,7 @@ juce::AudioBuffer<float>* EnvModuleProcessor::processMasterEnvelope() {
             procArray[i].tick(procArray[i].object,nullptr);
             temp_voice_buffer.setSample(i*2,0, procArray[i].outParameters[0]);
             temp_voice_buffer.setSample(i*2+1,0, procArray[i].outParameters[0]);
-            if (state_.params.modules[i]->theEnv->whichStage == env_idle) {
+            if (state_.params.modules[i]->theEnv.whichStage == env_idle) {
                 tSimplePoly_deactivateVoice(engine->voiceHandler.voices[0],i);
                 engine->voiceHandler.voiceIsSounding[i] = false;
             }
