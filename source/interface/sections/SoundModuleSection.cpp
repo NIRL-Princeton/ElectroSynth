@@ -79,9 +79,15 @@ void SoundModuleSection::handlePopupResult(int result) {
         t.setProperty(IDs::type, "filt", nullptr);
         undo.beginNewTransaction();
         list.appendChild(t, &undo);
-    } else if (result == 3) {
+    } else if (result == 3)
+    {
         juce::ValueTree t(IDs::SOUNDMODULE);
         t.setProperty(IDs::type, "string", nullptr);
+        undo.beginNewTransaction();
+        list.appendChild(t, &undo);
+    } else if (result == 4) {
+        juce::ValueTree t(IDs::SOUNDMODULE);
+        t.setProperty(IDs::type, "softclip", nullptr);
         undo.beginNewTransaction();
         list.appendChild(t, &undo);
     }
@@ -149,6 +155,7 @@ PopupItems SoundModuleSection::createPopupMenu() {
     options.addItem(1, "add osc");
     options.addItem(2, "add filt");
     options.addItem(3, "add string");
+    options.addItem(4, "soft clip");
     return options;
 }
 

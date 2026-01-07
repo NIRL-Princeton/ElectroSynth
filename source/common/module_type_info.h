@@ -57,8 +57,9 @@ constexpr TypeMap map{
     TypeValuePair<_tLFOModule, 3>{},
     TypeValuePair<_tStringModule, 4>{},
     TypeValuePair<_tVCAModule, 5>{},
+    TypeValuePair<_tSoftClipModule, 6>{},
 };
-const std::array<std::string, 6> module_strings = { "osc", "filt", "env", "lfo","string","vca"};
+const std::array<std::string, 7> module_strings = { "osc", "filt", "env", "lfo","string","vca", "softclip"};
 
 
 #endif //ELECTORSYNTH_MODULE_TYPE_INFO_H

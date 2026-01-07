@@ -297,6 +297,7 @@ void AudioChainSection::chainChanged() {
 PopupItems AudioChainSection::createPopupMenu() {
     PopupItems options;
     options.addItem(1, "add osc");
+    options.addItem(2, "add string");
     return options;
 }
 
@@ -304,6 +305,14 @@ void AudioChainSection::handlePopupResult(int result) {
     if (result == 1) {
         juce::ValueTree t(IDs::SOUNDMODULE);
         t.setProperty(IDs::type, "osc", nullptr);
+        juce::ValueTree v(IDs::CHAIN);
+        undo.beginNewTransaction();
+        v.appendChild(t, &undo);
+        chains_.appendChild(v, &undo);
+    }
+    if (result == 2) {
+        juce::ValueTree t(IDs::SOUNDMODULE);
+        t.setProperty(IDs::type, "string", nullptr);
         juce::ValueTree v(IDs::CHAIN);
         undo.beginNewTransaction();
         v.appendChild(t, &undo);
