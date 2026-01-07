@@ -149,13 +149,13 @@ namespace electrosynth {
       ModulatorBase* getModulatorFromUUID(int uuid);
 
       leaf::tProcessor * getLeafProcessorFromUUID(int uuid);
-      char memory[16777216];
+      char memory[10737418246]; // 1 gb
       LEAF leaf;
 
       struct VoiceHandler {
             float voiceNote[MAX_NUM_VOICES];
             float voicePrevBend[MAX_NUM_VOICES];
-            tSimplePoly voices[MAX_NUM_VOICES];
+            tSimplePoly* voices[MAX_NUM_VOICES];
             bool voiceIsSounding[MAX_NUM_VOICES];
             bool mpeMode;
             int numVoicesActive;

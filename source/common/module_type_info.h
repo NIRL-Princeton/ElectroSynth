@@ -51,14 +51,18 @@ private:
 
 // Define your map using initializer syntax
 constexpr TypeMap map{
-    TypeValuePair<_tOscModule, 0>{},
-    TypeValuePair<_tFiltModule, 1>{},
-    TypeValuePair<_tEnvModule, 2>{},
-    TypeValuePair<_tLFOModule, 3>{},
-    TypeValuePair<_tStringModule, 4>{},
-    TypeValuePair<_tVCAModule, 5>{},
+    TypeValuePair<tOscModule, 0>{},
+    TypeValuePair<tFiltModule, 1>{},
+    TypeValuePair<tEnvModule, 2>{},
+    TypeValuePair<tLFOModule, 3>{},
+    TypeValuePair<tStringModule, 4>{},
+    // TypeValuePair<_tVCAModule, 5>{}
+
+    TypeValuePair<tVCAModule, 5>{},
+    TypeValuePair<tDelayModule, 6>{}
 };
 const std::array<std::string, 6> module_strings = { "osc", "filt", "env", "lfo","string","vca"};
+// const std::array<std::string, 7> module_strings = { "osc", "filt", "env", "lfo","string","vca", "delay"};
 
 
 #endif //ELECTORSYNTH_MODULE_TYPE_INFO_H

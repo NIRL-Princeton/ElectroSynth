@@ -50,6 +50,12 @@ void EffectModuleSection::handlePopupResult(int result) {
         undo.beginNewTransaction();
         list.appendChild(t, &undo);
     }
+    else if (result == 2) {
+        juce::ValueTree t(IDs::EFFECTMODULE);
+        t.setProperty(IDs::type, "delay", nullptr);
+        undo.beginNewTransaction();
+        list.appendChild(t, &undo);
+    }
     // } else if (result == 3) {
     //     juce::ValueTree t(IDs::EffectMODULE);
     //     t.setProperty(IDs::type, "string", nullptr);
@@ -96,7 +102,7 @@ void EffectModuleSection::setEffectPositions() {
 PopupItems EffectModuleSection::createPopupMenu() {
     PopupItems options;
     options.addItem(1, "add filt");
-
+    options.addItem(2, "add delay");
     return options;
 }
 

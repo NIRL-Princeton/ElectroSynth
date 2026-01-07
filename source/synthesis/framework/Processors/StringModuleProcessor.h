@@ -17,9 +17,9 @@ namespace electrosynth{
     }
 }
 
-struct StringParams : public LEAFParams<_tStringModule>
+struct StringParams : public LEAFParams<tStringModule>
 {
-    StringParams(LEAF* leaf) : LEAFParams<_tStringModule>(leaf)
+    StringParams(LEAF* leaf) : LEAFParams<tStringModule>(leaf)
     {
         add(
             oversample, freq, waveLength, dampFreq, decay, targetLevel,

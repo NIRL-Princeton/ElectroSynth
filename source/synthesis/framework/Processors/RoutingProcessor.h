@@ -18,8 +18,8 @@ enum RoutingMode {
     Lane_3 = 1 << 3,
 };
 
-struct RoutingParams : public LEAFParams<_tVCAModule> {
-    RoutingParams(LEAF *leaf) : LEAFParams<_tVCAModule>(leaf) {
+struct RoutingParams : public LEAFParams<tVCAModule> {
+    RoutingParams(LEAF *leaf) : LEAFParams<tVCAModule>(leaf) {
 
         add(gainparam, routing);
         int i= 0;

@@ -8,9 +8,9 @@
 #include "Identifiers.h"
 #include "ModulatorBase.h"
 
-struct LFOParamHolder : public LEAFParams<_tLFOModule>
+struct LFOParamHolder : public LEAFParams<tLFOModule>
 {
-    LFOParamHolder(LEAF* leaf) : LEAFParams<_tLFOModule>(leaf)
+    LFOParamHolder(LEAF* leaf) : LEAFParams<tLFOModule>(leaf)
     {
         add(rateParam);
     }

@@ -143,6 +143,7 @@ public:
     void timerCallback() override;
     juce::ValueTree tree;
     juce::UndoManager um;
+    //all valuetreelists
     std::unique_ptr<ChainList<ProcessorBase>> processors_;
     std::unique_ptr<ModuleList<ModulatorBase>> modulators_;
     std::unique_ptr<EffectList> effects_0;

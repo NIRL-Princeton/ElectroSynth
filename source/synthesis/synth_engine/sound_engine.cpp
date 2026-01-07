@@ -54,7 +54,7 @@ namespace electrosynth {
 
 
         MasterVoiceEnvelopeProcessor = std::make_unique<EnvModuleProcessor>(
-            this, juce::ValueTree(IDs::MODULATOR).setProperty(IDs::type, "env", nullptr), &leaf, &undo);
+            this, juce::ValueTree(IDs::MASTERVOICEENV).setProperty(IDs::type, "env", nullptr), &leaf, &undo);
         MasterVoiceEnvelopeProcessor->state_.params.attackParam->setParameterValue(0.1);
         MasterVoiceEnvelopeProcessor->state_.params.decayParam->setParameterValue(0.01);
         MasterVoiceEnvelopeProcessor->state_.params.releaseParam->setParameterValue(0.001);
@@ -138,7 +138,7 @@ namespace electrosynth {
             for (int v = 0; v < voiceHandler.numVoicesActive; ++v) {
                 float tempNote = (float) tSimplePoly_getPitch(voiceHandler.voices[v * mpe], (uint8_t) (v * impe));
 
-
+                // DBG("")
                 //added this check because if there is no active voice "getPitch" returns -1
                 if (tempNote >= 0.0f) {
                     //freeze pitch bend data on voices where a note off has happened and we are in the release phase
@@ -189,6 +189,7 @@ namespace electrosynth {
                 //samples[0][v] = 0.f;
                 //samples[1][v] = 0.f;
             }
+            //this line
             auto amp_vals = MasterVoiceEnvelopeProcessor->processMasterEnvelope();
             processMappings();
             for (auto &modulator_chain: modSources) {
@@ -205,17 +206,7 @@ namespace electrosynth {
                     if (proc != nullptr)
                         proc->processBlock(temp_voice_buffer, empty);
                 }
-                // //at end of given processor chain
-                // for ( int v = 0; v < voiceHandler.numVoicesActive; ++v) {
-                //         // audio_buffer.addSample(0, i, temp_voice_buffer.getSample(v*2, 0));
-                //         // audio_buffer.addSample(1, i, temp_voice_buffer.getSample(v*2+1, 0));
-                //     // if (amp_vals->getSample(v*2,0) > 0.f) {
-                //     //     DBG(amp_vals->getSample(v*2,0));
-                //     //     DBG(temp_voice_buffer.getSample(v*2,0));
-                //     // }
-                //         audio_buffer.addSample(0, i, amp_vals->getSample(v*2, 0) * temp_voice_buffer.getSample(v*2, 0));
-                //        audio_buffer.addSample(1, i, amp_vals->getSample(v*2+1, 0) * temp_voice_buffer.getSample(v*2+1, 0));
-                // }
+                //this loop
                 for (int v = 0; v < voiceHandler.numVoicesActive; ++v) {
                     // audio_buffer.addSample(0, i, temp_voice_buffer.getSample(v*2, 0));
                     // audio_buffer.addSample(1, i, temp_voice_buffer.getSample(v*2+1, 0));
@@ -233,11 +224,13 @@ namespace electrosynth {
             }
 
 
-            int index = 1;
+            //master
             for (int v = 0; v < voiceHandler.numVoicesActive; ++v) {
                 audio_buffer.addSample(0, i, temp_fx_buffers[0].getSample(v * 2, 0));
                 audio_buffer.addSample(1, i, temp_fx_buffers[0].getSample(v * 2 + 1, 0));
             }
+            //effects
+            int index = 1;
             for (auto &fx_lane: effects) {
                 for (auto &fx: fx_lane) {
                     fx->processBlock(temp_fx_buffers[index], empty);
@@ -291,6 +284,7 @@ namespace electrosynth {
 
     void SoundEngine::noteOn(int note, float velocity, int sample, int channel) {
         //    voice_handler_->noteOn(note, velocity, sample, channel);
+        // DBG("note" + juce::String(note));
         enum MidiMainType {
             kNoteOff = 0x80,
             kNoteOn = 0x90,

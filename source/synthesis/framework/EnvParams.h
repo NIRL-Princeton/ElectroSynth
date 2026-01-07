@@ -6,7 +6,7 @@
 #define ELECTROSYNTH_ENVPARAMS_H
 #include "PluginStateImpl_.h"
 
-struct EnvParams : public LEAFParams<_tEnvModule >
+struct EnvParams : public LEAFParams<tEnvModule >
 {
     EnvParams() : chowdsp::ParamHolder("ENV")
     {

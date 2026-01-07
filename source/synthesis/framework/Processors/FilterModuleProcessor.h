@@ -18,9 +18,9 @@ namespace electrosynth{
 
 
 
-struct FilterParams : public LEAFParams<_tFiltModule >
+struct FilterParams : public LEAFParams<tFiltModule >
 {
-    FilterParams(LEAF* leaf) : LEAFParams<_tFiltModule>(leaf)
+    FilterParams(LEAF* leaf) : LEAFParams<tFiltModule>(leaf)
     {
                                         add(cutoff,Q, amp);
     }

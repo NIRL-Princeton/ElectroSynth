@@ -11,9 +11,9 @@
     #include "PluginStateImpl_.h"
 #include "Identifiers.h"
 
-struct EnvParamHolder : public LEAFParams<_tEnvModule>
+struct EnvParamHolder : public LEAFParams<tEnvModule>
 {
-    EnvParamHolder(LEAF* leaf) : LEAFParams<_tEnvModule>(leaf)
+    EnvParamHolder(LEAF* leaf) : LEAFParams<tEnvModule>(leaf)
     {
         add(decayParam,
             sustainParam,
@@ -96,7 +96,7 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
 
 
 
-class EnvModuleProcessor : public ModulatorStateBase<PluginStateImpl_<EnvParamHolder>>
+class EnvModuleProcessor : public ModulatorStateBase<PluginStateImpl_<EnvParamHolder>>, public juce::ValueTree::Listener
 {
 public:
     EnvModuleProcessor(electrosynth::SoundEngine* engine,juce::ValueTree&, LEAF* leaf, juce::UndoManager*);
@@ -108,6 +108,7 @@ public:
     {
         return std::make_unique<electrosynth::ParametersView>(state_, state_.params, state.getProperty(IDs::type).toString() + state.getProperty(IDs::uuid).toString());
     }
+    void valueTreeRedirected(ValueTree& treeWhichHasBeenChanged) override;
 };
 
 #endif //ELECTROSYNTH_ENVMODULEPROCESSOR_H

@@ -17,6 +17,11 @@ public:
 
     void paintBackground(Graphics &g) override;
     void resized() override;
+    void reset() override
+    {
+        resized();
+    }
+
     juce::ValueTree v;
     juce::UndoManager *um;
 

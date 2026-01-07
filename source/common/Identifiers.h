@@ -63,6 +63,8 @@ namespace IDs
     DECLARE_ID(EFFECTS)
     DECLARE_ID(EFFECTMODULE)
     DECLARE_ID(effect_lane)
+    DECLARE_ID(MASTERVOICEENV)
+
 }
 
 #undef DECLARE_ID

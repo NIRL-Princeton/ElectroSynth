@@ -72,9 +72,9 @@ enum class FlagOscTypes{
     OscTypeTri = 32
 
 } ;
-struct OscillatorParams : public LEAFParams<_tOscModule >
+struct OscillatorParams : public LEAFParams<tOscModule >
 {
-    OscillatorParams(LEAF* leaf) : LEAFParams<_tOscModule>(leaf)
+    OscillatorParams(LEAF* leaf) : LEAFParams<tOscModule>(leaf)
     {
        add(harmonic, pitchOffset, pitchFine, freqOffset, glide, shape, harmonicstepped, amp, oscType);
         //add(pitchOffset);

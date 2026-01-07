@@ -336,6 +336,14 @@ bool SynthBase::loadFromFile(File preset, std::string &error) {
         error = "Error Initializing ValueTree";
         return false;
     }
+    // set value trees to trigger value tree listeners
+    processors_->setValueTree(tree.getChildWithName(IDs::CHAINS));
+    modulators_->setValueTree(tree.getChildWithName (IDs::MODULATORS));
+    effects_0->setValueTree (tree.getChildWithProperty (IDs::effect_lane, 0));
+    effects_1->setValueTree (tree.getChildWithProperty (IDs::effect_lane, 1));
+    effects_2->setValueTree (tree.getChildWithProperty (IDs::effect_lane, 2));
+    engine_->MasterVoiceEnvelopeProcessor->state = tree.getChildWithName (IDs::MASTERVOICEENV);
+
     if (gui_interface) {
         gui_interface->updateFullGui();
         gui_interface->notifyFresh();

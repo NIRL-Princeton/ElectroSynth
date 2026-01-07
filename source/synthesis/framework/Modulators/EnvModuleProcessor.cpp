@@ -6,12 +6,15 @@
 
 #include "sound_engine.h"
 #include "leaf-midi.h"
+#include "identifiers.h"
+
 EnvModuleProcessor::EnvModuleProcessor(electrosynth::SoundEngine* engine,juce::ValueTree& vt, LEAF* leaf, juce::UndoManager *um)
     :ModulatorStateBase(engine,leaf,vt , um)
 {
    procArray = &state_.params.processors[0];
    vt.setProperty(IDs::uuid, state_.params.processors[0].processorUniqueID, nullptr);
    name = vt.getProperty(IDs::type).toString() + vt.getProperty(IDs::uuid).toString();
+    state.addListener (this);
 }
 juce::AudioBuffer<float>* EnvModuleProcessor::processMasterEnvelope() {
         static juce::AudioBuffer<float> temp_voice_buffer{MAX_NUM_VOICES*2,1};
@@ -26,4 +29,10 @@ juce::AudioBuffer<float>* EnvModuleProcessor::processMasterEnvelope() {
             }
         }
     return &temp_voice_buffer;
+}
+
+void EnvModuleProcessor::valueTreeRedirected (ValueTree& treeWhichHasBeenChanged)
+{
+    if(treeWhichHasBeenChanged.hasType(IDs::MASTERVOICEENV))
+        chowdsp::Serialization::deserialize<chowdsp::XMLSerializer>(state.createXml(),state_);
 }

@@ -172,7 +172,7 @@ void AudioChainSection::setScrollBarRange() {
 void AudioChainSection::reset() {
     SynthGuiInterface *_parent = findParentComponentOfClass<SynthGuiInterface>();
     if (_parent != nullptr)
-        chains_.setValueTree(_parent->getSynth()->tree.getChildWithName(IDs::CHAINS));
+        // chains_.setValueTree(_parent->getSynth()->tree.getChildWithName(IDs::CHAINS));
     SynthSection::reset();
 }
 
