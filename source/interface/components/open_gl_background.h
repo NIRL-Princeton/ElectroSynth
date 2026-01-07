@@ -41,6 +41,7 @@ public:
     void enableAttributes(juce::OpenGLContext& open_gl_context);
     void disableAttributes(juce::OpenGLContext& open_gl_context);
     void setComponent(juce::Component* component) { component_ = component; }
+    bool isInit;
 
 private:
     juce::OpenGLShaderProgram* image_shader_;

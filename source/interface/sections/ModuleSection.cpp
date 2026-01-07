@@ -5,19 +5,25 @@
 #include "ModuleSection.h"
 ModuleSection::ModuleSection(const juce::ValueTree &v, std::unique_ptr<SynthSection> editor, juce::UndoManager& um) : SynthSection(editor->getName()), state(v), _view(std::move(editor)), undo(um)
 {
+
+    background_ = std::make_unique<OpenGlBackground>();
+
+    // addOpenGlComponent(background_);
+    background_->setComponent(this);
+    // background_->paintEntireComponent(false);
+    // background_->setInterceptsMouseClicks(false, false);
     setComponentID(_view->getName());
     addSubSection(_view.get());
-    setInterceptsMouseClicks(false, true);
+    _view->setAlwaysOnTop(true);
+    // setInterceptsMouseClicks(true,false);
 
     exit_button_ = std::make_unique<OpenGlShapeButton>("Exit");
-    addAndMakeVisible(exit_button_.get());
+   addAndMakeVisible(exit_button_.get());
     addOpenGlComponent(exit_button_->getGlComponent());
     exit_button_->addListener(this);
     exit_button_->setShape(Paths::exitX());
-    background_ = std::make_unique<OpenGlImageComponent>("background");
-    addOpenGlComponent(background_);
-    background_->setComponent(this);
-    background_->paintEntireComponent(false);
+    exit_button_->setAlwaysOnTop(true);
+
 
 }
 
@@ -32,14 +38,27 @@ void ModuleSection::paintBackground(juce::Graphics &g)
     paintKnobShadows(g);
     paintChildrenBackgrounds(g);    paintBorder(g);
    //SynthSection::paintBackground(g);
+    // background_->lock();
+    // background_->paintEntireComponent()
 }
 
 void ModuleSection::resized()
 {
-   _view->setBounds(getLocalBounds());
+    auto local = getLocalBounds();
+    auto area = local.removeFromTop(25);
+  _view->setBounds(local);
    int knob_y2 =0;
    SynthSection::resized();
+    // background_->setBounds(getLocalBounds());
     exit_button_->setBounds(getLocalBounds().getRight() - 50,0, 25,25);
+    background_image_ = juce::Image(juce::Image::RGB, getWidth(),getHeight(), true);
+    // juce::Graphics g(background_image_);
+    // paintChildBackground(g,this);
+    // background_->draw_image_
+    // background_->updateBackgroundImage(background_image_);
+    // background_->unlock();
+    repaintModuleBackground();
+
 }
 
 //void ModuleSection::setParametersViewEditor (electrosynth::ParametersViewEditor&& editor)

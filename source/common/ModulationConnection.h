@@ -9,7 +9,7 @@
 
 #include "processors/mapping.h"
 #include "ModulationWrapper.h"
-
+#include "processor.h"
 namespace electrosynth {
 struct MappingWrapper;
     struct ModulationConnection {

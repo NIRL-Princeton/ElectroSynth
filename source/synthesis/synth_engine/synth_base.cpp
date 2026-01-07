@@ -290,7 +290,7 @@ void SynthBase::addModulationSource(std::unique_ptr<ModulatorBase> modulationSou
     if (*proc0->inParameters[EVENT_WATCH_INDEX] == 1) {
         for (int i = 0; i < MAX_NUM_VOICES; i++)
             engine_->voiceHandler.eventEmitter.listeners[i][engine_->voiceHandler.eventEmitter.numListeners] =
-                    modulationSource->procArray[i];
+                    &modulationSource->procArray[i];
     }
     engine_->voiceHandler.eventEmitter.numListeners++;
     engine_->modSources[voice_index].push_back(std::move(modulationSource));
@@ -568,10 +568,10 @@ void SynthBase::ValueChangedCallback::messageCallback() {
     }
 }
 
-juce::ValueTree& SynthBase::getValueTree()
-{
-   return tree;
-}
+// juce::ValueTree& SynthBase::getValueTree()
+// {
+//    return tree;
+// }
 
 juce::UndoManager &SynthBase::getUndoManager() {
     return um;

@@ -104,7 +104,7 @@ struct OscillatorParams : public LEAFParams<tOscModule >
         [this](float val)
         {
             for (auto mod : modules)
-                mod->setterFunctions[OscParams::OscHarmonic](mod,val);
+                tOscModule_setParameter(mod,OscHarmonic,val);
         DBG("harm [0 - 1]" + juce::String(val) + " .. .  harm actual Val" + juce::String(modules[0]->harmonicMultiplier));
         },
         &electrosynth::utils::harmonicValToString,
@@ -118,7 +118,7 @@ struct OscillatorParams : public LEAFParams<tOscModule >
         all_params[OscParams::OscPitchOffset],
         [this](float val)
         { for (auto mod : modules)
-            mod->setterFunctions[OscParams::OscPitchOffset](mod,val);
+                tOscModule_setParameter(mod,OscPitchOffset,val);
         DBG("pitch [0 - 1] " + juce::String(val)  + " ... pitch actual " + juce::String(modules[0]->pitchOffset));
        },
 
@@ -134,7 +134,7 @@ struct OscillatorParams : public LEAFParams<tOscModule >
         all_params[OscParams::OscPitchFine],
         [this]( float val)
         {for (auto mod : modules)
-            mod->setterFunctions[OscParams::OscPitchFine](mod,val);
+            tOscModule_setParameter(mod,OscPitchFine,val);
         DBG("fine [0 - 1] " + juce::String(val) + " ..... fine actual " + juce::String(modules[0]->fine));
     },
         &chowdsp::ParamUtils::floatValToString,
@@ -150,7 +150,7 @@ struct OscillatorParams : public LEAFParams<tOscModule >
         all_params[OscParams::OscFreqOffset],
         [this]( float val)
         {for (auto mod : modules)
-            mod->setterFunctions[OscParams::OscFreqOffset](mod,val);
+            tOscModule_setParameter(mod,OscFreqOffset,val);
             DBG("freq [0 - 1] " + juce::String(val) + " .... freq actual Val" + juce::String(modules[0]->freqOffset));},
         &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal
@@ -165,7 +165,7 @@ struct OscillatorParams : public LEAFParams<tOscModule >
         all_params[OscParams::OscGlide],
         [this]( float val)
         {for (auto mod : modules)
-            mod->setterFunctions[OscParams::OscGlide](mod,val);
+            tOscModule_setParameter(mod,OscGlide,val);
             //DBG("freq [0 - 1] " + juce::String(val) + " .... glide actual Val" + juce::String(mod->glide));
         },
         &chowdsp::ParamUtils::floatValToString,
@@ -181,7 +181,7 @@ struct OscillatorParams : public LEAFParams<tOscModule >
             [this]( float val)
             {
                 for (auto mod : modules)
-                    mod->setterFunctions[OscParams::OscShapeParam](mod->theOsc,val);
+                    tOscModule_setParameter(mod,OscShapeParam,val);
             DBG("sghape [0 - 1]" + juce::String(val) + ".... cant see actual val");
             },
             &chowdsp::ParamUtils::floatValToString,
@@ -196,7 +196,8 @@ struct OscillatorParams : public LEAFParams<tOscModule >
             all_params[OscParams::OscAmpParam],
             [this]( float val)
             {for (auto mod : modules)
-                mod->setterFunctions[OscParams::OscAmpParam](mod,val);
+                tOscModule_setParameter(mod,OscAmpParam,val);
+
             DBG("amp [0 - 1] " + juce::String(val) + ".. .... amp actual " + juce::String(modules[0]->amp));
             },
             &chowdsp::ParamUtils::floatValToString,
@@ -210,7 +211,9 @@ struct OscillatorParams : public LEAFParams<tOscModule >
         all_params[OscParams::OscSteppedHarmonic],
         [this]( float val)
         {for (auto mod : modules)
-            mod->setterFunctions[OscParams::OscSteppedHarmonic](mod,val);
+            tOscModule_setParameter(mod,OscSteppedHarmonic,val);
+
+            // mod->setterFunctions[OscParams::OscSteppedHarmonic](mod,val);
             //harmonic->range.interval = val;
             DBG("amp [0 - 1] " + juce::String(val) + ".. .... stepped harmonic actual " + juce::String(modules[0]->hStepped));
         }
@@ -234,7 +237,8 @@ struct OscillatorParams : public LEAFParams<tOscModule >
     all_params[OscParams::OscSteppedPitch],
     [this]( float val)
     {for (auto mod : modules)
-        mod->setterFunctions[OscParams::OscSteppedPitch](mod,val);
+        tOscModule_setParameter(mod,OscSteppedPitch,val);
+
         //harmonic->range.interval = val;
         DBG("amp [0 - 1] " + juce::String(val) + ".. .... stepped pitch actual " + juce::String(modules[0]->pStepped));
     }

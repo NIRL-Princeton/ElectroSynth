@@ -35,8 +35,9 @@ OscillatorModuleProcessor::OscillatorModuleProcessor(electrosynth::SoundEngine* 
             auto theType = state_.params.oscType.get();
             float val =  (float)theType->getIndex() / (float)OscTypes::OscNumTypes;
             for (auto mod: state_.params.modules) {
-                mod->setterFunctions[OscParams::OscType](mod,val);
-                mod->setterFunctions[OscParams::OscShapeParam](mod->theOsc, *mod->params[OscShapeParam]);
+                tOscModule_setParameter(mod, OscType,val);
+                tOscModule_setParameter(mod, OscShapeParam, *mod->params[OscShapeParam]);
+
             //also need to update the shape since the new oscillator type will default to its initial shape instead
             }
 
@@ -61,7 +62,7 @@ void OscillatorModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     //    auto* samplesL = buffer.getReadPointer(0);
     for (int v = 0; v < engine->voiceHandler.numVoicesActive; v++) {
         if (!engine->voiceHandler.voiceIsSounding[v]) continue;
-        procArray[v].setterFunctions[OscParams::OscMidiPitch](procArray[v].object,engine->voiceHandler.voiceNote[v]/127.f);
+        tOscModule_setParameter(state_.params.modules[v], OscMidiPitch,engine->voiceHandler.voiceNote[v]/127.f );
         auto* L = buffer.getWritePointer(v*2);
         auto* R = buffer.getWritePointer(v*2+1);
         for (int i = 0; i < numSamples; i++)

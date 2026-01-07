@@ -44,7 +44,7 @@ struct EnvParamHolder : public LEAFParams<tEnvModule>
             1.0f,
             all_params[EnvParams::EnvAttack],
             [this] (float val) {
-                for (auto mod: modules) mod->setterFunctions[EnvParams::EnvAttack](mod, val);
+                for (auto mod: modules)tEnvModule_setParameter(mod,EnvAttack,val);
             }
     };
 
@@ -60,7 +60,7 @@ struct EnvParamHolder : public LEAFParams<tEnvModule>
         0.0f,
         all_params[EnvParams::EnvDecay],
         [this] (float val) {
-            for (auto mod: modules) mod->setterFunctions[EnvParams::EnvDecay](mod, val);
+            for (auto mod: modules)tEnvModule_setParameter(mod,EnvDecay,val);
         }
     };
 
@@ -73,7 +73,7 @@ struct EnvParamHolder : public LEAFParams<tEnvModule>
         1.0f,
         all_params[EnvParams::EnvSustain],
         [this] (float val) {
-            for (auto mod: modules) mod->setterFunctions[EnvParams::EnvSustain](mod, val);
+            for (auto mod: modules) tEnvModule_setParameter(mod,EnvSustain,val);
         },
         &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal
@@ -87,7 +87,7 @@ struct EnvParamHolder : public LEAFParams<tEnvModule>
         50.0f,
         all_params[EnvParams::EnvRelease],
         [this] (float val) {
-            for (auto mod: modules) mod->setterFunctions[EnvParams::EnvRelease](mod, val);
+            for (auto mod: modules) tEnvModule_setParameter(mod,EnvRelease,val);
         }
     };
 

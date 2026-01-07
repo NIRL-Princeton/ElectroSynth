@@ -8,7 +8,7 @@
 #include "Identifiers.h"
 #include "tracktion_ValueTreeUtilities.h"
 #include <string>
-
+#include "ModuleSection.h"
 #include "border_bounds_constrainer.h"
 #include "ModuleList.h"
 #include "public.sdk/source/vst/hosting/module.h"
@@ -270,6 +270,16 @@ void ModulesInterface<T>::resized() {
 template<typename T>
 void ModulesInterface<T>::mouseDown (const juce::MouseEvent& e)
 {
+    // // Find the component under the mouse
+    // if (auto* child = getComponentAt(e.getPosition()))
+    // {
+    //     if (auto* module = dynamic_cast<ModuleSection*>(child))
+    //     {
+    //         // Forward the event to the ModuleSection
+    //         module->mouseDown(e.getEventRelativeTo(module));
+    //         return;
+    //     }
+    // }
     if(e.mods.isPopupMenu())
     {
         PopupItems options = createPopupMenu();

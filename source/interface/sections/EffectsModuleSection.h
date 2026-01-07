@@ -27,7 +27,7 @@ public:
 
     void removeModule(ProcessorBase* newModule)   override;
     void moduleListChanged() ;
-
+    void paintBackground(Graphics &g) override;
     std::shared_ptr<OpenGlQuad> footer_body;
 
 
@@ -41,7 +41,9 @@ public:
     int mouse_down_y_;
     int dragged_starting_y_;
     int height;
-
+    int reorderTargetIndex = -1; // keep track of where to insert on drop
+    int placeholderIndex = -1;   // -1 means no placeholder
+    int placeholderHeight = 0;
     juce::UndoManager& undo;
 };
 

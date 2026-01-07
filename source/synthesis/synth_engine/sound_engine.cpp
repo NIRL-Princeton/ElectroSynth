@@ -308,12 +308,11 @@ namespace electrosynth {
                 //note -= midiKeyMin;
                 //note -= midiKeyMin;
                 for (int j = 0; j < voiceHandler.eventEmitter.numListeners; j++) {
-                    voiceHandler.eventEmitter.listeners[v][j].setterFunctions[EVENT_WATCH_INDEX]
-                            (voiceHandler.eventEmitter.listeners[v][j].object, velocity);
+                    callNoteOn(voiceHandler.eventEmitter.listeners[v][j],
+                            velocity);
                 }
 
-                MasterVoiceEnvelopeProcessor->state_.params.modules[v]->setterFunctions[EVENT_WATCH_INDEX](
-                    MasterVoiceEnvelopeProcessor->state_.params.modules[v], velocity);
+                callNoteOn(MasterVoiceEnvelopeProcessor->state_.params.modules[v], velocity);
                 voiceHandler.voiceIsSounding[v] = true;
                 // float norm = key / float(mkkkidiKeyMax - midiKeyMin);
             }
@@ -342,12 +341,11 @@ namespace electrosynth {
         if (v >= 0) {
             //note -= midiKeyMin;
             for (uint8_t j = 0; j < voiceHandler.eventEmitter.numListeners; j++) {
-                voiceHandler.eventEmitter.listeners[v][j].setterFunctions[EVENT_WATCH_INDEX]
-                        (voiceHandler.eventEmitter.listeners[v][j].object, 0.f);
+                callNoteOn(voiceHandler.eventEmitter.listeners[v][j],
+                             velocity);
             }
 
-            MasterVoiceEnvelopeProcessor->state_.params.modules[v]->setterFunctions[EVENT_WATCH_INDEX](
-                MasterVoiceEnvelopeProcessor->state_.params.modules[v], 0.f);
+            callNoteOn(MasterVoiceEnvelopeProcessor->state_.params.modules[v], velocity);
             voiceHandler.voiceIsSounding[v] = true;
             // float norm = key / float(mkkkidiKeyMax - midiKeyMin);
         }
