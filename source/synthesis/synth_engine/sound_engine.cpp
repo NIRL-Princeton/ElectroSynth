@@ -33,12 +33,14 @@ namespace electrosynth {
         LEAF_init(&leaf, 44100.0f, memory, 16777216, []() { return (float) rand() / RAND_MAX; });
         //processors.push_back(std::make_shared<OscillatorModuleProcessor> (&leaf));
         //SoundEngine::init();
-        tSimplePoly_init(&voiceHandler.voices[0], MAX_NUM_VOICES, &leaf);
+        tSimplePoly_create(&leaf.mempool,&voiceHandler.voices[0]);
+        tSimplePoly_init(&leaf, voiceHandler.voices[0], MAX_NUM_VOICES);
         voiceHandler.numVoicesActive = MAX_NUM_VOICES;
         tSimplePoly_setNumVoices(voiceHandler.voices[0], (uint8_t) voiceHandler.numVoicesActive);
         voiceHandler.voiceNote[0] = 0;
         for (uint8_t i = 1; i < MAX_NUM_VOICES; i++) {
-            tSimplePoly_init(&voiceHandler.voices[i], MAX_NUM_VOICES, &leaf);
+        tSimplePoly_create(&leaf.mempool,&voiceHandler.voices[i]);
+            tSimplePoly_init(&leaf,voiceHandler.voices[i], MAX_NUM_VOICES);
             voiceHandler.voices[i] = 0;
             voiceHandler.voiceIsSounding[i] = false;
             voiceHandler.voicePrevBend[i] = 0.0f;
@@ -334,8 +336,8 @@ namespace electrosynth {
         int v = tSimplePoly_markPendingNoteOff(voiceHandler.voices[i], note);
 
         //If stack_IsNOTEmpty
-        if ((v != -1) && (tStack_getSize(voiceHandler.voices[i]->stack) >= voiceHandler.numVoicesActive)) {
-            if (voiceHandler.voices[0]->voices[v][0] == -2) {
+        if ((v != -1) && (tStack_getSize(tSimplePoly_getStack(voiceHandler.voices[i])) >= voiceHandler.numVoicesActive)) {
+            if (tSimplePoly_getVoices(voiceHandler.voices[0])[v][0] == -2) {
                 tSimplePoly_deactivateVoice(voiceHandler.voices[0], v);
                 voiceHandler.voiceIsSounding[v] = true;
             }

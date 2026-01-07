@@ -28,6 +28,7 @@ class RoutingProcessor;
 class ProcessorBase;
 class ModulatorBase;
 class EnvModuleProcessor;
+#include "leaf-midi.h"
 namespace electrosynth {
     using AudioGraphIOProcessor = juce::AudioProcessorGraph::AudioGraphIOProcessor;
     using Node = juce::AudioProcessorGraph::Node;
