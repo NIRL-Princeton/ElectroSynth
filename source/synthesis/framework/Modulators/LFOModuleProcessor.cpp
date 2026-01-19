@@ -3,15 +3,16 @@
 //
 
 #include "LFOModuleProcessor.h"
+#include "sound_engine.h"
+#include  "LFOModule.h"
 LFOModuleProcessor::LFOModuleProcessor(electrosynth::SoundEngine* engine,juce::ValueTree& vt, LEAF* leaf,juce::UndoManager *um)
     :ModulatorStateBase(engine,leaf,vt ,um)
 {
-    procArray = &state_.params.processors[0];
-    vt.setProperty(IDs::uuid, state_.params.processors[0].processorUniqueID, nullptr);
-    name = vt.getProperty(IDs::type).toString() + vt.getProperty(IDs::uuid).toString();
+
 }
 
-void LFOModuleProcessor::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill)
-{
-    //proc->tick(proc->object, nullptr);
+void LFOModuleProcessor::process() {
+    for (int i = 0; i < engine->voiceHandler.numVoicesActive; i++) {
+        tLFOModule_tick(state_.params.modules[i]);
+    }
 }

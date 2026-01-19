@@ -48,19 +48,23 @@ struct LEAFParams : public chowdsp::ParamHolder
         //reinterpret_cast<T> allows for type unsafe casting
         std::array<float,MAX_NUM_PARAMS> mutable_params = empty_params;
         int uuid = getNextUuid(leaf);
+
         for (int i = 0; i < MAX_NUM_VOICES; ++i) {
             leaf::module_init_map[map.get<T>()](reinterpret_cast<void**>(&modules[i]), mutable_params.data(), uuid, leaf);
-            leaf::proc_init_map[map.get<T>()](reinterpret_cast<void*>(modules[i]), &processors[i]);
             // for (int i = 0; i < MAX_NUM_PARAMS; ++i) {
             //     &processors[i].inParameters
-            // }
-            for (int j = 0 ;j< MAX_NUM_PARAMS; j++) {
-                all_params[j][i] = &processors[i].inParameters[j];
-            }
+
+            headers[i]=reinterpret_cast<ModuleHeader *>(modules[i]);
+
+            auto* header = reinterpret_cast<ModuleHeader*>(modules[i]);  // header is first member => offset 0
+            auto params = header->params;
+
+            for (int j = 0; j < MAX_NUM_PARAMS; ++j)
+                all_params[j][i] = &params[j];
         }
     }
     std::array<std::array<std::atomic<float>**,MAX_NUM_VOICES>,MAX_NUM_PARAMS> all_params;
-    leaf::tProcessor processors[MAX_NUM_VOICES];
+    std::array<ModuleHeader*, MAX_NUM_VOICES> headers {};
     T* modules[MAX_NUM_VOICES];
 };
 

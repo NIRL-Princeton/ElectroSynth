@@ -23,9 +23,9 @@ public:
     ~ProcessorBase() override = default;
     LEAF* leaf;
     juce::ValueTree state;
-    leaf::Processor* procArray;
+    std::array<ModuleHeader*, MAX_NUM_VOICES>* procArray;
     juce::String name;
-    virtual void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&);
+    virtual void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) = 0;
     void getNextAudioBlock (const juce::AudioSourceChannelInfo &bufferToFill) override {}
     void prepareToPlay (int samplesPerBlock, double sampleRate ) override {}
     void releaseResources() override {}
@@ -43,9 +43,9 @@ public :
     : ProcessorBase(engine,leaf, tree, um),
           state_(leaf,um)
     {
-    state.setProperty(IDs::uuid, state_.params.processors[0].processorUniqueID, nullptr);
+    state.setProperty(IDs::uuid, int(state_.params.headers[0]->uniqueID), nullptr);
     name = state.getProperty(IDs::type).toString() + state.getProperty(IDs::uuid).toString();
-    procArray = &state_.params.processors[0];
+    procArray = &state_.params.headers;
     if(state.isValid())
         chowdsp::Serialization::deserialize<chowdsp::XMLSerializer>(state.createXml(),state_);
     }

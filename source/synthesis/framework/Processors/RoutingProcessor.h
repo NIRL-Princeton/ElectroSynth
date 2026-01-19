@@ -19,7 +19,7 @@ enum RoutingMode {
 };
 
 struct RoutingParams : public LEAFParams<_tVCAModule> {
-    RoutingParams(LEAF *leaf) : LEAFParams<_tVCAModule>(leaf) {
+    RoutingParams(LEAF *leaf) : LEAFParams(leaf) {
 
         add(gainparam, routing);
         int i= 0;
@@ -37,7 +37,7 @@ struct RoutingParams : public LEAFParams<_tVCAModule> {
         all_params[VCAParams::VCAGain],
         [this](float val) {
             for (auto mod: modules)
-                mod->setterFunctions[VCAParams::VCAGain](mod, val);
+                mod->header.setterFunctions[VCAParams::VCAGain](mod, val);
             //harmonic->range.interval = val;
             // DBG("amp [0 - 1] " + juce::String(val) + ".. .... stepped pitch actual " + juce::String(modules[0]->pStepped));
         }

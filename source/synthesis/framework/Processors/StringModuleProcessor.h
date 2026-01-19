@@ -28,20 +28,20 @@ struct StringParams : public LEAFParams<_tStringModule>
         );
     }
 
-
-    //add env watch param so that it isnt null
     chowdsp::FloatParameter::Ptr envwatchparam {
         juce::ParameterID { "watch", 100 },
         "watch",
         chowdsp::ParamUtils::createNormalisableRange (0.0f, 1.0f, 0.5f),
         1.0f,
-        all_params[0],
+        all_params[EnvEventWatchFlag],
         [this] (float val) {
-            // for (auto mod: modules) mod->setterFunctions[EnvParams::EnvSustain](mod, val);
         },
         &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal
     };
+
+
+
     chowdsp::FloatParameter::Ptr oversample {
         juce::ParameterID{"oversample", 100},
         "Oversample",
@@ -192,9 +192,6 @@ public:
     StringModuleProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree& _state, LEAF* leaf,juce::UndoManager* um)
         : ProcessorStateBase(engine,leaf,_state,um)
     {
-        state.setProperty(IDs::uuid, state_.params.processors[0].processorUniqueID, nullptr);
-        name = state.getProperty(IDs::type).toString() + state.getProperty(IDs::uuid).toString();
-        procArray = &state_.params.processors[0];
     }
 
     void processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midi) override;

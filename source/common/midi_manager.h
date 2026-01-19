@@ -43,7 +43,6 @@
 #include "juce_audio_devices/juce_audio_devices.h"
 #include "tracktion_ValueTreeUtilities.h"
 #include "processors/mapping.h"
-#include "processor.h"
 class SynthBase;
 
 namespace electrosynth {
@@ -62,7 +61,7 @@ namespace electrosynth
 {
 
 }
-void sendPresetOverMidi(const leaf::tProcessorPreset7Bit& preset, size_t maxChunkSize, juce::MidiOutput* midi_output);
+// void sendPresetOverMidi(const leaf::tProcessorPreset7Bit& preset, size_t maxChunkSize, juce::MidiOutput* midi_output);
 void sendPresetOverMidi(const leaf::tMappingPreset7Bit& preset, size_t maxChunkSize, juce::MidiOutput* midi_output);
 class MidiManager : public MidiInputCallback,public tracktion::engine::ValueTreeObjectList<electrosynth::MidiDeviceWrapper> {
 public:

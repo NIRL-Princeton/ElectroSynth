@@ -22,7 +22,6 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
             );
     }
 
-    // Sustain param
     chowdsp::FloatParameter::Ptr envwatchparam {
         juce::ParameterID { "watch", 100 },
         "watch",
@@ -108,6 +107,7 @@ public:
     {
         return std::make_unique<electrosynth::ParametersView>(state_, state_.params, state.getProperty(IDs::type).toString() + state.getProperty(IDs::uuid).toString());
     }
+    void process() override;
 };
 
 #endif //ELECTROSYNTH_ENVMODULEPROCESSOR_H
