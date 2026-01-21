@@ -42,7 +42,7 @@ const std::array<std::vector<std::string>, 6> paramsAllArray =
             "eventWatch", // FiltEventWatchFlag
             "midiPitch", // FiltMidiPitch
             "cutoff", // FiltCutoff
-            "gain", // FiltGain
+            "amp", // FiltGain
             "resonance", // FiltResonance
             "keyfollow", // FiltKeyfollow
             "filterType", // FiltType

@@ -228,7 +228,7 @@ class SynthSection : public Component, public Slider::Listener,
 //        DBG("mouseenter " + getName());
 //    }
     SynthSection(const String& name);
-    virtual ~SynthSection() = default;
+    virtual ~SynthSection();
 
     void setParent(const SynthSection* parent) { parent_ = parent; }
     float findValue(Skin::ValueId value_id) const;
@@ -357,7 +357,7 @@ protected:
 
     void addButton(OpenGlShapeButton* button, bool show = true);
     float getKnobSectionHeight();
-    void addBackgroundComponent(OpenGlBackground* open_gl_component, bool to_beginning = false);
+    //void addBackgroundComponent(std::unique_ptr<OpenGlBackground> && open_gl_component, bool to_beginning = false);
     void setActivator(SynthButton* activator);
     void createOffOverlay();
     void setPresetSelector(PresetSelector* preset_selector, bool half = false) {
@@ -383,7 +383,7 @@ protected:
     virtual int getPixelMultiple() const;
 
     juce::Component* scissor_component_;
-    OpenGlBackground* background_;
+    std::unique_ptr<OpenGlBackground> background_;
     std::map<std::string, SynthSlider*> slider_lookup_;
     std::map<std::string, Button*> button_lookup_;
     std::map<std::string, ModulationButton*> modulation_buttons_;
