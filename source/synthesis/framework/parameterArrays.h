@@ -15,12 +15,13 @@
 //     ModuleTypeVCAModule,
 //
 // } ModuleType;
-const std::array<std::vector<std::string>, 6> paramsAllArray =
+const std::array<std::vector<std::string>, 7> paramsAllArray =
 {
     {
         {
             "eventWatch",
             "midiPitch", // OscMidiPitch
+
             "harmonic", // OscHarmonic
             "pitch", // OscPitchOffset
             "pitchfine", // OscPitchFine
@@ -50,6 +51,14 @@ const std::array<std::vector<std::string>, 6> paramsAllArray =
             "" // FiltNumParams (placeholder)
         },
         {}, //string
+        {
+            "eventWatch", //
+           "inputGain", // OscHarmonic
+           "offset", // OscPitchOffset
+           "shape", // OscPitchFine
+           "outputGain", // OscFreqOffset
+           "" // OscNumParams (typically represents the count, no corresponding parameter)
+        }, //softclip
     }
 
 };

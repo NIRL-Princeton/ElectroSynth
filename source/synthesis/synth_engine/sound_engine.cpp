@@ -54,7 +54,6 @@ namespace electrosynth {
         modSources.resize(10);
         for (auto &modSource: modSources) { modSource.reserve(10); }
 
-
         MasterVoiceEnvelopeProcessor = std::make_unique<EnvModuleProcessor>(
             this, juce::ValueTree(IDs::MODULATOR).setProperty(IDs::type, "env", nullptr), &leaf, &undo);
         MasterVoiceEnvelopeProcessor->state_.params.attackParam->setParameterValue(0.1);

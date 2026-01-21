@@ -67,6 +67,16 @@ struct SoftClipParams : public LEAFParams<_tSoftClipModule >
         {for (auto mod: modules)    tSoftClipModule_setParameter(mod,SoftClipShape,val);
                                             },
     };
+    chowdsp::GainDBParameter::Ptr outputGain {
+        juce::ParameterID{"outputGain", 100},
+        "shape",
+        chowdsp::ParamUtils::createNormalisableRange(0.0f, 1.0f, 0.5f),
+        1.0f,
+        all_params[SoftClipModuleParams::SoftClipOutputGain],
+        [this](float val)
+        {for (auto mod: modules)    tSoftClipModule_setParameter(mod,SoftClipOutputGain,val);
+        },
+};
 
 };
 
