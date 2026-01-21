@@ -39,8 +39,8 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
     {
         juce::ParameterID { "attack", 100 },
             "Attack",
-            chowdsp::ParamUtils::createNormalisableRange (0.0f, 10000.0f, 500.0f),
-            1.0f,
+            chowdsp::ParamUtils::createNormalisableRange (0.0f, 1.0f, 0.5f),
+            0.01f,
             all_params[EnvParams::EnvAttack],
             [this] (float val) {
                 for (auto mod: modules)tEnvModule_setParameter(mod,EnvAttack,val);
@@ -55,7 +55,7 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
     chowdsp::TimeMsParameter::Ptr decayParam {
         juce::ParameterID { "decay", 100 },
         "Decay",
-        chowdsp::ParamUtils::createNormalisableRange (0.0f, 1000.0f, 500.0f),
+        chowdsp::ParamUtils::createNormalisableRange (0.0f, 1.0f, 0.5f),
         0.0f,
         all_params[EnvParams::EnvDecay],
         [this] (float val) {
@@ -82,8 +82,8 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
     chowdsp::TimeMsParameter::Ptr releaseParam {
         juce::ParameterID { "release", 100 },
         "Release",
-        chowdsp::ParamUtils::createNormalisableRange (0.0f, 1000.0f, 500.0f),
-        50.0f,
+        chowdsp::ParamUtils::createNormalisableRange (0.0f, 1.0f, 0.5f),
+        0.1f,
         all_params[EnvParams::EnvRelease],
         [this] (float val) {
             for (auto mod: modules) tEnvModule_setParameter(mod,EnvRelease,val);
