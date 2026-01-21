@@ -319,7 +319,7 @@ namespace electrosynth {
                             velocity);
                 }
 
-                callNoteOn(MasterVoiceEnvelopeProcessor->state_.params.modules[v], velocity);
+                callNoteOn(&MasterVoiceEnvelopeProcessor->state_.params.modules[v]->header, velocity);
                 voiceHandler.voiceIsSounding[v] = true;
                 // float norm = key / float(mkkkidiKeyMax - midiKeyMin);
             }
@@ -352,7 +352,7 @@ namespace electrosynth {
                              velocity);
             }
 
-            callNoteOn(MasterVoiceEnvelopeProcessor->state_.params.modules[v], velocity);
+            callNoteOn(&MasterVoiceEnvelopeProcessor->state_.params.modules[v]->header, velocity);
             voiceHandler.voiceIsSounding[v] = true;
             // float norm = key / float(mkkkidiKeyMax - midiKeyMin);
         }
@@ -439,7 +439,7 @@ namespace electrosynth {
         //    voice_handler_->sostenutoOffRange(sample, from_channel, to_channel);
     }
 
-    leaf::Processor *SoundEngine::getLEAFProcessor(const std::string &proc_string) {
+    std::array<ModuleHeader*, MAX_NUM_VOICES>* SoundEngine::getLEAFProcessor(const std::string &proc_string) {
         // Use find_if to search the outermost vector
         auto outerIt = std::find_if(processors.begin(), processors.end(), [&](const auto &innerVec) {
             // Use find_if on the inner vector to look for the processor with the target name
@@ -463,7 +463,7 @@ namespace electrosynth {
         jassertfalse;
     }
 
-    leaf::Processor *SoundEngine::getLEAFProcessorModulator(const std::string &proc_string) {
+    std::array<ModuleHeader*, MAX_NUM_VOICES>* SoundEngine::getLEAFProcessorModulator(const std::string &proc_string) {
         // Use find_if to search the outermost vector
         auto outerIt = std::find_if(modSources.begin(), modSources.end(), [&](const auto &innerVec) {
             // Use find_if on the inner vector to look for the processor with the target name
@@ -491,13 +491,13 @@ namespace electrosynth {
         return nullptr;
     }
 
-    std::pair<leaf::Processor *, int> SoundEngine::getParameterInfo(const std::string &value) {
+    std::pair<  std::array<ModuleHeader*, MAX_NUM_VOICES>* , int> SoundEngine::getParameterInfo(const std::string &value) {
         std::stringstream ss(value);
         std::string proc_string;
         std::getline(ss, proc_string, '_');
 
         auto proc = getLEAFProcessor(proc_string);
-        int procID = proc->processorTypeID;
+        int procID = proc->at(0)->moduleType;
         std::string param_string;
         std::getline(ss, param_string, '_');
         int index = -1;
@@ -520,7 +520,7 @@ namespace electrosynth {
     ModulatorBase *SoundEngine::getModulatorFromUUID(int uuid) {
     }
 
-    leaf::tProcessor *SoundEngine::getLeafProcessorFromUUID(int uuid) {
+      std::array<ModuleHeader*, MAX_NUM_VOICES>*  SoundEngine::getLeafProcessorFromUUID(int uuid) {
     }
 
     void SoundEngine::connectMapping(const electrosynth::mapping_change &change) {
@@ -536,15 +536,15 @@ namespace electrosynth {
                 }
                 //set the scale value to point to the backend mapping scaling
                 for (int v = 0; v < MAX_NUM_VOICES; v++) {
-                    auto val = change._dest[v].inParameters[change.dest_param_index];
+                    auto val = change._dest->at(v)->params[change.dest_param_index];
                     tMappingAdd_(&change.mapping->mapping_[v],
-                                 &change._source[v].outParameters[0],
-                                 change._source[v].processorUniqueID,
+                                 &change._source->at(v)->outputs[0],
+                                 change._source->at(v)->uniqueID,
                                  val,
-                                 change._dest[v].processorUniqueID,
-                                 change._dest[v].setterFunctions[change.dest_param_index],
+                                 change._dest->at(v)->uniqueID,
+                                 change._dest->at(v)->setterFunctions[change.dest_param_index],
                                  change.dest_param_index,
-                                 change._dest[v].object,
+                                 change._dest->at(v),
                                  &leaf,
                                  &change.connection->scalingValue_);
                     // tMappingAdd(&change.mapping->mapping_[v], &change._source[v], &change._dest[v],
@@ -568,15 +568,15 @@ namespace electrosynth {
         //index will be 0 in the mapping
         //set the scale value to point to the backend mapping scaling
         for (int v = 0; v < voiceHandler.numVoicesActive; v++) {
-            auto val = change._dest[v].inParameters[change.dest_param_index];
+            auto val = change._dest->at(v)->params[change.dest_param_index];
             tMappingAdd_(&change.mapping->mapping_[v],
-                         &change._source[v].outParameters[0],
-                         change._source[v].processorUniqueID,
+                         &change._source->at(v)->outputs[0],
+                         change._source->at(v)->uniqueID,
                          val,
-                         change._dest[v].processorUniqueID,
-                         change._dest[v].setterFunctions[change.dest_param_index],
+                         change._dest->at(v)->uniqueID,
+                         change._dest->at(v)->setterFunctions[change.dest_param_index],
                          change.dest_param_index,
-                         change._dest[v].object,
+                         change._dest->at(v),
                          &leaf,
                          &change.connection->scalingValue_);
         //     tMappingAdd(&change.mapping->mapping_[v], &change._source[v], &change._dest[v], change.dest_param_index,

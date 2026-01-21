@@ -9,7 +9,7 @@
 
 #include "processors/mapping.h"
 #include "ModulationWrapper.h"
-#include "processor.h"
+#include "leaf.h"
 namespace electrosynth {
 struct MappingWrapper;
     struct ModulationConnection {
@@ -103,7 +103,8 @@ struct MappingWrapper;
         bool stereo_;
         bool defaultBipolar;
         LEAF &leaf_;
-        leaf::tProcessor* sourceProc_;
+        std::array<ModuleHeader*, MAX_NUM_VOICES>* sourceProc_;
+
         std::atomic<float> scalingValue_;
         std::atomic<float>* bipolarOffset;
 
@@ -128,8 +129,8 @@ struct MappingWrapper;
             std::string source;
             int dest_param_index;
             int source_param_uuid;
-            leaf::tProcessor * _source;
-            leaf::tProcessor * _dest;
+            std::array<ModuleHeader*, MAX_NUM_VOICES>*_source;
+            std::array<ModuleHeader*, MAX_NUM_VOICES>*_dest;
         }mapping_change;
 
 

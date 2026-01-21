@@ -27,9 +27,7 @@ RoutingProcessor::RoutingProcessor(electrosynth::SoundEngine *engine, const juce
                 })
             };
     audio_out = &this->engine->temp_fx_buffers[0];
-        state.setProperty(IDs::uuid, state_.params.processors[0].processorUniqueID, nullptr);
-        name = state.getProperty(IDs::type).toString() + state.getProperty(IDs::uuid).toString();
-        procArray = &state_.params.processors[0];
+
 }
 
 std::unique_ptr<SynthSection> RoutingProcessor::createEditor() {
@@ -55,8 +53,8 @@ void RoutingProcessor::processBlock(juce::AudioBuffer<float> & buffer, juce::Mid
         auto* outR = audio_out->getWritePointer(v * 2 + 1);
         for (int i = 0; i < numSamples; i++)
         {
-            procArray[v].tick(procArray[v].object,inL);
-            outL[i] += procArray[v].outParameters[0];
+            tVCAModule_tick(state_.params.modules[v],inL);
+            outL[i] += state_.params.modules[v]->header.outputs[0];
             outR[i] = outL[i];
         }
     }

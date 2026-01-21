@@ -32,6 +32,8 @@ SynthSection::SynthSection(const String& name) : Component(name), parent_(nullpt
 
 }
 
+SynthSection::~SynthSection() =default;
+
 float SynthSection::findValue(Skin::ValueId value_id) const {
   if (value_lookup_.count(value_id)) {
       if (Skin::shouldScaleValue(value_id))
@@ -132,7 +134,7 @@ void SynthSection::repaintBackground() {
 
 void SynthSection::paintContainer(Graphics& g) {
   paintBody(g);
-  
+
   g.saveState();
   if (sideways_heading_) {
     int title_width = findValue(Skin::kTitleWidth);
@@ -145,7 +147,7 @@ void SynthSection::paintContainer(Graphics& g) {
     g.setColour(findColour(Skin::kBodyHeading, true));
     g.fillRoundedRectangle(0, 0, getWidth(), getHeight(), findValue(Skin::kBodyRounding));
   }
-  
+
   g.restoreState();
 }
 
@@ -348,6 +350,8 @@ void SynthSection::renderOpenGlComponents(OpenGlWrapper& open_gl, bool animate) 
   if (scissor_component_) {
     OpenGlComponent::setScissor(scissor_component_, open_gl);
   }
+  if(background_)
+    background_->render(open_gl);
   for (auto& sub_section : sub_sections_) {
       if (sub_section != nullptr && sub_section->isVisible() && !sub_section->isAlwaysOnTop())
       sub_section->renderOpenGlComponents(open_gl, animate);
@@ -385,8 +389,7 @@ void SynthSection::renderOpenGlComponents(OpenGlWrapper& open_gl, bool animate) 
       _ASSERT(juce::gl::glGetError() == juce::gl::GL_NO_ERROR);
       }
   }
-  if(background_)
-      background_->render(open_gl);
+
 }
 
 void SynthSection::destroyOpenGlComponents(juce::OpenGLContext& open_gl) {
@@ -532,15 +535,15 @@ void SynthSection::setScrollWheelEnabled(bool enabled) {
 //    sub_section->setScrollWheelEnabled(enabled);
 }
 
-void SynthSection::addBackgroundComponent(OpenGlBackground *open_gl_component, bool to_beginning)
-{
-    background_ = open_gl_component;
-
-}
+// void SynthSection::addBackgroundComponent(std::unique_ptr<OpenGlBackground> && open_gl_component, bool to_beginning)
+// {
+//     background_ = open_gl_component;
+//
+// }
 void SynthSection::addOpenGlComponent(std::shared_ptr<OpenGlComponent> open_gl_component, bool to_beginning, bool makeVisible ) {
   if (open_gl_component == nullptr)
     return;
-  
+
   _ASSERT(std::find(open_gl_components_.begin(), open_gl_components_.end(),
                          open_gl_component) == open_gl_components_.end());
 
@@ -746,7 +749,7 @@ Rectangle<int> SynthSection::getTitleBounds() {
 double SynthSection::getDisplayScale() const {
   if (getWidth() <= 0)
     return 1.0f;
-  
+
   Component* top_level = getTopLevelComponent();
   Rectangle<int> global_bounds = top_level->getLocalArea(this, getLocalBounds());
   double display_scale = Desktop::getInstance().getDisplays().getDisplayForRect(top_level->getScreenBounds())->scale;

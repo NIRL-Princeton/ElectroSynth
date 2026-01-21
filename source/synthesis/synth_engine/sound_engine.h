@@ -19,7 +19,6 @@
 #include "../framework/note_handler.h"
 #include <leaf.h>
 #include "event_emitter.h"
-#include "processors/processor.h"
 #include "ModulationConnection.h"
 #include "BenchMarkProcessBlock.h"
 #include "VCAModule.h"
@@ -134,9 +133,9 @@ namespace electrosynth {
       ModulationConnectionBank& getModulationBank() { return modulation_bank_; }
       void checkOversampling();
 
-      leaf::Processor* getLEAFProcessor(const std::string&);
-      leaf::Processor* getLEAFProcessorModulator(const std::string&);
-      std::pair<leaf::Processor*, int> getParameterInfo(const std::string&);
+        std::array<ModuleHeader*, MAX_NUM_VOICES>*  getLEAFProcessor(const std::string&);
+       std::array<ModuleHeader*, MAX_NUM_VOICES>* getLEAFProcessorModulator(const std::string&);
+      std::pair<  std::array<ModuleHeader*, MAX_NUM_VOICES>* , int> getParameterInfo(const std::string&);
       std::vector<std::vector<std::unique_ptr<ProcessorBase>>> processors;
       std::vector<std::unique_ptr<RoutingProcessor>> chainPostGain;
       std::vector<leaf::tAudioRouting*> chain_to_lane_routings;
@@ -149,7 +148,7 @@ namespace electrosynth {
       ProcessorBase* getProcessorFromUUID(int uuid);
       ModulatorBase* getModulatorFromUUID(int uuid);
 
-      leaf::tProcessor * getLeafProcessorFromUUID(int uuid);
+     std::array<ModuleHeader*, MAX_NUM_VOICES>* getLeafProcessorFromUUID(int uuid);
       char memory[16777216];
       LEAF leaf;
 

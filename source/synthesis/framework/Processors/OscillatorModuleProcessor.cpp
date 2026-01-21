@@ -36,7 +36,7 @@ OscillatorModuleProcessor::OscillatorModuleProcessor(electrosynth::SoundEngine* 
             float val =  (float)theType->getIndex() / (float)OscTypes::OscNumTypes;
             for (auto mod: state_.params.modules) {
                 tOscModule_setParameter(mod, OscType,val);
-                tOscModule_setParameter(mod, OscShapeParam, *mod->params[OscShapeParam]);
+                tOscModule_setParameter(mod, OscShapeParam, *mod->header.params[OscShapeParam]);
 
             //also need to update the shape since the new oscillator type will default to its initial shape instead
             }
@@ -45,9 +45,6 @@ OscillatorModuleProcessor::OscillatorModuleProcessor(electrosynth::SoundEngine* 
 
         })
     };
-    state.setProperty(IDs::uuid, state_.params.processors[0].processorUniqueID, nullptr);
-    name = state.getProperty(IDs::type).toString() + state.getProperty(IDs::uuid).toString();
-    procArray = &state_.params.processors[0];
 
    //tOscModule_init(static_cast<void*>(module), {0, 0}, id, leaf)
     //tOscModule_processorInit(state_.params.module, &processor);
@@ -67,8 +64,8 @@ void OscillatorModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         auto* R = buffer.getWritePointer(v*2+1);
         for (int i = 0; i < numSamples; i++)
         {
-            procArray[v].tick(procArray[v].object,L);
-            L[i] += procArray[v].outParameters[0];
+           tOscModule_tick(state_.params.modules[v],L);
+            L[i] += state_.params.modules[v]->header.outputs[0];
             R[i] = L[i];
         }
     }

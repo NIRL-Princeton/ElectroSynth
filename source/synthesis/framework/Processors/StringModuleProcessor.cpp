@@ -4,7 +4,7 @@
 
 #include "StringModuleProcessor.h"
 #include "Identifiers.h"
-
+#include "sound_engine.h"
 void StringModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer&)
 {
     state_.getParameterListeners().callAudioThreadBroadcasters();
@@ -14,11 +14,13 @@ void StringModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
 //    auto* samplesL = buffer.getReadPointer(0);
     auto* L = buffer.getWritePointer(0);
     auto* R = buffer.getWritePointer(1);
-    for (int i = 0; i < numSamples; i++)
-    {
-        tStringModule_tick(state_.params.modules[0],L);
-        L[i] += state_.params.modules[0]->outputs[0];
-        R[i] = L[i];
-    }
+    for (int v = 0; v < engine->voiceHandler.numVoicesActive; v++) {
+        for (int i = 0; i < numSamples; i++)
+        {
 
+            tStringModule_tick(state_.params.modules[v],L);
+            L[i] += state_.params.modules[v]->header.outputs[v];
+            R[i] = L[i];
+        }
+    }
 }

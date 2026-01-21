@@ -29,9 +29,9 @@ public:
     }
     void renderOpenGlComponents(OpenGlWrapper &open_gl, bool animate) override {
         if(!background_->isInit) {
-            background_->init(open_gl);
+        background_->init(open_gl);
         }
-        background_->render(open_gl);
+        // background_->render(open_gl);
 
         SynthSection::renderOpenGlComponents(open_gl,animate);
     }
@@ -95,7 +95,6 @@ public:
 private:
     bool isDragging = false;
     juce::Image background_image_;
-    std::shared_ptr<OpenGlBackground> background_;
     std::unique_ptr<SynthSection> _view;
     std::vector<Listener*> listeners_;
     juce::UndoManager& undo;

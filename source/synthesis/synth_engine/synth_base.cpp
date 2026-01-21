@@ -274,23 +274,40 @@ void SynthBase::addChainRouting(std::unique_ptr<RoutingProcessor> processor, int
 }
 void SynthBase::addProcessor(std::unique_ptr<ProcessorBase> processor, int chain_index) {
     processor->prepareToPlay(engine_->getSampleRate(), engine_->getBufferSize());
+    auto proc0 = processor->procArray[0];
+    std::atomic<float> *watchParameter = (proc0[0])->params[EVENT_WATCH_INDEX];
 
+    if (*proc0[0]->params[EVENT_WATCH_INDEX] == 1) {
+        for (int i = 0; i < MAX_NUM_VOICES; i++)
+            engine_->voiceHandler.eventEmitter.listeners[i][engine_->voiceHandler.eventEmitter.numListeners] =
+                    processor->procArray->at(i);
+    }
+    engine_->voiceHandler.eventEmitter.numListeners++;
     engine_->processors[chain_index].push_back(std::move(processor));
 }
 void SynthBase::addEffect(std::unique_ptr<ProcessorBase> processor, int lane) {
     processor->prepareToPlay(engine_->getSampleRate(), engine_->getBufferSize());
+    auto proc0 = processor->procArray[0];
+    std::atomic<float> *watchParameter = (proc0[0])->params[EVENT_WATCH_INDEX];
 
+    if (*proc0[0]->params[EVENT_WATCH_INDEX] == 1) {
+        for (int i = 0; i < MAX_NUM_VOICES; i++)
+            engine_->voiceHandler.eventEmitter.listeners[i][engine_->voiceHandler.eventEmitter.numListeners] =
+                    processor->procArray->at(i);
+    }
+    engine_->voiceHandler.eventEmitter.numListeners++;
     engine_->effects[lane].push_back(std::move(processor));
 }
 void SynthBase::addModulationSource(std::unique_ptr<ModulatorBase> modulationSource, int voice_index) {
     modulationSource->prepareToPlay(engine_->getBufferSize(), engine_->getSampleRate());
 
-    leaf::tProcessor *proc0 = &modulationSource->procArray[0];
-    std::atomic<float> *watchParameter = proc0->inParameters[EVENT_WATCH_INDEX];
-    if (*proc0->inParameters[EVENT_WATCH_INDEX] == 1) {
+    ModuleHeader* proc0 = modulationSource->procArray->at(0);//[0];
+    std::atomic<float> *watchParameter = (proc0)->params[EVENT_WATCH_INDEX];
+
+    if (*proc0->params[EVENT_WATCH_INDEX] == 1) {
         for (int i = 0; i < MAX_NUM_VOICES; i++)
             engine_->voiceHandler.eventEmitter.listeners[i][engine_->voiceHandler.eventEmitter.numListeners] =
-                    &modulationSource->procArray[i];
+                    modulationSource->procArray->at(i);
     }
     engine_->voiceHandler.eventEmitter.numListeners++;
     engine_->modSources[voice_index].push_back(std::move(modulationSource));
@@ -583,7 +600,7 @@ electrosynth::mapping_change SynthBase::createMappingChange(electrosynth::Modula
     std::getline(ss, proc_string, '_');
     auto [dest, index] = engine_->getParameterInfo(connection->destination_name);
     auto source = engine_->getLEAFProcessorModulator(proc_string);
-    connection->sourceProc_ =source;
+    connection->sourceProc_ = source;
     electrosynth::mapping_change change;
     change.connection = connection;
     change.mapping = connection->mapping_;

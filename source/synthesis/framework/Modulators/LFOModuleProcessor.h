@@ -10,7 +10,7 @@
 
 struct LFOParamHolder : public LEAFParams<_tLFOModule>
 {
-    LFOParamHolder(LEAF* leaf) : LEAFParams<_tLFOModule>(leaf)
+    LFOParamHolder(LEAF* leaf) : LEAFParams(leaf)
     {
         add(rateParam);
     }
@@ -73,13 +73,14 @@ class LFOModuleProcessor: public ModulatorStateBase<PluginStateImpl_<LFOParamHol
 {
 public:
     LFOModuleProcessor(electrosynth::SoundEngine* engine,juce::ValueTree&, LEAF* leaf,juce::UndoManager*);
-    void getNextAudioBlock (const juce::AudioSourceChannelInfo &bufferToFill) override;
+    void getNextAudioBlock (const juce::AudioSourceChannelInfo &bufferToFill) override{};
     void prepareToPlay (int samplesPerBlock, double sampleRate ) override {}
     void releaseResources() override {}
     std::unique_ptr<SynthSection> createEditor() override
     {
         return std::make_unique<electrosynth::ParametersView>(state_, state_.params, state.getProperty(IDs::type).toString() + state.getProperty(IDs::uuid).toString());
     }
+    void process() override;
 
 };
 

@@ -51,7 +51,7 @@ namespace electrosynth
                 mapping_[v].scalingValues[i] = &connection->scalingValue_;
 
                 connection->bipolarOffset = &mapping_[i].bipolarOffset[i];
-                mapping_[v].inSources[i] = &connection->sourceProc_[v].outParameters[0];
+                mapping_[v].inSources[i] = &connection->sourceProc_->at(v)->outputs[0];
             }
             connection->scalingValue_ = scaleCurr;
             *connection->bipolarOffset = bipolarOffset;
