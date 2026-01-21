@@ -8,7 +8,7 @@
 	update = merge
 [submodule "third_party/leaf_modules"]
 	path = third_party/leaf_modules
-	url = git@github.com:JoshuaWarner22/MappingandProcessors.git
+	url = git@github.com:davispolito/MappingandProcessors.git
 	update = merge
 [submodule "third_party/chowdsp_utils"]
 	path = third_party/chowdsp_utils
