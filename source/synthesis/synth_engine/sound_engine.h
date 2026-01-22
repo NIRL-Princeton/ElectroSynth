@@ -52,6 +52,8 @@ namespace electrosynth {
 
       }
       juce::MidiBuffer empty;
+
+      juce::CriticalSection myCoolLock;
       void process(juce::AudioSampleBuffer&, juce::MidiBuffer &);
       void process(juce::AudioSampleBuffer&,int channels, int samples, int offset);
       void processMappings();

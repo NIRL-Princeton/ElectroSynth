@@ -16,56 +16,66 @@
 
 #include "sound_engine.h"
 
-#include "MasterVoiceProcessor.h"
 #include "../framework/Processors/OscillatorModuleProcessor.h"
-#include "melatonin_audio_sparklines/melatonin_audio_sparklines.h"
-#include "Modulators/ModulatorBase.h"
-#include "ModulationWrapper.h"
-#include "Processors/ProcessorBase.h"
-#include "parameterArrays.h"
+#include "MasterVoiceProcessor.h"
 #include "ModulationConnection.h"
+#include "ModulationWrapper.h"
 #include "Modulators/EnvModuleProcessor.h"
+#include "Modulators/ModulatorBase.h"
+#include "Processors/ProcessorBase.h"
 #include "RoutingProcessor.h"
+#include "melatonin_audio_sparklines/melatonin_audio_sparklines.h"
+#include "parameterArrays.h"
 
-namespace electrosynth {
-    SoundEngine::SoundEngine(juce::UndoManager& um) : undo(um),/*voice_handler_(nullptr),*/
-        last_oversampling_amount_(-1), last_sample_rate_(-1), modulation_bank_((leaf)) {
-        LEAF_init(&leaf, 44100.0f, memory, 16777216, []() { return (float) rand() / RAND_MAX; });
+namespace electrosynth
+{
+    SoundEngine::SoundEngine (juce::UndoManager& um) : undo (um), /*voice_handler_(nullptr),*/
+                                                       last_oversampling_amount_ (-1),
+                                                       last_sample_rate_ (-1),
+                                                       modulation_bank_ ((leaf))
+    {
+        LEAF_init (&leaf, 44100.0f, memory, 16777216, []() { return (float) rand() / RAND_MAX; });
         //processors.push_back(std::make_shared<OscillatorModuleProcessor> (&leaf));
         //SoundEngine::init();
-        tSimplePoly_create(&leaf.mempool,&voiceHandler.voices[0]);
-        tSimplePoly_init(&leaf, voiceHandler.voices[0], MAX_NUM_VOICES);
+        tSimplePoly_create (&leaf.mempool, &voiceHandler.voices[0]);
+        tSimplePoly_init (&leaf, voiceHandler.voices[0], MAX_NUM_VOICES);
         voiceHandler.numVoicesActive = MAX_NUM_VOICES;
-        tSimplePoly_setNumVoices(voiceHandler.voices[0], (uint8_t) voiceHandler.numVoicesActive);
+        tSimplePoly_setNumVoices (voiceHandler.voices[0], (uint8_t) voiceHandler.numVoicesActive);
         voiceHandler.voiceNote[0] = 0;
-        for (uint8_t i = 1; i < MAX_NUM_VOICES; i++) {
-        tSimplePoly_create(&leaf.mempool,&voiceHandler.voices[i]);
-            tSimplePoly_init(&leaf,voiceHandler.voices[i], MAX_NUM_VOICES);
+        for (uint8_t i = 1; i < MAX_NUM_VOICES; i++)
+        {
+            tSimplePoly_create (&leaf.mempool, &voiceHandler.voices[i]);
+            tSimplePoly_init (&leaf, voiceHandler.voices[i], MAX_NUM_VOICES);
             voiceHandler.voices[i] = 0;
             voiceHandler.voiceIsSounding[i] = false;
             voiceHandler.voicePrevBend[i] = 0.0f;
         }
-        processors.resize(10);
-        chainPostGain.reserve(10);
-        chainPostGain.resize(10);
-        for (auto &processor: processors) {
-            processor.reserve(10);
+        processors.resize (10);
+        chainPostGain.reserve (10);
+        chainPostGain.resize (10);
+        for (auto& processor : processors)
+        {
+            processor.reserve (10);
         }
-        modSources.resize(10);
-        for (auto &modSource: modSources) { modSource.reserve(10); }
+        modSources.resize (10);
+        for (auto& modSource : modSources)
+        {
+            modSource.reserve (10);
+        }
 
-        MasterVoiceEnvelopeProcessor = std::make_unique<EnvModuleProcessor>(
-            this, juce::ValueTree(IDs::MODULATOR).setProperty(IDs::type, "env", nullptr), &leaf, &undo);
-        MasterVoiceEnvelopeProcessor->state_.params.attackParam->setParameterValue(0.1);
-        MasterVoiceEnvelopeProcessor->state_.params.decayParam->setParameterValue(0.01);
-        MasterVoiceEnvelopeProcessor->state_.params.releaseParam->setParameterValue(0.001);
-        MasterVoiceEnvelopeProcessor->state.setProperty(IDs::name, "master_voice", nullptr);
+        MasterVoiceEnvelopeProcessor = std::make_unique<EnvModuleProcessor> (
+            this, juce::ValueTree (IDs::MODULATOR).setProperty (IDs::type, "env", nullptr), &leaf, &undo);
+        MasterVoiceEnvelopeProcessor->state_.params.attackParam->setParameterValue (0.1);
+        MasterVoiceEnvelopeProcessor->state_.params.decayParam->setParameterValue (0.01);
+        MasterVoiceEnvelopeProcessor->state_.params.releaseParam->setParameterValue (0.001);
+        MasterVoiceEnvelopeProcessor->state.setProperty (IDs::name, "master_voice", nullptr);
         //temp_voice_buffer.set
-        for (auto &buffer: temp_fx_buffers)
-            buffer.setSize(MAX_NUM_VOICES * 2, 1);
+        for (auto& buffer : temp_fx_buffers)
+            buffer.setSize (MAX_NUM_VOICES * 2, 1);
     }
 
-    SoundEngine::~SoundEngine() {
+    SoundEngine::~SoundEngine()
+    {
         //voice_handler_->prepareDestroy();
     }
 
@@ -79,23 +89,23 @@ namespace electrosynth {
     //    setOversamplingAmount(kDefaultOversamplingAmount, kDefaultSampleRate);
     //  }
 
-
-    int SoundEngine::getNumPressedNotes() {
+    int SoundEngine::getNumPressedNotes()
+    {
         //return voice_handler_->getNumPressedNotes();
     }
 
-
-    int SoundEngine::getNumActiveVoices() {
+    int SoundEngine::getNumActiveVoices()
+    {
         //return voice_handler_->getNumActiveVoices();
     }
 
-
-    float SoundEngine::getLastActiveNote() const {
+    float SoundEngine::getLastActiveNote() const
+    {
         //return voice_handler_->getLastActiveNote();
     }
 
-
-    void SoundEngine::checkOversampling() {
+    void SoundEngine::checkOversampling()
+    {
         //int oversampling = oversampling_->value();
         // int oversampling_amount = 1 << oversampling;
         //int sample_rate = getSampleRate();
@@ -103,12 +113,14 @@ namespace electrosynth {
         //      setOversamplingAmount(oversampling_amount, sample_rate);
     }
 
-    void SoundEngine::setOversamplingAmount(int oversampling_amount, int sample_rate) {
+    void SoundEngine::setOversamplingAmount (int oversampling_amount, int sample_rate)
+    {
         static constexpr int kBaseSampleRate = 44100;
 
         int oversample = oversampling_amount;
         int sample_rate_mult = sample_rate / kBaseSampleRate;
-        while (sample_rate_mult > 1 && oversample > 1) {
+        while (sample_rate_mult > 1 && oversample > 1)
+        {
             sample_rate_mult >>= 1;
             oversample >>= 1;
         }
@@ -118,38 +130,47 @@ namespace electrosynth {
         last_sample_rate_ = sample_rate;
     }
 
-    void SoundEngine::processMappings() {
-        for (auto mapping: mappings) {
+    void SoundEngine::processMappings()
+    {
+        for (auto mapping : mappings)
+        {
             for (int i = 0; i < MAX_NUM_VOICES; i++)
-                processMapping(&mapping->mapping_[i]);
+                processMapping (&mapping->mapping_[i]);
         }
     }
 
-    void SoundEngine::process(juce::AudioSampleBuffer &audio_buffer, int channels, int samples, int offset) {
+    void SoundEngine::process (juce::AudioSampleBuffer& audio_buffer, int channels, int samples, int offset)
+    {
         //VITAL_ASSERT(num_samples <= output()->buffer_size);
         // benchmark();
         juce::FloatVectorOperations::disableDenormalisedNumberSupport();
         temp_voice_buffer.clear();
-        for (auto &buffer: temp_fx_buffers)
+        for (auto& buffer : temp_fx_buffers)
             buffer.clear();
         //juce::MidiBuffer midimessages;
         int mpe = voiceHandler.mpeMode ? 1 : 0;
         int impe = 1 - mpe;
-        for (int i = offset; i < samples + offset; i++) {
-            for (int v = 0; v < voiceHandler.numVoicesActive; ++v) {
-                float tempNote = (float) tSimplePoly_getPitch(voiceHandler.voices[v * mpe], (uint8_t) (v * impe));
-
+        for (int i = offset; i < samples + offset; i++)
+        {
+            for (int v = 0; v < voiceHandler.numVoicesActive; ++v)
+            {
+                float tempNote = (float) tSimplePoly_getPitch (voiceHandler.voices[v * mpe], (uint8_t) (v * impe));
 
                 //added this check because if there is no active voice "getPitch" returns -1
-                if (tempNote >= 0.0f) {
+                if (tempNote >= 0.0f)
+                {
                     //freeze pitch bend data on voices where a note off has happened and we are in the release phase
-                    if (tSimplePoly_isOn(voiceHandler.voices[v * mpe], (uint8_t) (v * impe))) {
+                    if (tSimplePoly_isOn (voiceHandler.voices[v * mpe], (uint8_t) (v * impe)))
+                    {
                         //tempNote += pitchBend;
                         // voicePrevBend[v] = pitchBend;
-                    } else {
+                    }
+                    else
+                    {
                         //tempNote += voicePrevBend[v];
                     }
-                    if ((tempNote >= 0.0f) && (tempNote < 127.0f)) {
+                    if ((tempNote >= 0.0f) && (tempNote < 127.0f))
+                    {
                         int tempNoteIntPart = (int) tempNote;
                         float tempNoteFloatPart = tempNote - (float) tempNoteIntPart;
                         //int tempPitchClassIntPart =tempNoteIntPart % 12;
@@ -157,10 +178,12 @@ namespace electrosynth {
                         //float dev2 =  (centsDeviation[(tempNoteIntPart+1)] * tempNoteFloatPart);
                         //float tunedNote = ( dev1  + dev2);
                         voiceHandler.voiceNote[v] = tempNote;
-                    } else //otherwise, assume octave equivalency and get offsets, then get midinote back
+                    }
+                    else //otherwise, assume octave equivalency and get offsets, then get midinote back
                     //not going to work for non-octave tunings
                     {
-                        if (!isnan(tempNote) && !isinf(tempNote)) {
+                        if (!isnan (tempNote) && !isinf (tempNote))
+                        {
                             // int octaveUp = 0;
                             // int octaveDown = 0;
                             //
@@ -190,108 +213,124 @@ namespace electrosynth {
                 //samples[0][v] = 0.f;
                 //samples[1][v] = 0.f;
             }
-            for (auto &modulator_chain: modSources) {
-                for (auto &modulator: modulator_chain) {
-                    if (modulator != nullptr)
-                        modulator->process();
+            {
+                juce::ScopedLock sl (myCoolLock);
+                auto amp_vals = MasterVoiceEnvelopeProcessor->processMasterEnvelope();
+                processMappings();
+                for (auto& modulator_chain : modSources)
+                {
+                    for (auto& modulator : modulator_chain)
+                    {
+                        if (modulator != nullptr)
+                            modulator->process();
+                    }
+                }
+
+                int chainIndex = 0;
+                for (auto& proc_chain : processors)
+                {
+                    if (proc_chain.empty())
+                        continue;
+                    for (auto& proc : proc_chain)
+                    {
+                        if (proc != nullptr)
+                            proc->processBlock (temp_voice_buffer, empty);
+                    }
+                    // //at end of given processor chain
+                    // for ( int v = 0; v < voiceHandler.numVoicesActive; ++v) {
+                    //         // audio_buffer.addSample(0, i, temp_voice_buffer.getSample(v*2, 0));
+                    //         // audio_buffer.addSample(1, i, temp_voice_buffer.getSample(v*2+1, 0));
+                    //     // if (amp_vals->getSample(v*2,0) > 0.f) {
+                    //     //     DBG(amp_vals->getSample(v*2,0));
+                    //     //     DBG(temp_voice_buffer.getSample(v*2,0));
+                    //     // }
+                    //         audio_buffer.addSample(0, i, amp_vals->getSample(v*2, 0) * temp_voice_buffer.getSample(v*2, 0));
+                    //        audio_buffer.addSample(1, i, amp_vals->getSample(v*2+1, 0) * temp_voice_buffer.getSample(v*2+1, 0));
+                    // }
+
+                    for (int v = 0; v < voiceHandler.numVoicesActive; ++v)
+                    {
+                        // audio_buffer.addSample(0, i, temp_voice_buffer.getSample(v*2, 0));
+                        // audio_buffer.addSample(1, i, temp_voice_buffer.getSample(v*2+1, 0));
+                        temp_voice_buffer.setSample (
+                            v * 2, 0, amp_vals->getSample (v * 2, 0) * temp_voice_buffer.getSample (v * 2, 0));
+                        temp_voice_buffer.setSample (v * 2 + 1, 0, amp_vals->getSample (v * 2 + 1, 0) * temp_voice_buffer.getSample (v * 2 + 1, 0));
+                    }
+                    //writes out to fx_buffers
+                    chainPostGain[chainIndex]->processBlock (temp_voice_buffer, empty);
+
+                    chainIndex++;
+                    temp_voice_buffer.clear();
                 }
             }
-            auto amp_vals = MasterVoiceEnvelopeProcessor->processMasterEnvelope();
-            processMappings();
-
-            int chainIndex = 0;
-            for (auto &proc_chain: processors) {
-                if (proc_chain.empty())
-                    continue;
-                for (auto &proc: proc_chain) {
-                    if (proc != nullptr)
-                        proc->processBlock(temp_voice_buffer, empty);
-                }
-                // //at end of given processor chain
-                // for ( int v = 0; v < voiceHandler.numVoicesActive; ++v) {
-                //         // audio_buffer.addSample(0, i, temp_voice_buffer.getSample(v*2, 0));
-                //         // audio_buffer.addSample(1, i, temp_voice_buffer.getSample(v*2+1, 0));
-                //     // if (amp_vals->getSample(v*2,0) > 0.f) {
-                //     //     DBG(amp_vals->getSample(v*2,0));
-                //     //     DBG(temp_voice_buffer.getSample(v*2,0));
-                //     // }
-                //         audio_buffer.addSample(0, i, amp_vals->getSample(v*2, 0) * temp_voice_buffer.getSample(v*2, 0));
-                //        audio_buffer.addSample(1, i, amp_vals->getSample(v*2+1, 0) * temp_voice_buffer.getSample(v*2+1, 0));
-                // }
-                for (int v = 0; v < voiceHandler.numVoicesActive; ++v) {
-                    // audio_buffer.addSample(0, i, temp_voice_buffer.getSample(v*2, 0));
-                    // audio_buffer.addSample(1, i, temp_voice_buffer.getSample(v*2+1, 0));
-                    temp_voice_buffer.setSample(
-                        v * 2, 0, amp_vals->getSample(v * 2, 0) * temp_voice_buffer.getSample(v * 2, 0));
-                    temp_voice_buffer.setSample(v * 2 + 1, 0,
-                                                amp_vals->getSample(v * 2 + 1, 0) * temp_voice_buffer.getSample(
-                                                    v * 2 + 1, 0));
-                }
-                //writes out to fx_buffers
-                chainPostGain[chainIndex]->processBlock(temp_voice_buffer, empty);
-
-                chainIndex++;
-                temp_voice_buffer.clear();
-            }
-
 
             int index = 1;
-            for (int v = 0; v < voiceHandler.numVoicesActive; ++v) {
-                audio_buffer.addSample(0, i, temp_fx_buffers[0].getSample(v * 2, 0));
-                audio_buffer.addSample(1, i, temp_fx_buffers[0].getSample(v * 2 + 1, 0));
+            for (int v = 0; v < voiceHandler.numVoicesActive; ++v)
+            {
+                audio_buffer.addSample (0, i, temp_fx_buffers[0].getSample (v * 2, 0));
+                audio_buffer.addSample (1, i, temp_fx_buffers[0].getSample (v * 2 + 1, 0));
             }
-            for (auto &fx_lane: effects) {
-                for (auto &fx: fx_lane) {
-                    fx->processBlock(temp_fx_buffers[index], empty);
+            for (auto& fx_lane : effects)
+            {
+                for (auto& fx : fx_lane)
+                {
+                    fx->processBlock (temp_fx_buffers[index], empty);
                 }
-                for (int v = 0; v < voiceHandler.numVoicesActive; ++v) {
-                    audio_buffer.addSample(0, i, temp_fx_buffers[index].getSample(v * 2, 0));
-                    audio_buffer.addSample(1, i, temp_fx_buffers[index].getSample(v * 2 + 1, 0));
+                for (int v = 0; v < voiceHandler.numVoicesActive; ++v)
+                {
+                    audio_buffer.addSample (0, i, temp_fx_buffers[index].getSample (v * 2, 0));
+                    audio_buffer.addSample (1, i, temp_fx_buffers[index].getSample (v * 2 + 1, 0));
                 }
                 index++;
             }
 
-
-            for (auto &fx: temp_fx_buffers) {
+            for (auto& fx : temp_fx_buffers)
+            {
                 fx.clear();
             }
             // melatonin::printSparklin   e (*amp_vals.get,true);
         }
         // melatonin::printSparkline(audio_buffer, true);
 
-        if (getNumActiveVoices() == 0) {
+        if (getNumActiveVoices() == 0)
+        {
         }
         //   bufferDebugger->capture("main out", audio_buffer.getReadPointer(0), audio_buffer.getNumSamples(), -20.f, 20.f);
     }
 
-    void SoundEngine::process(juce::AudioSampleBuffer &audio_buffer, juce::MidiBuffer &midi_buffer) {
+    void SoundEngine::process (juce::AudioSampleBuffer& audio_buffer, juce::MidiBuffer& midi_buffer)
+    {
     }
-
 
     //  void SoundEngine::correctToTime(double seconds) {
     ////    voice_handler_->correctToTime(seconds);
     ////    effect_chain_->correctToTime(seconds);
     //  }
 
-    void SoundEngine::allSoundsOff() {
+    void SoundEngine::allSoundsOff()
+    {
         //    voice_handler_->allSoundsOff();
         //    effect_chain_->hardReset();
         //    decimator_->hardReset();
     }
 
-    void SoundEngine::allNotesOff(int sample) {
+    void SoundEngine::allNotesOff (int sample)
+    {
         //    voice_handler_->allNotesOff(sample);
     }
 
-    void SoundEngine::allNotesOff(int sample, int channel) {
+    void SoundEngine::allNotesOff (int sample, int channel)
+    {
         //    voice_handler_->allNotesOff(channel);
     }
 
-    void SoundEngine::allNotesOffRange(int sample, int from_channel, int to_channel) {
+    void SoundEngine::allNotesOffRange (int sample, int from_channel, int to_channel)
+    {
         //    voice_handler_->allNotesOffRange(sample, from_channel, to_channel);
     }
 
-    void SoundEngine::noteOn(int note, float velocity, int sample, int channel) {
+    void SoundEngine::noteOn (int note, float velocity, int sample, int channel)
+    {
         //    voice_handler_->noteOn(note, velocity, sample, channel);
         enum MidiMainType {
             kNoteOff = 0x80,
@@ -302,97 +341,124 @@ namespace electrosynth {
             kChannelPressure = 0xd0,
             kPitchWheel = 0xe0,
         };
+        DBG ("noteon entered");
         int i = voiceHandler.mpeMode ? channel : 0;
-        if (i < 0) return;
-        if (!velocity) noteOff(note, velocity, sample, channel);
-        else {
-            int v = tSimplePoly_noteOn(voiceHandler.voices[i], note, velocity * 127.f);
-            if (!voiceHandler.mpeMode) i = v;
+        if (i < 0)
+            return;
+        if (!velocity)
+            noteOff (note, velocity, sample, channel);
+        else
+        {
+            int v = tSimplePoly_noteOn (voiceHandler.voices[i], note, velocity * 127.f);
+            if (!voiceHandler.mpeMode)
+                i = v;
             // DBG("note on" + String(i) + " " + String(v));
 
-            if (v >= 0) {
+            if (v >= 0)
+            {
                 velocity = ((0.007685533519034f * velocity * 127.f) + 0.0239372430f);
                 velocity = velocity * velocity;
                 //note -= midiKeyMin;
                 //note -= midiKeyMin;
-                for (int j = 0; j < voiceHandler.eventEmitter.numListeners; j++) {
-                    callNoteOn(voiceHandler.eventEmitter.listeners[v][j],
+                {
+                    juce::ScopedLock sl (myCoolLock);
+                    for (int j = 0; j < voiceHandler.eventEmitter.numListeners; j++)
+                    {
+                        callNoteOn (voiceHandler.eventEmitter.listeners[v][j],
                             velocity);
+                    }
                 }
 
-                callNoteOn(&MasterVoiceEnvelopeProcessor->state_.params.modules[v]->header, velocity);
+                callNoteOn (&MasterVoiceEnvelopeProcessor->state_.params.modules[v]->header, velocity);
                 voiceHandler.voiceIsSounding[v] = true;
                 // float norm = key / float(mkkkidiKeyMax - midiKeyMin);
             }
         }
     }
 
-    void SoundEngine::noteOff(int note, float velocity, int sample, int channel) {
+    void SoundEngine::noteOff (int note, float velocity, int sample, int channel)
+    {
         //    voice_handler_->noteOff(note, lift, sample, channel);
+        DBG ("noteoff entered");
         int i = voiceHandler.mpeMode ? channel : 0;
 
-        if (i < 0) return;
+        if (i < 0)
+            return;
 
-        int v = tSimplePoly_markPendingNoteOff(voiceHandler.voices[i], note);
+        int v = tSimplePoly_markPendingNoteOff (voiceHandler.voices[i], note);
 
         //If stack_IsNOTEmpty
-        if ((v != -1) && (tStack_getSize(tSimplePoly_getStack(voiceHandler.voices[i])) >= voiceHandler.numVoicesActive)) {
-            if (tSimplePoly_getVoices(voiceHandler.voices[0])[v][0] == -2) {
-                tSimplePoly_deactivateVoice(voiceHandler.voices[0], v);
+        if ((v != -1) && (tStack_getSize (tSimplePoly_getStack (voiceHandler.voices[i])) >= voiceHandler.numVoicesActive))
+        {
+            if (tSimplePoly_getVoices (voiceHandler.voices[0])[v][0] == -2)
+            {
+                tSimplePoly_deactivateVoice (voiceHandler.voices[0], v);
                 voiceHandler.voiceIsSounding[v] = true;
             }
+            DBG ("noteoff stacknot empty" + String (i) + " " + String (v));
             return;
         }
-        if (voiceHandler.mpeMode) v = i;
-        // DBG("noteoff" + String(i) + " " + String(v));
+        if (!voiceHandler.mpeMode)
+            i = v; //not sure if this is right -JS
+        DBG ("noteoff" + String (i) + " " + String (v));
 
-        if (v >= 0) {
+        if (v >= 0)
+        {
             //note -= midiKeyMin;
-            for (uint8_t j = 0; j < voiceHandler.eventEmitter.numListeners; j++) {
-                callNoteOn(voiceHandler.eventEmitter.listeners[v][j],
-                             -1);
+            for (uint8_t j = 0; j < voiceHandler.eventEmitter.numListeners; j++)
+            {
+                callNoteOn (voiceHandler.eventEmitter.listeners[v][j],
+                    -1);
             }
 
-            callNoteOn(&MasterVoiceEnvelopeProcessor->state_.params.modules[v]->header,-1);
+            callNoteOn (&MasterVoiceEnvelopeProcessor->state_.params.modules[v]->header, -1);
             voiceHandler.voiceIsSounding[v] = true;
             // float norm = key / float(mkkkidiKeyMax - midiKeyMin);
         }
     }
 
-    void SoundEngine::setModWheel(float value, int channel) {
+    void SoundEngine::setModWheel (float value, int channel)
+    {
         //    voice_handler_->setModWheel(value, channel);
     }
 
-    void SoundEngine::setModWheelAllChannels(float value) {
+    void SoundEngine::setModWheelAllChannels (float value)
+    {
         //    voice_handler_->setModWheelAllChannels(value);
     }
 
-    void SoundEngine::setPitchWheel(float value, int channel) {
+    void SoundEngine::setPitchWheel (float value, int channel)
+    {
         //    voice_handler_->setPitchWheel(value, channel);
     }
 
-    void SoundEngine::setZonedPitchWheel(float value, int from_channel, int to_channel) {
+    void SoundEngine::setZonedPitchWheel (float value, int from_channel, int to_channel)
+    {
         //    voice_handler_->setZonedPitchWheel(value, from_channel, to_channel);
     }
 
-
-    void SoundEngine::setAftertouch(float note, float value, int sample, int channel) {
+    void SoundEngine::setAftertouch (float note, float value, int sample, int channel)
+    {
         //    voice_handler_->setAftertouch(note, value, sample, channel);
     }
 
-    void SoundEngine::setChannelAftertouch(int channel, float value, int sample) {
+    void SoundEngine::setChannelAftertouch (int channel, float value, int sample)
+    {
         //    voice_handler_->setChannelAftertouch(channel, value, sample);
     }
 
-    void SoundEngine::setChannelRangeAftertouch(int from_channel, int to_channel, float value, int sample) {
+    void SoundEngine::setChannelRangeAftertouch (int from_channel, int to_channel, float value, int sample)
+    {
         //    voice_handler_->setChannelRangeAftertouch(from_channel, to_channel, value, sample);
     }
 
-    void SoundEngine::setChannelSlide(int channel, float value, int sample) {
+    void SoundEngine::setChannelSlide (int channel, float value, int sample)
+    {
         //    voice_handler_->setChannelSlide(channel, value, sample);
     }
 
-    void SoundEngine::setChannelRangeSlide(int from_channel, int to_channel, float value, int sample) {
+    void SoundEngine::setChannelRangeSlide (int from_channel, int to_channel, float value, int sample)
+    {
         //    voice_handler_->setChannelRangeSlide(from_channel, to_channel, value, sample);
     }
 
@@ -402,61 +468,68 @@ namespace electrosynth {
     //      bps_->set(bps);
     //  }
 
-
     //  Sample* SoundEngine::getSample() {
     //    return voice_handler_->getSample();
     //  }
 
-
-    void SoundEngine::sustainOn(int channel) {
+    void SoundEngine::sustainOn (int channel)
+    {
         //    voice_handler_->sustainOn(channel);
     }
 
-    void SoundEngine::sustainOff(int sample, int channel) {
+    void SoundEngine::sustainOff (int sample, int channel)
+    {
         //    voice_handler_->sustainOff(sample, channel);
     }
 
-    void SoundEngine::sostenutoOn(int channel) {
+    void SoundEngine::sostenutoOn (int channel)
+    {
         //    voice_handler_->sostenutoOn(channel);
     }
 
-    void SoundEngine::sostenutoOff(int sample, int channel) {
+    void SoundEngine::sostenutoOff (int sample, int channel)
+    {
         //    voice_handler_->sostenutoOff(sample, channel);
     }
 
-    void SoundEngine::sustainOnRange(int from_channel, int to_channel) {
+    void SoundEngine::sustainOnRange (int from_channel, int to_channel)
+    {
         //    voice_handler_->sustainOnRange(from_channel, to_channel);
     }
 
-    void SoundEngine::sustainOffRange(int sample, int from_channel, int to_channel) {
+    void SoundEngine::sustainOffRange (int sample, int from_channel, int to_channel)
+    {
         //    voice_handler_->sustainOffRange(sample, from_channel, to_channel);
     }
 
-    void SoundEngine::sostenutoOnRange(int from_channel, int to_channel) {
+    void SoundEngine::sostenutoOnRange (int from_channel, int to_channel)
+    {
         //    voice_handler_->sostenutoOnRange(from_channel, to_channel);
     }
 
-    void SoundEngine::sostenutoOffRange(int sample, int from_channel, int to_channel) {
+    void SoundEngine::sostenutoOffRange (int sample, int from_channel, int to_channel)
+    {
         //    voice_handler_->sostenutoOffRange(sample, from_channel, to_channel);
     }
 
-    std::array<ModuleHeader*, MAX_NUM_VOICES>* SoundEngine::getLEAFProcessor(const std::string &proc_string) {
+    std::array<ModuleHeader*, MAX_NUM_VOICES>* SoundEngine::getLEAFProcessor (const std::string& proc_string)
+    {
         // Use find_if to search the outermost vector
-        auto outerIt = std::find_if(processors.begin(), processors.end(), [&](const auto &innerVec) {
+        auto outerIt = std::find_if (processors.begin(), processors.end(), [&] (const auto& innerVec) {
             // Use find_if on the inner vector to look for the processor with the target name
-            auto innerIt = std::find_if(innerVec.begin(), innerVec.end(), [&](const auto &processor) {
-                return processor->name == juce::String(proc_string);
+            auto innerIt = std::find_if (innerVec.begin(), innerVec.end(), [&] (const auto& processor) {
+                return processor->name == juce::String (proc_string);
             });
 
             // Return true if the processor was found in this inner vector
             return innerIt != innerVec.end();
         });
 
-        if (outerIt != processors.end()) {
-            auto innerIt = std::find_if(outerIt->begin(), outerIt->end(),
-                                        [&](const auto &processor) {
-                                            return processor->name == juce::String(proc_string);
-                                        });
+        if (outerIt != processors.end())
+        {
+            auto innerIt = std::find_if (outerIt->begin(), outerIt->end(), [&] (const auto& processor) {
+                return processor->name == juce::String (proc_string);
+            });
 
             // Here you can cast the processor to leaf::Processor* if needed
             return (innerIt->get()->procArray);
@@ -464,90 +537,101 @@ namespace electrosynth {
         jassertfalse;
     }
 
-    std::array<ModuleHeader*, MAX_NUM_VOICES>* SoundEngine::getLEAFProcessorModulator(const std::string &proc_string) {
+    std::array<ModuleHeader*, MAX_NUM_VOICES>* SoundEngine::getLEAFProcessorModulator (const std::string& proc_string)
+    {
         // Use find_if to search the outermost vector
-        auto outerIt = std::find_if(modSources.begin(), modSources.end(), [&](const auto &innerVec) {
+        auto outerIt = std::find_if (modSources.begin(), modSources.end(), [&] (const auto& innerVec) {
             // Use find_if on the inner vector to look for the processor with the target name
-            auto innerIt = std::find_if(innerVec.begin(), innerVec.end(), [&](const auto &processor) {
-                return processor->name == juce::String(proc_string);
+            auto innerIt = std::find_if (innerVec.begin(), innerVec.end(), [&] (const auto& processor) {
+                return processor->name == juce::String (proc_string);
             });
 
             // Return true if the processor was found in this inner vector
             return innerIt != innerVec.end();
         });
 
-        if (outerIt != modSources.end()) {
-            auto innerIt = std::find_if(outerIt->begin(), outerIt->end(),
-                                        [&](const auto &processor) {
-                                            return processor->name == juce::String(proc_string);
-                                        });
+        if (outerIt != modSources.end())
+        {
+            auto innerIt = std::find_if (outerIt->begin(), outerIt->end(), [&] (const auto& processor) {
+                return processor->name == juce::String (proc_string);
+            });
 
             // Here you can cast the processor to leaf::Processor* if needed
             return (innerIt->get()->procArray);
         }
-        if (proc_string == "VCA") {
+        if (proc_string == "VCA")
+        {
             return MasterVoiceEnvelopeProcessor->procArray;
         }
         jassertfalse;
         return nullptr;
     }
 
-    std::pair<  std::array<ModuleHeader*, MAX_NUM_VOICES>* , int> SoundEngine::getParameterInfo(const std::string &value) {
-        std::stringstream ss(value);
+    std::pair<std::array<ModuleHeader*, MAX_NUM_VOICES>*, int> SoundEngine::getParameterInfo (const std::string& value)
+    {
+        std::stringstream ss (value);
         std::string proc_string;
-        std::getline(ss, proc_string, '_');
+        std::getline (ss, proc_string, '_');
 
-        auto proc = getLEAFProcessor(proc_string);
-        int procID = proc->at(0)->moduleType;
+        auto proc = getLEAFProcessor (proc_string);
+        int procID = proc->at (0)->moduleType;
         std::string param_string;
-        std::getline(ss, param_string, '_');
+        std::getline (ss, param_string, '_');
         int index = -1;
-        auto it = std::find(paramsAllArray[procID].cbegin(), paramsAllArray[procID].cend(), param_string);
-        if (it != paramsAllArray[procID].cend()) {
+        auto it = std::find (paramsAllArray[procID].cbegin(), paramsAllArray[procID].cend(), param_string);
+        if (it != paramsAllArray[procID].cend())
+        {
             // Calculate the index
-            index = static_cast<int>(std::distance(paramsAllArray[procID].cbegin(), it));
+            index = static_cast<int> (std::distance (paramsAllArray[procID].cbegin(), it));
         }
 
-        return {proc, index};
+        return { proc, index };
     }
 
     //  leaf::tProcessor * SoundEngine::getLEAFProcessor (const std::string& proc_string) {
     //
     //  }
 
-    ProcessorBase *SoundEngine::getProcessorFromUUID(int uuid) {
+    ProcessorBase* SoundEngine::getProcessorFromUUID (int uuid)
+    {
     }
 
-    ModulatorBase *SoundEngine::getModulatorFromUUID(int uuid) {
+    ModulatorBase* SoundEngine::getModulatorFromUUID (int uuid)
+    {
     }
 
-      std::array<ModuleHeader*, MAX_NUM_VOICES>*  SoundEngine::getLeafProcessorFromUUID(int uuid) {
+    std::array<ModuleHeader*, MAX_NUM_VOICES>* SoundEngine::getLeafProcessorFromUUID (int uuid)
+    {
     }
 
-    void SoundEngine::connectMapping(const electrosynth::mapping_change &change) {
+    void SoundEngine::connectMapping (const electrosynth::mapping_change& change)
+    {
         //check for mapping alread exists
-        for (auto modulation: mappings) {
-            if (change.mapping == modulation) {
-                DBG("adding modualtion:" + juce::String(change.source) + " to " + juce::String(modulation->dest_));
+        for (auto modulation : mappings)
+        {
+            if (change.mapping == modulation)
+            {
+                DBG ("adding modualtion:" + juce::String (change.source) + " to " + juce::String (modulation->dest_));
                 int sourceIndex = 0;
-                auto it = std::find(change.mapping->all_connections_.begin(), change.mapping->all_connections_.end(),
-                                    change.connection);
-                if (it != change.mapping->all_connections_.end()) {
-                    sourceIndex = static_cast<int>(std::distance(change.mapping->all_connections_.begin(), it));
+                auto it = std::find (change.mapping->all_connections_.begin(), change.mapping->all_connections_.end(), change.connection);
+                if (it != change.mapping->all_connections_.end())
+                {
+                    sourceIndex = static_cast<int> (std::distance (change.mapping->all_connections_.begin(), it));
                 }
                 //set the scale value to point to the backend mapping scaling
-                for (int v = 0; v < MAX_NUM_VOICES; v++) {
-                    auto val = change._dest->at(v)->params[change.dest_param_index];
-                    tMappingAdd_(&change.mapping->mapping_[v],
-                                 &change._source->at(v)->outputs[0],
-                                 change._source->at(v)->uniqueID,
-                                 val,
-                                 change._dest->at(v)->uniqueID,
-                                 change._dest->at(v)->setterFunctions[change.dest_param_index],
-                                 change.dest_param_index,
-                                 change._dest->at(v),
-                                 &leaf,
-                                 &change.connection->scalingValue_);
+                for (int v = 0; v < MAX_NUM_VOICES; v++)
+                {
+                    auto val = change._dest->at (v)->params[change.dest_param_index];
+                    tMappingAdd_ (&change.mapping->mapping_[v],
+                        &change._source->at (v)->outputs[0],
+                        change._source->at (v)->uniqueID,
+                        val,
+                        change._dest->at (v)->uniqueID,
+                        change._dest->at (v)->setterFunctions[change.dest_param_index],
+                        change.dest_param_index,
+                        change._dest->at (v),
+                        &leaf,
+                        &change.connection->scalingValue_);
                     // tMappingAdd(&change.mapping->mapping_[v], &change._source[v], &change._dest[v],
                     //            change.dest_param_index, sourceIndex, &leaf, &change.connection->scalingValue_);
                 }
@@ -556,7 +640,6 @@ namespace electrosynth {
                 return;
             }
         }
-
 
         //    int sourceIndex = 0;
         //    auto it = std::find (change.mapping->all_connections_.begin(),change.mapping->all_connections_.end(),change.connection );
@@ -568,64 +651,67 @@ namespace electrosynth {
         //otherwise this is a new mapping
         //index will be 0 in the mapping
         //set the scale value to point to the backend mapping scaling
-        for (int v = 0; v < voiceHandler.numVoicesActive; v++) {
-            auto val = change._dest->at(v)->params[change.dest_param_index];
-            tMappingAdd_(&change.mapping->mapping_[v],
-                         &change._source->at(v)->outputs[0],
-                         change._source->at(v)->uniqueID,
-                         val,
-                         change._dest->at(v)->uniqueID,
-                         change._dest->at(v)->setterFunctions[change.dest_param_index],
-                         change.dest_param_index,
-                         change._dest->at(v),
-                         &leaf,
-                         &change.connection->scalingValue_);
-        //     tMappingAdd(&change.mapping->mapping_[v], &change._source[v], &change._dest[v], change.dest_param_index,
-        // 0, &leaf,&change.connection->scalingValue_);
+        for (int v = 0; v < voiceHandler.numVoicesActive; v++)
+        {
+            auto val = change._dest->at (v)->params[change.dest_param_index];
+            tMappingAdd_ (&change.mapping->mapping_[v],
+                &change._source->at (v)->outputs[0],
+                change._source->at (v)->uniqueID,
+                val,
+                change._dest->at (v)->uniqueID,
+                change._dest->at (v)->setterFunctions[change.dest_param_index],
+                change.dest_param_index,
+                change._dest->at (v),
+                &leaf,
+                &change.connection->scalingValue_);
+            //     tMappingAdd(&change.mapping->mapping_[v], &change._source[v], &change._dest[v], change.dest_param_index,
+            // 0, &leaf,&change.connection->scalingValue_);
             change.connection->bipolarOffset = &change.mapping->mapping_[0].bipolarOffset[0];
         }
 
-
-        mappings.push_back(change.mapping);
-        DBG("added new modulatino") ;
+        mappings.push_back (change.mapping);
+        DBG ("added new modulatino");
     }
 
-
     //returns true if the mapping should be completely removd from process mappings
-    void SoundEngine::disconnectMapping(const electrosynth::mapping_change &change) {
-        MappingWrapper *mappingToRemove = nullptr;
-        for (auto modulation: mappings) {
-            if (change.mapping == modulation) {
-                DBG("removing modualtion:" + juce::String(change.source) + " from " + juce::String(modulation->dest_));
+    void SoundEngine::disconnectMapping (const electrosynth::mapping_change& change)
+    {
+        MappingWrapper* mappingToRemove = nullptr;
+        for (auto modulation : mappings)
+        {
+            if (change.mapping == modulation)
+            {
+                DBG ("removing modualtion:" + juce::String (change.source) + " from " + juce::String (modulation->dest_));
                 int sourceIndex = 0;
-                auto it = std::find(change.mapping->all_connections_.begin(), change.mapping->all_connections_.end(),
-                                    change.connection);
-                if (it != change.mapping->all_connections_.end()) {
-                    sourceIndex = static_cast<int>(std::distance(change.mapping->all_connections_.begin(), it));
+                auto it = std::find (change.mapping->all_connections_.begin(), change.mapping->all_connections_.end(), change.connection);
+                if (it != change.mapping->all_connections_.end())
+                {
+                    sourceIndex = static_cast<int> (std::distance (change.mapping->all_connections_.begin(), it));
                 }
-                for (int v = 0; v < MAX_NUM_VOICES; v++) {
+                for (int v = 0; v < MAX_NUM_VOICES; v++)
+                {
                     modulation->mapping_[v].inSources[sourceIndex] = nullptr;
                     *modulation->mapping_[v].scalingValues[sourceIndex] = 0.0f;
                     modulation->mapping_[v].inUUIDS[sourceIndex] = 0.0f;
                 }
 
-
                 change.connection->scalingValue_ = 0.0f;
                 //erase-remove idiom reorders array
-                modulation->all_connections_.erase(
-                    std::remove(modulation->all_connections_.begin(), modulation->all_connections_.end(),
-                                change.connection), modulation->all_connections_.end());
+                modulation->all_connections_.erase (
+                    std::remove (modulation->all_connections_.begin(), modulation->all_connections_.end(), change.connection), modulation->all_connections_.end());
                 //use reordered array to update the now out of order mapping
                 modulation->reorderMapping();
 
-                if (modulation->mapping_[0].numUsedSources == 0) {
+                if (modulation->mapping_[0].numUsedSources == 0)
+                {
                     mappingToRemove = modulation;
                 }
                 break;
             }
         }
-        if (mappingToRemove) {
-            mappings.erase(std::remove(mappings.begin(), mappings.end(), mappingToRemove), mappings.end());
+        if (mappingToRemove)
+        {
+            mappings.erase (std::remove (mappings.begin(), mappings.end(), mappingToRemove), mappings.end());
         }
         //
         //    DBG("didnt find mapping");

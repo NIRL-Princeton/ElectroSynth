@@ -436,7 +436,7 @@ void SynthBase::writeAudio(AudioSampleBuffer *buffer, int channels, int samples,
 }
 
 void SynthBase::processMidi(MidiBuffer &midi_messages, int start_sample, int end_sample) {
-    bool process_all = end_sample == 0;
+    bool process_all = true;//end_sample == 0;
     for (const MidiMessageMetadata message: midi_messages) {
         int midi_sample = message.samplePosition;
         if (process_all || (midi_sample >= start_sample && midi_sample < end_sample))
