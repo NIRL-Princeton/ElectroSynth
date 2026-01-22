@@ -29,7 +29,7 @@ juce::AudioBuffer<float>* EnvModuleProcessor::processMasterEnvelope() {
 
 void EnvModuleProcessor::process() {
     for (int i = 0; i < engine->voiceHandler.numVoicesActive; i++) {
-        if (!engine->voiceHandler.voiceIsSounding[i]) continue;
+        //if (!engine->voiceHandler.voiceIsSounding[i]) continue;
         tEnvModule_tick(state_.params.modules[i]);
     }
 }

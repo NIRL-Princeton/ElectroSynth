@@ -190,49 +190,54 @@ namespace electrosynth {
                 //samples[0][v] = 0.f;
                 //samples[1][v] = 0.f;
             }
-            auto amp_vals = MasterVoiceEnvelopeProcessor->processMasterEnvelope();
-            processMappings();
-            for (auto &modulator_chain: modSources) {
-                for (auto &modulator: modulator_chain) {
-                    if (modulator != nullptr)
-                        modulator->process();
+            {
+                juce::ScopedLock sl (myCoolLock);
+                auto amp_vals = MasterVoiceEnvelopeProcessor->processMasterEnvelope();
+                processMappings();
+                for (auto &modulator_chain: modSources) {
+                    for (auto &modulator: modulator_chain) {
+                        if (modulator != nullptr)
+                            modulator->process();
+                    }
+                }
+
+
+                int chainIndex = 0;
+                for (auto &proc_chain: processors) {
+                    if (proc_chain.empty())
+                        continue;
+                    for (auto &proc: proc_chain) {
+                        if (proc != nullptr)
+                            proc->processBlock(temp_voice_buffer, empty);
+                    }
+                    // //at end of given processor chain
+                    // for ( int v = 0; v < voiceHandler.numVoicesActive; ++v) {
+                    //         // audio_buffer.addSample(0, i, temp_voice_buffer.getSample(v*2, 0));
+                    //         // audio_buffer.addSample(1, i, temp_voice_buffer.getSample(v*2+1, 0));
+                    //     // if (amp_vals->getSample(v*2,0) > 0.f) {
+                    //     //     DBG(amp_vals->getSample(v*2,0));
+                    //     //     DBG(temp_voice_buffer.getSample(v*2,0));
+                    //     // }
+                    //         audio_buffer.addSample(0, i, amp_vals->getSample(v*2, 0) * temp_voice_buffer.getSample(v*2, 0));
+                    //        audio_buffer.addSample(1, i, amp_vals->getSample(v*2+1, 0) * temp_voice_buffer.getSample(v*2+1, 0));
+                    // }
+
+                    for (int v = 0; v < voiceHandler.numVoicesActive; ++v) {
+                        // audio_buffer.addSample(0, i, temp_voice_buffer.getSample(v*2, 0));
+                        // audio_buffer.addSample(1, i, temp_voice_buffer.getSample(v*2+1, 0));
+                        temp_voice_buffer.setSample(
+                            v * 2, 0, amp_vals->getSample(v * 2, 0) * temp_voice_buffer.getSample(v * 2, 0));
+                        temp_voice_buffer.setSample(v * 2 + 1, 0,
+                                                    amp_vals->getSample(v * 2 + 1, 0) * temp_voice_buffer.getSample(
+                                                        v * 2 + 1, 0));
+                    }
+                    //writes out to fx_buffers
+                    chainPostGain[chainIndex]->processBlock(temp_voice_buffer, empty);
+
+                    chainIndex++;
+                    temp_voice_buffer.clear();
                 }
             }
-            int chainIndex = 0;
-            for (auto &proc_chain: processors) {
-                if (proc_chain.empty())
-                    continue;
-                for (auto &proc: proc_chain) {
-                    if (proc != nullptr)
-                        proc->processBlock(temp_voice_buffer, empty);
-                }
-                // //at end of given processor chain
-                // for ( int v = 0; v < voiceHandler.numVoicesActive; ++v) {
-                //         // audio_buffer.addSample(0, i, temp_voice_buffer.getSample(v*2, 0));
-                //         // audio_buffer.addSample(1, i, temp_voice_buffer.getSample(v*2+1, 0));
-                //     // if (amp_vals->getSample(v*2,0) > 0.f) {
-                //     //     DBG(amp_vals->getSample(v*2,0));
-                //     //     DBG(temp_voice_buffer.getSample(v*2,0));
-                //     // }
-                //         audio_buffer.addSample(0, i, amp_vals->getSample(v*2, 0) * temp_voice_buffer.getSample(v*2, 0));
-                //        audio_buffer.addSample(1, i, amp_vals->getSample(v*2+1, 0) * temp_voice_buffer.getSample(v*2+1, 0));
-                // }
-                for (int v = 0; v < voiceHandler.numVoicesActive; ++v) {
-                    // audio_buffer.addSample(0, i, temp_voice_buffer.getSample(v*2, 0));
-                    // audio_buffer.addSample(1, i, temp_voice_buffer.getSample(v*2+1, 0));
-                    temp_voice_buffer.setSample(
-                        v * 2, 0, amp_vals->getSample(v * 2, 0) * temp_voice_buffer.getSample(v * 2, 0));
-                    temp_voice_buffer.setSample(v * 2 + 1, 0,
-                                                amp_vals->getSample(v * 2 + 1, 0) * temp_voice_buffer.getSample(
-                                                    v * 2 + 1, 0));
-                }
-                //writes out to fx_buffers
-                chainPostGain[chainIndex]->processBlock(temp_voice_buffer, empty);
-
-                chainIndex++;
-                temp_voice_buffer.clear();
-            }
-
 
             int index = 1;
             for (int v = 0; v < voiceHandler.numVoicesActive; ++v) {
@@ -314,9 +319,12 @@ namespace electrosynth {
                 velocity = velocity * velocity;
                 //note -= midiKeyMin;
                 //note -= midiKeyMin;
-                for (int j = 0; j < voiceHandler.eventEmitter.numListeners; j++) {
-                    callNoteOn(voiceHandler.eventEmitter.listeners[v][j],
-                            velocity);
+                {
+                    juce::ScopedLock sl (myCoolLock);
+                    for (int j = 0; j < voiceHandler.eventEmitter.numListeners; j++) {
+                        callNoteOn(voiceHandler.eventEmitter.listeners[v][j],
+                                velocity);
+                    }
                 }
 
                 callNoteOn(&MasterVoiceEnvelopeProcessor->state_.params.modules[v]->header, velocity);
