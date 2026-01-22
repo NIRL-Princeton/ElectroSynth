@@ -306,6 +306,7 @@ namespace electrosynth {
             kChannelPressure = 0xd0,
             kPitchWheel = 0xe0,
         };
+        DBG("noteon entered");
         int i = voiceHandler.mpeMode ? channel : 0;
         if (i < 0) return;
         if (!velocity) noteOff(note, velocity, sample, channel);
@@ -336,6 +337,7 @@ namespace electrosynth {
 
     void SoundEngine::noteOff(int note, float velocity, int sample, int channel) {
         //    voice_handler_->noteOff(note, lift, sample, channel);
+        DBG("noteoff entered");
         int i = voiceHandler.mpeMode ? channel : 0;
 
         if (i < 0) return;
@@ -348,9 +350,10 @@ namespace electrosynth {
                 tSimplePoly_deactivateVoice(voiceHandler.voices[0], v);
                 voiceHandler.voiceIsSounding[v] = true;
             }
+            DBG("noteoff stacknot empty" + String(i) + " " + String(v));
             return;
         }
-        if (voiceHandler.mpeMode) v = i;
+        if (!voiceHandler.mpeMode) i = v;
         DBG("noteoff" + String(i) + " " + String(v));
 
         if (v >= 0) {
