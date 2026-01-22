@@ -29,14 +29,21 @@
 
 namespace electrosynth
 {
+    static void LEAF_errorCallback(LEAF* const leaf, LEAFErrorType error)
+    {
+        // (void)leaf;
+
+        DBG("LEAF ERROR: " + juce::String(error));
+    }
     SoundEngine::SoundEngine (juce::UndoManager& um) : undo (um), /*voice_handler_(nullptr),*/
                                                        last_oversampling_amount_ (-1),
                                                        last_sample_rate_ (-1),
                                                        modulation_bank_ ((leaf))
     {
-        LEAF_init (&leaf, 44100.0f, memory, 16777216, []() { return (float) rand() / RAND_MAX; });
+        LEAF_init (&leaf, 44100.0f, memory, 536870912, []() { return (float) rand() / RAND_MAX; });
         //processors.push_back(std::make_shared<OscillatorModuleProcessor> (&leaf));
         //SoundEngine::init();
+        LEAF_setErrorCallback(&leaf,LEAF_errorCallback);
         tSimplePoly_create (&leaf.mempool, &voiceHandler.voices[0]);
         tSimplePoly_init (&leaf, voiceHandler.voices[0], MAX_NUM_VOICES);
         voiceHandler.numVoicesActive = MAX_NUM_VOICES;
