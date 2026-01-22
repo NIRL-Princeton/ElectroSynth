@@ -353,7 +353,7 @@ namespace electrosynth {
             DBG("noteoff stacknot empty" + String(i) + " " + String(v));
             return;
         }
-        if (!voiceHandler.mpeMode) i = v;
+        if (!voiceHandler.mpeMode) i = v; //not sure if this is right -JS
         DBG("noteoff" + String(i) + " " + String(v));
 
         if (v >= 0) {

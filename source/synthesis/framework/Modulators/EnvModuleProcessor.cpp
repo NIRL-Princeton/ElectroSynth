@@ -14,7 +14,7 @@ EnvModuleProcessor::EnvModuleProcessor(electrosynth::SoundEngine* engine,juce::V
 juce::AudioBuffer<float>* EnvModuleProcessor::processMasterEnvelope() {
         static juce::AudioBuffer<float> temp_voice_buffer{MAX_NUM_VOICES*2,1};
         for (uint8_t i = 0; i < engine->voiceHandler.numVoicesActive; i++) {
-            //if (!engine->voiceHandler.voiceIsSounding[i]) continue;
+            if (!engine->voiceHandler.voiceIsSounding[i]) continue;
             tEnvModule_tick(state_.params.modules[i]);
             temp_voice_buffer.setSample(i*2,0, state_.params.modules[i]->header.outputs[0]);
             temp_voice_buffer.setSample(i*2+1,0, state_.params.modules[i]->header.outputs[0]);
@@ -29,7 +29,7 @@ juce::AudioBuffer<float>* EnvModuleProcessor::processMasterEnvelope() {
 
 void EnvModuleProcessor::process() {
     for (int i = 0; i < engine->voiceHandler.numVoicesActive; i++) {
-        //if (!engine->voiceHandler.voiceIsSounding[i]) continue;
+        if (!engine->voiceHandler.voiceIsSounding[i]) continue;
         tEnvModule_tick(state_.params.modules[i]);
     }
 }
