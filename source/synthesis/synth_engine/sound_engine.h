@@ -156,7 +156,7 @@ namespace electrosynth {
             float voiceNote[MAX_NUM_VOICES];
             float voicePrevBend[MAX_NUM_VOICES];
             tSimplePoly* voices[MAX_NUM_VOICES];
-            bool voiceIsSounding[MAX_NUM_VOICES];
+            std::atomic<bool> voiceIsSounding[MAX_NUM_VOICES];
             bool mpeMode;
             int numVoicesActive;
             tEventEmitter eventEmitter;

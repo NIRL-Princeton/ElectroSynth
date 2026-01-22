@@ -42,7 +42,7 @@ String getArgumentValue(const StringArray& args, const String& flag, const Strin
 int loadAudioFile(AudioSampleBuffer& destination, InputStream* audio_stream) {
   AudioFormatManager format_manager;
   format_manager.registerBasicFormats();
-  
+
   audio_stream->setPosition(0);
   std::unique_ptr<AudioFormatReader> format_reader(
       format_manager.createReaderFor(std::unique_ptr<InputStream>(audio_stream)));
@@ -67,7 +67,7 @@ class SynthApplication : public JUCEApplication {
           kToggleVideo,
         };
 
-        MainWindow(const String& name, bool visible) :
+        MainWindow(const String& name, bool visible,SynthApplication& app) : app_(app),
             DocumentWindow(name, Colours::lightgrey, DocumentWindow::allButtons, visible), editor_(nullptr) {
           if (!Startup::isComputerCompatible()) {
             String error = String(ProjectInfo::projectName) +
@@ -77,13 +77,14 @@ class SynthApplication : public JUCEApplication {
           }
 
           SystemStats::setApplicationCrashHandler(handleElectrosynthCrash);
-              
+
           if (visible) {
             setUsingNativeTitleBar(true);
             setResizable(true, true);
           }
           //setConstrainer(constrainer_);
           editor_ = new SynthEditor(visible);
+          restoreAudioMidiState();
           constrainer_.setGui(editor_->getGui());
           if (visible) {
             editor_->animate(true);
@@ -106,6 +107,38 @@ class SynthApplication : public JUCEApplication {
             editor_->animate(false);
          // startTimer(100);
         }
+      // ~MainWindow() override
+      //   {
+      //     saveAudioMidiState(); // ensure we persist even if shutdown path changes
+      //   }
+      void restoreAudioMidiState()
+        {
+          auto* settings = app_.appProperties.getUserSettings();
+          auto xmlText = settings->getValue (SynthApplication::kAudioMidiStateKey);
+
+          std::unique_ptr<juce::XmlElement> xml;
+          if (xmlText.isNotEmpty())
+            xml = juce::parseXML (xmlText);
+
+
+
+          auto dm = editor_->getAudioDeviceManager();
+
+          dm->initialise (0, 2, xml.get(), true);
+        }
+
+      void saveAudioMidiState()
+        {
+          // same access requirement as above
+          auto dm = editor_->getAudioDeviceManager();
+
+          if (auto xml = dm->createStateXml())
+          {
+            auto* settings = app_.appProperties.getUserSettings();
+            settings->setValue (SynthApplication::kAudioMidiStateKey, xml->toString());
+            settings->saveIfNeeded();
+          }
+        }
 
         void closeButtonPressed() override {
           JUCEApplication::getInstance()->systemRequestedQuit();
@@ -127,28 +160,29 @@ class SynthApplication : public JUCEApplication {
           //   command_manager_->registerAllCommandsForTarget(this);
           //   addKeyListener(command_manager_->getKeyMappings());
           // }
-          
+
           if (file_to_load_.exists()) {
             loadFileAsyncUpdate();
             file_to_load_ = File();
           }
-          
+
           editor_->setFocus();
         }
         SynthEditor* editor_;
 
       private:
+      SynthApplication &app_;
         void loadFileAsyncUpdate() {
 //          std::string error;
 //          bool success = editor_->loadFromFile(file_to_load_, error);
 //          if (success)
 //            editor_->externalPresetLoaded(file_to_load_);
         }
-      
+
         File file_to_load_;
         // std::unique_ptr<ApplicationCommandManager> command_manager_;
         BorderBoundsConstrainer constrainer_;
-      
+
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainWindow)
     };
     bool perform (const InvocationInfo& info) override
@@ -203,6 +237,12 @@ class SynthApplication : public JUCEApplication {
     bool moreThanOneInstanceAllowed() override { return true; }
 
     void initialise(const String& command_line) override {
+      juce::PropertiesFile::Options opts;
+      opts.applicationName     = getApplicationName();
+      opts.filenameSuffix      = "settings";
+      opts.osxLibrarySubFolder = "Application Support";
+      appProperties.setStorageParameters (opts);
+
       String command = " " + command_line + " ";
       if (command.contains(" --version ") || command.contains(" -v ")) {
 //        std::cout << getApplicationName() << " " << getApplicationVersion() << newLine;
@@ -237,7 +277,7 @@ class SynthApplication : public JUCEApplication {
       }
       else {
         bool visible = !command.contains(" --headless ");
-        main_window_ = std::make_unique<MainWindow>(getApplicationName(), visible);
+        main_window_ = std::make_unique<MainWindow>(getApplicationName(), visible,*this);
 
         StringArray args = getCommandLineParameterArray();
         bool last_arg_was_option = false;
@@ -263,6 +303,8 @@ class SynthApplication : public JUCEApplication {
     }
 
     void shutdown() override {
+      if (main_window_ != nullptr)
+        main_window_->saveAudioMidiState(); // make it public or friend
       main_window_ = nullptr;
     }
 
@@ -275,6 +317,8 @@ class SynthApplication : public JUCEApplication {
     }
 
   private:
+  juce::ApplicationProperties appProperties;
+  static constexpr const char* kAudioMidiStateKey = "audioMidiDeviceState";
       void updateContent()
       {
 //      auto* content = new MainContentComponent (*this);

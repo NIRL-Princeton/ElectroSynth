@@ -190,14 +190,15 @@ namespace electrosynth {
                 //samples[0][v] = 0.f;
                 //samples[1][v] = 0.f;
             }
-            auto amp_vals = MasterVoiceEnvelopeProcessor->processMasterEnvelope();
-            processMappings();
             for (auto &modulator_chain: modSources) {
                 for (auto &modulator: modulator_chain) {
                     if (modulator != nullptr)
                         modulator->process();
                 }
             }
+            auto amp_vals = MasterVoiceEnvelopeProcessor->processMasterEnvelope();
+            processMappings();
+
             int chainIndex = 0;
             for (auto &proc_chain: processors) {
                 if (proc_chain.empty())
@@ -307,7 +308,7 @@ namespace electrosynth {
         else {
             int v = tSimplePoly_noteOn(voiceHandler.voices[i], note, velocity * 127.f);
             if (!voiceHandler.mpeMode) i = v;
-            DBG("note on" + String(i) + " " + String(v));
+            // DBG("note on" + String(i) + " " + String(v));
 
             if (v >= 0) {
                 velocity = ((0.007685533519034f * velocity * 127.f) + 0.0239372430f);
@@ -343,16 +344,16 @@ namespace electrosynth {
             return;
         }
         if (voiceHandler.mpeMode) v = i;
-        DBG("noteoff" + String(i) + " " + String(v));
+        // DBG("noteoff" + String(i) + " " + String(v));
 
         if (v >= 0) {
             //note -= midiKeyMin;
             for (uint8_t j = 0; j < voiceHandler.eventEmitter.numListeners; j++) {
                 callNoteOn(voiceHandler.eventEmitter.listeners[v][j],
-                             velocity);
+                             -1);
             }
 
-            callNoteOn(&MasterVoiceEnvelopeProcessor->state_.params.modules[v]->header, velocity);
+            callNoteOn(&MasterVoiceEnvelopeProcessor->state_.params.modules[v]->header,-1);
             voiceHandler.voiceIsSounding[v] = true;
             // float norm = key / float(mkkkidiKeyMax - midiKeyMin);
         }

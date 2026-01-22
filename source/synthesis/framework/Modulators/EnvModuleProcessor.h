@@ -34,6 +34,7 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
         &chowdsp::ParamUtils::stringToFloatVal
     };
 
+
     // Attack param
     chowdsp::TimeMsParameter::Ptr attackParam
     {
