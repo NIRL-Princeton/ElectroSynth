@@ -18,7 +18,12 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
         add(decayParam,
             sustainParam,
             releaseParam,
-            attackParam
+            attackParam,
+            leakParam,
+            shapeParam,
+            velocityParam
+
+
             );
     }
 
@@ -34,13 +39,27 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
         &chowdsp::ParamUtils::stringToFloatVal
     };
 
+    //velocity param
+    chowdsp::FloatParameter::Ptr velocityParam {
+        juce::ParameterID { "velocitysense", 100 },
+        "VelSense",
+        chowdsp::ParamUtils::createNormalisableRange (0.0f, 1.0f, 0.5f),
+        1.0f,
+        all_params[EnvVelocitySense],
+        [this] (float val) {
+            for (auto mod: modules)tEnvModule_setParameter(mod,EnvVelocitySense,val);
+        },
+        &chowdsp::ParamUtils::floatValToString,
+        &chowdsp::ParamUtils::stringToFloatVal
+    };
+
     // Attack param
     chowdsp::TimeMsParameter::Ptr attackParam
     {
         juce::ParameterID { "attack", 100 },
             "Attack",
             chowdsp::ParamUtils::createNormalisableRange (0.0f, 1.0f, 0.5f),
-            0.01f,
+            0.005f,
             all_params[EnvParams::EnvAttack],
             [this] (float val) {
                 for (auto mod: modules)tEnvModule_setParameter(mod,EnvAttack,val);
@@ -56,7 +75,7 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
         juce::ParameterID { "decay", 100 },
         "Decay",
         chowdsp::ParamUtils::createNormalisableRange (0.0f, 1.0f, 0.5f),
-        0.0f,
+        0.3f,
         all_params[EnvParams::EnvDecay],
         [this] (float val) {
             for (auto mod: modules)tEnvModule_setParameter(mod,EnvDecay,val);
@@ -88,6 +107,34 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
         [this] (float val) {
             for (auto mod: modules) tEnvModule_setParameter(mod,EnvRelease,val);
         }
+    };
+
+    // Leak param
+    chowdsp::FloatParameter::Ptr leakParam {
+        juce::ParameterID { "leak", 100 },
+        "Leak",
+        chowdsp::ParamUtils::createNormalisableRange (0.0f, 1.0f, 0.5f),
+        0.0f,
+        all_params[EnvParams::EnvLeak],
+        [this] (float val) {
+            for (auto mod: modules) tEnvModule_setParameter(mod,EnvLeak,val);
+        },
+        &chowdsp::ParamUtils::floatValToString,
+        &chowdsp::ParamUtils::stringToFloatVal
+    };
+
+    // Shape param
+    chowdsp::FloatParameter::Ptr shapeParam {
+        juce::ParameterID { "shape", 100 },
+        "Shape",
+        chowdsp::ParamUtils::createNormalisableRange (0.0f, 1.0f, 0.5f),
+        0.0f,
+        all_params[EnvParams::EnvShape],
+        [this] (float val) {
+            for (auto mod: modules) tEnvModule_setParameter(mod,EnvShape,val);
+        },
+        &chowdsp::ParamUtils::floatValToString,
+        &chowdsp::ParamUtils::stringToFloatVal
     };
 
 
