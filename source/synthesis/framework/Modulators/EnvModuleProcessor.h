@@ -39,19 +39,6 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
         &chowdsp::ParamUtils::stringToFloatVal
     };
 
-    //velocity param
-    chowdsp::FloatParameter::Ptr velocityParam {
-        juce::ParameterID { "velocitysense", 100 },
-        "VelSense",
-        chowdsp::ParamUtils::createNormalisableRange (0.0f, 1.0f, 0.5f),
-        1.0f,
-        all_params[EnvVelocitySense],
-        [this] (float val) {
-            for (auto mod: modules)tEnvModule_setParameter(mod,EnvVelocitySense,val);
-        },
-        &chowdsp::ParamUtils::floatValToString,
-        &chowdsp::ParamUtils::stringToFloatVal
-    };
 
     // Attack param
     chowdsp::TimeMsParameter::Ptr attackParam
