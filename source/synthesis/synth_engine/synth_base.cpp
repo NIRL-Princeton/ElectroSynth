@@ -195,20 +195,34 @@ void SynthBase::removeProcessor(ProcessorBase *processor) {
                                    return proc.get() == processor;
                                });
 
-        if (it != chain.end()) {
-            // Transfer ownership out before erasing
-            std::unique_ptr<ProcessorBase> released = std::move(*it);
-            *chain.erase(it);
-            // Create task as a std::function
-            DeleteThreadAction task = [ptr = std::move(released)]() mutable {
-                ptr.reset(); // optional; unique_ptr will go out of scope
+        if (it != chain.end())
+        {
+            auto* chainPtr = &chain;     // pointer to the actual chain object
+            auto* target   = processor;  // raw pointer identity
+
+            auto task_ = [this, chainPtr, target]() mutable
+            {
+                // Re-find inside the task (DO NOT capture iterators)
+                auto it2 = std::find_if(chainPtr->begin(), chainPtr->end(),
+                                        [&](const auto& up) { return up.get() == target; });
+
+                if (it2 == chainPtr->end())
+                    return; // already removed
+
+                // Move out then erase (correct order)
+                auto released = std::move(*it2);
+                it2->reset(); // leave empty slot; size unchanged
+                // IMPORTANT: this next part only works if DeleteThreadAction is move-only.
+                // If DeleteThreadAction is std::function<void()>, this will NOT compile.
+                DeleteThreadAction del = [ptr = std::move(released)]() mutable {
+                    ptr.reset();
+                };
+
+                if (!processorDeleteQueue.try_enqueue(std::move(del)))
+                    jassertfalse;
             };
 
-            // Try enqueue
-            if (!processorDeleteQueue.try_enqueue(std::move(task))) {
-                jassertfalse;
-            }
-
+            processorInitQueue.try_enqueue(std::move(task_));
             return;
         }
     }
@@ -221,52 +235,79 @@ void SynthBase::removeProcessor(ModulatorBase *processor) {
                                    return proc.get() == processor;
                                });
 
-        if (it != chain.end()) {
-            // Transfer ownership out before erasing
-            std::unique_ptr<ModulatorBase> released = std::move(*chain.erase(it));
-            // Create task as a std::function
-            DeleteThreadAction task = [ptr = std::move(released)]() mutable {
-                ptr.reset(); // optional; unique_ptr will go out of scope
+        if (it != chain.end())
+        {
+            auto* chainPtr = &chain;     // pointer to the actual chain object
+            auto* target   = processor;  // raw pointer identity
+
+            auto task_ = [this, chainPtr, target]() mutable
+            {
+                // Re-find inside the task (DO NOT capture iterators)
+                auto it2 = std::find_if(chainPtr->begin(), chainPtr->end(),
+                                        [&](const auto& up) { return up.get() == target; });
+
+                if (it2 == chainPtr->end())
+                    return; // already removed
+
+                auto released = std::move(*it2);
+                it2->reset(); // leave empty slot; size unchanged
+
+                // IMPORTANT: this next part only works if DeleteThreadAction is move-only.
+                // If DeleteThreadAction is std::function<void()>, this will NOT compile.
+                DeleteThreadAction del = [ptr = std::move(released)]() mutable {
+                    ptr.reset();
+                };
+
+                if (!processorDeleteQueue.try_enqueue(std::move(del)))
+                    jassertfalse;
             };
 
-            // Try enqueue
-            if (!processorDeleteQueue.try_enqueue(std::move(task))) {
-                // If failed to enqueue, consider logging or handling fallback
-                jassertfalse; // or fallbackDeleteList.push_back(std::move(ptr));
-            }
-
-            return; // Caller is now responsible or the pointer
+            processorInitQueue.try_enqueue(std::move(task_));
+            return;
         }
+
     }
 }
 
 void SynthBase::removeChainRouting(RoutingProcessor *processor) {
 
+    if (engine_ == nullptr) return;
 
-    auto it = std::find_if(engine_->chainPostGain.begin(), engine_->chainPostGain.end(),
-                       [&](const auto &proc) {
-                           return proc.get() == processor;
-                       });
-    if (it != engine_->chainPostGain.end())
+    auto& post = engine_->chainPostGain;
+    auto it = std::find_if(post.begin(), post.end(),
+                           [&](const std::unique_ptr<RoutingProcessor>& p)
+                           {
+                               return p.get() == processor;
+                           });
+
+    if (it == post.end())
+        return;
+    const size_t idx = static_cast<size_t>(std::distance(post.begin(), it));
+
+    auto* postPtr   = &engine_->chainPostGain;
+    auto* chainsPtr = &engine_->processors;   // <-- the parallel structure
+    auto* target    = processor;
+
+    auto task_ = [this, postPtr, chainsPtr, idx, target]() mutable
+
     {
-        // Transfer ownership out before erasing
-        std::unique_ptr<RoutingProcessor> released = std::move(*engine_->chainPostGain.erase(it));
-        // Create task as a std::function
-        DeleteThreadAction task = [ptr = std::move(released)]() mutable {
-            ptr.reset(); // optional; unique_ptr will go out of scope
-        };
+        if (idx >= postPtr->size() || idx >= chainsPtr->size())
+            return;
+        std::unique_ptr<RoutingProcessor> released = std::move((*postPtr)[idx]);
+        (*chainsPtr)[idx].clear();
+        DeleteThreadAction del = [ptr = std::move(released)]() mutable { ptr.reset(); };
 
-        // Try enqueue
-        if (!processorDeleteQueue.try_enqueue(std::move(task))) {
-            // If failed to enqueue, consider logging or handling fallback
-            jassertfalse; // or fallbackDeleteList.push_back(std::move(ptr));
-        }
+        if (!processorDeleteQueue.try_enqueue(std::move(del)))
+            jassertfalse;
+    };
 
-    }
-            return; // Caller is now responsible or the pointer
-
-
+        processorInitQueue.try_enqueue(std::move(task_));
 }
+
+
+
+
+
 void SynthBase::addChainRouting(std::unique_ptr<RoutingProcessor> processor, int chain_index) {
     processor->prepareToPlay(engine_->getSampleRate(), engine_->getBufferSize());
 

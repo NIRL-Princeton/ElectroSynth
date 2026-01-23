@@ -20,8 +20,7 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
             releaseParam,
             attackParam,
             leakParam,
-            shapeParam,
-            velocityParam
+            shapeParam
 
 
             );
