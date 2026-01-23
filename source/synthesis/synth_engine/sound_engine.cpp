@@ -233,9 +233,10 @@ namespace electrosynth
                     }
                 }
 
-                int chainIndex = 0;
+                int chainIndex = -1;
                 for (auto& proc_chain : processors)
                 {
+                    chainIndex++;
                     if (proc_chain.empty())
                         continue;
                     for (auto& proc : proc_chain)
@@ -266,7 +267,7 @@ namespace electrosynth
                     //writes out to fx_buffers
                     chainPostGain[chainIndex]->processBlock (temp_voice_buffer, empty);
 
-                    chainIndex++;
+
                     temp_voice_buffer.clear();
                 }
             }
