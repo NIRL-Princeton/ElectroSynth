@@ -52,6 +52,8 @@ namespace electrosynth {
 
       }
       juce::MidiBuffer empty;
+
+      juce::CriticalSection myCoolLock;
       void process(juce::AudioSampleBuffer&, juce::MidiBuffer &);
       void process(juce::AudioSampleBuffer&,int channels, int samples, int offset);
       void processMappings();
@@ -149,14 +151,14 @@ namespace electrosynth {
       ModulatorBase* getModulatorFromUUID(int uuid);
 
      std::array<ModuleHeader*, MAX_NUM_VOICES>* getLeafProcessorFromUUID(int uuid);
-      char memory[16777216];
+      char memory[536870912]; //512 MB
       LEAF leaf;
 
       struct VoiceHandler {
             float voiceNote[MAX_NUM_VOICES];
             float voicePrevBend[MAX_NUM_VOICES];
             tSimplePoly* voices[MAX_NUM_VOICES];
-            bool voiceIsSounding[MAX_NUM_VOICES];
+            std::atomic<bool> voiceIsSounding[MAX_NUM_VOICES];
             bool mpeMode;
             int numVoicesActive;
             tEventEmitter eventEmitter;

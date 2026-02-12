@@ -42,7 +42,9 @@ class OpenGlShapeButtonComponent : public OpenGlComponent {
     }
 
     void incrementHover();
-
+    bool isInit() override{
+     return shape_.isInit();
+    }
     virtual void init(OpenGlWrapper& open_gl) override {
       OpenGlComponent::init(open_gl);
       shape_.init(open_gl);
@@ -60,7 +62,7 @@ class OpenGlShapeButtonComponent : public OpenGlComponent {
     void setShape(const Path& shape) { shape_.setShape(shape); }
 
     void useOnColors(bool use) { use_on_colors_ = use; }
-  
+
     void setDown(bool down) { down_ = down; }
     void setHover(bool hover) { hover_ = hover; }
    void setScissorComponent(juce::Component *scissor_component)  override {
@@ -100,25 +102,25 @@ class OpenGlShapeButton : public ToggleButton {
       ToggleButton::resized();
       gl_component_->redoImage();
     }
-  
+
     void mouseEnter(const MouseEvent& e) override {
     gl_component_->setHover(true);
       ToggleButton::mouseEnter(e);
 
     }
-  
+
     void mouseExit(const MouseEvent& e) override {
       gl_component_->setHover(false);
       ToggleButton::mouseExit(e);
 
     }
-    
+
     void mouseDown(const MouseEvent& e) override {
       gl_component_->setDown(true);
       ToggleButton::mouseDown(e);
 
     }
-    
+
     void mouseUp(const MouseEvent& e) override {
       gl_component_->setDown(false);
       ToggleButton::mouseUp(e);
@@ -168,7 +170,7 @@ class OpenGlButtonComponent : public OpenGlComponent {
 
       setColors();
     }
-  
+
     void setColors();
 
     void renderTextButton(OpenGlWrapper& open_gl, bool animate);
@@ -195,7 +197,7 @@ class OpenGlButtonComponent : public OpenGlComponent {
         text_.setText(text);
       }
     }
-  
+
     void setDown(bool down) { down_ = down; }
     void setHover(bool hover) { hover_ = hover; }
 
@@ -352,27 +354,27 @@ class OpenGlToggleButton : public ToggleButton {
       button_component_->setStyle(OpenGlButtonComponent::kUiButton);
       button_component_->setPrimaryUiButton(primary);
     }
-  
+
     virtual void enablementChanged() override {
       ToggleButton::enablementChanged();
       button_component_->setColors();
     }
-  
+
     void mouseEnter(const MouseEvent& e) override {
       ToggleButton::mouseEnter(e);
       button_component_->setHover(true);
     }
-  
+
     void mouseExit(const MouseEvent& e) override {
       ToggleButton::mouseExit(e);
       button_component_->setHover(false);
     }
-    
+
     void mouseDown(const MouseEvent& e) override {
       ToggleButton::mouseDown(e);
       button_component_->setDown(true);
     }
-    
+
     void mouseUp(const MouseEvent& e) override {
       ToggleButton::mouseUp(e);
       button_component_->setDown(false);

@@ -187,7 +187,7 @@ void AudioChainSection::setEffectPositions() {
     int effect_width = getWidth() - start_x - large_padding;
     int knob_section_height = getKnobSectionHeight();
     int widget_margin = findValue(Skin::kWidgetMargin);
-    int effect_height =  knob_section_height + getTitleWidth()*2 - widget_margin;
+    int effect_height =  knob_section_height + getTitleWidth()*4 - widget_margin;
     int y = 0;
 
     juce::Point<int> position = viewport_.getViewPosition();
@@ -196,14 +196,14 @@ void AudioChainSection::setEffectPositions() {
     for (auto &section: sound_module_sections) {
         if (section->isExpanded()) {
             int sectionheight = section->getHeight() ? section->getHeight() : effect_height;
-            section->setBounds(0, y, effect_width, sectionheight);
+            section->setBounds(0, y, effect_width, sectionheight );
             y += (sectionheight + padding);
         } else {
             section->setBounds(0, y, effect_width, effect_height / 4);
             y += (effect_height / 4 + padding);
         }
     }
-    container_->setBounds(0, 0, viewport_.getWidth(), y - padding + effect_height * 2);
+    container_->setBounds(0, 0, viewport_.getWidth(), y - padding + effect_height * 2 );
     viewport_.setViewPosition(position);
 
     for (Listener *listener: listeners_)
