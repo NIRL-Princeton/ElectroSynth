@@ -45,6 +45,12 @@ SynthEditor::SynthEditor(bool use_gui) : SynthGuiInterface(this, use_gui) {
   setup.sampleRate = electrosynth::kDefaultSampleRate;
   deviceManager.initialise(0, electrosynth::kNumChannels, nullptr, true, "", &setup);
 
+    auto midiInputs = juce::MidiInput::getAvailableDevices();
+    if (midiInputs.size() > 0 && !deviceManager.isMidiInputDeviceEnabled (midiInputs[0].identifier))
+    {
+        deviceManager.setMidiInputDeviceEnabled(midiInputs[0].identifier, true);
+    }
+
   if (deviceManager.getCurrentAudioDevice() == nullptr) {
     const OwnedArray<AudioIODeviceType>& device_types = deviceManager.getAvailableDeviceTypes();
 
