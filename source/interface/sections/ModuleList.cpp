@@ -8,6 +8,7 @@
 #include "FilterModuleProcessor.h"
 #include "StringModuleProcessor.h"
 #include "SoftClipModuleProcessor.h"
+#include "DelayModuleProcessor.h"
 #include <juce_core/juce_core.h>
 #include "Modulators/EnvModuleProcessor.h"
 #include "Modulators/LFOModuleProcessor.h"
@@ -19,6 +20,7 @@ ModuleList<T>::ModuleList(SynthBase *synth,const ValueTree& v) : tracktion::engi
        factory.template registerType<FilterModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*,juce::UndoManager*>("filt");
         factory.template registerType<StringModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*, juce::UndoManager*>("string");
         factory.template registerType<SoftClipModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*, juce::UndoManager*>("softclip");
+        factory.template registerType<DelayModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*, juce::UndoManager*>("delay");
     }
     else if constexpr (std::is_same_v<T, ModulatorBase>)
     {

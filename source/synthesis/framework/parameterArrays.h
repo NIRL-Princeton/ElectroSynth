@@ -18,6 +18,7 @@
 const std::array<std::vector<std::string>, 7> paramsAllArray =
 {
     {
+        // oscillator
         {
             "eventWatch",
             "midiPitch", // OscMidiPitch
@@ -35,22 +36,36 @@ const std::array<std::vector<std::string>, 7> paramsAllArray =
             "oscType", // OscType
             "" // OscNumParams (typically represents the count, no corresponding parameter)
         },
+
+        // lfo
         {
-            "eventWatch"
-        "rate","shape","phase","",""}, //lfo
-        {"eventWatch"}, //env
+            "eventWatch",
+            "rate",
+            "shape",
+            "phase",
+            "",
+            ""},
+
+        // envelope
+        {"eventWatch"},
+
+        // filter
         {
             "eventWatch", // FiltEventWatchFlag
             "midiPitch", // FiltMidiPitch
             "cutoff", // FiltCutoff
-            "amp", // FiltGain
+            "gain", // FiltGain
             "resonance", // FiltResonance
             "keyfollow", // FiltKeyfollow
             "filterType", // FiltType
             "audioInput", // FiltAudioInput
             "" // FiltNumParams (placeholder)
         },
-        {}, //string
+
+        // string
+        {},
+
+        // softclip
         {
             "eventWatch", //
            "inputGain", // OscHarmonic
@@ -58,7 +73,16 @@ const std::array<std::vector<std::string>, 7> paramsAllArray =
            "shape", // OscPitchFine
            "outputGain", // OscFreqOffset
            "" // OscNumParams (typically represents the count, no corresponding parameter)
-        }, //softclip
+        },
+
+        // delay
+        {
+            "eventWatch",
+            "delayTime",
+            "gain",
+            "",
+            ""
+        }
     }
 
 };
