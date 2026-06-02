@@ -5,7 +5,7 @@ Once you have a sound that you like in ElectroSynth, you can export it as a pres
 
 ## How to create a preset in ElectroSynth
 
-When you first open ElectroSynth, you'll see that the screen is sectioned into 4 sections. Most of the screen is taken up by a dark section called the AudioChainSection. This is where you can add processors (oscillators, filters, strings). It could be a single oscillator or a combination (summation) of oscillators, strings, and filters. 
+When you first open ElectroSynth, you'll see that the screen is sectioned into 4 parts. Most of the screen is taken up by a dark section called the AudioChainSection. This is where you can add processors (oscillators, filters, strings). It could be a single oscillator or a combination (summation) of oscillators, strings, and filters. 
 
 To the right of the AudioChainSection are three EffectModuleSections. These three columns are where you can add - you guessed it - effects (delay, reverb, filters, etc).
 
@@ -15,6 +15,8 @@ Finally, in the bottom right corner is our MasterVoiceEnvelopeSection. This is w
 
 Audio Chains -> Effects -> Master Voice
 (Modulators can affect any parameter)
+
+# How ElectroSynth is structured on the backend
 
 
 # Creating an Effect

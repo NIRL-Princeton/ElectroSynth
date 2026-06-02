@@ -1,5 +1,6 @@
 #include "header_section.h"
 #include "fonts.h"
+#include <juce_audio_devices/juce_audio_devices.h>
 #include "text_look_and_feel.h"
 #include <memory>
 
@@ -36,19 +37,17 @@ void HeaderSection::paintBackground(Graphics& g) {
 }
 
 void HeaderSection::resized() {
-    static constexpr float kTextHeightRatio = 0.3f;
-    static constexpr float kPaddingLeft = 0.25f;
-
+    float ratio = getSizeRatio();
     auto bounds = getLocalBounds();
     body_->setBounds(bounds);
     body_->setRounding(findValue(Skin::kBodyRounding));
     body_->setColor(findColour(Skin::kBody, true));
 
     bounds.removeFromLeft (Skin::kLargePadding);
-    audioSettingsButton->setBounds(bounds.removeFromLeft (150).withHeight (30).withY(getLocalBounds().getHeight()/4));
+    audioSettingsButton->setBounds(bounds.removeFromLeft (150 * ratio).withHeight (30 * ratio).withY(getLocalBounds().getHeight()/4));
 
     bounds.removeFromRight (Skin::kLargePadding);
-    sendToDeviceButton->setBounds(bounds.removeFromRight (120).withHeight (30).withY(getLocalBounds().getHeight()/4));
+    sendToDeviceButton->setBounds(bounds.removeFromRight (120 * ratio).withHeight (30 * ratio).withY(getLocalBounds().getHeight()/4));
 
   SynthSection::resized();
 }
@@ -65,7 +64,10 @@ void HeaderSection::buttonClicked(Button* clicked_button) {
       for (Listener* listener : listeners_)
           listener->showAboutSection();
   }
-
+  else if (clicked_button == sendToDeviceButton.get()) {
+      for (Listener* listener : listeners_)
+          listener->sendToDeviceRequested();
+  }
   else
     SynthSection::buttonClicked(clicked_button);
 }

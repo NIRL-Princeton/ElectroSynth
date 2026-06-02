@@ -23,6 +23,9 @@
 #include "ModulationModuleSection.h"
 #include "modulation_manager.h"
 #include "test_section.h"
+#include "synth_base.h"
+#include "sound_engine.h"
+#include "midi_manager.h"
 
 FullInterface::FullInterface(SynthGuiData* synth_data) : SynthSection("full_interface"), width_(0), resized_width_(0),
                                                          last_render_scale_(0.0f), display_scale_(1.0f),
@@ -322,6 +325,27 @@ void FullInterface::showAboutSection()
 {
     juce::ScopedLock lock(open_gl_critical_section_);
     about_section_->setVisible(true);
+}
+
+void FullInterface::sendToDeviceRequested() {
+    auto outputs = juce::MidiOutput::getAvailableDevices();
+    const juce::MidiDeviceInfo* electroDevice = nullptr;
+
+    for (const auto& device : outputs) {
+        if (device.name.contains("Electrobass") || device.name.contains("Electrosteel")) {
+            electroDevice = &device;
+            break;
+        }
+    }
+
+    if (electroDevice != nullptr) {
+        auto midiOutput = juce::MidiOutput::openDevice(electroDevice->identifier);
+        if (midiOutput) {
+            leaf::tMappingPreset7Bit preset7Bit;
+            // message size 48 bytes bc w lose one every 4 based on usb midi standard, no more than 64 based on bulk endpoint standard?
+            sendPresetOverMidi(preset7Bit, electrosynth::kSysexChunkSize, midiOutput.get());
+        }
+    }
 }
 void FullInterface::animate(bool animate) {
    if (animate_ != animate)

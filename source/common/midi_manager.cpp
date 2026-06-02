@@ -85,39 +85,40 @@ namespace {
 //     }
 //
 // }
-// void sendPresetOverMidi(const leaf::tMappingPreset7Bit& preset, size_t maxChunkSize, juce::MidiOutput* midi_output)
-// {
-//     if(maxChunkSize > 62)
-//     {
-//         jassertfalse;
-//         return;
-//     }
-//     static std::array<std::byte, sizeof(leaf::tMappingPreset7Bit) + 2> buffer{};
-//     std::memcpy(buffer.data() + 2, &preset, sizeof(preset));
-//
-//     constexpr size_t paramBytes = (2*(5 *MAX_NUM_SOURCES) + (2*MAX_NUM_SOURCES));
-//     constexpr size_t headerSize =  sizeof(leaf::tMappingPreset7Bit) - paramBytes;
-//
-//     // Check that the header fits into a sysex with our tag and the sysex tags on the beginning and end
-//     if (headerSize + 4 > maxChunkSize)
-//     {
-//         // Invalid: header cannot fit
-//         jassertfalse;
-//         return;
-//     }
-//     if ( headerSize + paramBytes > maxChunkSize) {
-//         //mapping chunking is made to send in one chunk right now.
-//         //if MAX_NUM_SOURCES expands beyond 6 (assuming headerSize does not expand
-//         // beyond 6 variables i.e. 12 8 bit chunks) we will need to change how mappings are sent
-//         jassertfalse;
-//         return;
-//     }
-//     buffer[0] = std::byte{BYTETAGS::MAPTAG};
-//     buffer[1] = std::byte{0x0};
-//
-//     midi_output->sendMessageNow(juce::MidiMessage::createSysExMessage(buffer.data(), headerSize + paramBytes + 2));
-//
-// }
+
+// todo: take out maxChunkSize arg
+void sendPresetOverMidi(const leaf::tMappingPreset7Bit& preset, size_t maxChunkSize, juce::MidiOutput* midi_output)
+{
+    if(maxChunkSize > electrosynth::kSysexChunkSize)
+    {
+        jassertfalse;
+    }
+    static std::array<std::byte, 2> buffer{};
+
+    buffer[0] = std::byte{BYTETAGS::MAPTAG};
+    buffer[1] = std::byte{0x8};
+
+    midi_output->sendMessageNow(juce::MidiMessage::createSysExMessage(buffer.data(), 2));
+
+    //
+    // // Check that the header fits into a sysex with our tag and the sysex tags on the beginning and end
+    // if (headerSize + 4 > maxChunkSize)
+    // {
+    //     // Invalid: header cannot fit
+    //     jassertfalse;
+    //     return;
+    // }
+    // if ( headerSize + paramBytes > maxChunkSize) {
+    //     //mapping chunking is made to send in one chunk right now.
+    //     //if MAX_NUM_SOURCES expands beyond 6 (assuming headerSize does not expand
+    //     // beyond 6 variables i.e. 12 8 bit chunks) we will need to change how mappings are sent
+    //     jassertfalse;
+    //     return;
+    // }
+
+
+
+}
 
 MidiManager::MidiManager(electrosynth::SoundEngine* engine,MidiKeyboardState* keyboard_state, AudioDeviceManager* manager, const ValueTree &v,
                          Listener* listener) : tracktion::engine::ValueTreeObjectList<electrosynth::MidiDeviceWrapper>(v),

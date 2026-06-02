@@ -48,6 +48,7 @@ public :
     void copySkinValues(const Skin& skin);
     void reloadSkin(const Skin& skin);
     void showAboutSection() override;
+    void sendToDeviceRequested() override;
     void repaintChildBackground(SynthSection* child);
     void repaintSynthesisSection();
     void repaintOpenGlBackground(OpenGlComponent* component);

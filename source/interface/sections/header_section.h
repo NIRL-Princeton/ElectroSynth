@@ -233,6 +233,7 @@ class HeaderSection : public SynthSection, public LogoSection::Listener {
         virtual ~Listener() { }
 
         virtual void showAboutSection() = 0;
+        virtual void sendToDeviceRequested() = 0;
     };
     void mouseEnter (const MouseEvent& event)
     {
