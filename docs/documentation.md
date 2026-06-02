@@ -1,5 +1,5 @@
 # ElectroSynth
-
+Gabe Quarranttey
 ## Saving and Loading Presets
 So you've created some cool things in ElectroSynth and you want to save them for later... Here's how saving and loading your presets works behind the scenes.
 
