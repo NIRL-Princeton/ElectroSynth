@@ -87,7 +87,7 @@ SynthEditor::SynthEditor(bool use_gui) : SynthGuiInterface(this, use_gui) {
   }
   // mainmenumodel on mac
 
-    #if !_WIN32 && !_WIN64
+    #if JUCE_MAC || DOXYGEN
   menuModel = std::make_unique<MainMenuModel>(commandManager);
     jassert(menuModel != nullptr);
   juce::MenuBarModel::setMacMainMenu(menuModel.get());
@@ -98,9 +98,11 @@ SynthEditor::~SynthEditor() {
 #if PERFETTO
   MelatoninPerfetto::get().endSession();
 #endif
-  #if !_WIN32 && !_WIN64
+
     juce::PopupMenu::dismissAllActiveMenus();
   shutdownAudio();
+
+    #if JUCE_MAC || DOXYGEN
   juce::MenuBarModel::setMacMainMenu(nullptr);
     #endif
 }
