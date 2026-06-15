@@ -157,6 +157,106 @@ namespace {
       "Text Editor Selection"
 
   };
+
+    void applyOldESColors(Skin& skin)
+    {
+        const juce::Colour black        = juce::Colour::fromRGB(0, 0, 0);
+        const juce::Colour nearBlack    = juce::Colour::fromRGB(8, 10, 10);
+        const juce::Colour darkPanel    = juce::Colour::fromRGB(18, 22, 22);
+        const juce::Colour midPanel     = juce::Colour::fromRGB(35, 38, 38);
+
+        const juce::Colour yellow       = juce::Colour::fromRGB(255, 225, 0);
+        const juce::Colour white        = juce::Colour::fromRGB(240, 240, 240);
+        const juce::Colour mutedText    = juce::Colour::fromRGB(170, 180, 180);
+
+        const juce::Colour cyan         = juce::Colour::fromRGB(0, 210, 255);
+        const juce::Colour cyanDark     = juce::Colour::fromRGB(20, 80, 90);
+        const juce::Colour red          = juce::Colour::fromRGB(255, 45, 45);
+        const juce::Colour green        = juce::Colour::fromRGB(90, 220, 0);
+
+        const juce::Colour border       = juce::Colour::fromRGB(70, 95, 95);
+        const juce::Colour transparent  = juce::Colours::transparentBlack;
+
+        skin.setColor(Skin::kBackground, black);
+        skin.setColor(Skin::kBody, nearBlack);
+        skin.setColor(Skin::kBodyHeading, black);
+        skin.setColor(Skin::kHeadingText, yellow);
+        skin.setColor(Skin::kPresetText, yellow);
+        skin.setColor(Skin::kBodyText, yellow);
+        skin.setColor(Skin::kBorder, border);
+
+        skin.setColor(Skin::kLabelBackground, darkPanel);
+        skin.setColor(Skin::kLabelConnection, cyanDark);
+
+        skin.setColor(Skin::kPowerButtonOn, cyan);
+        skin.setColor(Skin::kPowerButtonOff, midPanel);
+
+        skin.setColor(Skin::kOverlayScreen, juce::Colour::fromRGBA(0, 0, 0, 180));
+        skin.setColor(Skin::kLightenScreen, juce::Colour::fromRGBA(255, 255, 255, 20));
+        skin.setColor(Skin::kShadow, juce::Colour::fromRGBA(0, 0, 0, 180));
+
+        skin.setColor(Skin::kPopupSelectorBackground, darkPanel);
+        skin.setColor(Skin::kPopupBackground, nearBlack);
+        skin.setColor(Skin::kPopupBorder, border);
+
+        skin.setColor(Skin::kTextComponentBackground, darkPanel);
+        skin.setColor(Skin::kTextComponentText, yellow);
+
+        skin.setColor(Skin::kRotaryArc, cyan);
+        skin.setColor(Skin::kRotaryArcDisabled, midPanel);
+        skin.setColor(Skin::kRotaryArcUnselected, juce::Colour::fromRGB(80, 80, 80));
+        skin.setColor(Skin::kRotaryArcUnselectedDisabled, juce::Colour::fromRGB(45, 45, 45));
+        skin.setColor(Skin::kRotaryHand, black);
+        skin.setColor(Skin::kRotaryBody, white);
+        skin.setColor(Skin::kRotaryBodyBorder, black);
+
+        skin.setColor(Skin::kLinearSlider, cyan);
+        skin.setColor(Skin::kLinearSliderDisabled, midPanel);
+        skin.setColor(Skin::kLinearSliderUnselected, darkPanel);
+        skin.setColor(Skin::kLinearSliderThumb, cyan);
+        skin.setColor(Skin::kLinearSliderThumbDisabled, mutedText);
+
+        skin.setColor(Skin::kWidgetCenterLine, border);
+        skin.setColor(Skin::kWidgetPrimary1, cyan);
+        skin.setColor(Skin::kWidgetPrimary2, cyanDark);
+        skin.setColor(Skin::kWidgetPrimaryDisabled, midPanel);
+        skin.setColor(Skin::kWidgetSecondary1, yellow);
+        skin.setColor(Skin::kWidgetSecondary2, juce::Colour::fromRGB(130, 115, 0));
+        skin.setColor(Skin::kWidgetSecondaryDisabled, midPanel);
+        skin.setColor(Skin::kWidgetAccent1, red);
+        skin.setColor(Skin::kWidgetAccent2, green);
+        skin.setColor(Skin::kWidgetBackground, black);
+
+        skin.setColor(Skin::kModulationMeter, cyan);
+        skin.setColor(Skin::kModulationMeterLeft, cyan);
+        skin.setColor(Skin::kModulationMeterRight, red);
+        skin.setColor(Skin::kModulationMeterControl, yellow);
+        skin.setColor(Skin::kModulationButtonSelected, cyan);
+        skin.setColor(Skin::kModulationButtonDragging, yellow);
+        skin.setColor(Skin::kModulationButtonUnselected, border);
+
+        skin.setColor(Skin::kIconSelectorIcon, yellow);
+
+        skin.setColor(Skin::kIconButtonOff, darkPanel);
+        skin.setColor(Skin::kIconButtonOffHover, midPanel);
+        skin.setColor(Skin::kIconButtonOffPressed, cyanDark);
+        skin.setColor(Skin::kIconButtonOn, cyan);
+        skin.setColor(Skin::kIconButtonOnHover, yellow);
+        skin.setColor(Skin::kIconButtonOnPressed, red);
+
+        skin.setColor(Skin::kUiButton, darkPanel);
+        skin.setColor(Skin::kUiButtonText, yellow);
+        skin.setColor(Skin::kUiButtonHover, midPanel);
+        skin.setColor(Skin::kUiButtonPressed, cyanDark);
+        skin.setColor(Skin::kUiActionButton, darkPanel);
+        skin.setColor(Skin::kUiActionButtonHover, midPanel);
+        skin.setColor(Skin::kUiActionButtonPressed, cyanDark);
+
+        skin.setColor(Skin::kTextEditorBackground, black);
+        skin.setColor(Skin::kTextEditorBorder, border);
+        skin.setColor(Skin::kTextEditorCaret, cyan);
+        skin.setColor(Skin::kTextEditorSelection, cyanDark);
+    }
 } // namespace
 
 bool Skin::shouldScaleValue(ValueId value_id) {
@@ -185,6 +285,8 @@ void Skin::loadDefaultSkin() {
   try {
     json data = json::parse(skin_string, nullptr, false);
     jsonToState(data);
+
+      applyOldESColors (*this);  //TEMP*****************
   }
   catch (const json::exception& e) {
   }
