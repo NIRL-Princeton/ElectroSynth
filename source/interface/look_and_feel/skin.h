@@ -33,11 +33,12 @@ class Skin {
       kOverlay,
       kPopupBrowser,
       kPresetBrowser,
-          kModulationSection,
           kModulationDragDrop,
+          kModulationSection,
       kNumSectionOverrides
     };
 
+    // defines sizing/geometry values
     enum ValueId {
         kBodyRounding,
         kLabelHeight,
@@ -88,6 +89,7 @@ class Skin {
         kNumAllValueIds,
     };
 
+    // defines every named color in the GUI
     enum ColorId {
         kInitialColor = 0x42345678,
         kBackground = kInitialColor,
