@@ -9,8 +9,7 @@
 #include "modulation_manager.h"
 #include "synth_base.h"
 #include "EffectList.h"
-EffectModuleSection::EffectModuleSection(ModulationManager *m,
-                                     EffectList &module_list,const juce::ValueTree &v, juce::UndoManager& um) :
+EffectModuleSection::EffectModuleSection(ModulationManager *m, EffectList &module_list,const juce::ValueTree &v, juce::UndoManager& um) :
 ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRectangleFragment)), state(v), undo(um)
 {
     scroll_bar_ = std::make_unique<OpenGlScrollBar>();
@@ -426,16 +425,11 @@ void EffectModuleSection::moduleListChanged() {
 //     }
 void EffectModuleSection::paintBackground(Graphics &g) {
 
-    g.setColour(Colours::purple);
-    // Colour background = findColour(Skin::kBackground, true);
-    // g.setColour(background);
-    // g.fillRect(getLocalBounds().withRight(getWidth() - findValue(Skin::kLargePadding) / 2));
-
+    g.setColour(findColour(Skin::kBody, true));
     g.fillRoundedRectangle(getLocalBounds().toFloat(), findValue(Skin::kBodyRounding));
+    g.setColour(findColour(Skin::kBorder, true));
+    g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(0.5f), findValue(Skin::kBodyRounding), 1.0f);
 
-    int body_rounding = findValue(Skin::kBodyRounding);
-    g.setColour(Colours::red);
-    g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(0.5f), body_rounding, 1.0f);
     // paintContainer(g);
     paintBody(g);
     paintHeadingText(g);

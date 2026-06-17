@@ -7,6 +7,7 @@
 #include "modulation_button.h"
 #include "modulation_manager.h"
 ModulationSection::ModulationSection( const juce::ValueTree &v, std::unique_ptr<SynthSection> editor, juce::UndoManager& um) : SynthSection(editor->getName()), state(v), _view(std::move(editor)),
+
 mod_button(new ModulationButton("mod")), undo(um)
 {
     setComponentID(_view->getName());

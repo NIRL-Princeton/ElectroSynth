@@ -631,21 +631,23 @@ void SynthSlider::drawRotaryShadow(juce::Graphics &g) {
     g.setOrigin(x, y);
     juce::Colour body = findColour(Skin::kRotaryBody, true);
     float body_radius =  knob_size_scale_ * findValue(Skin::kKnobBodySize) / 2.0f;
+
+    /*
     if (body_radius >= 0.0f && body_radius < width) {
 
-//        if (shadow_width > 0.0f) {
-//            juce::Colour transparent_shadow = shadow_color.withAlpha(0.0f);
-//            float shadow_radius = body_radius + shadow_width;
-//            juce::ColourGradient shadow_gradient(shadow_color, center_x, center_y + shadow_offset,
-//                                                 transparent_shadow, center_x - shadow_radius, center_y + shadow_offset, true);
-//            float shadow_start = std::max(0.0f, (body_radius - std::abs(shadow_offset))) / shadow_radius;
-//            shadow_gradient.addColour(shadow_start, shadow_color);
-//            shadow_gradient.addColour(1.0f - (1.0f - shadow_start) * 0.75f, shadow_color.withMultipliedAlpha(0.5625f));
-//            shadow_gradient.addColour(1.0f - (1.0f - shadow_start) * 0.5f, shadow_color.withMultipliedAlpha(0.25f));
-//            shadow_gradient.addColour(1.0f - (1.0f - shadow_start) * 0.25f, shadow_color.withMultipliedAlpha(0.0625f));
-//            g.setGradientFill(shadow_gradient);
-//            g.fillRect(getLocalBounds());
-//        }
+        if (shadow_width > 0.0f) {
+            juce::Colour transparent_shadow = shadow_color.withAlpha(0.0f);
+            float shadow_radius = body_radius + shadow_width;
+            juce::ColourGradient shadow_gradient(shadow_color, center_x, center_y + shadow_offset,
+                                                 transparent_shadow, center_x - shadow_radius, center_y + shadow_offset, true);
+            float shadow_start = std::max(0.0f, (body_radius - std::abs(shadow_offset))) / shadow_radius;
+            shadow_gradient.addColour(shadow_start, shadow_color);
+            shadow_gradient.addColour(1.0f - (1.0f - shadow_start) * 0.75f, shadow_color.withMultipliedAlpha(0.5625f));
+            shadow_gradient.addColour(1.0f - (1.0f - shadow_start) * 0.5f, shadow_color.withMultipliedAlpha(0.25f));
+            shadow_gradient.addColour(1.0f - (1.0f - shadow_start) * 0.25f, shadow_color.withMultipliedAlpha(0.0625f));
+            g.setGradientFill(shadow_gradient);
+            g.fillRect(getLocalBounds());
+        }
 
         g.setColour(body);
         juce::Rectangle<float> ellipse(center_x - body_radius, center_y - body_radius, 2.0f * body_radius, 2.0f * body_radius);
@@ -653,8 +655,70 @@ void SynthSlider::drawRotaryShadow(juce::Graphics &g) {
 
         g.setColour(findColour(Skin::kRotaryBodyBorder, true));
         g.drawEllipse(ellipse.reduced(0.5f), 1.0f);
+        */
+
+    /* // Old style slider code
+
+    float slider_pos = valueToProportionOfLength(getValue());
+    float rotary_start_angle = -kRotaryAngle;
+    float rotary_end_angle = kRotaryAngle;
+    float angle = rotary_start_angle + slider_pos * (rotary_end_angle - rotary_start_angle);
+
+        // ticks
+    auto tick_length = std::max(body_radius * 0.5f, 8.0f);
+    auto tick_thickness = tick_length * 0.125f;
+
+    juce::Path lower;
+    lower.addRectangle (-tick_thickness * 0.5f, -body_radius * 1.5f, tick_thickness, tick_length);
+    lower.applyTransform(juce::AffineTransform::rotation(rotary_start_angle).translated(center_x, center_y));
+    g.setColour(juce::Colours::lightgrey);
+    g.fillPath(lower);
+    juce::Path upper;
+    upper.addRectangle(-tick_thickness * 0.5f, -body_radius * 1.5f,tick_thickness,tick_length);
+    upper.applyTransform(juce::AffineTransform::rotation(rotary_end_angle).translated(center_x, center_y));
+    g.setColour(juce::Colours::lightgrey);
+    g.fillPath(upper);
+    */
+
+    const int num_ticks = 30;
+    float rotary_start_angle = -kRotaryAngle;
+    float rotary_end_angle   =  kRotaryAngle;
+
+    auto tick_length = std::max(body_radius * 0.1f, 1.0f);
+    auto tick_thickness = std::max(tick_length * 0.12f, 1.0f);
+    auto tick_y = -body_radius * 1.55f;
+
+    for (int i = 0; i < num_ticks; i++)
+    {
+        float t = i / static_cast<float>(num_ticks - 1);
+        float angle = rotary_start_angle + t * (rotary_end_angle - rotary_start_angle);
+        juce::Path tickMark;
+        tickMark.addRectangle(-tick_thickness * 0.5f, tick_y, tick_thickness, tick_length);
+        tickMark.applyTransform(juce::AffineTransform::rotation(angle).translated(center_x, center_y));
+
+        g.fillPath(tickMark);
     }
 
+        // base
+    juce::Rectangle<float> ellipse(center_x - body_radius, center_y - body_radius, 2.0f * body_radius, 2.0f * body_radius);
+    float rw = ellipse.getWidth();
+    float border = rw * 0.025f;
+
+        // shadow
+    g.setColour(juce::Colours::dimgrey);
+    //g.fillEllipse(ellipse.getX() - border, ellipse.getY() - border, ellipse.getWidth() + border * 2.0f, ellipse.getHeight() + border * 3.0f);
+        // white knob face
+    g.setColour(juce::Colours::white);
+    g.fillEllipse(ellipse.reduced(7.5f));
+
+
+        // thin dark outline
+    g.setColour(juce::Colours::black);
+    g.drawEllipse(ellipse.reduced(0.5f), 1.0f);
+
+
+
+    /*
     juce::Path shadow_outline;
     juce::Path shadow_path;
 
@@ -666,6 +730,7 @@ void SynthSlider::drawRotaryShadow(juce::Graphics &g) {
         g.setColour(shadow_color);
         g.fillPath(shadow_path);
     }
+    */
 
     g.restoreState();
 }

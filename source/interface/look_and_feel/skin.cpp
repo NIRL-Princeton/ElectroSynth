@@ -206,7 +206,7 @@ namespace {
         skin.setColor(Skin::kRotaryArcDisabled, midPanel);
         skin.setColor(Skin::kRotaryArcUnselected, juce::Colour::fromRGB(80, 80, 80));
         skin.setColor(Skin::kRotaryArcUnselectedDisabled, juce::Colour::fromRGB(45, 45, 45));
-        skin.setColor(Skin::kRotaryHand, black);
+        skin.setColor(Skin::kRotaryHand, juce::Colours::black);
         skin.setColor(Skin::kRotaryBody, white);
         skin.setColor(Skin::kRotaryBodyBorder, black);
 
@@ -257,6 +257,28 @@ namespace {
         skin.setColor(Skin::kTextEditorCaret, cyan);
         skin.setColor(Skin::kTextEditorSelection, cyanDark);
     }
+
+    void applyOldElectroSynthValues(Skin& skin) {
+        skin.setValue(Skin::kBodyRounding, 0.0f);
+        skin.setValue(Skin::kLabelBackgroundRounding, 0.0f);
+        skin.setValue(Skin::kWidgetRoundedCorner, 0.0f);
+
+        skin.setValue(Skin::kWidgetLineWidth, 1.0f);
+        skin.setValue(Skin::kWidgetLineBoost, 0.0f);
+
+        skin.setValue(Skin::kKnobArcThickness, 3.0f);
+        skin.setValue(Skin::kKnobModAmountArcThickness, 3.0f);
+        skin.setValue(Skin::kKnobModMeterArcThickness, 3.0f);
+
+        skin.setValue(Skin::kKnobShadowWidth, 0.0f);
+        skin.setValue(Skin::kKnobShadowOffset, 0.0f);
+
+        // Leave label sizing alone for now.
+        // These caused clipping/compression in the current layout.
+        // skin.setValue(Skin::kLabelHeight, 16.0f);
+        // skin.setValue(Skin::kLabelBackgroundHeight, 16.0f);
+        // skin.setValue(Skin::kLabelOffset, 0.0f);
+    }
 } // namespace
 
 bool Skin::shouldScaleValue(ValueId value_id) {
@@ -287,6 +309,7 @@ void Skin::loadDefaultSkin() {
     jsonToState(data);
 
       applyOldESColors (*this);  //TEMP*****************
+      applyOldElectroSynthValues (*this);
   }
   catch (const json::exception& e) {
   }
