@@ -237,6 +237,19 @@ namespace electrosynth {
 
     ParametersView::~ParametersView() = default;
 
+    int ParametersView::getKnobRowCount() const
+    {
+        if (comps.empty())
+            return 1;
+
+        return static_cast<int> (std::ceil (comps.size() / static_cast<float> (kKnobsPerRow)));
+    }
+
+    int ParametersView::getPreferredHeight() const
+    {
+        return getKnobRowCount() * kModuleHeightPerKnobRow;
+    }
+
     void ParametersView::paint(juce::Graphics &g) {
         g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
     }
@@ -245,7 +258,7 @@ namespace electrosynth {
         //DBG("--------" + getName() + "View -------------");
         //DBG("bounds x:" + juce::String(getLocalBounds().getX()) + " y:" + juce::String(getLocalBounds().getY()) + " width: " + juce::String(getLocalBounds().getWidth()) + " height: " + juce::String(getLocalBounds().getHeight()));
         //pimpl->groupItem.setBounds(getLocalBounds());
-        placeKnobsInArea(getLocalBounds(), comps);
+        placeKnobsInAreaRows(getLocalBounds(), comps, kKnobsPerRow);
 //        SynthSection::resized();
 //        juce::Grid g;
 //

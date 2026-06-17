@@ -84,16 +84,20 @@ void DefaultLookAndFeel::drawScrollbar(Graphics& g, ScrollBar& scroll_bar, int x
 void DefaultLookAndFeel::drawComboBox(Graphics& g, int width, int height, const bool button_down,
                                       int button_x, int button_y, int button_w, int button_h, ComboBox& box) {
 
-    static constexpr float kRoundness = 0.0f;         // make rectangular (changed from 4.0f)
-    g.setColour(findColour(BubbleComponent::backgroundColourId));
-    g.fillRoundedRectangle(box.getLocalBounds().toFloat(), kRoundness);
+    auto bounds = box.getLocalBounds();
 
-    g.setColour(box.findColour(Skin::kBorder, true)); // add outline
-    g.drawRect(box.getLocalBounds(), 1);
+    // ikd ES-style rectangular dark box
+    g.setColour(box.findColour(Skin::kBackground, true));
+    g.fillRect(bounds);
 
+    // thin border
+    g.setColour(box.findColour(Skin::kBorder, true));
+    // g.drawRect(bounds, 1);
+
+    // dropdown arrow
     Path path = Paths::downTriangle();
+    const auto arrow_bounds = bounds.removeFromRight(height).reduced(4);
     g.setColour(box.findColour(Skin::kTextComponentText, true));
-    Rectangle<int> arrow_bounds = box.getLocalBounds().removeFromRight(height);
     g.fillPath(path, path.getTransformToScaleToFit(arrow_bounds.toFloat(), true));
 }
 

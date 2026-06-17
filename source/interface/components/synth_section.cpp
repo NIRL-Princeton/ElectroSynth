@@ -127,11 +127,6 @@ void SynthSection::repaintBackground() {
 }
 
 
-
-
-
-
-
 void SynthSection::paintContainer(Graphics& g) {
   paintBody(g);
 
@@ -639,7 +634,7 @@ void SynthSection::placeKnobsInArea(Rectangle<int> area, std::vector<std::unique
   float component_width = (area.getWidth() - (knobs.size() + 1) * widget_margin) / (1.0f * knobs.size());
  //beign lazy and moving sliders
 
-  int y = 0;//area.getY()/2;
+  int y = area.getY()/2;
   int height = area.getHeight() - widget_margin;
   //y += height;
   float x = area.getX() + widget_margin;
@@ -650,6 +645,43 @@ void SynthSection::placeKnobsInArea(Rectangle<int> area, std::vector<std::unique
       knob->setBounds(left, y, right - left, height);
     x += component_width + widget_margin;
   }
+}
+
+void SynthSection::placeKnobsInAreaRows(Rectangle<int> area, std::vector<std::unique_ptr<Component>>& knobs, int knobsPerRow) {
+    const int widget_margin = findValue(Skin::kWidgetMargin);
+    if (knobs.empty() || knobsPerRow <= 0) return;
+
+    int num_rows = std::ceil(knobs.size() / static_cast<float>(knobsPerRow));
+    if (num_rows != 1)
+        knobsPerRow = std::ceil(knobs.size() / static_cast<float>(num_rows));
+
+    int row_height = area.getHeight() / num_rows;
+
+    for (int row = 0; row <num_rows; row++)
+    {
+        int first = row * knobsPerRow;
+        int last = std::min<int>(first + knobsPerRow, knobs.size());
+        int count = last - first;
+        if (count <= 0)
+            continue;
+
+        Rectangle<int> row_area(area.getX(), area.getY() + row*row_height, area.getWidth(), row_height);
+        float component_width = (row_area.getWidth() - (count + 1) * widget_margin) / static_cast<float>(count);
+        float x = row_area.getX() + widget_margin;
+        int y = row_area.getY();
+        int height = row_area.getHeight() - widget_margin;
+
+        for (int i = first; i < last; i++)
+        {
+            int left = std::round(x);
+            int right = std::round(x + component_width);
+
+            if (knobs[i])
+                knobs[i]->setBounds(left, y, right - left, height);
+
+            x += component_width + widget_margin;
+        }
+    }
 }
 
 void SynthSection::lockCriticalSection() {
@@ -874,5 +906,4 @@ void SynthSection::showPopupSelector(Component* source, juce::Point<int> positio
 ////  if (all_buttons_.count(name))
 ////    all_buttons_[name]->setToggleState(value, notification);
 //}
-
 

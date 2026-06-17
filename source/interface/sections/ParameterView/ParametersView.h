@@ -15,6 +15,7 @@ namespace electrosynth {
         void paint(juce::Graphics &) override;
 
         void resized() override;
+        int getPreferredHeight() const override;
 //        void initOpenGlComponents(OpenGlWrapper &open_gl) override;
 //        void renderOpenGlComponents(OpenGlWrapper& open_gl, bool animate) override;
         void init_();
@@ -38,6 +39,9 @@ namespace electrosynth {
             DBG("mouseenter parameterview");
         }
     private:
+        static constexpr int kKnobsPerRow = 7;
+        static constexpr int kModuleHeightPerKnobRow = 100;
+        int getKnobRowCount() const;
 //        struct Pimpl;
 //        std::unique_ptr<Pimpl> pimpl;
         std::vector<std::unique_ptr<juce::Component>> comps;

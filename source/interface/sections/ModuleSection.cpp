@@ -5,6 +5,7 @@
 #include "ModuleSection.h"
 ModuleSection::ModuleSection(const juce::ValueTree &v, std::unique_ptr<SynthSection> editor, juce::UndoManager& um) : SynthSection(editor->getName()), state(v), _view(std::move(editor)), undo(um)
 {
+    height = _view->getPreferredHeight();
 
     background_ = std::make_unique<OpenGlBackground>();
 

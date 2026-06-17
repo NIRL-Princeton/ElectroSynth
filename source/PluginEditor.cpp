@@ -65,11 +65,6 @@ void PluginEditor::resized()
 }
 
 
-
-
-
-
-
 void PluginEditor::setScaleFactor(float newScale) {
     AudioProcessorEditor::setScaleFactor(newScale);
     gui_->redoBackground();
