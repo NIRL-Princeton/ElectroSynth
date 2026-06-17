@@ -27,7 +27,7 @@ ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRect
         EffectModuleSection::moduleAdded(obj);
     }
     setSidewaysHeading(false);
-    setName("section");
+    setName("FX");
 
     toggle_button_->setVisible(false);
     setInterceptsMouseClicks(true,true);

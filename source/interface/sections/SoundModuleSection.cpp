@@ -29,7 +29,7 @@ ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRect
         SoundModuleSection::moduleAdded(obj);
     }
     setSidewaysHeading(false);
-    setName("section");
+    setName("Sound Module");
 
     exit_button_ = std::make_unique<OpenGlShapeButton>("Exit");
     addAndMakeVisible(exit_button_.get());

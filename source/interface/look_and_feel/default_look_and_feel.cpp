@@ -120,8 +120,16 @@ void DefaultLookAndFeel::drawCallOutBoxBackground(CallOutBox& call_out_box, Grap
 
 void DefaultLookAndFeel::drawButtonBackground(Graphics& g, Button& button, const Colour& background_color,
                                               bool hover, bool down) {
-  g.setColour(button.findColour(Skin::kPopupSelectorBackground, true));
-  g.fillRoundedRectangle(button.getLocalBounds().toFloat(), 5.0f);
+
+    auto bounds = button.getLocalBounds();
+    if (down) g.setColour(button.findColour(Skin::kUiButtonPressed, true));
+    else if (hover) g.setColour(button.findColour(Skin::kUiButtonHover, true));
+    else g.setColour(button.findColour(Skin::kUiButton, true));
+
+    g.fillRect(bounds);
+    g.setColour(button.findColour(Skin::kBorder, true));
+    g.drawRect(bounds, 1);
+
 }
 
 //int DefaultLookAndFeel::getSliderPopupPlacement(Slider& slider) {
