@@ -38,7 +38,6 @@ public:
         // for (auto& slider : _sliders) {
         //     drawLabelForComponent(g, slider->getName(), slider.get());
         // }
-        drawLabelBackgroundForComponent (g,gain_slider.get());
         //(dg,gain_slider.get());
         paintChildrenBackgrounds(g);
     }

@@ -653,7 +653,7 @@ void SynthSection::placeKnobsInAreaRows(Rectangle<int> area, std::vector<std::un
 
     int num_rows = std::ceil(knobs.size() / static_cast<float>(knobsPerRow));
     if (num_rows != 1)
-        knobsPerRow = std::ceil(knobs.size() / static_cast<float>(num_rows));
+        knobsPerRow = std::ceil(knobs.size() / 2);
 
     int row_height = area.getHeight() / num_rows;
 
@@ -845,7 +845,6 @@ void SynthSection::drawLabel(Graphics& g, String text, Rectangle<int> component_
   if (component_bounds.getWidth() <= 0 || component_bounds.getHeight() <= 0)
     return;
 
-  drawLabelBackground(g, component_bounds, text_component);
   g.setColour(findColour(Skin::kBodyText, true));
   Rectangle<int> background_bounds = getLabelBackgroundBounds(component_bounds, text_component);
   g.drawText(text, component_bounds.getX(), background_bounds.getY(),
@@ -906,4 +905,3 @@ void SynthSection::showPopupSelector(Component* source, juce::Point<int> positio
 ////  if (all_buttons_.count(name))
 ////    all_buttons_[name]->setToggleState(value, notification);
 //}
-

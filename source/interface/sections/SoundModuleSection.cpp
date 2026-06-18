@@ -37,12 +37,11 @@ ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRect
     exit_button_->addListener(this);
     exit_button_->setShape(Paths::exitX());
 
-    //can only use because i know that this will work
-    //i.e. i know the type that router will return
     auto baseEditor = module_list.router_->createEditor();
     routing_view_ = std::unique_ptr<RoutingView>(static_cast<RoutingView*>(baseEditor.release()));
     addSubSection(routing_view_.get());
     routing_view_->setAlwaysOnTop(true);
+
 }
 
 SoundModuleSection::~SoundModuleSection() {
@@ -221,7 +220,11 @@ void SoundModuleSection::resized() {
 
     footer_body->setRounding(findValue(Skin::kBodyRounding));
     footer_body->setColor(findColour(Skin::kBody, true));
-    routing_view_->setBounds(getLocalBounds().getRight() - 200, viewport_.getBottom(), 200, getTitleWidth());
+    const int routing_width = std::min(160, std::max(0, getWidth() - 2 * large_padding));
+    const int routing_height = getTitleWidth();
+    const int routing_x = std::max(0, getWidth() - routing_width - large_padding);
+    const int routing_y = std::max(0, viewport_.getBottom() - routing_height);
+    routing_view_->setBounds(routing_x, routing_y, routing_width, routing_height);
     exit_button_->setBounds(getLocalBounds().getRight() - 50,0, 25,25);
 }
 void SoundModuleSection::removeModule(ProcessorBase *newModule) {
