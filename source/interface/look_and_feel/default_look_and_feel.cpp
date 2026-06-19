@@ -31,6 +31,7 @@ DefaultLookAndFeel::DefaultLookAndFeel() {
   setColour(BubbleComponent::backgroundColourId, Colour(0xff111111));
   setColour(BubbleComponent::outlineColourId, Colour(0xff333333));
   setColour(TooltipWindow::textColourId, Colour(0xffdddddd));
+
 }
 
 void DefaultLookAndFeel::fillTextEditorBackground(Graphics& g, int width, int height, TextEditor& text_editor) {
@@ -82,14 +83,18 @@ void DefaultLookAndFeel::drawScrollbar(Graphics& g, ScrollBar& scroll_bar, int x
 
 void DefaultLookAndFeel::drawComboBox(Graphics& g, int width, int height, const bool button_down,
                                       int button_x, int button_y, int button_w, int button_h, ComboBox& box) {
-  static constexpr float kRoundness = 4.0f;
-  g.setColour(findColour(BubbleComponent::backgroundColourId));
-  g.fillRoundedRectangle(box.getLocalBounds().toFloat(), kRoundness);
-  Path path = Paths::downTriangle();
 
-  g.setColour(box.findColour(Skin::kTextComponentText, true));
-  Rectangle<int> arrow_bounds = box.getLocalBounds().removeFromRight(height);
-  g.fillPath(path, path.getTransformToScaleToFit(arrow_bounds.toFloat(), true));
+    static constexpr float kRoundness = 0.0f;         // make rectangular (changed from 4.0f)
+    g.setColour(findColour(BubbleComponent::backgroundColourId));
+    g.fillRoundedRectangle(box.getLocalBounds().toFloat(), kRoundness);
+
+    g.setColour(box.findColour(Skin::kBorder, true)); // add outline
+    g.drawRect(box.getLocalBounds(), 1);
+
+    Path path = Paths::downTriangle();
+    g.setColour(box.findColour(Skin::kTextComponentText, true));
+    Rectangle<int> arrow_bounds = box.getLocalBounds().removeFromRight(height);
+    g.fillPath(path, path.getTransformToScaleToFit(arrow_bounds.toFloat(), true));
 }
 
 void DefaultLookAndFeel::drawTickBox(Graphics& g, Component& component,
@@ -115,8 +120,16 @@ void DefaultLookAndFeel::drawCallOutBoxBackground(CallOutBox& call_out_box, Grap
 
 void DefaultLookAndFeel::drawButtonBackground(Graphics& g, Button& button, const Colour& background_color,
                                               bool hover, bool down) {
-  g.setColour(button.findColour(Skin::kPopupSelectorBackground, true));
-  g.fillRoundedRectangle(button.getLocalBounds().toFloat(), 5.0f);
+
+    auto bounds = button.getLocalBounds();
+    if (down) g.setColour(button.findColour(Skin::kUiButtonPressed, true));
+    else if (hover) g.setColour(button.findColour(Skin::kUiButtonHover, true));
+    else g.setColour(button.findColour(Skin::kUiButton, true));
+
+    g.fillRect(bounds);
+    g.setColour(button.findColour(Skin::kBorder, true));
+    g.drawRect(bounds, 1);
+
 }
 
 //int DefaultLookAndFeel::getSliderPopupPlacement(Slider& slider) {

@@ -21,7 +21,7 @@ public:
     void updateFullGui() override;
 private:
     // This reference is provided as a quick way for your editor to
-    // access the processor object that created it
+    // access the processor object that created it.
     PluginProcessor& processorRef;
     BorderBoundsConstrainer constrainer_;
 
