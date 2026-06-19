@@ -2,6 +2,10 @@
 // Created by Davis Polito on 11/19/24.
 //
 
+// SoundModuleSection.cpp is the container/list for all sound modules. It owns the popup menu, create/removed modules,
+// stores module_sections, lays them out vertically, owns the viewport/container, and positions the routing gain/combobox
+// over the first module header.
+
 #include "SoundModuleSection.h"
 #include "../../synthesis/framework/Processors/OscillatorModuleProcessor.h"
 #include "ModuleSection.h"
@@ -25,9 +29,7 @@ ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRect
     viewport_.setScrollBarsShown(false, false, false, false);
 
     addListener(m);
-    for (auto obj : list) {
-        SoundModuleSection::moduleAdded(obj);
-    }
+    for (auto obj : list) { SoundModuleSection::moduleAdded(obj); }
     setSidewaysHeading(false);
     setName("Sound Module");
 
@@ -39,7 +41,7 @@ ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRect
 
     auto baseEditor = module_list.router_->createEditor();
     routing_view_ = std::unique_ptr<RoutingView>(static_cast<RoutingView*>(baseEditor.release()));
-    addSubSection(routing_view_.get());
+    container_->addSubSection(routing_view_.get());
     routing_view_->setAlwaysOnTop(true);
 
 }
@@ -62,7 +64,6 @@ void SoundModuleSection::redoBackgroundImage()
     background_graphics.addTransform(AffineTransform::scale(mult));
     background_graphics.fillAll(background);
     container_->paintBackground(background_graphics);
-    paintChildBackground(background_graphics,routing_view_.get());
     background_.setOwnImage(background_image);
 }
 
@@ -78,8 +79,7 @@ void SoundModuleSection::handlePopupResult(int result) {
         t.setProperty(IDs::type, "filt", nullptr);
         undo.beginNewTransaction();
         list.appendChild(t, &undo);
-    } else if (result == 3)
-    {
+    } else if (result == 3) {
         juce::ValueTree t(IDs::SOUNDMODULE);
         t.setProperty(IDs::type, "string", nullptr);
         undo.beginNewTransaction();
@@ -122,6 +122,7 @@ void SoundModuleSection::setEffectPositions() {
     int padding = getPadding();
     int large_padding = findValue(Skin::kLargePadding);
     int shadow_width = getComponentShadowWidth();
+
     int start_x = large_padding - shadow_width;
     int effect_width = getWidth() - start_x - large_padding;
     int knob_section_height = getKnobSectionHeight();
@@ -132,9 +133,31 @@ void SoundModuleSection::setEffectPositions() {
     juce::Point<int> position = viewport_.getViewPosition();
     // DBG("position viewport: x: " + juce::String(position.getX()) + "y: " + juce::String(position.getY()));
     //DBG("shadwo width: " + String(shadow_width));
+    int oscillator_index = 1;
+    int string_index = 1;
     for (auto &section: module_sections) {
-        section->setBounds(0, y, effect_width, section->height);
-        y += (section->height +padding);
+        const auto type = section->state.getProperty(IDs::type).toString();
+        if (type == "osc")
+            section->setName("Oscillator " + juce::String(oscillator_index++));
+        else if (type == "string")
+            section->setName("String " + juce::String(string_index++));
+
+        const int section_height = section->refreshHeight(); // refresh height before positioning each module
+        section->setBounds(start_x, y, effect_width, section_height);
+        y += (section_height +padding);
+    }
+    if (routing_view_ != nullptr) {
+        if (module_sections.empty()) { routing_view_->setVisible(false); }
+        else {
+            auto* first_section = module_sections.front().get();
+            const int routing_height = ModuleSection::kHeaderHeight;
+            const int routing_width = std::min(280, std::max(0, first_section->getWidth() - 120));
+            const int routing_x = std::max(0, first_section->getRight() - routing_width - 55);
+            const int routing_y = first_section->getY() + (ModuleSection::kHeaderHeight - routing_height) / 2.5;
+
+            routing_view_->setVisible(true);
+            routing_view_->setBounds(routing_x, routing_y, routing_width, routing_height);
+        }
     }
     container_->setBounds(0,getTitleWidth(), viewport_.getWidth(), y+padding);
     viewport_.setViewPosition(position);
@@ -147,14 +170,16 @@ void SoundModuleSection::setEffectPositions() {
     // setScrollBarRange();
     repaintBackground();
     height = y+padding + getTitleWidth()*2;
+    if (getWidth() > 0 && getHeight() != height)
+        setSize(getWidth(), height);
 }
 
 PopupItems SoundModuleSection::createPopupMenu() {
     PopupItems options;
-    options.addItem(1, "add osc");
-    options.addItem(2, "add filt");
+    options.addItem(1, "add oscillator");
+    options.addItem(2, "add filter");
     options.addItem(3, "add string");
-    options.addItem(4, "soft clip");
+    options.addItem(4, "add soft clip");
     return options;
 }
 
@@ -170,24 +195,18 @@ void SoundModuleSection::moduleAdded(ProcessorBase *newModule) {
     }
     module_section->setInterceptsMouseClicks(false, true);
     parentHierarchyChanged();
-    int height_to_add  = module_section->height;
+    module_section->refreshHeight();
     module_sections.emplace_back(std::move(module_section));
 
 
-    if (!getLocalBounds().isEmpty()) {
-        int padding = getPadding();
-        this->setSize(getWidth(),getHeight() + height_to_add + padding);
-        resized();
-    }
+    if (!getLocalBounds().isEmpty()) { resized(); }
 
-    for (auto listener: listeners_) {
-        listener->added();
-    }
+    for (auto listener: listeners_) { listener->added(); }
 
 }
 void SoundModuleSection::resized() {
     //ModulesInterface::resized();
-    static constexpr float kEffectOrderWidthPercent = 0.2f;
+    static constexpr float kEffectOrderWidthPercent = 0.4f;
 
     ScopedLock lock(open_gl_critical_section_);
 
@@ -206,8 +225,6 @@ void SoundModuleSection::resized() {
         setEffectPositions();
         // scroll_bar_->setBounds(getWidth() - large_padding + 1, getTitleWidth() + large_padding, large_padding - 2, getHeight() -getTitleWidth()-(large_padding + 2 * shadow_width));
         // scroll_bar_->setColor(findColour(Skin::kLightenScreen, true));
-
-
     }
     else
     {
@@ -216,16 +233,11 @@ void SoundModuleSection::resized() {
     }
 
     SynthSection::resized();
-    //ooter_body->setBounds(0,getHeight()-1, getWidth(), getTitleWidth());
+    //footer_body->setBounds(0,getHeight()-1, getWidth(), getTitleWidth());
 
     footer_body->setRounding(findValue(Skin::kBodyRounding));
     footer_body->setColor(findColour(Skin::kBody, true));
-    const int routing_width = std::min(160, std::max(0, getWidth() - 2 * large_padding));
-    const int routing_height = getTitleWidth();
-    const int routing_x = std::max(0, getWidth() - routing_width - large_padding);
-    const int routing_y = std::max(0, viewport_.getBottom() - routing_height);
-    routing_view_->setBounds(routing_x, routing_y, routing_width, routing_height);
-    exit_button_->setBounds(getLocalBounds().getRight() - 50,0, 25,25);
+    exit_button_->setBounds(getLocalBounds().getRight() - 50,getLocalBounds().getY(), 25,25);
 }
 void SoundModuleSection::removeModule(ProcessorBase *newModule) {
     DBG(newModule->state.getProperty(IDs::uuid).toString());
@@ -263,10 +275,8 @@ void SoundModuleSection::removeModule(ProcessorBase *newModule) {
                 },true);
 
 
-    int height_to_remove = it->get()->height;
     module_sections.erase(it);
     DBG("deletesection");
-this->setSize(getWidth(),getHeight() - height_to_remove);
     resized();
     for(auto listener : listeners_)
     {
@@ -278,6 +288,7 @@ this->setSize(getWidth(),getHeight() - height_to_remove);
 
 void SoundModuleSection::moduleListChanged() {
 }
+
 void SoundModuleSection::buttonClicked(juce::Button *button) {
     ModulesInterface<ProcessorBase>::buttonClicked(button);
     if (button == exit_button_.get()) {

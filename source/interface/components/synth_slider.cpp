@@ -67,8 +67,12 @@ void OpenGlSlider::setSliderDisplayValues() {
     slider_quad_->setThumbAmount(findValue(Skin::kKnobHandleLength));
   }
   else if (isHorizontalQuad()) {
-    float margin = 2.0f * (findValue(Skin::kWidgetMargin) - 0.5f) / getWidth();
-    slider_quad_->setQuad(0, -1.0f + margin, -1.0f, 2.0f - 2.0f * margin, 2.0f);
+    // float margin = 2.0f * (findValue(Skin::kWidgetMargin) - 0.5f) / getWidth();
+    // slider_quad_->setQuad(0, -1.0f + margin, -1.0f, 2.0f - 2.0f * margin, 2.0f);
+      float widget_margin = findValue(Skin::kWidgetMargin);
+      float extra_pixel_margin = std::max(widget_margin - 0.5f, horizontal_track_padding_);
+      float margin = 2.0f * extra_pixel_margin / getWidth();
+      slider_quad_->setQuad(0, -1.0f + margin, -1.0f, 2.0f - 2.0f * margin, 2.0f);
   }
   else if (isVerticalQuad()) {
     float margin = 2.0f * (findValue(Skin::kWidgetMargin) - 0.5f) / getHeight();
@@ -78,7 +82,7 @@ void OpenGlSlider::setSliderDisplayValues() {
 
 void OpenGlSlider:: redoImage(bool skip_image) {
   static constexpr float kRoundingMult = 0.4f;
-  static constexpr float kRotaryHoverBoost = 1.4f;
+  static constexpr float kRotaryHoverBoost = 1.2f;
   if (getWidth() <= 0 || getHeight() <= 0)
     return;
 
@@ -110,7 +114,7 @@ void OpenGlSlider:: redoImage(bool skip_image) {
     }
 
     if (isMouseOverOrDragging())
-      slider_quad_->setThickness(1.8f);
+      slider_quad_->setThickness(1.2f);
     else
       slider_quad_->setThickness(1.0f);
   }
@@ -122,6 +126,8 @@ void OpenGlSlider:: redoImage(bool skip_image) {
     slider_quad_->setColor(selected_color_);
     slider_quad_->setAltColor(unselected_color_);
     slider_quad_->setThumbColor(thumb_color_);
+    slider_quad_->setBackgroundColor(findColour(Skin::kRotaryBody, true));
+    slider_quad_->setModColor(findColour(Skin::kRotaryBodyBorder, true));
     slider_quad_->setStartPos(bipolar_ ? 0.0f : -electrosynth::kPi);
 
     float thickness = findValue(Skin::kKnobArcThickness);
@@ -151,6 +157,11 @@ void OpenGlSlider:: redoImage(bool skip_image) {
     slider_quad_->setThumbAmount(handle_width);
   }
   if (!skip_image) {
+    if (!isTextOrCurve()) {
+      image_component_->setActive(false);
+      return;
+    }
+
       juce::Image _image(juce::Image::SingleChannel, getWidth(), getHeight(), true);
       juce::Graphics g(_image);
       g.setColour(findColour(Skin::kRotaryBody,true));
@@ -207,16 +218,8 @@ SynthSlider::SynthSlider(juce::String name) : OpenGlSlider(name), show_popup_on_
 
     setWantsKeyboardFocus(true);
     setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
-
-
-
     setRotaryParameters(2.0f * electrosynth::kPi - kRotaryAngle, 2.0f * electrosynth::kPi + kRotaryAngle, true);
-
-
-
-
     setDefaultRange();
-
     setVelocityBasedMode(false);
     setVelocityModeParameters(1.0, 0, 0.0, false, juce::ModifierKeys::ctrlAltCommandModifiers);
 }
@@ -255,16 +258,8 @@ SynthSlider::SynthSlider(juce::String name) : OpenGlSlider(name), show_popup_on_
 //
 //  setWantsKeyboardFocus(true);
 //  setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
-//
-//
-//
 //  setRotaryParameters(2.0f * electrosynth::kPi - kRotaryAngle, 2.0f * electrosynth::kPi + kRotaryAngle, true);
-//
-//
-//
-//
 //  setDefaultRange();
-//
 //  setVelocityBasedMode(false);
 //  setVelocityModeParameters(1.0, 0, 0.0, false, juce::ModifierKeys::ctrlAltCommandModifiers);
 //}
@@ -282,11 +277,6 @@ PopupItems SynthSlider::createPopupMenu() {
 //    options.addItem(kClearMidiLearn, "Clear MIDI Assignment");
 
   options.addItem(kManualEntry, "Enter juce::Value");
-
-
-
-
-
 
   return options;
 }
@@ -323,10 +313,8 @@ void SynthSlider::mouseDown(const juce::MouseEvent& e) {
 
 void SynthSlider::mouseDrag(const juce::MouseEvent& e) {
 
-  
   float multiply = 1.0f;
 
-    
   sensitive_mode_ = e.mods.isCommandDown();
   if (sensitive_mode_)
     multiply *= kSlowDragMultiplier;
@@ -594,9 +582,7 @@ void SynthSlider::showTextEntry() {
 }
 
 void SynthSlider::drawShadow(juce::Graphics &g) {
-  if (isRotary() && !isTextOrCurve())
-    drawRotaryShadow(g);
-  else if (&getLookAndFeel() == CurveLookAndFeel::instance()) {
+  if (&getLookAndFeel() == CurveLookAndFeel::instance()) {
     g.setColour(findColour(Skin::kWidgetBackground, true));
     float rounding = findValue(Skin::kWidgetRoundedCorner);
     g.fillRoundedRectangle(getBounds().toFloat(), rounding);
@@ -715,6 +701,32 @@ void SynthSlider::drawRotaryShadow(juce::Graphics &g) {
         // thin dark outline
     g.setColour(juce::Colours::black);
     g.drawEllipse(ellipse.reduced(0.5f), 1.0f);
+
+    const float slider_pos = valueToProportionOfLength(getValue());
+    const float angle = rotary_start_angle + slider_pos * (rotary_end_angle - rotary_start_angle);
+    const float arc_radius = radius;
+    const float arc_thickness = findValue(Skin::kKnobArcThickness) * (isMouseOverOrDragging() ? 1.12f : 1.0f);
+
+    juce::Path unselected_arc;
+    unselected_arc.addCentredArc(center_x, center_y, arc_radius, arc_radius, 0.0f,
+                                 rotary_start_angle, rotary_end_angle, true);
+    juce::Path selected_arc;
+    selected_arc.addCentredArc(center_x, center_y, arc_radius, arc_radius, 0.0f,
+                               rotary_start_angle, angle, true);
+
+    juce::PathStrokeType arc_stroke(arc_thickness, juce::PathStrokeType::curved, juce::PathStrokeType::rounded);
+    g.setColour(getUnselectedColor());
+    g.strokePath(unselected_arc, arc_stroke);
+    g.setColour(getSelectedColor());
+    g.strokePath(selected_arc, arc_stroke);
+
+    juce::Path hand;
+    const float hand_length = body_radius * 0.75f;
+    const float hand_width = std::max(2.0f, arc_thickness * 0.9f);
+    hand.addRoundedRectangle(-hand_width * 0.5f, -hand_length, hand_width, hand_length, hand_width * 0.5f);
+    hand.applyTransform(juce::AffineTransform::rotation(angle).translated(center_x, center_y));
+    g.setColour(getThumbColor());
+    g.fillPath(hand);
 
 
 

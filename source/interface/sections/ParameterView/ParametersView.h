@@ -24,13 +24,13 @@ namespace electrosynth {
         void paintBackground(juce::Graphics& g) override
         {
             SynthSection::paintContainer(g);
-            paintHeadingText(g);
             paintBorder(g);
             paintKnobShadows(g);
             paintChildrenBackgrounds(g);
+            static constexpr int kKnobLabelYOffset = -8;
             for (auto slider : all_sliders_v)
             {
-                drawLabelForComponent(g, slider->getName(), slider);
+                drawLabel(g, slider->getName(), slider->getBounds().translated(0, kKnobLabelYOffset));
             }
         }
 
@@ -39,8 +39,10 @@ namespace electrosynth {
             DBG("mouseenter parameterview");
         }
     private:
-        static constexpr int kKnobsPerRow = 7;
+        static constexpr int kDefaultKnobsPerRow = 7;
+        static constexpr int kStringKnobsPerRow = 6;
         static constexpr int kModuleHeightPerKnobRow = 100;
+        int getKnobsPerRow() const;
         int getKnobRowCount() const;
 //        struct Pimpl;
 //        std::unique_ptr<Pimpl> pimpl;

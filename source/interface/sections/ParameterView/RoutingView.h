@@ -9,20 +9,48 @@
 #include "open_gl_combobox.h"
 #include "RoutingProcessor.h"
 #include "synth_slider.h"
+
+class RoutingGainSlider : public SynthSlider
+{
+public:
+    using SynthSlider::SynthSlider;
+
+    juce::Colour getSelectedColor() const override {
+        return juce::Colour(0xff00d7ff);
+    }
+
+    juce::Colour getUnselectedColor() const override {
+        return juce::Colour(0xff2c3436);
+    }
+
+    juce::Colour getThumbColor() const override {
+        return juce::Colour(0xffffffff);
+    }
+
+    juce::Colour getBackgroundColor() const override {
+        return juce::Colour(0xff050707);
+    }
+};
+
+
 class RoutingView : public SynthSection {
 public:
     RoutingView(chowdsp::PluginState& pluginState, RoutingParams& params,String name): SynthSection("RoutingView") {
         setLookAndFeel (DefaultLookAndFeel::instance());
         setComponentID (name);
+        setInterceptsMouseClicks(false, true);
         auto& listeners = pluginState.getParameterListeners();
-        gain_slider = std::make_unique<SynthSlider> (params.gainparam->paramID);
-        gain_slider_attachment = std::make_unique<chowdsp::SliderAttachment> (*params.gainparam.get(), listeners, *gain_slider.get(), nullptr);
 
-        gain_slider->setSliderStyle (juce::Slider::RotaryHorizontalVerticalDrag);
+        // master gain slider for each osc/string component
+        gain_slider = std::make_unique<RoutingGainSlider> (params.gainparam->paramID);
+        gain_slider_attachment = std::make_unique<chowdsp::SliderAttachment> (*params.gainparam.get(), listeners, *gain_slider.get(), nullptr);
+        gain_slider->setSliderStyle (juce::Slider::LinearBar);
         gain_slider->setComponentID(params.gainparam->paramID);
         setLookAndFeel(DefaultLookAndFeel::instance());
-       gain_slider->setScrollWheelEnabled(false);
+        gain_slider->setScrollWheelEnabled(false);
         addSlider(gain_slider.get(), true);
+
+        // combo box (gain/ lane 1/ lane 2)
         routing_combo_box  = std::make_unique<OpenGLComboBox>();
         routing_combo_attachment = std::make_unique<chowdsp::ComboBoxAttachment>(*params.routing.get(), listeners, *routing_combo_box.get(), nullptr);
 
@@ -43,11 +71,14 @@ public:
     }
 
     void resized() override {
-        auto bounds = getLocalBounds();
-        auto fromleft = bounds.removeFromLeft(bounds.getWidth() / 4);
-        auto toright = bounds.removeFromRight(bounds.getWidth() /2);
-        gain_slider->setBounds(fromleft);
-        routing_combo_box->setBounds(toright);
+        auto bounds = getLocalBounds().reduced(4, 8);
+        auto slider_area = bounds.removeFromLeft(static_cast<int>(bounds.getWidth() * 0.42f));
+        bounds.removeFromLeft(8);
+        auto combo_area = bounds;
+
+        gain_slider->setBounds(slider_area);
+        gain_slider->redoImage();
+        routing_combo_box->setBounds(combo_area);
     }
     std::unique_ptr<SynthSlider> gain_slider;
     std::unique_ptr<chowdsp::SliderAttachment> gain_slider_attachment;

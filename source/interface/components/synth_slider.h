@@ -44,6 +44,10 @@ class OpenGlSliderQuad : public OpenGlQuad {
 
 class OpenGlSlider : public juce::Slider {
   public:
+    void setHorizontalTrackPadding(float paddingPixels) {
+        horizontal_track_padding_ = paddingPixels;
+    }
+
     static constexpr float kRotaryAngle = 0.8f * electrosynth::kPi;
 
     OpenGlSlider(juce::String name) : juce::Slider(name), parent_(nullptr), modulation_knob_(false), modulation_amount_(0.0f),
@@ -57,6 +61,7 @@ class OpenGlSlider : public juce::Slider {
       image_component_->paintEntireComponent(false);
       image_component_->setComponent(this);
       image_component_->setScissor(true);
+      image_component_->setInterceptsMouseClicks(false, false);
 
       slider_quad_->setActive(false);
       image_component_->setActive(false);
@@ -209,11 +214,16 @@ class OpenGlSlider : public juce::Slider {
     void setDrawWhenNotVisible(bool draw) { slider_quad_->setDrawWhenNotVisible(draw); }
 
     SynthSection* getSectionParent() { return parent_; }
+
 void setScissorComponent(juce::Component *scissor_component) { slider_quad_->setScissorComponent(scissor_component); }
+
 protected:
     SynthSection* parent_;
     float knob_size_scale_;
   private:
+
+    float horizontal_track_padding_ = 0.0f;
+
     juce::Colour thumb_color_;
     juce::Colour selected_color_;
     juce::Colour unselected_color_;
@@ -461,11 +471,8 @@ class SynthSlider : public OpenGlSlider, public juce::TextEditor::Listener {
     juce::Point<int> last_modulation_edit_position_;
     juce::Point<int> mouse_down_position_;
 
-
     float display_multiply_;
     float display_exponential_base_;
-
-
 
     const std::string* string_lookup_;
 
@@ -477,4 +484,3 @@ class SynthSlider : public OpenGlSlider, public juce::TextEditor::Listener {
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SynthSlider)
 };
-

@@ -14,14 +14,9 @@ namespace electrosynth {
                 button.setComponentID(param.paramID);
                 setLookAndFeel(DefaultLookAndFeel::instance());
                 parent.addButton(&button);
-
-                //parent.addGlComponent (button.getGlComponent());
-                //addAndMakeVisible(button);
             }
 
             void resized() override {
-                // auto area = getLocalBounds();
-                // area.removeFromLeft(8);
                 auto area = getBoundsInParent();
                 button.setBounds(area);
             }
@@ -29,7 +24,6 @@ namespace electrosynth {
         private:
             OpenGlToggleButton button;
             chowdsp::ButtonAttachment attachment;
-
             JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (BooleanParameterComponent)
         };
 
@@ -49,10 +43,8 @@ namespace electrosynth {
             }
 
         private:
-
             OpenGLComboBox box;
             chowdsp::ComboBoxAttachment attachment;
-
             JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ChoiceParameterComponent)
         };
 
@@ -63,26 +55,24 @@ namespace electrosynth {
                 slider.setComponentID(param.paramID);
                 setLookAndFeel(DefaultLookAndFeel::instance());
                 slider.setScrollWheelEnabled(false);
+                slider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
                 //addAndMakeVisible(slider);
                 //setInterceptsMouseClicks(false, true);
                 parent.addSlider(&slider, true);
                 slider.parentHierarchyChanged();
-                slider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
                 _ASSERT(slider.getSectionParent() != nullptr);
                 DBG("create slider for " + param.paramID + "with parent " + parent.getName());
              }
 
-             ~SliderParameterComponent()
-             {
+             ~SliderParameterComponent() {
 //                auto parent = findParentComponentOfClass<SynthGuiInterface>();
-//
 //                parent->getOpenGlWrapper()
-
              }
-             void mouseEnter (const MouseEvent& event)
-             {
+
+             void mouseEnter (const MouseEvent& event) {
                  DBG("mouseentersliderparamacomp");
              }
+
             void resized() override {
                 auto area = getBoundsInParent();
                 slider.setBounds(area);
@@ -91,11 +81,10 @@ namespace electrosynth {
 
         private:
             SynthSlider slider;
-            //juce::Slider slider { juce::Slider::LinearHorizontal, juce::Slider::TextEntryBoxPosition::TextBoxRight };
             chowdsp::SliderAttachment attachment;
-
             JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SliderParameterComponent)
         };
+
         std::unique_ptr<juce::Component> createParameterComp(chowdsp::PluginState& listeners, juce::RangedAudioParameter &parameter, SynthSection& parent) {
             if (auto *boolParam = dynamic_cast<chowdsp::BoolParameter *> (&parameter))
                 return std::make_unique<BooleanParameterComponent>(*boolParam, listeners,parent);
@@ -190,19 +179,16 @@ namespace electrosynth {
     {
         setComponentID(name);
         setInterceptsMouseClicks(false,true);
-        //pimpl(std::make_unique<Pimpl>(params, paramListeners, *this)){
-        //        auto *viewport = pimpl->view.getViewport();
-        params.doForAllParameterContainers(
-                [this, &pluginState](auto &paramVec) {
-                    for (auto &param: paramVec)
-                    {
-                        comps.push_back(parameters_view_detail::createParameterComp(pluginState, param,*this));
 
+        params.doForAllParameterContainers(
+            [this, &pluginState](auto &paramVec) {
+                    for (auto &param: paramVec) {
+                        comps.push_back(parameters_view_detail::createParameterComp(pluginState, param, *this));
                     }
                 },
                 [this, &pluginState](auto &paramHolder) {
                    // DBG("add group item");
-//                    addSubSection(std::make_unique<ParameterGroupItem>(paramHolder,listeners, *this).release());
+                   // addSubSection(std::make_unique<ParameterGroupItem>(paramHolder,listeners, *this).release());
                 });
         setLookAndFeel(DefaultLookAndFeel::instance());
         setOpaque(true);
@@ -237,16 +223,19 @@ namespace electrosynth {
 
     ParametersView::~ParametersView() = default;
 
-    int ParametersView::getKnobRowCount() const
+    int ParametersView::getKnobsPerRow() const
     {
-        if (comps.empty())
-            return 1;
-
-        return static_cast<int> (std::ceil (comps.size() / static_cast<float> (kKnobsPerRow)));
+        return getName().startsWithIgnoreCase("string") ? kStringKnobsPerRow : kDefaultKnobsPerRow;
     }
 
-    int ParametersView::getPreferredHeight() const
-    {
+    int ParametersView::getKnobRowCount() const {
+        if (all_sliders_v.empty())
+            return 1;
+
+        return static_cast<int> (std::ceil (all_sliders_v.size() / static_cast<float> (getKnobsPerRow())));
+    }
+
+    int ParametersView::getPreferredHeight() const {
         return getKnobRowCount() * kModuleHeightPerKnobRow;
     }
 
@@ -258,7 +247,35 @@ namespace electrosynth {
         //DBG("--------" + getName() + "View -------------");
         //DBG("bounds x:" + juce::String(getLocalBounds().getX()) + " y:" + juce::String(getLocalBounds().getY()) + " width: " + juce::String(getLocalBounds().getWidth()) + " height: " + juce::String(getLocalBounds().getHeight()));
         //pimpl->groupItem.setBounds(getLocalBounds());
-        placeKnobsInAreaRows(getLocalBounds(), comps, kKnobsPerRow);
+
+        // creating osc/string component bounds
+        const int knobs_per_row = getKnobsPerRow();
+        const int num_rows = getKnobRowCount();
+        const int widget_margin = findValue(Skin::kWidgetMargin);
+        const int row_height = getHeight() / num_rows;
+
+        for (int row = 0; row < num_rows; ++row) {
+            const int first = row * knobs_per_row;
+            const int last = std::min<int>(first + knobs_per_row, all_sliders_v.size());
+            const int count = last - first;
+            if (count <= 0)
+                continue;
+
+            juce::Rectangle<int> row_area(0, row * row_height, getWidth(), row_height);
+            const float component_width = (row_area.getWidth() - (count + 1) * widget_margin) / static_cast<float>(count);
+            float x = row_area.getX() + widget_margin;
+            const int height = row_area.getHeight() - widget_margin;
+
+            for (int i = first; i < last; ++i) {
+                const int left = std::round(x);
+                const int right = std::round(x + component_width);
+                if (auto* slider = dynamic_cast<SynthSlider*> (all_sliders_v[i])) {
+                    slider->setBounds(left, row_area.getY(), right - left, height);
+                    slider->redoImage();
+                }
+                x += component_width + widget_margin;
+            }
+        }
 //        SynthSection::resized();
 //        juce::Grid g;
 //

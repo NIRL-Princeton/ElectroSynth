@@ -14,9 +14,13 @@
 class ModuleSection : public SynthSection
 {
 public:
+    static constexpr int kHeaderHeight = 36;
+
     ModuleSection(const juce::ValueTree &, std::unique_ptr<SynthSection> editor, juce::UndoManager& um);
 
     virtual ~ModuleSection();
+    int getPreferredHeight() const override;
+    int refreshHeight();
     void repaintModuleBackground()
     {
         background_->lock();
