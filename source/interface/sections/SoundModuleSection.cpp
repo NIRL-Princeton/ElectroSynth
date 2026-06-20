@@ -2,9 +2,9 @@
 // Created by Davis Polito on 11/19/24.
 //
 
-// SoundModuleSection.cpp is the container/list for all sound modules. It owns the popup menu, create/removed modules,
-// stores module_sections, lays them out vertically, owns the viewport/container, and positions the routing gain/combobox
-// over the first module header.
+// SoundModuleSection.cpp is the container/list for all sound modules. It owns the pop-up menu, creates/removes modules, stores
+// module_sections, lays them out vertically, owns the viewport/container, and positions the routing gain/combobox over
+// the first module header.
 
 #include "SoundModuleSection.h"
 #include "../../synthesis/framework/Processors/OscillatorModuleProcessor.h"
@@ -49,6 +49,13 @@ ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRect
 SoundModuleSection::~SoundModuleSection() {
    module_sections.clear();
 }
+
+void SoundModuleSection::setSoundModuleIndex(int index)
+{
+    sound_module_index_ = index;
+    setName("Sound Module #" + juce::String(sound_module_index_));
+}
+
 void SoundModuleSection::redoBackgroundImage()
 {
     Colour background = findColour(Skin::kBackground, true);
@@ -135,12 +142,18 @@ void SoundModuleSection::setEffectPositions() {
     //DBG("shadwo width: " + String(shadow_width));
     int oscillator_index = 1;
     int string_index = 1;
+    int filter_index = 1;
+    int soft_clip_index = 1;
     for (auto &section: module_sections) {
         const auto type = section->state.getProperty(IDs::type).toString();
         if (type == "osc")
-            section->setName("Oscillator " + juce::String(oscillator_index++));
+            section->setName("Oscillator #" + juce::String(sound_module_index_) + "." + juce::String(oscillator_index++));
         else if (type == "string")
-            section->setName("String " + juce::String(string_index++));
+            section->setName("String #" + juce::String(sound_module_index_) + "." + juce::String(string_index++));
+        else if (type == "filt")
+            section->setName("Filter #" + juce::String(sound_module_index_) + "." + juce::String(filter_index++));
+        else if (type == "softclip")
+            section->setName("Soft Clip #" + juce::String(sound_module_index_) + "." + juce::String(soft_clip_index++));
 
         const int section_height = section->refreshHeight(); // refresh height before positioning each module
         section->setBounds(start_x, y, effect_width, section_height);

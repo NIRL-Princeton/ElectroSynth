@@ -3,6 +3,14 @@
 #include "synth_slider.h"
 #include "open_gl_background.h"
 #include "open_gl_combobox.h"
+
+// ParametersView.cpp is the generic parameter-to-controller builder. Given a processor’s parameter list, it creates the right UI component
+// for each parameter:
+// BoolParameter -> toggle button
+// ChoiceParameter -> combo box
+// FloatParameter -> SynthSlider
+// Each class is a small wrapper object that makes the UI component, attaches it to the parameter, and registers it with the SynthSection parent
+
 namespace electrosynth {
     namespace parameters_view_detail {
 
@@ -56,10 +64,10 @@ namespace electrosynth {
                 setLookAndFeel(DefaultLookAndFeel::instance());
                 slider.setScrollWheelEnabled(false);
                 slider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
-                //addAndMakeVisible(slider);
                 //setInterceptsMouseClicks(false, true);
                 parent.addSlider(&slider, true);
                 slider.parentHierarchyChanged();
+
                 _ASSERT(slider.getSectionParent() != nullptr);
                 DBG("create slider for " + param.paramID + "with parent " + parent.getName());
              }

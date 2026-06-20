@@ -16,6 +16,7 @@ public:
     explicit SoundModuleSection( ModulationManager* m, ModuleList<ProcessorBase> &,const juce::ValueTree &, juce::UndoManager& um);
     virtual ~SoundModuleSection();
 
+    void setSoundModuleIndex(int index);
     void setEffectPositions() override;
 
     PopupItems createPopupMenu() override;
@@ -44,6 +45,7 @@ public:
     int mouse_down_y_;
     int dragged_starting_y_;
     int height;
+    int sound_module_index_ = 1;
     std::unique_ptr<RoutingView> routing_view_;
     juce::UndoManager& undo;
 };

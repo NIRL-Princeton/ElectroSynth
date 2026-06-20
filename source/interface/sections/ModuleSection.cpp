@@ -3,7 +3,7 @@
 //
 
 // ModuleSection.cpp is the wrapper for one entire module (one oscillator, string, filter, etc.). It owns the module's actual
-// editor view (ParametersView) and gives it a header, border/background, exit button, draf behavior, and a height.
+// editor view (ParametersView) and gives it a header, border/background, exit button, draft behavior, and a height.
 
 #include "ModuleSection.h"
 ModuleSection::ModuleSection(const juce::ValueTree &v, std::unique_ptr<SynthSection> editor, juce::UndoManager& um) : SynthSection(editor->getName()), state(v), _view(std::move(editor)), undo(um)

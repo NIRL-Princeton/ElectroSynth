@@ -1,36 +1,45 @@
 //
 // Created by Davis Polito on 6/30/25.
 //
+// AudioChainSection.cpp is the UI layer above SoundModuleSection.cpp. It is responsible for the collectino of distinct sound module sections.
+// Each SoundModuleSection inside it is one seperate sound module. The main functions of this file is:
+// 1) Owns the scrollable container holding all Sound Modules and manages scrolling for the whole list
+// 2) Facilitates creation/destruction of entire sound modules.
+// 3) Lays out each SoundModuleSection vertically in AudioChainSection::setEffectPositions()
+// 4) Forwards listener events when modules are moved, added, or removed
+// 5) Assigns top-level display numbers.
+
 
 #include "AudioChainSection.h"
-
+#include "synth_gui_interface.h"
+#include "synth_base.h"
 #include "about_section.h"
 #include "modulation_manager.h"
+#include "FullInterface.h"
 
 AudioChainSection::AudioChainSection(ChainList<ProcessorBase> &chains, ModulationManager *m, juce::UndoManager& um) : SynthSection("chains"),
     chains_(chains), modulation_manager_(m), undo(um) {
+
     container_ = std::make_unique<ModulesListContainer>("container");
 
     addAndMakeVisible(viewport_);
     viewport_.setViewedComponent(container_.get());
     viewport_.addListener(this);
     viewport_.setInterceptsMouseClicks(false, true);
-    //breaks sacling if true
     addSubSection(container_.get(), false);
-    setOpaque(false);
+    setOpaque(true);
     chains_.addListener(this);
+
     scroll_bar_ = std::make_unique<OpenGlScrollBar>();
     addAndMakeVisible(scroll_bar_.get());
     addOpenGlComponent(scroll_bar_->getGlComponent());
     scroll_bar_->addListener(this);
     viewport_.setScrollBarPosition(true, false); //use this to determine viewport scroll type in effectsviewport
     viewport_.setScrollBarsShown(false, false, true, false);
+
     setSidewaysHeading(false);
     addListener(m);
-
-
 }
-
 
 AudioChainSection::~AudioChainSection() {
     chains_.removeListener(this);
@@ -71,7 +80,6 @@ void AudioChainSection::redoBackgroundImage() {
 
 void AudioChainSection::resized() {
     static constexpr float kEffectOrderWidthPercent = 0.2f;
-
     ScopedLock lock(open_gl_critical_section_);
 
     int order_width = getWidth() * kEffectOrderWidthPercent;
@@ -90,7 +98,6 @@ void AudioChainSection::resized() {
     scroll_bar_->setBounds(getWidth() - large_padding + 1, getTitleWidth() + large_padding, large_padding - 2,
                            getHeight() - getTitleWidth() - (large_padding + 2 * shadow_width));
     scroll_bar_->setColor(findColour(Skin::kLightenScreen, true));
-
 
     SynthSection::resized();
 }
@@ -160,9 +167,6 @@ void AudioChainSection::setScrollBarRange() {
     // DBG("scrollbar range: " + String(scroll_bar_->getCurrentRangeStart()) );
 }
 
-#include "synth_gui_interface.h"
-#include "synth_base.h"
-
 void AudioChainSection::reset() {
     SynthGuiInterface *_parent = findParentComponentOfClass<SynthGuiInterface>();
     if (_parent != nullptr)
@@ -187,7 +191,10 @@ void AudioChainSection::setEffectPositions() {
     juce::Point<int> position = viewport_.getViewPosition();
     // DBG("position viewport: x: " + juce::String(position.getX()) + "y: " + juce::String(position.getY()));
     //DBG("shadwo width: " + String(shadow_width));
+
+    int sound_module_index = 1;
     for (auto &section: sound_module_sections) {
+        section->setSoundModuleIndex(sound_module_index++);
         if (section->isExpanded()) {
             int sectionheight = section->getHeight() ? section->getHeight() : effect_height;
             section->setBounds(0, y, effect_width, sectionheight );
@@ -202,6 +209,7 @@ void AudioChainSection::setEffectPositions() {
 
     for (Listener *listener: listeners_)
         listener->effectsMoved();
+
     //DBG("container Height " + String(container_->getHeight()));
     //DBG("viewport Height " + String(viewport_.getWidth()));
     container_->setScrollWheelEnabled(container_->getHeight() <= viewport_.getHeight());
@@ -211,6 +219,7 @@ void AudioChainSection::setEffectPositions() {
 #include "FullInterface.h"
 
 void AudioChainSection::removeChain(ModuleList<ProcessorBase> *moduleToRemove) {
+
     auto it = [&]() {
         juce::ScopedLock lock(this->open_gl_critical_section_);
         return std::partition(sound_module_sections.begin(), sound_module_sections.end(),
@@ -219,53 +228,43 @@ void AudioChainSection::removeChain(ModuleList<ProcessorBase> *moduleToRemove) {
                               });
     }();
 
-
-
     it->get()->setVisible(false);
-
 
     auto *_parent = findParentComponentOfClass<SynthGuiInterface>();
     _parent->getOpenGlWrapper()->context.executeOnGLThread([this, it](juce::OpenGLContext &openGLContext) {
-
-
         auto a = it->get();
         a->destroyOpenGlComponents(openGLContext);
         this->container_->removeSubSection(a);
         DBG("deleteonopengl");
         },true);
 
-
     {
         juce::ScopedLock lock(open_gl_critical_section_);
         sound_module_sections.erase(it);
         DBG("deletesection");
     }
-        for(auto listener : listeners_)
-        {
-            listener->removed();
-        }
+
+    for(auto listener : listeners_) {listener->removed();}
 
     DBG("finishcrit");
-    // this->setSize(getWidth(),getHeight() - height_to_remove);
     resized();
 }
 
-#include "FullInterface.h"
-
 void AudioChainSection::chainAdded(ModuleList<ProcessorBase> *module_list) {
+
     auto sound_interface = std::make_unique<SoundModuleSection>(modulation_manager_, *module_list,module_list->state, undo);
     auto* rawPtr = sound_interface.get();
+
     sound_interface->onExpandChanged = [this,rawPtr]() {
-        if (rawPtr->isExpanded())
-        {
+        if (rawPtr->isExpanded()) {
             rawPtr->setSize (rawPtr->getWidth(), rawPtr->height);
         }
         resized(); //sound_interface->redoBackgroundImage();
         // rawPtr->setSize(getWidth(), rawPtr->height);
         auto full = findParentComponentOfClass<FullInterface>();
         full->redoBackground();
-
     };
+
     auto interface = findParentComponentOfClass<SynthGuiInterface>();
     if (interface != nullptr) {
         interface->getOpenGlWrapper()->context.executeOnGLThread(
@@ -290,7 +289,7 @@ void AudioChainSection::chainChanged() {
 
 PopupItems AudioChainSection::createPopupMenu() {
     PopupItems options;
-    options.addItem(1, "add osc");
+    options.addItem(1, "add oscillator");
     options.addItem(2, "add string");
     return options;
 }
