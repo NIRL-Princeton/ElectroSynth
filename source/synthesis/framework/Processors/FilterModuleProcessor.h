@@ -5,7 +5,7 @@
 #define ELECTROSYNTH_FILTERMODULEPROCESSOR_H
 #include "FilterModule.h"
 #include "PluginStateImpl_.h"
-#include "ParameterView/ParametersView.h"
+#include "ParameterView/FxModuleTemplateView.h"
 #include "Identifiers.h"
 #include "Processors/ProcessorBase.h"
 namespace electrosynth{
@@ -91,7 +91,7 @@ public:
     void releaseResources() override {}
     std::unique_ptr<SynthSection> createEditor() override
     {
-        return std::make_unique<electrosynth::ParametersView>(state_, state_.params, state.getProperty(IDs::type).toString() + state.getProperty(IDs::uuid).toString());
+        return std::make_unique<electrosynth::FxModuleTemplateView>(state_, state_.params, state.getProperty(IDs::type).toString() + state.getProperty(IDs::uuid).toString());
     }
 };
 

@@ -107,6 +107,7 @@ std::map<std::string, SynthSlider *> EffectModuleSection::getAllSliders() {
 
 void EffectModuleSection::moduleAdded(ProcessorBase *newModule) {
     auto module_section = std::make_unique<ModuleSection>(newModule->state,std::move (newModule->createEditor()), undo);
+    module_section->height = 300;
     module_section->onDragMove = [this](ModuleSection* dragged, juce::Rectangle<int> bounds) {
         int midY = bounds.getCentreY();
 
@@ -282,6 +283,7 @@ void EffectModuleSection::resized() {
     }
 
     SynthSection::resized();
+    redoBackgroundImage();
     //ooter_body->setBounds(0,getHeight()-1, getWidth(), getTitleWidth());
     footer_body->setRounding(findValue(Skin::kBodyRounding));
     footer_body->setColor(findColour(Skin::kBody, true));
@@ -423,27 +425,16 @@ void EffectModuleSection::moduleListChanged() {
 //         moveEffect(last_dragged_index_, next_index);
 //         last_dragged_index_ = next_index;
 //     }
-void EffectModuleSection::paintBackground(Graphics &g) {
+void EffectModuleSection::redoBackgroundImage() {
+    if (getWidth() <= 0 || getHeight() <= 0)
+        return;
 
-    g.setColour(findColour(Skin::kBody, true));
-    g.fillRoundedRectangle(getLocalBounds().toFloat(), findValue(Skin::kBodyRounding));
-    g.setColour(findColour(Skin::kBorder, true));
-    g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(0.5f), findValue(Skin::kBodyRounding), 1.0f);
-
-    // paintContainer(g);
-    paintBody(g);
-    paintHeadingText(g);
-
-    // paintChildrenBackgrounds(g);
-    paintBorder(g);
-    // paintChildBackground(g,container_.get());
     Colour background = findColour(Skin::kBackground, true);
-
-    int height = std::max(container_->getHeight(),static_cast<int> (viewport_.getHeight()));
+    int height = std::max(container_->getHeight(), static_cast<int>(viewport_.getHeight()));
     if (height == 0)
         height = getHeight();
     int width = std::max(container_->getWidth(), getWidth());
-    int mult = juce::Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds())->scale;// getPixelMultiple();
+    int mult = juce::Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds())->scale;
     Image background_image = Image(Image::ARGB, width * mult, height * mult, true);
 
     Graphics background_graphics(background_image);
@@ -454,6 +445,17 @@ void EffectModuleSection::paintBackground(Graphics &g) {
     background_graphics.fillRect(juce::Rectangle<float>(0.0f, 0.0f, 1.0f, (float)height));
     background_graphics.fillRect(juce::Rectangle<float>((float)width - 1.0f, 0.0f, 1.0f, (float)height));
     background_.setOwnImage(background_image);
-    // redoBackgroundImage();
+}
 
+void EffectModuleSection::paintBackground(Graphics &g) {
+    g.setColour(findColour(Skin::kBody, true));
+    g.fillRoundedRectangle(getLocalBounds().toFloat(), findValue(Skin::kBodyRounding));
+    g.setColour(findColour(Skin::kBorder, true));
+    g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(0.5f), findValue(Skin::kBodyRounding), 1.0f);
+
+    paintBody(g);
+    paintHeadingText(g);
+    paintBorder(g);
+
+    redoBackgroundImage();
 }

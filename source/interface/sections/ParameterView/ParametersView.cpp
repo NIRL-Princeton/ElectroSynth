@@ -1,4 +1,5 @@
 #include "ParametersView.h"
+#include "FxModuleTemplateView.h"
 #include "synth_section.h"
 #include "synth_slider.h"
 #include "open_gl_background.h"
@@ -271,4 +272,98 @@ namespace electrosynth {
     {
 //        return pimpl->getComponentForParameter (param);
     }
+// ============================================================
+// FxModuleTemplateView
+// ============================================================
+FxModuleTemplateView::FxModuleTemplateView(chowdsp::PluginState& pluginState,
+                                           chowdsp::ParamHolder& params,
+                                           juce::String name)
+    : SynthSection(name)
+{
+    setComponentID(name);
+    setInterceptsMouseClicks(false, true);
+
+    params.doForAllParameterContainers(
+        [this, &pluginState](auto& paramVec) {
+            for (auto& param : paramVec) {
+                if ((int)comps.size() < kMaxEffectSlots)
+                    comps.push_back(parameters_view_detail::createParameterComp(pluginState, param, *this));
+            }
+        },
+        [](auto&) {});
+
+    for (int i = (int)comps.size(); i < kMaxEffectSlots; ++i) {
+        auto ph = std::make_unique<SynthSlider>("Param " + juce::String(i + 1));
+        ph->setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
+        ph->setScrollWheelEnabled(false);
+        ph->setEnabled(false);
+        addSlider(ph.get(), true);
+        ph->parentHierarchyChanged();
+        placeholders_.push_back(std::move(ph));
+    }
+
+    mix_knob_ = std::make_unique<SynthSlider>("Mix");
+    mix_knob_->setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
+    mix_knob_->setScrollWheelEnabled(false);
+    mix_knob_->setKnobSizeScale(1.4f);
+    addSlider(mix_knob_.get(), true);
+    mix_knob_->parentHierarchyChanged();
+
+    postgain_knob_ = std::make_unique<SynthSlider>("Postgain");
+    postgain_knob_->setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
+    postgain_knob_->setScrollWheelEnabled(false);
+    postgain_knob_->setKnobSizeScale(1.4f);
+    addSlider(postgain_knob_.get(), true);
+    postgain_knob_->parentHierarchyChanged();
+
+    setLookAndFeel(DefaultLookAndFeel::instance());
+    setOpaque(true);
+}
+
+FxModuleTemplateView::~FxModuleTemplateView() = default;
+
+void FxModuleTemplateView::resized() {
+    const float totalWeight = 3.0f + 2.0f * 1.3f;
+    const int unit = static_cast<int>(getHeight() / totalWeight);
+    const int normalH = unit;
+    const int largerH = static_cast<int>(unit * 1.3f);
+    const int w = getWidth();
+    int y = 0;
+
+    auto setSlotBounds = [&](int slotIdx, juce::Rectangle<int> b) {
+        if (slotIdx < (int)comps.size())
+            comps[slotIdx]->setBounds(b);
+        else if (slotIdx - (int)comps.size() < (int)placeholders_.size())
+            placeholders_[slotIdx - (int)comps.size()]->setBounds(b);
+    };
+
+    // Row 1: slot 0 — 1 knob centered
+    { int kw = w * 3 / 5; setSlotBounds(0, { (w - kw) / 2, y, kw, normalH }); y += normalH; }
+
+    // Row 2: slots 1 & 2 — 2 knobs side by side
+    { int h = w / 2; setSlotBounds(1, { 0, y, h, normalH }); setSlotBounds(2, { h, y, h, normalH }); y += normalH; }
+
+    // Row 3: slots 3 & 4 — 2 knobs side by side
+    { int h = w / 2; setSlotBounds(3, { 0, y, h, normalH }); setSlotBounds(4, { h, y, h, normalH }); y += normalH; }
+
+    // Row 4: Mix — larger, centered
+    { int kw = w * 7 / 10; mix_knob_->setBounds({ (w - kw) / 2, y, kw, largerH }); y += largerH; }
+
+    // Row 5: Postgain — larger, centered
+    { int kw = w * 7 / 10; postgain_knob_->setBounds({ (w - kw) / 2, y, kw, largerH }); }
+
+    SynthSection::resized();
+}
+
+void FxModuleTemplateView::paintBackground(juce::Graphics& g) {
+    SynthSection::paintContainer(g);
+    paintHeadingText(g);
+    paintBorder(g);
+    paintKnobShadows(g);
+    paintChildrenBackgrounds(g);
+    g.setFont(Fonts::instance()->proportional_regular().withPointHeight(14.0f));
+    for (auto slider : all_sliders_v)
+        drawLabelForComponent(g, slider->getName(), slider);
+}
+
 }//naemspace bitlkavier

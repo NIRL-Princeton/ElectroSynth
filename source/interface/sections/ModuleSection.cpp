@@ -6,10 +6,7 @@
 ModuleSection::ModuleSection(const juce::ValueTree &v, std::unique_ptr<SynthSection> editor, juce::UndoManager& um) : SynthSection(editor->getName()), state(v), _view(std::move(editor)), undo(um)
 {
 
-    background_ = std::make_unique<OpenGlBackground>();
-
-    // addOpenGlComponent(background_);
-    background_->setComponent(this);
+    // background_ left null — module content is drawn by EffectModuleSection's 2x HiDPI background image
     // background_->paintEntireComponent(false);
     // background_->setInterceptsMouseClicks(false, false);
     setComponentID(_view->getName());
@@ -51,13 +48,6 @@ void ModuleSection::resized()
    SynthSection::resized();
     // background_->setBounds(getLocalBounds());
     exit_button_->setBounds(getLocalBounds().getRight() - 50,0, 25,25);
-    background_image_ = juce::Image(juce::Image::RGB, getWidth(),getHeight(), true);
-    // juce::Graphics g(background_image_);
-    // paintChildBackground(g,this);
-    // background_->draw_image_
-    // background_->updateBackgroundImage(background_image_);
-    // background_->unlock();
-    repaintModuleBackground();
 
 }
 

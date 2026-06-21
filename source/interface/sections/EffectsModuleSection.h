@@ -28,6 +28,7 @@ public:
     void removeModule(ProcessorBase* newModule)   override;
     void moduleListChanged() ;
     void paintBackground(Graphics &g) override;
+    void redoBackgroundImage() override;
     std::shared_ptr<OpenGlQuad> footer_body;
 
 

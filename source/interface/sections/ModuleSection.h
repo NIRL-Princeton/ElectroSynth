@@ -17,23 +17,9 @@ public:
     ModuleSection(const juce::ValueTree &, std::unique_ptr<SynthSection> editor, juce::UndoManager& um);
 
     virtual ~ModuleSection();
-    void repaintModuleBackground()
-    {
-        background_->lock();
-        background_image_ = juce::Image(juce::Image::RGB, getWidth(),getHeight(), true);
-        juce::Graphics g(background_image_);
-        // if (prep_view.get() != nullptr)
-            paintChildBackground(g, this);
-        background_->updateBackgroundImage(background_image_);
-        background_->unlock();
-    }
+    void repaintModuleBackground() { }
     void renderOpenGlComponents(OpenGlWrapper &open_gl, bool animate) override {
-        if(!background_->isInit) {
-        background_->init(open_gl);
-        }
-        // background_->render(open_gl);
-
-        SynthSection::renderOpenGlComponents(open_gl,animate);
+        SynthSection::renderOpenGlComponents(open_gl, animate);
     }
     void paintBackground(Graphics& g) override;
 //    void setParametersViewEditor(electrosynth::ParametersViewEditor&&);
@@ -94,7 +80,6 @@ public:
     int height = 100;
 private:
     bool isDragging = false;
-    juce::Image background_image_;
     std::unique_ptr<SynthSection> _view;
     std::vector<Listener*> listeners_;
     juce::UndoManager& undo;
