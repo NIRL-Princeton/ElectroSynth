@@ -337,7 +337,7 @@ void ModulesInterface<T>::renderOpenGlComponents(OpenGlWrapper& open_gl, bool an
     //         component->setScissorComponent(&viewport_);
     //     }
     // }
-    // container_->setScissorComponent(&viewport_);
+    // conta2iner_->setScissorComponent(&viewport_);
     // for (auto component : container_->open_gl_components_) {
     //     component->setScissorComponent(&viewport_);
     // }

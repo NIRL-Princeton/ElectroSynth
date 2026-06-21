@@ -449,7 +449,10 @@ void EffectModuleSection::paintBackground(Graphics &g) {
     Graphics background_graphics(background_image);
     background_graphics.addTransform(AffineTransform::scale(mult));
     background_graphics.fillAll(background);
-    // container_->paintBackground(background_graphics);
+    container_->paintBackground(background_graphics);
+    background_graphics.setColour(juce::Colours::aliceblue);
+    background_graphics.fillRect(juce::Rectangle<float>(0.0f, 0.0f, 1.0f, (float)height));
+    background_graphics.fillRect(juce::Rectangle<float>((float)width - 1.0f, 0.0f, 1.0f, (float)height));
     background_.setOwnImage(background_image);
     // redoBackgroundImage();
 
