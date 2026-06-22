@@ -23,6 +23,8 @@ private:
     std::unique_ptr<SynthSlider> mix_knob_;
     std::unique_ptr<SynthSlider> postgain_knob_;
 
+    std::array<juce::Rectangle<int>, 7> mod_boxes_;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FxModuleTemplateView)
 };
 

@@ -195,7 +195,7 @@ class OpenGlSlider : public juce::Slider {
     }
 
     int getLinearSliderWidth();
-    void setSliderDisplayValues();
+    virtual void setSliderDisplayValues();
     void redoImage(bool skip_image = false);
     void setColors();
 

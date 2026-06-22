@@ -28,15 +28,7 @@ ModuleSection::~ModuleSection() = default;
 
 void ModuleSection::paintBackground(juce::Graphics &g)
 {
-
-    paintContainer(g);
-    paintHeadingText(g);
-
-    paintKnobShadows(g);
-    paintChildrenBackgrounds(g);    paintBorder(g);
-   //SynthSection::paintBackground(g);
-    // background_->lock();
-    // background_->paintEntireComponent()
+    paintChildrenBackgrounds(g);
 }
 
 void ModuleSection::resized()

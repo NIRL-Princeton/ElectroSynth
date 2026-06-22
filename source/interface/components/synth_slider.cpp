@@ -678,10 +678,11 @@ void SynthSlider::drawRotaryShadow(juce::Graphics &g) {
     float rotary_start_angle = -kRotaryAngle;
     float rotary_end_angle   =  kRotaryAngle;
 
-    auto tick_length = std::max(body_radius * 0.1f, 1.0f);
-    auto tick_thickness = std::max(tick_length * 0.12f, 1.0f);
+    auto tick_length = std::max(body_radius * 0.18f, 1.0f);
+    auto tick_thickness = std::max(tick_length * 0.09f, 1.0f);
     auto tick_y = -body_radius * 1.55f;
 
+    g.setColour(isEnabled() ? juce::Colours::white : juce::Colours::grey.withAlpha(0.5f));
     for (int i = 0; i < num_ticks; i++)
     {
         float t = i / static_cast<float>(num_ticks - 1);
@@ -689,7 +690,6 @@ void SynthSlider::drawRotaryShadow(juce::Graphics &g) {
         juce::Path tickMark;
         tickMark.addRectangle(-tick_thickness * 0.5f, tick_y, tick_thickness, tick_length);
         tickMark.applyTransform(juce::AffineTransform::rotation(angle).translated(center_x, center_y));
-
         g.fillPath(tickMark);
     }
 
@@ -701,16 +701,14 @@ void SynthSlider::drawRotaryShadow(juce::Graphics &g) {
         // shadow
     g.setColour(juce::Colours::dimgrey);
     //g.fillEllipse(ellipse.getX() - border, ellipse.getY() - border, ellipse.getWidth() + border * 2.0f, ellipse.getHeight() + border * 3.0f);
-        // white knob face
-    g.setColour(juce::Colours::white);
+        // knob face — greyed for disabled (placeholder) sliders
+    g.setColour(isEnabled() ? juce::Colours::white : juce::Colours::grey.withAlpha(0.5f));
     g.fillEllipse(ellipse.reduced(7.5f));
 
 
         // thin dark outline
     g.setColour(juce::Colours::black);
     g.drawEllipse(ellipse.reduced(0.5f), 1.0f);
-
-
 
     /*
     juce::Path shadow_outline;

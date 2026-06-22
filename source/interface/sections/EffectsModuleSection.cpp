@@ -78,6 +78,7 @@ void EffectModuleSection::setEffectPositions() {
             y += placeholderHeight;
         }
 
+        module_sections[i]->height = viewport_.getHeight();
         module_sections[i]->setBounds(0, y, getWidth(), module_sections[i]->height);
         start_y = y + module_sections[i]->height + padding;
     }
@@ -269,7 +270,7 @@ void EffectModuleSection::resized() {
     auto header = area.removeFromTop(30);
     toggle_button_->setBounds(0,0,getTitleWidth(),getTitleWidth());
     if (isExpanded()) {
-        viewport_.setBounds(0,getTitleWidth(),getWidth(),getHeight()-getTitleWidth()*2); //getHeight()-getTitleWidth() - (large_padding + 20 * shadow_width));
+        viewport_.setBounds(0,getTitleWidth(),getWidth(),getHeight()-getTitleWidth()-2);
         setEffectPositions();
         scroll_bar_->setBounds(getWidth() - large_padding + 1, getTitleWidth() + large_padding, large_padding - 2, getHeight() -getTitleWidth()-(large_padding + 2 * shadow_width));
         scroll_bar_->setColor(findColour(Skin::kLightenScreen, true));
