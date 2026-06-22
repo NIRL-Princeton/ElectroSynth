@@ -28,6 +28,8 @@ public:
     void removeModule(ProcessorBase* newModule)   override;
     void moduleListChanged() ;
     void paintBackground(Graphics &g) override;
+    void redoBackgroundImage() override;
+    void parentHierarchyChanged() override { redoBackgroundImage(); SynthSection::parentHierarchyChanged(); }
     std::shared_ptr<OpenGlQuad> footer_body;
 
 
