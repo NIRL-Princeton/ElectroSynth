@@ -14,6 +14,11 @@
  * along with vital.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// open_gl_multi_quad.cpp draws many quads using one vertex buffer, one index buffer, and a selected fragment shader.
+// Each quad stores position, dimensions, texture-style coordinates, and extra shader values. This class also manages common shader
+// uniforms like color, alt_color, mod_color, background_color, thumb_color, thickness, rounding, max_arc, etc.
+
+
 #include "open_gl_multi_quad.h"
 
 #include "look_and_feel/shaders.h"
@@ -48,12 +53,13 @@ OpenGlMultiQuad::OpenGlMultiQuad(int max_quads, Shaders::FragmentShader shader, 
 }
 
 OpenGlMultiQuad::~OpenGlMultiQuad() {}
-bool OpenGlMultiQuad::isInit()
-{
+
+bool OpenGlMultiQuad::isInit() {
   return shader_ != nullptr;
 }
-void OpenGlMultiQuad::init(OpenGlWrapper &open_gl)
-{
+
+void OpenGlMultiQuad::init(OpenGlWrapper &open_gl) {
+
   open_gl.context.extensions.glGenBuffers(1, &vertex_buffer_);
   open_gl.context.extensions.glBindBuffer(juce::gl::GL_ARRAY_BUFFER, vertex_buffer_);
 

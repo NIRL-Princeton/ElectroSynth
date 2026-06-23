@@ -217,9 +217,10 @@ public:
                 [this, &pluginState](auto &paramHolder) {
                    // DBG("add group item");
                    // addSubSection(std::make_unique<ParameterGroupItem>(paramHolder,listeners, *this).release());
-                });
+	                });
         setLookAndFeel(DefaultLookAndFeel::instance());
         setOpaque(true);
+        ensureSliderLabels();
     }
 
     ParametersView::ParametersView(chowdsp::ParameterListeners& paramListeners, chowdsp::ParamHolder& params, String name)
@@ -248,7 +249,6 @@ public:
 // //        setSize(viewport->getViewedComponent()->getWidth() + viewport->getVerticalScrollBar().getWidth(),
 // //                juce::jlimit(125, 700, viewport->getViewedComponent()->getHeight()));
     }
-
     ParametersView::~ParametersView() = default;
 
     int ParametersView::getKnobsPerRow() const
@@ -269,6 +269,38 @@ public:
 
     void ParametersView::paint(juce::Graphics &g) {
         g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
+    }
+
+    void ParametersView::ensureSliderLabels() {
+        for (auto slider : all_sliders_v) {
+            if (slider_labels_.count(slider) != 0)
+                continue;
+
+            auto label = std::make_shared<PlainTextComponent>(slider->getName() + "_label", slider->getName());
+            label->setFontType(PlainTextComponent::kRegular);
+            label->setJustification(juce::Justification::centred);
+            label->setColor(findColour(Skin::kBodyText, true));
+            addOpenGlComponent(label);
+            slider_labels_[slider] = label;
+        }
+    }
+
+    void ParametersView::updateSliderLabels() {
+        ensureSliderLabels();
+
+        for (auto slider : all_sliders_v) {
+            auto it = slider_labels_.find(slider);
+            if (it == slider_labels_.end())
+                continue;
+
+            auto bounds = slider->getBounds().translated(0, kKnobLabelYOffset);
+            auto label_bounds = getLabelBackgroundBounds(bounds);
+
+            it->second->setBounds(bounds.getX(), label_bounds.getY(), bounds.getWidth(), label_bounds.getHeight());
+            it->second->setText(slider->getName());
+            it->second->setTextSize(getLabelFont().getHeight());
+            it->second->setColor(findColour(Skin::kBodyText, true));
+        }
     }
 
     void ParametersView::resized() {
@@ -304,32 +336,18 @@ public:
                 x += component_width + widget_margin;
             }
         }
-//        SynthSection::resized();
-//        juce::Grid g;
-//
-//        placeKnobsInArea(getLocalBounds(),
-//                         getAllSlidersVec());
-//        for(auto slider : getAllSlidersVec())
-//        {
-//            DBG("setslider" + slider->getName());
-//        }
-//        for (auto subsection: sub_sections_)
-//        {
-//            g.items.add(juce::GridItem(subsection));
-//        }
-//        g.performLayout(getLocalBounds());
+
+        updateSliderLabels();
     }
 
-
-    void ParametersView::init_()
-    {
+    void ParametersView::init_() {
 //        pimpl->view.setRootItem(&pimpl->groupItem);
     }
-    juce::Component* ParametersView::getComponentForParameter (const juce::RangedAudioParameter& param)
-    {
+    juce::Component* ParametersView::getComponentForParameter (const juce::RangedAudioParameter& param) {
 //        return pimpl->getComponentForParameter (param);
         return nullptr;
     }
+
 // ============================================================
 // FxModuleTemplateView
 // ============================================================
@@ -443,7 +461,6 @@ static void drawModulationBox(juce::Graphics& g, juce::Rectangle<int> bounds, ju
 
 void FxModuleTemplateView::paintBackground(juce::Graphics& g) {
     SynthSection::paintContainer(g);
-    // paintHeadingText(g); // disabled: processor name shown by parent ModuleSection
     paintBorder(g);
     paintKnobShadows(g);
     paintChildrenBackgrounds(g);
@@ -453,20 +470,20 @@ void FxModuleTemplateView::paintBackground(juce::Graphics& g) {
     for (auto& ph : placeholders_)
         g.fillRect(ph->getBounds());
 
-    // Labels — skip disabled (placeholder) slots
     const int labelH = 12;
     g.setFont(Fonts::instance()->proportional_regular().withPointHeight(9.0f));
     g.setColour(findColour(Skin::kBodyText, true));
+
     for (auto slider : all_sliders_v) {
         if (!slider->isEnabled()) continue;
         auto b = slider->getBounds();
         int labelY = b.getY() - labelH - 11;
-        g.drawText(slider->getName(), b.getX(), labelY,
-                   b.getWidth(), labelH, juce::Justification::centred, false);
+        g.drawText(slider->getName(), b.getX(), labelY, b.getWidth(), labelH, juce::Justification::centred, false);
     }
 
     // Modulation boxes — muted color for placeholder slots (indices comps.size()..kMaxEffectSlots-1)
-    const juce::Colour activeBoxCol   = juce::Colour::fromRGB(54, 78, 79);
+    // boxes that go under knobs to indicate routing
+    const juce::Colour activeBoxCol = juce::Colour::fromRGB(54, 78, 79);
     const juce::Colour inactiveBoxCol = juce::Colour::fromRGB(54, 78, 79).withAlpha(0.5f);
     for (int i = 0; i < (int)mod_boxes_.size(); ++i) {
         bool isPlaceholder = (i >= (int)comps.size() && i < kMaxEffectSlots);

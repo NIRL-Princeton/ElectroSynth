@@ -9,6 +9,7 @@
 #include "ParameterView/ParametersView.h"
 #include <juce_gui_basics/juce_gui_basics.h>
 #include "open_gl_background.h"
+#include "open_gl_image_component.h"
 #include "ProcessorBase.h"
 
 class ModuleSection : public SynthSection
@@ -81,6 +82,7 @@ public:
     juce::ValueTree state;
     void buttonClicked(juce::Button* clicked_button) override;
     std::unique_ptr<OpenGlShapeButton> exit_button_;
+    std::shared_ptr<PlainTextComponent> title_text_;
     void addListener(Listener* listener) { listeners_.push_back(listener); }
     void mouseEnter(const juce::MouseEvent& e) {
         hover_ = true;

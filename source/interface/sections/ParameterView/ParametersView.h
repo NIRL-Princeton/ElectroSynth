@@ -1,6 +1,7 @@
 #pragma once
 
 #include <chowdsp_plugin_state/chowdsp_plugin_state.h>
+#include "open_gl_image_component.h"
 #include "synth_section.h"
 struct OpenGlWrapper;
 
@@ -27,11 +28,6 @@ namespace electrosynth {
             paintBorder(g);
             paintKnobShadows(g);
             paintChildrenBackgrounds(g);
-            static constexpr int kKnobLabelYOffset = -8;
-            for (auto slider : all_sliders_v)
-            {
-                drawLabel(g, slider->getName(), slider->getBounds().translated(0, kKnobLabelYOffset));
-            }
         }
 
         void mouseEnter (const MouseEvent& event)
@@ -42,11 +38,15 @@ namespace electrosynth {
         static constexpr int kDefaultKnobsPerRow = 7;
         static constexpr int kStringKnobsPerRow = 6;
         static constexpr int kModuleHeightPerKnobRow = 100;
+        static constexpr int kKnobLabelYOffset = -8;
         int getKnobsPerRow() const;
         int getKnobRowCount() const;
+        void ensureSliderLabels();
+        void updateSliderLabels();
 //        struct Pimpl;
 //        std::unique_ptr<Pimpl> pimpl;
         std::vector<std::unique_ptr<juce::Component>> comps;
+        std::map<juce::Component*, std::shared_ptr<PlainTextComponent>> slider_labels_;
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ParametersView)
     };
     /** Clone of juce::GenericAudioProcessorEditor. */

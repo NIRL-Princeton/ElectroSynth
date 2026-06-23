@@ -1,7 +1,7 @@
 //
 // Created by Davis Polito on 6/30/25.
 //
-// AudioChainSection.cpp is the UI layer above SoundModuleSection.cpp. It is responsible for the collectino of distinct sound module sections.
+// AudioChainSection.cpp is the UI layer above SoundModuleSection.cpp. It is responsible for the collection of distinct sound module sections.
 // Each SoundModuleSection inside it is one seperate sound module. The main functions of this file is:
 // 1) Owns the scrollable container holding all Sound Modules and manages scrolling for the whole list
 // 2) Facilitates creation/destruction of entire sound modules.
@@ -47,39 +47,40 @@ AudioChainSection::~AudioChainSection() {
 
 void AudioChainSection::paintBackground(juce::Graphics &g) {
     {
-        g.setColour(findColour(Skin::kBody, true));
-        g.fillRoundedRectangle(getLocalBounds().toFloat(), findValue(Skin::kBodyRounding));
-        g.setColour(findColour(Skin::kBorder, true));
-        g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(0.5f), findValue(Skin::kBodyRounding), 1.0f);
+        static constexpr float kAudioChainBorderWidth = 20.0f;
 
-        // paintContainer(g);
+        // g.setColour(findColour(Skin::kBody, true));
+        g.setColour(juce::Colours::red);
+        g.fillRoundedRectangle(getLocalBounds().toFloat(), findValue(Skin::kBodyRounding));
+        // g.setColour(findColour(Skin::kBorder, true));
+
+        g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(kAudioChainBorderWidth * 0.5f),
+                               findValue(Skin::kBodyRounding), kAudioChainBorderWidth);
+
         paintHeadingText(g);
-        // paintChildrenBackgrounds(g);
-        paintBorder(g);
-        // paintChildBackground(g,container_.get());
 
         redoBackgroundImage();
     }
 }
 
 void AudioChainSection::redoBackgroundImage() {
-    Colour background = findColour(Skin::kBackground, true);
 
     int height = std::max(container_->getHeight(), getHeight());
     int width = std::max(container_->getWidth(), getWidth());
     int mult = juce::Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds())->scale;
-    // getPixelMultiple();
+
     Image background_image = Image(Image::ARGB, width * mult, height * mult, true);
 
     Graphics background_graphics(background_image);
     background_graphics.addTransform(AffineTransform::scale(mult));
-    background_graphics.fillAll(background);
     container_->paintBackground(background_graphics);
     background_.setOwnImage(background_image);
 }
 
 void AudioChainSection::resized() {
     static constexpr float kEffectOrderWidthPercent = 0.2f;
+    static constexpr int kScrollBarInset = 14;
+    static constexpr int kScrollBarWidth = 7;
     ScopedLock lock(open_gl_critical_section_);
 
     int order_width = getWidth() * kEffectOrderWidthPercent;
@@ -95,9 +96,13 @@ void AudioChainSection::resized() {
     viewport_.setBounds(0, 0, getWidth(), getHeight());
     //getHeight()-getTitleWidth() - (large_padding + 20 * shadow_width));
     setEffectPositions();
-    scroll_bar_->setBounds(getWidth() - large_padding + 1, getTitleWidth() + large_padding, large_padding - 2,
-                           getHeight() - getTitleWidth() - (large_padding + 2 * shadow_width));
-    scroll_bar_->setColor(findColour(Skin::kLightenScreen, true));
+    const int scroll_bar_height = std::max(0, static_cast<int>(getHeight() - getTitleWidth() - (large_padding + 2 * shadow_width)));
+    scroll_bar_->setBounds(getWidth() - kScrollBarInset - kScrollBarWidth,
+                           getTitleWidth() + large_padding,
+                           kScrollBarWidth,
+                           scroll_bar_height);
+    scroll_bar_->setColor(findColour(Skin::kWidgetPrimary1, true));
+    scroll_bar_->setVisible(container_->getHeight() > viewport_.getHeight());
 
     SynthSection::resized();
 }

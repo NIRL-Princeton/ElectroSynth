@@ -20,6 +20,11 @@ ModuleSection::ModuleSection(const juce::ValueTree &v, std::unique_ptr<SynthSect
     _view->setAlwaysOnTop(true);
     // setInterceptsMouseClicks(true,false);
 
+    title_text_ = std::make_shared<PlainTextComponent>("module_title", getName());
+    title_text_->setFontType(PlainTextComponent::kRegular);
+    title_text_->setJustification(juce::Justification::centred);
+    addOpenGlComponent(title_text_);
+
     exit_button_ = std::make_unique<OpenGlShapeButton>("Exit");
     addAndMakeVisible(exit_button_.get());
     addOpenGlComponent(exit_button_->getGlComponent());
@@ -47,9 +52,6 @@ void ModuleSection::paintBackground(juce::Graphics &g)
 {
 
     paintContainer(g);
-    g.setColour(findColour(Skin::kHeadingText, true));
-    g.setFont(static_cast<float>(kHeaderHeight) * 0.4f);
-    g.drawText(TRANS(getName()), 0, 0, getWidth(), kHeaderHeight, juce::Justification::centred, false);
 
     paintKnobShadows(g);
     paintChildrenBackgrounds(g);
@@ -67,6 +69,10 @@ void ModuleSection::resized()
     SynthSection::resized();
     // background_->setBounds(getLocalBounds());
 
+    title_text_->setBounds(0, 0, getWidth(), kHeaderHeight);
+    title_text_->setText(getName());
+    title_text_->setTextSize(static_cast<float>(kHeaderHeight) * 0.4f);
+    title_text_->setColor(findColour(Skin::kHeadingText, true));
     exit_button_->setBounds(getLocalBounds().getRight() - 50,0, 25,25);
     auto background_image_ = juce::Image(juce::Image::RGB, getWidth(),getHeight(), true);
     // juce::Graphics g(background_image_);

@@ -18,13 +18,13 @@ SoundModuleSection::SoundModuleSection(ModulationManager *m,
                                        ModuleList<ProcessorBase> &module_list,const juce::ValueTree &v, juce::UndoManager& um) :
 ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRectangleFragment)), state(v), undo(um)
 {
-    // scroll_bar_ = std::make_unique<OpenGlScrollBar>();
-    // addAndMakeVisible(scroll_bar_.get());
-    // addOpenGlComponent(scroll_bar_->getGlComponent());
+    scroll_bar_ = std::make_unique<OpenGlScrollBar>();
+    addAndMakeVisible(scroll_bar_.get());
+    addOpenGlComponent(scroll_bar_->getGlComponent());
     addOpenGlComponent(footer_body);
 
     setLookAndFeel(DefaultLookAndFeel::instance());
-    // scroll_bar_->addListener(this);
+    scroll_bar_->addListener(this);
     viewport_.setScrollBarPosition(false, false); //use this to determine viewport scroll type in effectsviewport
     viewport_.setScrollBarsShown(false, false, false, false);
 
@@ -201,6 +201,15 @@ std::map<std::string, SynthSlider *> SoundModuleSection::getAllSliders() {
     return container_->getAllSliders();
 }
 
+void SoundModuleSection::paintBackground(juce::Graphics& g) {
+    ModulesInterface<ProcessorBase>::paintBackground(g);
+
+    static constexpr float kSoundModuleBorderWidth = 3.0f;
+    g.setColour(findColour(Skin::kBorder, true));
+    g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(kSoundModuleBorderWidth * 0.5f),
+                           findValue(Skin::kBodyRounding), kSoundModuleBorderWidth);
+}
+
 void SoundModuleSection::moduleAdded(ProcessorBase *newModule) {
     auto module_section = std::make_unique<ModuleSection>(newModule->state,std::move (newModule->createEditor()), undo);
     { juce::ScopedLock lock(open_gl_critical_section_);
@@ -220,6 +229,8 @@ void SoundModuleSection::moduleAdded(ProcessorBase *newModule) {
 void SoundModuleSection::resized() {
     //ModulesInterface::resized();
     static constexpr float kEffectOrderWidthPercent = 0.4f;
+    static constexpr int kScrollBarInset = 10;
+    static constexpr int kScrollBarWidth = 7;
 
     ScopedLock lock(open_gl_critical_section_);
 
@@ -236,13 +247,37 @@ void SoundModuleSection::resized() {
     if (isExpanded()) {
         viewport_.setBounds(0,getTitleWidth(),getWidth(),getHeight()-(getTitleWidth()*2)); //getHeight()-getTitleWidth() - (large_padding + 20 * shadow_width));
         setEffectPositions();
-        // scroll_bar_->setBounds(getWidth() - large_padding + 1, getTitleWidth() + large_padding, large_padding - 2, getHeight() -getTitleWidth()-(large_padding + 2 * shadow_width));
-        // scroll_bar_->setColor(findColour(Skin::kLightenScreen, true));
+        setScrollBarRange();
+        const int scroll_bar_height = std::max(0, static_cast<int>(getHeight() - getTitleWidth() - (large_padding + 2 * shadow_width)));
+        scroll_bar_->setBounds(getWidth() - kScrollBarInset - kScrollBarWidth,
+                               getTitleWidth() + large_padding,
+                               kScrollBarWidth,
+                               scroll_bar_height);
+        scroll_bar_->setColor(findColour(Skin::kWidgetPrimary1, true));
+        scroll_bar_->setVisible(container_->getHeight() > viewport_.getHeight());
+        container_->setScissorComponent(&viewport_);
+        for (auto component : container_->open_gl_components_)
+            component->setScissorComponent(&viewport_);
+        for (auto sub : container_->sub_sections_) {
+            sub->setScissorComponent(&viewport_);
+            for (auto slider : sub->all_sliders_)
+                slider.second->setScissorComponent(&viewport_);
+            for (auto component : sub->open_gl_components_)
+                component->setScissorComponent(&viewport_);
+            for (auto view : sub->sub_sections_) {
+                view->setScissorComponent(&viewport_);
+                for (auto slider : view->all_sliders_)
+                    slider.second->setScissorComponent(&viewport_);
+                for (auto component : view->open_gl_components_)
+                    component->setScissorComponent(&viewport_);
+            }
+        }
     }
     else
     {
         viewport_.setBounds(0,0,0,0);
         container_->setBounds(0,0,0,0);
+        scroll_bar_->setVisible(false);
     }
 
     SynthSection::resized();
@@ -252,6 +287,16 @@ void SoundModuleSection::resized() {
     footer_body->setColor(findColour(Skin::kBody, true));
     exit_button_->setBounds(getLocalBounds().getRight() - 50,getLocalBounds().getY(), 25,25);
 }
+
+void SoundModuleSection::effectsScrolled(int position) {
+    setScrollBarRange();
+    if (scroll_bar_)
+        scroll_bar_->setCurrentRange(position, viewport_.getHeight(), juce::dontSendNotification);
+
+    for (Listener* listener : listeners_)
+        listener->effectsMoved();
+}
+
 void SoundModuleSection::removeModule(ProcessorBase *newModule) {
     DBG(newModule->state.getProperty(IDs::uuid).toString());
      DBG("prepartoremoeve");
