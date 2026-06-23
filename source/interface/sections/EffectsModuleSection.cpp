@@ -436,6 +436,7 @@ void EffectModuleSection::redoBackgroundImage() {
         height = getHeight();
     int width = std::max(container_->getWidth(), getWidth());
     int mult = juce::Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds())->scale;
+
     Image background_image = Image(Image::ARGB, width * mult, height * mult, true);
 
     Graphics background_graphics(background_image);

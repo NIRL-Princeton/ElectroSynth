@@ -52,6 +52,8 @@ public:
 
     inline void setPosition(float x, float y, int index)
     {
+        if (position_vertices_[index] == x && position_vertices_[index + 1] == y)
+            return;
         position_vertices_[index] = x;
         position_vertices_[index + 1] = y;
         dirty_ = true;
