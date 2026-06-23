@@ -16,19 +16,19 @@ public:
     using SynthSlider::SynthSlider;
 
     juce::Colour getSelectedColor() const override {
-        return juce::Colour(0xff00d7ff);
+        return findColour(Skin::kWidgetPrimary1, true);
     }
 
     juce::Colour getUnselectedColor() const override {
-        return juce::Colour(0xff2c3436);
+        return findColour(Skin::kWidgetBackground, true);
     }
 
     juce::Colour getThumbColor() const override {
-        return juce::Colour(0xffffffff);
+        return findColour(Skin::kWidgetPrimary1, true);
     }
 
     juce::Colour getBackgroundColor() const override {
-        return juce::Colour(0xff050707);
+        return findColour(Skin::kBackground, true);
     }
 };
 

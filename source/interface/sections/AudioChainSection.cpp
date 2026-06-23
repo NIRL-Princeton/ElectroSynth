@@ -83,24 +83,14 @@ void AudioChainSection::resized() {
     static constexpr int kScrollBarWidth = 7;
     ScopedLock lock(open_gl_critical_section_);
 
-    int order_width = getWidth() * kEffectOrderWidthPercent;
-    //    effect_order_->setBounds(0, 0, order_width, getHeight());
-    //    effect_order_->setSizeRatio(size_ratio_);
     int large_padding = findValue(Skin::kLargePadding);
     int shadow_width = getComponentShadowWidth();
-    int viewport_x = 0 + large_padding - shadow_width;
-    int viewport_width = getWidth() - viewport_x - large_padding + 2 * shadow_width;
-    auto area = getLocalBounds();
-    auto header = area.removeFromTop(30);
 
     viewport_.setBounds(0, 0, getWidth(), getHeight());
-    //getHeight()-getTitleWidth() - (large_padding + 20 * shadow_width));
+
     setEffectPositions();
     const int scroll_bar_height = std::max(0, static_cast<int>(getHeight() - getTitleWidth() - (large_padding + 2 * shadow_width)));
-    scroll_bar_->setBounds(getWidth() - kScrollBarInset - kScrollBarWidth,
-                           getTitleWidth() + large_padding,
-                           kScrollBarWidth,
-                           scroll_bar_height);
+    scroll_bar_->setBounds(getWidth() - kScrollBarInset - kScrollBarWidth, getTitleWidth() + large_padding, kScrollBarWidth, scroll_bar_height);
     scroll_bar_->setColor(findColour(Skin::kWidgetPrimary1, true));
     scroll_bar_->setVisible(container_->getHeight() > viewport_.getHeight());
 
@@ -205,8 +195,9 @@ void AudioChainSection::setEffectPositions() {
             section->setBounds(0, y, effect_width, sectionheight );
             y += (sectionheight + padding);
         } else {
-            section->setBounds(0, y, effect_width, effect_height / 4);
-            y += (effect_height / 4 + padding);
+            const int collapsed_height = section->getCollapsedHeight();
+            section->setBounds(0, y, effect_width, collapsed_height);
+            y += (collapsed_height + padding);
         }
     }
     container_->setBounds(0, 0, viewport_.getWidth(), y - padding + effect_height * 2 );

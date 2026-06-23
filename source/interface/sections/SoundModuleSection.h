@@ -17,6 +17,7 @@ public:
     virtual ~SoundModuleSection();
 
     void setSoundModuleIndex(int index);
+    int getCollapsedHeight();
     void setEffectPositions() override;
 
     PopupItems createPopupMenu() override;
@@ -32,6 +33,8 @@ public:
     void moduleListChanged() ;
     void redoBackgroundImage() override;
     std::shared_ptr<OpenGlQuad> footer_body;
+    std::shared_ptr<OpenGlQuad> header_body_;
+    std::shared_ptr<PlainTextComponent> header_title_;
     std::unique_ptr<OpenGlShapeButton> exit_button_;
 
     void buttonClicked(juce::Button* clicked_button) override;

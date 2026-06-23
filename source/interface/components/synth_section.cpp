@@ -93,9 +93,18 @@ void SynthSection::paintHeadingText(Graphics& g) {
     return;
   }
 
+  const String title = TRANS(getName());
+  Font font = Fonts::instance()->proportional_light().withPointHeight(size_ratio_ * 18.0f);
+  Rectangle<int> title_bounds = getTitleBounds();
+  int padding = static_cast<int>(std::round(findValue(Skin::kPadding) * 2.0f));
+  int heading_width = static_cast<int>(std::ceil(font.getStringWidthFloat(title))) + 2 * padding;
+  Rectangle<int> background_bounds = title_bounds.withSizeKeepingCentre(title_bounds.getWidth(), title_bounds.getHeight());
+
+  g.setColour(findColour(Skin::kBodyHeading, true));
+  g.fillRoundedRectangle(background_bounds.toFloat(), findValue(Skin::kBodyRounding));
   g.setColour(findColour(Skin::kHeadingText, true));
-  g.setFont(Fonts::instance()->proportional_light().withPointHeight(size_ratio_ * 14.0f));
-  g.drawText(TRANS(getName()), getTitleBounds(), Justification::centred, false);
+  g.setFont(font);
+  g.drawText(title, title_bounds, Justification::centred, false);
 }
 
 void SynthSection::paintBackground(Graphics& g) {
@@ -129,21 +138,6 @@ void SynthSection::repaintBackground() {
 
 void SynthSection::paintContainer(Graphics& g) {
   paintBody(g);
-
-  g.saveState();
-  if (sideways_heading_) {
-    int title_width = findValue(Skin::kTitleWidth);
-    g.reduceClipRegion(0, 0, title_width, getHeight());
-    g.setColour(findColour(Skin::kBodyHeading, true));
-    g.fillRoundedRectangle(0, 0, title_width * 2, getHeight(), findValue(Skin::kBodyRounding));
-  }
-  else {
-    g.reduceClipRegion(0, 0, getWidth(), getTitleWidth());
-    g.setColour(findColour(Skin::kBodyHeading, true));
-    g.fillRoundedRectangle(0, 0, getWidth(), getHeight(), findValue(Skin::kBodyRounding));
-  }
-
-  g.restoreState();
 }
 
 void SynthSection::paintBody(Graphics& g, Rectangle<int> bounds) {
@@ -699,13 +693,9 @@ float SynthSection::getTitleWidth() {
   return findValue(Skin::kTitleWidth);
 }
 
-
-
 float SynthSection::getSliderWidth() {
   return findValue(Skin::kSliderWidth);
 }
-
-
 
 //float SynthSection::getSliderOverlapWithSpace() {
 //  return getSliderOverlap() - (int)getWidgetMargin();
@@ -714,7 +704,6 @@ float SynthSection::getSliderWidth() {
 float SynthSection::getTextComponentHeight() {
   return findValue(Skin::kTextComponentHeight);
 }
-
 
 float SynthSection::getPadding() {
   return findValue(Skin::kPadding);

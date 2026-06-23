@@ -18,17 +18,29 @@ SoundModuleSection::SoundModuleSection(ModulationManager *m,
                                        ModuleList<ProcessorBase> &module_list,const juce::ValueTree &v, juce::UndoManager& um) :
 ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRectangleFragment)), state(v), undo(um)
 {
+    header_body_ = std::make_shared<OpenGlQuad>(Shaders::kColorFragment, "sound_module_header");
+    header_body_->setInterceptsMouseClicks(false, false);
+    addOpenGlComponent(header_body_, true);
+
+    header_title_ = std::make_shared<PlainTextComponent>("sound_module_title", getName());
+    header_title_->setFontType(PlainTextComponent::kLight);
+    header_title_->setJustification(juce::Justification::centred);
+    header_title_->setInterceptsMouseClicks(false, false);
+    addOpenGlComponent(header_title_);
+
     scroll_bar_ = std::make_unique<OpenGlScrollBar>();
     addAndMakeVisible(scroll_bar_.get());
     addOpenGlComponent(scroll_bar_->getGlComponent());
+    scroll_bar_->addListener(this);
+
     addOpenGlComponent(footer_body);
 
     setLookAndFeel(DefaultLookAndFeel::instance());
-    scroll_bar_->addListener(this);
     viewport_.setScrollBarPosition(false, false); //use this to determine viewport scroll type in effectsviewport
     viewport_.setScrollBarsShown(false, false, false, false);
 
     addListener(m);
+
     for (auto obj : list) { SoundModuleSection::moduleAdded(obj); }
     setSidewaysHeading(false);
     setName("Sound Module");
@@ -41,30 +53,30 @@ ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRect
 
     auto baseEditor = module_list.router_->createEditor();
     routing_view_ = std::unique_ptr<RoutingView>(static_cast<RoutingView*>(baseEditor.release()));
-    container_->addSubSection(routing_view_.get());
+    addSubSection(routing_view_.get());
     routing_view_->setAlwaysOnTop(true);
-
 }
 
 SoundModuleSection::~SoundModuleSection() {
    module_sections.clear();
 }
 
-void SoundModuleSection::setSoundModuleIndex(int index)
-{
+void SoundModuleSection::setSoundModuleIndex(int index) {
     sound_module_index_ = index;
     setName("Sound Module " + juce::String(sound_module_index_));
 }
 
-void SoundModuleSection::redoBackgroundImage()
-{
+int SoundModuleSection::getCollapsedHeight() {
+    return static_cast<int>(getTitleWidth());
+}
+
+void SoundModuleSection::redoBackgroundImage() {
     Colour background = findColour(Skin::kBackground, true);
 
-    int height = std::max(container_->getHeight(),static_cast<int> (viewport_.getHeight()));
-    if (height == 0)
-        height = getHeight();
-    int width = std::max(container_->getWidth(), getWidth());
-    int mult = juce::Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds())->scale;// getPixelMultiple();
+    int height = std::max(container_->getHeight(), viewport_.getHeight());
+    if (height == 0) height = getHeight();
+    const int width = std::max(container_->getWidth(), getWidth());
+    const int mult = juce::Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds())->scale;// getPixelMultiple();
     Image background_image = Image(Image::ARGB, width * mult, height * mult, true);
 
     Graphics background_graphics(background_image);
@@ -123,8 +135,7 @@ void SoundModuleSection::handlePopupResult(int result) {
 
 
 void SoundModuleSection::setEffectPositions() {
-    if (getWidth() <= 0 || getHeight() <= 0)
-        return;
+    if (getWidth() <= 0 || getHeight() <= 0) return;
 
     int padding = getPadding();
     int large_padding = findValue(Skin::kLargePadding);
@@ -132,7 +143,7 @@ void SoundModuleSection::setEffectPositions() {
 
     int start_x = large_padding - shadow_width;
     int effect_width = getWidth() - start_x - large_padding;
-    int knob_section_height = getKnobSectionHeight();
+    int knob_section_height = getKnobSectionHeight() + large_padding;
     int widget_margin = findValue(Skin::kWidgetMargin);
     int effect_height =  knob_section_height - widget_margin;
     int y = 0;//+ getTitleWidth();
@@ -144,7 +155,8 @@ void SoundModuleSection::setEffectPositions() {
     int string_index = 1;
     int filter_index = 1;
     int soft_clip_index = 1;
-    for (auto &section: module_sections) {
+    for (size_t index = 0; index < module_sections.size(); ++index) {
+        auto& section = module_sections[index];
         const auto type = section->state.getProperty(IDs::type).toString();
         if (type == "osc")
             section->setName("Oscillator " + juce::String(sound_module_index_) + "." + juce::String(oscillator_index++));
@@ -156,21 +168,9 @@ void SoundModuleSection::setEffectPositions() {
             section->setName("Soft Clip " + juce::String(sound_module_index_) + "." + juce::String(soft_clip_index++));
 
         const int section_height = section->refreshHeight(); // refresh height before positioning each module
+        section->setDrawBottomSeparator(index + 1 < module_sections.size());
         section->setBounds(start_x, y, effect_width, section_height);
         y += (section_height +padding);
-    }
-    if (routing_view_ != nullptr) {
-        if (module_sections.empty()) { routing_view_->setVisible(false); }
-        else {
-            auto* first_section = module_sections.front().get();
-            const int routing_height = ModuleSection::kHeaderHeight;
-            const int routing_width = std::min(280, std::max(0, first_section->getWidth() - 120));
-            const int routing_x = std::max(0, first_section->getRight() - routing_width - 55);
-            const int routing_y = first_section->getY() + (ModuleSection::kHeaderHeight - routing_height) / 2.5;
-
-            routing_view_->setVisible(true);
-            routing_view_->setBounds(routing_x, routing_y, routing_width, routing_height);
-        }
     }
     container_->setBounds(0,getTitleWidth(), viewport_.getWidth(), y+padding);
     viewport_.setViewPosition(position);
@@ -198,16 +198,26 @@ PopupItems SoundModuleSection::createPopupMenu() {
 
 
 std::map<std::string, SynthSlider *> SoundModuleSection::getAllSliders() {
-    return container_->getAllSliders();
+    auto sliders = container_->getAllSliders();
+    if (routing_view_ != nullptr) {
+        auto routing_sliders = routing_view_->getAllSliders();
+        sliders.insert(routing_sliders.begin(), routing_sliders.end());
+    }
+    return sliders;
 }
 
 void SoundModuleSection::paintBackground(juce::Graphics& g) {
-    ModulesInterface<ProcessorBase>::paintBackground(g);
+    g.setColour(findColour(Skin::kBody, true));
+    g.fillRoundedRectangle(getLocalBounds().toFloat(), findValue(Skin::kBodyRounding));
+    paintBody(g);
 
     static constexpr float kSoundModuleBorderWidth = 3.0f;
     g.setColour(findColour(Skin::kBorder, true));
     g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(kSoundModuleBorderWidth * 0.5f),
                            findValue(Skin::kBodyRounding), kSoundModuleBorderWidth);
+
+    paintBorder(g);
+    redoBackgroundImage();
 }
 
 void SoundModuleSection::moduleAdded(ProcessorBase *newModule) {
@@ -276,6 +286,9 @@ void SoundModuleSection::resized() {
         viewport_.setBounds(0,0,0,0);
         container_->setBounds(0,0,0,0);
         scroll_bar_->setVisible(false);
+        height = getCollapsedHeight();
+        if (getWidth() > 0 && getHeight() != height)
+            setSize(getWidth(), height);
     }
 
     SynthSection::resized();
@@ -283,7 +296,33 @@ void SoundModuleSection::resized() {
 
     footer_body->setRounding(findValue(Skin::kBodyRounding));
     footer_body->setColor(findColour(Skin::kBody, true));
-    exit_button_->setBounds(getLocalBounds().getRight() - 50,getLocalBounds().getY(), 25,25);
+
+    const int title_width = static_cast<int>(getTitleWidth());
+    header_body_->setBounds(0, 0, getWidth(), title_width);
+    header_body_->setColor(findColour(Skin::kBodyHeading, true));
+    header_title_->setBounds(0, 0, getWidth(), title_width);
+    header_title_->setText(getName());
+    header_title_->setTextSize(size_ratio_ * 14.0f);
+    header_title_->setColor(findColour(Skin::kHeadingText, true));
+
+    static constexpr int kExitButtonSize = 25;
+    static constexpr int kExitButtonRightOffset = 50;
+    const int exit_x = getLocalBounds().getRight() - kExitButtonRightOffset;
+    exit_button_->setBounds(exit_x,
+                            (title_width - kExitButtonSize) / 2,
+                            kExitButtonSize,
+                            kExitButtonSize);
+
+    if (routing_view_ != nullptr) {
+        static constexpr int kRoutingRightPadding = 25;
+        static constexpr int kRoutingMaxWidth = 400;
+        static constexpr float kRoutingWidthRatio = 0.35f;
+
+        const int routing_width = std::min(kRoutingMaxWidth, static_cast<int>(getWidth() * kRoutingWidthRatio));
+        const int routing_x = std::max(title_width, exit_x - kRoutingRightPadding - routing_width);
+        routing_view_->setVisible(!module_sections.empty());
+        routing_view_->setBounds(routing_x, 0, std::max(0, routing_width), title_width);
+    }
 }
 
 void SoundModuleSection::effectsScrolled(int position) {
