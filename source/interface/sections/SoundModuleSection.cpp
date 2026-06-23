@@ -53,7 +53,7 @@ SoundModuleSection::~SoundModuleSection() {
 void SoundModuleSection::setSoundModuleIndex(int index)
 {
     sound_module_index_ = index;
-    setName("Sound Module #" + juce::String(sound_module_index_));
+    setName("Sound Module " + juce::String(sound_module_index_));
 }
 
 void SoundModuleSection::redoBackgroundImage()
@@ -147,13 +147,13 @@ void SoundModuleSection::setEffectPositions() {
     for (auto &section: module_sections) {
         const auto type = section->state.getProperty(IDs::type).toString();
         if (type == "osc")
-            section->setName("Oscillator #" + juce::String(sound_module_index_) + "." + juce::String(oscillator_index++));
+            section->setName("Oscillator " + juce::String(sound_module_index_) + "." + juce::String(oscillator_index++));
         else if (type == "string")
-            section->setName("String #" + juce::String(sound_module_index_) + "." + juce::String(string_index++));
+            section->setName("String " + juce::String(sound_module_index_) + "." + juce::String(string_index++));
         else if (type == "filt")
-            section->setName("Filter #" + juce::String(sound_module_index_) + "." + juce::String(filter_index++));
+            section->setName("Filter " + juce::String(sound_module_index_) + "." + juce::String(filter_index++));
         else if (type == "softclip")
-            section->setName("Soft Clip #" + juce::String(sound_module_index_) + "." + juce::String(soft_clip_index++));
+            section->setName("Soft Clip " + juce::String(sound_module_index_) + "." + juce::String(soft_clip_index++));
 
         const int section_height = section->refreshHeight(); // refresh height before positioning each module
         section->setBounds(start_x, y, effect_width, section_height);
@@ -229,8 +229,8 @@ void SoundModuleSection::moduleAdded(ProcessorBase *newModule) {
 void SoundModuleSection::resized() {
     //ModulesInterface::resized();
     static constexpr float kEffectOrderWidthPercent = 0.4f;
-    static constexpr int kScrollBarInset = 10;
-    static constexpr int kScrollBarWidth = 7;
+    static constexpr int kScrollBarInset = 5;
+    static constexpr int kScrollBarWidth = 5;
 
     ScopedLock lock(open_gl_critical_section_);
 
@@ -249,10 +249,8 @@ void SoundModuleSection::resized() {
         setEffectPositions();
         setScrollBarRange();
         const int scroll_bar_height = std::max(0, static_cast<int>(getHeight() - getTitleWidth() - (large_padding + 2 * shadow_width)));
-        scroll_bar_->setBounds(getWidth() - kScrollBarInset - kScrollBarWidth,
-                               getTitleWidth() + large_padding,
-                               kScrollBarWidth,
-                               scroll_bar_height);
+        scroll_bar_->setBounds(getWidth() - kScrollBarInset - kScrollBarWidth, getTitleWidth() + large_padding,
+                               kScrollBarWidth, scroll_bar_height);
         scroll_bar_->setColor(findColour(Skin::kWidgetPrimary1, true));
         scroll_bar_->setVisible(container_->getHeight() > viewport_.getHeight());
         container_->setScissorComponent(&viewport_);
@@ -317,31 +315,23 @@ void SoundModuleSection::removeModule(ProcessorBase *newModule) {
                                });
      }();
 
-
-
-        it->get()->setVisible(false);
-
-
-            auto *_parent = findParentComponentOfClass<SynthGuiInterface>();
-            _parent->getOpenGlWrapper()->context.executeOnGLThread([this, it](juce::OpenGLContext &openGLContext) {
-
-
-                auto a = it->get();
-                a->destroyOpenGlComponents(openGLContext);
-                this->container_->removeSubSection(a);
-                DBG("delete");
-                },true);
-
+    it->get()->setVisible(false);
+    auto *_parent = findParentComponentOfClass<SynthGuiInterface>();
+    _parent->getOpenGlWrapper()->context.executeOnGLThread([this, it](juce::OpenGLContext &openGLContext) {
+        auto a = it->get();
+        a->destroyOpenGlComponents(openGLContext);
+        this->container_->removeSubSection(a);
+        DBG("delete");
+    },true);
 
     module_sections.erase(it);
     DBG("deletesection");
     resized();
-    for(auto listener : listeners_)
-    {
+    for(auto listener : listeners_) {
         listener->removed();
     }
-    redoBackgroundImage();
 
+    redoBackgroundImage();
 }
 
 void SoundModuleSection::moduleListChanged() {

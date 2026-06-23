@@ -31,38 +31,26 @@ ModuleSection::ModuleSection(const juce::ValueTree &v, std::unique_ptr<SynthSect
     exit_button_->addListener(this);
     exit_button_->setShape(Paths::exitX());
     exit_button_->setAlwaysOnTop(true);
-
-
 }
 
 ModuleSection::~ModuleSection() = default;
 
-int ModuleSection::getPreferredHeight() const
-{
+int ModuleSection::getPreferredHeight() const {
     return (_view != nullptr ? _view->getPreferredHeight() : 0) + kHeaderHeight;
 }
 
-int ModuleSection::refreshHeight()
-{
+int ModuleSection::refreshHeight() {
     height = getPreferredHeight();
     return height;
 }
 
-void ModuleSection::paintBackground(juce::Graphics &g)
-{
-
+void ModuleSection::paintBackground(juce::Graphics &g) {
     paintContainer(g);
-
     paintKnobShadows(g);
     paintChildrenBackgrounds(g);
-   //SynthSection::paintBackground(g);
-    // background_->lock();
-    // background_->paintEntireComponent()
-
 }
 
-void ModuleSection::resized()
-{
+void ModuleSection::resized() {
     auto local = getLocalBounds();
     auto area = local.removeFromTop(kHeaderHeight);
     _view->setBounds(local);

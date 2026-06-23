@@ -237,9 +237,9 @@ namespace {
 
         skin.setColor(Skin::kIconSelectorIcon, yellow);
 
-        skin.setColor(Skin::kIconButtonOff, darkPanel);
-        skin.setColor(Skin::kIconButtonOffHover, midPanel);
-        skin.setColor(Skin::kIconButtonOffPressed, cyanDark);
+        skin.setColor(Skin::kIconButtonOff, midPanel);
+        skin.setColor(Skin::kIconButtonOffHover, yellow);
+        skin.setColor(Skin::kIconButtonOffPressed, Colours::maroon);
         skin.setColor(Skin::kIconButtonOn, cyan);
         skin.setColor(Skin::kIconButtonOnHover, yellow);
         skin.setColor(Skin::kIconButtonOnPressed, red);

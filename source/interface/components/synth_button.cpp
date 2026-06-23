@@ -63,6 +63,7 @@ void OpenGlShapeButtonComponent::incrementHover()
 {
     if (hover_)
         hover_amount_ = std::min (1.0f, hover_amount_ + kHoverInc);
+
     else
         hover_amount_ = std::max (0.0f, hover_amount_ - kHoverInc);
 }
