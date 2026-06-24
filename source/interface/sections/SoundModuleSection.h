@@ -18,6 +18,7 @@ public:
 
     void setSoundModuleIndex(int index);
     int getCollapsedHeight();
+    int getExpandedHeight();
     void setEffectPositions() override;
 
     PopupItems createPopupMenu() override;

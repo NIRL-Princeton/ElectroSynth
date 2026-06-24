@@ -16,6 +16,7 @@ class ModuleSection : public SynthSection
 {
 public:
     static constexpr int kHeaderHeight = 36;
+    static constexpr int kContentBottomPadding = 30;
 
     ModuleSection(const juce::ValueTree &, std::unique_ptr<SynthSection> editor, juce::UndoManager& um);
 

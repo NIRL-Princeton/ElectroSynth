@@ -14,6 +14,7 @@ namespace electrosynth {
         ~ParametersView() override;
 
         void paint(juce::Graphics &) override;
+        void paintBackground(juce::Graphics& g) override;
 
         void resized() override;
         int getPreferredHeight() const override;
@@ -22,14 +23,6 @@ namespace electrosynth {
         void init_();
         /** Returns nullptr if no component is found for the given parameter */
         [[nodiscard]] juce::Component* getComponentForParameter (const juce::RangedAudioParameter&);
-        void paintBackground(juce::Graphics& g) override
-        {
-            SynthSection::paintContainer(g);
-            paintBorder(g);
-            paintKnobShadows(g);
-            paintChildrenBackgrounds(g);
-        }
-
         void mouseEnter (const MouseEvent& event)
         {
             DBG("mouseenter parameterview");
@@ -37,8 +30,11 @@ namespace electrosynth {
     private:
         static constexpr int kDefaultKnobsPerRow = 7;
         static constexpr int kStringKnobsPerRow = 6;
-        static constexpr int kModuleHeightPerKnobRow = 100;
-        static constexpr int kKnobLabelYOffset = -8;
+        static constexpr int kModuleHeightPerKnobRow = 110;
+        static constexpr int kKnobLabelHeight = 18;
+        static constexpr int kKnobLabelGap = 4;
+        static constexpr int kModulationBoxHeight = 16;
+        static constexpr int kModulationBoxGap = 4;
         int getKnobsPerRow() const;
         int getKnobRowCount() const;
         void ensureSliderLabels();
@@ -47,6 +43,7 @@ namespace electrosynth {
 //        std::unique_ptr<Pimpl> pimpl;
         std::vector<std::unique_ptr<juce::Component>> comps;
         std::map<juce::Component*, std::shared_ptr<PlainTextComponent>> slider_labels_;
+        std::map<juce::Component*, juce::Rectangle<int>> modulation_boxes_;
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ParametersView)
     };
     /** Clone of juce::GenericAudioProcessorEditor. */

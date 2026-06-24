@@ -48,7 +48,9 @@ ModuleSection::ModuleSection(const juce::ValueTree &v, std::unique_ptr<SynthSect
 ModuleSection::~ModuleSection() = default;
 
 int ModuleSection::getPreferredHeight() const {
-    return (_view != nullptr ? _view->getPreferredHeight() : 0) + kHeaderHeight;
+    return (_view != nullptr ? _view->getPreferredHeight() : 0)
+           + kHeaderHeight
+           + kContentBottomPadding;
 }
 
 int ModuleSection::refreshHeight() {
@@ -65,7 +67,8 @@ void ModuleSection::paintBackground(juce::Graphics &g) {
 
 void ModuleSection::resized() {
     auto local = getLocalBounds();
-    auto area = local.removeFromTop(kHeaderHeight);
+    local.removeFromTop(kHeaderHeight);
+    local.removeFromBottom(kContentBottomPadding);
     _view->setBounds(local);
     SynthSection::resized();
     // background_->setBounds(getLocalBounds());

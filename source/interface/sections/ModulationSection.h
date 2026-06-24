@@ -23,6 +23,7 @@ public:
     //    void setParametersViewEditor(electrosynth::ParametersViewEditor&&);
     // void paintBackgroundShadow(Graphics& g) override { if (isActive()) paintTabShadow(g); }
     void resized() override;
+    juce::String getModulatorType() const;
     //  void setActive(bool active) override;
     //void sliderValueChanged(Slider* changed_slider) override;
     //void setAllValues(vital::control_map& controls) override;

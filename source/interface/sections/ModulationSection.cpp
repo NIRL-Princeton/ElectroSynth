@@ -24,6 +24,10 @@ mod_button(new ModulationButton("mod")), undo(um)
 
 ModulationSection::~ModulationSection() = default;
 
+juce::String ModulationSection::getModulatorType() const {
+    return state.getProperty(IDs::type).toString();
+}
+
 void ModulationSection::paintBackground(juce::Graphics &g)
 {
         SynthSection::paintBackground(g);

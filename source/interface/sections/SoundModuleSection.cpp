@@ -70,6 +70,16 @@ int SoundModuleSection::getCollapsedHeight() {
     return static_cast<int>(getTitleWidth());
 }
 
+int SoundModuleSection::getExpandedHeight() {
+    const int padding = static_cast<int>(getPadding());
+    int content_height = 0;
+
+    for (auto& section : module_sections)
+        content_height += section->refreshHeight() + padding;
+
+    return content_height + padding + static_cast<int>(getTitleWidth()) * 2;
+}
+
 void SoundModuleSection::redoBackgroundImage() {
     Colour background = findColour(Skin::kBackground, true);
 
@@ -172,7 +182,7 @@ void SoundModuleSection::setEffectPositions() {
         section->setBounds(start_x, y, effect_width, section_height);
         y += (section_height +padding);
     }
-    container_->setBounds(0,getTitleWidth(), viewport_.getWidth(), y+padding);
+    container_->setBounds(0, 0, viewport_.getWidth(), y + padding);
     viewport_.setViewPosition(position);
 
     for (Listener *listener: listeners_)
@@ -182,7 +192,7 @@ void SoundModuleSection::setEffectPositions() {
     // container_->setScrollWheelEnabled(container_->getHeight() <= viewport_.getHeight());
     // setScrollBarRange();
     repaintBackground();
-    height = y+padding + getTitleWidth()*2;
+    height = getExpandedHeight();
     if (getWidth() > 0 && getHeight() != height)
         setSize(getWidth(), height);
 }

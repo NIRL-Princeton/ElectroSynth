@@ -271,6 +271,28 @@ public:
         g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
     }
 
+    void ParametersView::paintBackground(juce::Graphics& g) {
+        SynthSection::paintContainer(g);
+        paintBorder(g);
+        paintKnobShadows(g);
+        paintChildrenBackgrounds(g);
+
+        const auto box_color = juce::Colour::fromRGB(54, 78, 79);
+        g.setColour(box_color);
+
+        for (const auto& [slider, bounds] : modulation_boxes_) {
+            if (slider == nullptr || !slider->isVisible())
+                continue;
+
+            auto box = bounds.toFloat();
+            g.drawRect(box, 1.0f);
+            const float first_divider = box.getX() + box.getWidth() / 3.0f;
+            const float second_divider = box.getX() + box.getWidth() * 2.0f / 3.0f;
+            g.drawLine(first_divider, box.getY(), first_divider, box.getBottom(), 1.0f);
+            g.drawLine(second_divider, box.getY(), second_divider, box.getBottom(), 1.0f);
+        }
+    }
+
     void ParametersView::ensureSliderLabels() {
         for (auto slider : all_sliders_v) {
             if (slider_labels_.count(slider) != 0)
@@ -293,10 +315,10 @@ public:
             if (it == slider_labels_.end())
                 continue;
 
-            auto bounds = slider->getBounds().translated(0, kKnobLabelYOffset);
-            auto label_bounds = getLabelBackgroundBounds(bounds);
-
-            it->second->setBounds(bounds.getX(), label_bounds.getY(), bounds.getWidth(), label_bounds.getHeight());
+            const auto bounds = slider->getBounds();
+            it->second->setBounds(bounds.getX(),
+                                  bounds.getY() - kKnobLabelGap - kKnobLabelHeight,
+                                  bounds.getWidth(),kKnobLabelHeight);
             it->second->setText(slider->getName());
             it->second->setTextSize(getLabelFont().getHeight());
             it->second->setColor(findColour(Skin::kBodyText, true));
@@ -324,20 +346,38 @@ public:
             juce::Rectangle<int> row_area(0, row * row_height, getWidth(), row_height);
             const float component_width = (row_area.getWidth() - (count + 1) * widget_margin) / static_cast<float>(count);
             float x = row_area.getX() + widget_margin;
-            const int height = row_area.getHeight() - widget_margin;
+            const int top = row_area.getY() + kKnobLabelHeight + kKnobLabelGap;
+            const int available_knob_height = std::max(0, row_area.getBottom() - widget_margin - kModulationBoxHeight
+                                                                - kModulationBoxGap - top);
 
             for (int i = first; i < last; ++i) {
                 const int left = std::round(x);
                 const int right = std::round(x + component_width);
+
                 if (auto* slider = dynamic_cast<SynthSlider*> (all_sliders_v[i])) {
-                    slider->setBounds(left, row_area.getY(), right - left, height);
+                    const float arc_size = slider->findValue(Skin::kKnobArcSize) * slider->getKnobSizeScale();
+                    const float arc_thickness = slider->findValue(Skin::kKnobArcThickness);
+                    const int rendered_knob_height = static_cast<int>(std::ceil(2.0f * (arc_size + arc_thickness)));
+                    const int knob_height = std::min(available_knob_height, rendered_knob_height);
+
+                    slider->setBounds(left, top, right - left, knob_height);
                     slider->redoImage();
+
+                    const int box_width = std::max(0, static_cast<int>((right - left) * 0.8f));
+                    const int box_x = left + ((right - left) - box_width) / 2;
+                    modulation_boxes_[slider] = {
+                        box_x,
+                        slider->getBottom() + kModulationBoxGap,
+                        box_width,
+                        kModulationBoxHeight
+                    };
                 }
                 x += component_width + widget_margin;
             }
         }
 
         updateSliderLabels();
+        repaintBackground();
     }
 
     void ParametersView::init_() {

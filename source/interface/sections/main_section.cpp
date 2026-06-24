@@ -104,30 +104,25 @@ void MainSection::resized() {
 
     int height = getHeight();
     int width = getWidth();
-    int widget_margin = findValue(Skin::kWidgetMargin);
-    int large_padding = findValue(Skin::kLargePadding);
     int padding = getPadding()*size_ratio_;
-    int active_width = getWidth() - padding;
-    int width_left = (active_width - padding) / 2;
-    int width_right = active_width - width_left;
-    int right_x = width_left + padding;
+
+
     const int bottom_row_height = static_cast<int>(size_ratio_ * 200);
     const int bottom_row_y = height - bottom_row_height;
-    const int master_envelope_x = width - bottom_row_height;
+    const int master_envelope_width = bottom_row_height + 265;
+    const int master_envelope_x = width - master_envelope_width ;
     const int top_section_height = std::max(0, bottom_row_y - padding);
+
     int sound_interface_width = 2*width/3- padding*2;
     int all_effects_width = getWidth() - sound_interface_width;
     sound_interface->setBounds(padding, padding, sound_interface_width, top_section_height);
     effects_section_0->setBounds(sound_interface->getRight() + padding, padding, (all_effects_width-3*padding)/3, top_section_height);
     effects_section_1->setBounds(effects_section_0->getRight() + padding, padding, (all_effects_width-3*padding)/3, top_section_height);
     effects_section_2->setBounds(effects_section_1->getRight() + padding, padding, (all_effects_width-3*padding)/3, top_section_height);
-//     test_->setBounds(0,0,width,height - 200);
-    modulation_interface->setBounds(padding, bottom_row_y, master_envelope_x - 2 * padding, bottom_row_height);
-    master_voice_envelope_section->setBounds(master_envelope_x, bottom_row_y, bottom_row_height, bottom_row_height);
-    //constructionPort.setBounds(large_padding, 0,getDisplayScale()* width, getDisplayScale() * height);
-    //constructionPort.setBounds(large_padding, 0,width, height);
 
-    //SynthSection::resized();
+    modulation_interface->setBounds(padding, bottom_row_y, master_envelope_x - 4 * padding, bottom_row_height);
+    master_voice_envelope_section->setBounds(master_envelope_x, bottom_row_y, master_envelope_width - 2 * padding, bottom_row_height);
+
 }
 
 

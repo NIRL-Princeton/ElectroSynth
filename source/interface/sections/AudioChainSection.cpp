@@ -192,7 +192,7 @@ void AudioChainSection::setEffectPositions() {
     for (auto &section: sound_module_sections) {
         section->setSoundModuleIndex(sound_module_index++);
         if (section->isExpanded()) {
-            int sectionheight = section->getHeight() ? section->getHeight() : effect_height;
+            const int sectionheight = section->getExpandedHeight();
             section->setBounds(0, y, effect_width, sectionheight );
             y += (sectionheight + padding);
         } else {

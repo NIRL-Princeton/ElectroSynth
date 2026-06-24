@@ -96,16 +96,13 @@ public:
 
     void added() override {
         resized();
-        // setSize(getWidth(), getHeight()+100);
     }
 
     void removed() override{
-    redoBackgroundImage();
-        // setSize(getWidth(), getHeight()-100);
+        resized();
+        redoBackgroundImage();
     }
-    void effectsMoved() override{
-
-    };
+    void effectsMoved() override { }
 
 };
 

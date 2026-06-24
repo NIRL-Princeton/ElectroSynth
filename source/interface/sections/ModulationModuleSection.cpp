@@ -115,26 +115,33 @@ void ModulationModuleSection::setEffectPositions() {
     if (getWidth() <= 0 || getHeight() <= 0)
         return;
 
+    static constexpr int kLfoModuleWidth = 200;
+    static constexpr int kEnvelopeWidthMultiplier = 3;
+
     int padding = getPadding();
     int large_padding = findValue(Skin::kLargePadding);
     int shadow_width = getComponentShadowWidth();
     int start_x = 0;
-    int effect_width = 200 - start_x - large_padding;
+    const int lfo_width = kLfoModuleWidth - start_x - large_padding;
     int knob_section_height = getKnobSectionHeight();
     int widget_margin = findValue(Skin::kWidgetMargin);
     int effect_height = 2 * knob_section_height - widget_margin;
-    int y = 0;
     int x = 0;
     juce::Point<int> position = viewport_.getViewPosition();
     //DBG("position viewport: x: " + juce::String(position.getX()) + "y: " + juce::String(position.getY()));
   //  DBG("shadwo width: " + String(shadow_width));
-    for(auto& section : module_sections)
-    {
-        section->setBounds(x, shadow_width, effect_width, effect_height);
-        x += effect_width + padding;
+    for (auto& section : module_sections) {
+        const bool is_envelope = section->getModulatorType().equalsIgnoreCase("env");
+        const int section_width = is_envelope
+                                      ? lfo_width * kEnvelopeWidthMultiplier
+                                      : lfo_width;
+
+        section->setBounds(x, shadow_width, section_width, effect_height);
+        x += section_width + padding;
     }
 
-    container_->setBounds(0, 0, x - padding + effect_width * 2,viewport_.getHeight());
+    const int content_width = std::max(viewport_.getWidth(), x - padding + lfo_width * 2);
+    container_->setBounds(0, 0, content_width, viewport_.getHeight());
     viewport_.setViewPosition(position);
 
     for (Listener* listener : listeners_)
@@ -144,8 +151,7 @@ void ModulationModuleSection::setEffectPositions() {
     setScrollBarRange();
     repaintBackground();
 }
-PopupItems ModulationModuleSection::createPopupMenu()
-{
+PopupItems ModulationModuleSection::createPopupMenu() {
     PopupItems options;
     options.addItem(1, "add Env" );
     options.addItem(2, "add lfo" );
@@ -221,14 +227,13 @@ void ModulationModuleSection::moduleAdded(ModulatorBase *newModule) {
     module_section->setInterceptsMouseClicks(false,true);
     parentHierarchyChanged();
     module_sections.emplace_back(std::move(module_section));
-    for(auto listener : listeners_)
-    {
+    for(auto listener : listeners_) {
         listener->added();
     }
+
     resized();
 }
 void ModulationModuleSection::moduleListChanged() {
-
 
 }
 
