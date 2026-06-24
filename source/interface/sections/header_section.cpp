@@ -10,14 +10,14 @@ HeaderSection::HeaderSection() : SynthSection("header_section"), tab_offset_(0),
     addOpenGlComponent(body_);
 
     audioSettingsButton = std::make_unique<OpenGlTextButton>("header_audio");
-    addOpenGlComponent(std::shared_ptr<OpenGlComponent> (audioSettingsButton->getGlComponent()));
+    addOpenGlComponent(audioSettingsButton->getGlComponent());
     addAndMakeVisible(audioSettingsButton.get());
     audioSettingsButton->addListener(this);
     audioSettingsButton->setLookAndFeel(TextLookAndFeel::instance());
     audioSettingsButton->setButtonText("Audio/MIDI Settings");
 
     sendToDeviceButton = std::make_unique<OpenGlTextButton>("header_send");
-    addOpenGlComponent(std::shared_ptr<OpenGlComponent> (sendToDeviceButton->getGlComponent()));
+    addOpenGlComponent(sendToDeviceButton->getGlComponent());
     addAndMakeVisible(sendToDeviceButton.get());
     sendToDeviceButton->addListener(this);
     sendToDeviceButton->setLookAndFeel(TextLookAndFeel::instance());
