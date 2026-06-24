@@ -18,6 +18,10 @@ namespace electrosynth {
 
         void resized() override;
         int getPreferredHeight() const override;
+        void setVerticallyCenterKnobs(bool should_center) {
+            vertically_center_knobs_ = should_center;
+            resized();
+        }
 //        void initOpenGlComponents(OpenGlWrapper &open_gl) override;
 //        void renderOpenGlComponents(OpenGlWrapper& open_gl, bool animate) override;
         void init_();
@@ -35,8 +39,10 @@ namespace electrosynth {
         static constexpr int kKnobLabelGap = 4;
         static constexpr int kModulationBoxHeight = 16;
         static constexpr int kModulationBoxGap = 4;
+        static constexpr int kModulationBoxWidth = 120;
         int getKnobsPerRow() const;
         int getKnobRowCount() const;
+        juce::Colour getSliderLabelColor() const;
         void ensureSliderLabels();
         void updateSliderLabels();
 //        struct Pimpl;
@@ -44,6 +50,8 @@ namespace electrosynth {
         std::vector<std::unique_ptr<juce::Component>> comps;
         std::map<juce::Component*, std::shared_ptr<PlainTextComponent>> slider_labels_;
         std::map<juce::Component*, juce::Rectangle<int>> modulation_boxes_;
+        std::map<juce::Component*, std::unique_ptr<juce::Component>> modulation_box_targets_;
+        bool vertically_center_knobs_ = false;
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ParametersView)
     };
     /** Clone of juce::GenericAudioProcessorEditor. */

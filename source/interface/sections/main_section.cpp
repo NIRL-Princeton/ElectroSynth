@@ -33,6 +33,8 @@ MasterVoiceEnvelopeSection:: MasterVoiceEnvelopeSection(const juce::ValueTree& v
     master_voice_envelope->setName("VCA");
     setComponentID(master_voice_envelope->getName());
     addSubSection(master_voice_envelope.get());
+    if (auto* parameters = dynamic_cast<electrosynth::ParametersView*>(master_voice_envelope.get()))
+        parameters->setVerticallyCenterKnobs(true);
     addModulationButton(mod_button);
     addAndMakeVisible(mod_button.get());
     mod_button->setAlwaysOnTop(true);
@@ -40,8 +42,9 @@ MasterVoiceEnvelopeSection:: MasterVoiceEnvelopeSection(const juce::ValueTree& v
 
 void MasterVoiceEnvelopeSection::resized() {
     const int title_width = static_cast<int>(getTitleWidth());
-    master_voice_envelope->setBounds(0, title_width, getWidth(), std::max(0, getHeight() - title_width));
-    mod_button->setBounds(0, title_width, 40, 40);
+    const int content_y = title_width + ModulationModuleSection::kTabStripHeight;
+    master_voice_envelope->setBounds(0, content_y, getWidth(), std::max(0, getHeight() - content_y));
+    mod_button->setBounds(0, content_y, 40, 40);
     SynthSection::resized();
 
     header_body_->setBounds(0, 0, getWidth(), title_width);

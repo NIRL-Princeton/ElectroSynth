@@ -12,6 +12,9 @@ class ModulationManager;
 class ModulationModuleSection : public ModulesInterface<ModulatorBase>
 {
 public:
+    static constexpr int kTabStripHeight = 34;
+    static constexpr int kMaxTabs = 8;
+
     ModulationModuleSection( ModulationManager*,ModuleList<ModulatorBase>&, juce::UndoManager& um);
     virtual ~ModulationModuleSection();
 
@@ -31,12 +34,19 @@ public:
      void handlePopupResult(int result) override;
      void scrollBarMoved(ScrollBar *scrollBarThatHasMoved, double newRangeStart) override;
     void setScrollBarRange() override;
+     void buttonClicked(juce::Button* button) override;
      std::map<std::string, ModulationButton*> getAllModulationButtons() override;
 
      ModulationManager* modulation_manager;
      std::shared_ptr<OpenGlQuad> header_body_;
      std::shared_ptr<PlainTextComponent> header_title_;
      std::vector<std::unique_ptr<ModulationSection>> module_sections;
+     std::array<std::unique_ptr<OpenGlToggleButton>, kMaxTabs> tab_buttons_;
+     std::array<std::shared_ptr<OpenGlQuad>, kMaxTabs> tab_borders_;
+     std::array<std::shared_ptr<OpenGlQuad>, kMaxTabs> selected_tab_tops_;
+     std::array<std::shared_ptr<OpenGlQuad>, kMaxTabs> selected_tab_lefts_;
+     std::array<std::shared_ptr<OpenGlQuad>, kMaxTabs> selected_tab_rights_;
+     std::array<std::shared_ptr<OpenGlQuad>, kMaxTabs> selected_tab_line_masks_;
  void moduleAdded(ModulatorBase* newModule) override;
 
 
@@ -44,6 +54,9 @@ public:
  void moduleListChanged() ;
  EffectsViewport viewport;
     juce::UndoManager& undo;
+private:
+    void updateTabs();
+    int selected_tab_ = 0;
 };
 
 #endif //ELECTROSYNTH_ModulationMODULESECTION_H

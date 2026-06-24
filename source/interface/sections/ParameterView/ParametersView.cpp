@@ -267,6 +267,18 @@ public:
         return getKnobRowCount() * kModuleHeightPerKnobRow;
     }
 
+    juce::Colour ParametersView::getSliderLabelColor() const {
+        if (getName().startsWithIgnoreCase("env"))
+            return ShaderColors::kEnvelopeTextColor;
+        if (getName().startsWithIgnoreCase("lfo"))
+            return ShaderColors::kLfoTextColor;
+        if (getName().equalsIgnoreCase("VCA")
+            || getName().containsIgnoreCase("master"))
+            return ShaderColors::kMasterEnvelopeTextColor;
+
+        return ShaderColors::kSoundModuleTextColor;
+    }
+
     void ParametersView::paint(juce::Graphics &g) {
         g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
     }
@@ -301,9 +313,18 @@ public:
             auto label = std::make_shared<PlainTextComponent>(slider->getName() + "_label", slider->getName());
             label->setFontType(PlainTextComponent::kRegular);
             label->setJustification(juce::Justification::centred);
-            label->setColor(findColour(Skin::kBodyText, true));
+            label->setColor(getSliderLabelColor());
             addOpenGlComponent(label);
             slider_labels_[slider] = label;
+
+            if (auto* synth_slider = dynamic_cast<SynthSlider*>(slider)) {
+                auto target = std::make_unique<juce::Component>();
+                target->setComponentID(synth_slider->getComponentID() + "_modulation_target");
+                target->setInterceptsMouseClicks(false, false);
+                addAndMakeVisible(target.get());
+                synth_slider->setExtraModulationTarget(target.get());
+                modulation_box_targets_[slider] = std::move(target);
+            }
         }
     }
 
@@ -321,7 +342,7 @@ public:
                                   bounds.getWidth(),kKnobLabelHeight);
             it->second->setText(slider->getName());
             it->second->setTextSize(getLabelFont().getHeight());
-            it->second->setColor(findColour(Skin::kBodyText, true));
+            it->second->setColor(getSliderLabelColor());
         }
     }
 
@@ -346,7 +367,20 @@ public:
             juce::Rectangle<int> row_area(0, row * row_height, getWidth(), row_height);
             const float component_width = (row_area.getWidth() - (count + 1) * widget_margin) / static_cast<float>(count);
             float x = row_area.getX() + widget_margin;
-            const int top = row_area.getY() + kKnobLabelHeight + kKnobLabelGap;
+            int top = row_area.getY() + kKnobLabelHeight + kKnobLabelGap;
+            if (vertically_center_knobs_) {
+                const int rendered_knob_height = static_cast<int>(std::ceil(
+                    2.0f * (findValue(Skin::kKnobArcSize)
+                            + findValue(Skin::kKnobArcThickness))));
+                const int content_height = kKnobLabelHeight + kKnobLabelGap
+                                           + rendered_knob_height
+                                           + kModulationBoxGap
+                                           + kModulationBoxHeight;
+                top = row_area.getY()
+                      + std::max(0, (row_area.getHeight() - content_height) / 2)
+                      + kKnobLabelHeight + kKnobLabelGap;
+            }
+
             const int available_knob_height = std::max(0, row_area.getBottom() - widget_margin - kModulationBoxHeight
                                                                 - kModulationBoxGap - top);
 
@@ -363,14 +397,21 @@ public:
                     slider->setBounds(left, top, right - left, knob_height);
                     slider->redoImage();
 
-                    const int box_width = std::max(0, static_cast<int>((right - left) * 0.8f));
+                    const int box_width = std::max(
+                        0,
+                        std::min(kModulationBoxWidth, right - left - 2 * widget_margin));
                     const int box_x = left + ((right - left) - box_width) / 2;
-                    modulation_boxes_[slider] = {
+                    const juce::Rectangle<int> box_bounds {
                         box_x,
                         slider->getBottom() + kModulationBoxGap,
                         box_width,
                         kModulationBoxHeight
                     };
+                    modulation_boxes_[slider] = box_bounds;
+
+                    auto target = modulation_box_targets_.find(slider);
+                    if (target != modulation_box_targets_.end())
+                        target->second->setBounds(box_bounds);
                 }
                 x += component_width + widget_margin;
             }
@@ -512,7 +553,7 @@ void FxModuleTemplateView::paintBackground(juce::Graphics& g) {
 
     const int labelH = 12;
     g.setFont(Fonts::instance()->proportional_regular().withPointHeight(9.0f));
-    g.setColour(findColour(Skin::kBodyText, true));
+    g.setColour(ShaderColors::kEffectTextColor);
 
     for (auto slider : all_sliders_v) {
         if (!slider->isEnabled()) continue;

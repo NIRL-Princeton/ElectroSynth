@@ -30,6 +30,37 @@ ModulationModuleSection::ModulationModuleSection(ModulationManager *modulation_m
     header_title_->setInterceptsMouseClicks(false, false);
     addOpenGlComponent(header_title_);
 
+    // Modulation tabs
+    for (int i = 0; i < kMaxTabs; ++i) {
+        tab_buttons_[i] = std::make_unique<OpenGlToggleButton>("modulation_tab_ " + juce::String(i));
+        tab_buttons_[i]->setClickingTogglesState(false);
+        tab_buttons_[i]->setJustification(juce::Justification::centredLeft);
+        addButton(tab_buttons_[i].get(), true);
+
+        tab_borders_[i] = std::make_shared<OpenGlQuad>(Shaders::kRoundedRectangleBorderFragment, "modulation_tab_border_" + juce::String(i));
+        tab_borders_[i]->setInterceptsMouseClicks(false, false);
+        tab_borders_[i]->setThickness(1.3f, true);
+        addOpenGlComponent(tab_borders_[i]);
+
+        selected_tab_tops_[i] = std::make_shared<OpenGlQuad>(
+            Shaders::kColorFragment, "selected_modulation_tab_top_" + juce::String(i));
+        selected_tab_lefts_[i] = std::make_shared<OpenGlQuad>(
+            Shaders::kColorFragment, "selected_modulation_tab_left_" + juce::String(i));
+        selected_tab_rights_[i] = std::make_shared<OpenGlQuad>(
+            Shaders::kColorFragment, "selected_modulation_tab_right_" + juce::String(i));
+        selected_tab_line_masks_[i] = std::make_shared<OpenGlQuad>(
+            Shaders::kColorFragment, "selected_modulation_tab_line_mask_" + juce::String(i));
+
+        selected_tab_line_masks_[i]->setInterceptsMouseClicks(false, false);
+        addOpenGlComponent(selected_tab_line_masks_[i]);
+
+        for (auto edge : { selected_tab_tops_[i], selected_tab_lefts_[i], selected_tab_rights_[i] }) {
+            edge->setInterceptsMouseClicks(false, false);
+            edge->setColor(juce::Colours::white);
+            addOpenGlComponent(edge);
+        }
+    }
+
     scroll_bar_ = std::make_unique<OpenGlScrollBar>(false);
 //    scroll_bar_->setShrinkLeft(true)
     addAndMakeVisible(scroll_bar_.get());
@@ -57,15 +88,51 @@ void ModulationModuleSection::resized() {
     int order_width = getWidth() * kEffectOrderWidthPercent;
     //    effect_order_->setBounds(0, 0, order_width, getHeight());
     //    effect_order_->setSizeRatio(size_ratio_);
+    int padding = findValue(Skin::kPadding);
     int large_padding = findValue(Skin::kLargePadding);
     int shadow_width = getComponentShadowWidth();
     int viewport_x = 0 + large_padding - shadow_width;
     int viewport_width = getWidth() - viewport_x - large_padding + 2 * shadow_width;
     const int title_width = static_cast<int>(getTitleWidth());
-    viewport_.setBounds(0, title_width, getWidth(), std::max(0, getHeight() - title_width));
+
+    // set horizontal bounds of modulation tabs
+    const int tab_width = (getWidth()- kMaxTabs) / kMaxTabs;
+    for (int i = 0; i < kMaxTabs; ++i) {
+        const int left = i * tab_width;
+        const int right = (i + 1) * tab_width;
+        const juce::Rectangle<int> outline_bounds(
+            left + 4, title_width + 4, std::max(0, right - left - 8), kTabStripHeight - 8);
+        tab_borders_[i]->setBounds(outline_bounds);
+
+        // Shift the text two pixels right without moving the outline.
+        tab_buttons_[i]->setBounds(outline_bounds.getX() + 2, outline_bounds.getY(),
+                                   std::max(0, outline_bounds.getWidth() - 2),
+                                   outline_bounds.getHeight());
+
+        static constexpr int kSelectedTabLineThickness = 2;
+        static constexpr int kSelectedTabSideExtension = 4;
+        selected_tab_tops_[i]->setBounds(
+            outline_bounds.getX(), outline_bounds.getY(),
+            outline_bounds.getWidth(), kSelectedTabLineThickness);
+        selected_tab_lefts_[i]->setBounds(
+            outline_bounds.getX(), outline_bounds.getY(),
+            kSelectedTabLineThickness,
+            outline_bounds.getHeight() + kSelectedTabSideExtension);
+        selected_tab_rights_[i]->setBounds(
+            outline_bounds.getRight() - kSelectedTabLineThickness, outline_bounds.getY(),
+            kSelectedTabLineThickness,
+            outline_bounds.getHeight() + kSelectedTabSideExtension);
+        selected_tab_line_masks_[i]->setBounds(
+            outline_bounds.getX() + kSelectedTabLineThickness,
+            outline_bounds.getBottom() - 1,
+            std::max(0, outline_bounds.getWidth() - 2 * kSelectedTabLineThickness),
+            kSelectedTabSideExtension + 2);
+    }
+
+    viewport_.setBounds(0, title_width + kTabStripHeight, getWidth(), std::max(0, getHeight() - title_width - kTabStripHeight));
     setEffectPositions();
 
-    scroll_bar_->setBounds(0, title_width, getWidth(), large_padding - 2);
+    scroll_bar_->setBounds(0, title_width + kTabStripHeight, getWidth(), large_padding - 2);
     scroll_bar_->setColor(findColour(Skin::kLightenScreen, true));
 
     SynthSection::resized();
@@ -76,6 +143,7 @@ void ModulationModuleSection::resized() {
     header_title_->setText(getName());
     header_title_->setTextSize(size_ratio_ * 14.0f);
     header_title_->setColor(findColour(Skin::kHeadingText, true));
+    updateTabs();
 }
 
 void ModulationModuleSection::paintBackground(juce::Graphics& g) {
@@ -112,49 +180,83 @@ void ModulationModuleSection::handlePopupResult(int result) {
 
 
 void ModulationModuleSection::setEffectPositions() {
-    if (getWidth() <= 0 || getHeight() <= 0)
-        return;
+    if (getWidth() <= 0 || getHeight() <= 0) return;
 
-    static constexpr int kLfoModuleWidth = 200;
-    static constexpr int kEnvelopeWidthMultiplier = 3;
+    const int effect_height = viewport_.getHeight();
 
-    int padding = getPadding();
-    int large_padding = findValue(Skin::kLargePadding);
-    int shadow_width = getComponentShadowWidth();
-    int start_x = 0;
-    const int lfo_width = kLfoModuleWidth - start_x - large_padding;
-    int knob_section_height = getKnobSectionHeight();
-    int widget_margin = findValue(Skin::kWidgetMargin);
-    int effect_height = 2 * knob_section_height - widget_margin;
-    int x = 0;
-    juce::Point<int> position = viewport_.getViewPosition();
-    //DBG("position viewport: x: " + juce::String(position.getX()) + "y: " + juce::String(position.getY()));
-  //  DBG("shadwo width: " + String(shadow_width));
-    for (auto& section : module_sections) {
-        const bool is_envelope = section->getModulatorType().equalsIgnoreCase("env");
-        const int section_width = is_envelope
-                                      ? lfo_width * kEnvelopeWidthMultiplier
-                                      : lfo_width;
+    if (!module_sections.empty()) selected_tab_ = juce::jlimit(0, static_cast<int>(module_sections.size()) - 1, selected_tab_);
 
-        section->setBounds(x, shadow_width, section_width, effect_height);
-        x += section_width + padding;
+    for (int i = 0; i < static_cast<int>(module_sections.size()); ++i) {
+        const bool selected = (i == selected_tab_);
+        module_sections[i]->setVisible(selected);
+        if (selected) module_sections[i]->setBounds(0, 0, viewport_.getWidth(), effect_height);
     }
 
-    const int content_width = std::max(viewport_.getWidth(), x - padding + lfo_width * 2);
-    container_->setBounds(0, 0, content_width, viewport_.getHeight());
-    viewport_.setViewPosition(position);
+    container_->setBounds(0, 0, viewport_.getWidth(), viewport_.getHeight());
+    viewport_.setViewPosition(0, 0);
 
     for (Listener* listener : listeners_)
         listener->effectsMoved();
 
-    container_->setScrollWheelEnabled(container_->getWidth() <= viewport_.getWidth());
+    container_->setScrollWheelEnabled(true);
     setScrollBarRange();
     repaintBackground();
+}
+
+void ModulationModuleSection::buttonClicked(juce::Button* button) {
+    for (int i = 0; i < kMaxTabs; ++i) {
+        if (button == tab_buttons_[i].get() && i < static_cast<int>(module_sections.size())) {
+            selected_tab_ = i;
+            setEffectPositions();
+            updateTabs();
+            return;
+        }
+    }
+    ModulesInterface<ModulatorBase>::buttonClicked(button);
+}
+
+void ModulationModuleSection::updateTabs() {
+    int env_number = 0;
+    int lfo_number = 0;
+
+    for (int i = 0; i < kMaxTabs; ++i) {
+        const bool occupied = i < static_cast<int>(module_sections.size());
+        tab_buttons_[i]->setVisible(occupied);
+        if (!occupied) {
+            tab_borders_[i]->setVisible(false);
+            selected_tab_tops_[i]->setVisible(false);
+            selected_tab_lefts_[i]->setVisible(false);
+            selected_tab_rights_[i]->setVisible(false);
+            selected_tab_line_masks_[i]->setVisible(false);
+            continue;
+        }
+
+        const bool is_envelope = module_sections[i]->getModulatorType().equalsIgnoreCase("env");
+        const bool selected = i == selected_tab_;
+        const auto accent = is_envelope
+                                ? ShaderColors::kEnvelopeTextColor
+                                : ShaderColors::kLfoTextColor;
+        const int number = is_envelope ? ++env_number : ++lfo_number;
+        tab_buttons_[i]->setText((is_envelope ? "  Env " : "  LFO ") + juce::String(number));
+        tab_buttons_[i]->setToggleState(selected, juce::dontSendNotification);
+        tab_buttons_[i]->setColour(Skin::kTextComponentBackground, selected ? juce::Colours::transparentBlack : juce::Colours::black);
+        tab_buttons_[i]->setColour(Skin::kIconButtonOn, selected ? juce::Colours::white : accent);
+        tab_buttons_[i]->setColour(Skin::kIconButtonOff, selected ? juce::Colours::white : accent);
+        tab_buttons_[i]->getGlComponent()->setColors();
+
+        tab_borders_[i]->setVisible(!selected);
+        tab_borders_[i]->setColor(accent);
+        selected_tab_tops_[i]->setVisible(selected);
+        selected_tab_lefts_[i]->setVisible(selected);
+        selected_tab_rights_[i]->setVisible(selected);
+        selected_tab_line_masks_[i]->setColor(findColour(Skin::kBody, true));
+        selected_tab_line_masks_[i]->setVisible(selected);
+    }
 }
 PopupItems ModulationModuleSection::createPopupMenu() {
     PopupItems options;
     options.addItem(1, "add Env" );
-    options.addItem(2, "add lfo" );
+    options.addItem(2, "add LFO" );
 
     return options;
 }
@@ -227,6 +329,8 @@ void ModulationModuleSection::moduleAdded(ModulatorBase *newModule) {
     module_section->setInterceptsMouseClicks(false,true);
     parentHierarchyChanged();
     module_sections.emplace_back(std::move(module_section));
+    selected_tab_ = static_cast<int>(module_sections.size()) - 1;
+    updateTabs();
     for(auto listener : listeners_) {
         listener->added();
     }
@@ -273,6 +377,8 @@ void ModulationModuleSection::removeModule(ModulatorBase *newModule) {
         }
 
         module_sections.erase(it, module_sections.end());
+        selected_tab_ = juce::jlimit(0, std::max(0, static_cast<int>(module_sections.size()) - 1), selected_tab_);
+        updateTabs();
 
         for(auto listener : listeners_)
         {

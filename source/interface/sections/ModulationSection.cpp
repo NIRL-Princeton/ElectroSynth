@@ -15,6 +15,8 @@ mod_button(new ModulationButton("mod")), undo(um)
     addAndMakeVisible(mod_button.get());
     mod_button->setAlwaysOnTop(true);
     addSubSection(_view.get());
+    if (auto* parameters = dynamic_cast<electrosynth::ParametersView*>(_view.get()))
+        parameters->setVerticallyCenterKnobs(true);
     exit_button_ = std::make_shared<OpenGlShapeButton>("Exit");
     addAndMakeVisible(exit_button_.get());
     addOpenGlComponent(exit_button_->getGlComponent());

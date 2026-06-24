@@ -29,6 +29,14 @@
 
 #include <juce_dsp/juce_dsp.h>
 
+namespace ShaderColors {
+  inline const juce::Colour kEnvelopeTextColor = juce::Colour::fromRGB(0, 190, 230);
+  inline const juce::Colour kLfoTextColor = juce::Colour::fromRGB(100, 210, 20);
+  inline const juce::Colour kSoundModuleTextColor = juce::Colour::fromRGB(255, 240, 0);
+  inline const juce::Colour kMasterEnvelopeTextColor = juce::Colour::fromRGB(255, 145, 35);
+  inline const juce::Colour kEffectTextColor = juce::Colour::fromRGB(235, 55, 55);
+}
+
 class Shaders {
   public:
     enum VertexShader {
