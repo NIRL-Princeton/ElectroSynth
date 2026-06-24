@@ -128,6 +128,7 @@ class ChainList : public tracktion::ValueTreeObjectList<ModuleList<T>> {
         //and doesn’t look in the base class template.
         this->parent.appendChild(child,undoManager);
     }
+    bool isEmpty() const { return this->parent.getNumChildren() == 0; }
     void setValueTree(const ValueTree& v) {
         tracktion::engine::ValueTreeObjectList<ModuleList<T>>::parent = v;
     }
@@ -183,4 +184,3 @@ class ChainList : public tracktion::ValueTreeObjectList<ModuleList<T>> {
 
 
 #endif //MODULELIST_H
-

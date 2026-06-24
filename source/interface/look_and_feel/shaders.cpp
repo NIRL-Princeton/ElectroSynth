@@ -633,6 +633,7 @@ namespace {
       "    gl_FragColor.a = color.a * alpha_mult * alpha;\n"
       "}\n";
 
+
   const char* kRotarySliderFragmentShader =
       "uniform " MEDIUMP " vec4 color;\n"
       "uniform " MEDIUMP " vec4 alt_color;\n"
@@ -647,45 +648,96 @@ namespace {
       "varying " MEDIUMP " vec4 shader_values_out;\n"
       "varying " MEDIUMP " vec2 coordinates_out;\n"
       "void main() {\n"
-      "    " MEDIUMP " float rads = atan(coordinates_out.x, coordinates_out.y);\n"
-      "    float full_radius = 0.5 * dimensions_out.x;\n"
-      "    float delta_center = length(coordinates_out) * full_radius;\n"
-      "    float body_radius = full_radius * 0.52;\n"
-      "    float body_border = max(thickness * 0.35, 1.0);\n"
-      "    float body_alpha = clamp(body_radius - delta_center + 0.5, 0.0, 1.0);\n"
-      "    float body_border_outer = clamp(body_radius + body_border - delta_center + 0.5, 0.0, 1.0);\n"
-      "    float body_border_inner = clamp(delta_center - body_radius + 0.5, 0.0, 1.0);\n"
-      "    float body_border_alpha = body_border_outer * body_border_inner;\n"
-      "    gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);\n"
-      "    gl_FragColor.rgb = gl_FragColor.rgb * (1.0 - body_border_alpha) + mod_color.rgb * body_border_alpha;\n"
-      "    gl_FragColor.a = body_border_alpha + gl_FragColor.a * (1.0 - body_border_alpha);\n"
-      "    gl_FragColor.rgb = gl_FragColor.rgb * (1.0 - body_alpha) + background_color.rgb * body_alpha;\n"
-      "    gl_FragColor.a = body_alpha + gl_FragColor.a * (1.0 - body_alpha);\n"
-      "    float center_arc = full_radius - thickness * 0.5 - 0.5;\n"
-      "    float delta_arc = delta_center - center_arc;\n"
-      "    float distance_arc = abs(delta_arc);\n"
-      "    float dist_curve_left = max(center_arc * (rads - max_arc), 0.0);\n"
-      "    float dist_curve = max(center_arc * (-rads - max_arc), dist_curve_left);\n"
-      "    float alpha = clamp(thickness * 0.5 - length(vec2(distance_arc, dist_curve)) + 0.5, 0.0, 1.0);\n"
-      "    float delta_rads = rads - shader_values_out.x;\n"
-      "    float color_step1 = step(0.0, delta_rads);\n"
-      "    float color_step2 = step(0.0, start_pos - rads);\n"
-      "    float color_step = abs(color_step2 - color_step1);\n"
-      "    vec4 arc_color = alt_color * color_step + color * (1.0 - color_step);\n"
-      "    arc_color.a = arc_color.a * alpha;\n"
-      "    gl_FragColor.rgb = gl_FragColor.rgb * (1.0 - arc_color.a) + arc_color.rgb * arc_color.a;\n"
-      "    gl_FragColor.a = arc_color.a + gl_FragColor.a * (1.0 - arc_color.a);\n"
-      "    float thumb_length = full_radius * thumb_amount;\n"
-      "    float thumb_x = sin(delta_rads) * delta_center;\n"
-      "    float thumb_y = cos(delta_rads) * delta_center - center_arc;\n"
-      "    float adjusted_thumb_y = min(thumb_y + thumb_length, 0.0);\n"
-      "    float outside_arc_step = step(0.0, thumb_y);\n"
-      "    float thumb_y_distance = thumb_y * outside_arc_step + adjusted_thumb_y * (1.0 - outside_arc_step);\n"
-      "    float thumb_distance = length(vec2(thumb_x, thumb_y_distance));\n"
-      "    float thumb_alpha = clamp(thickness * 0.5 - thumb_distance + 0.5, 0.0, 1.0);\n"
-      "    gl_FragColor.rgb = gl_FragColor.rgb * (1.0 - thumb_alpha) + thumb_color.rgb * thumb_alpha;\n"
-      "    gl_FragColor.a = thumb_color.a * thumb_alpha + gl_FragColor.a * (1.0 - thumb_alpha);\n"
-      "}\n";
+    "    float radius = 0.75 * min(dimensions_out.x, dimensions_out.y);\n"
+    "    float distance_from_center = length(coordinates_out) * radius;\n"
+    "    float angle = atan(coordinates_out.x, coordinates_out.y);\n"
+    "    float value_angle = shader_values_out.x;\n"
+    "\n"
+    "    vec4 output_color = vec4(0.0);\n"
+    "\n"
+    "    // Outer tick ring \n"
+    "    const float tick_count = 50.0;\n"
+    "    float tick_position = (angle + max_arc) / (2.0 * max_arc) * (tick_count - 1.0);\n"
+    "    float tick_phase = abs(fract(tick_position + 0.5) - 0.5);\n"
+    "    float angular_distance = tick_phase * (2.0 * max_arc / (tick_count - 1.0)) * radius * 0.87;\n"
+    "\n"
+    "    float tick_center = radius * 0.9;\n"
+    "    float radial_distance = abs(distance_from_center - tick_center);\n"
+    "    float inside_arc = step(abs(angle), max_arc + 0.01);\n"
+    "\n"
+    "    float tick_alpha =\n"
+    "        (1.0 - smoothstep(0.65, 1.25, angular_distance)) *\n"
+    "        (1.0 - smoothstep(radius * 0.035,\n"
+    "                          radius * 0.050,\n"
+    "                          radial_distance)) * inside_arc;\n"
+    "\n"
+    "    vec4 tick_color = vec4(0.46, 0.48, 0.50, 1.0);\n"
+    "    output_color = mix(output_color, tick_color, tick_alpha);\n"
+    "\n"
+    "    // White knob body with a subtle grey border.\n"
+    "    float body_radius = radius * 0.47;\n"
+    "    float border_alpha =\n"
+    "        1.0 - smoothstep(body_radius - 0.5,\n"
+    "                         body_radius + 1.0,\n"
+    "                         distance_from_center);\n"
+    "    output_color = mix(output_color, vec4(0.36, 0.37, 0.39, 1.0),border_alpha);\n"
+    "\n"
+    "    float body_alpha =\n"
+    "        1.0 - smoothstep(body_radius - 2.0,\n"
+    "                         body_radius - 0.5,\n"
+    "                         distance_from_center);\n"
+    "    output_color = mix(output_color, vec4(0.98, 0.98, 0.98, 1.0),body_alpha);\n"
+    "\n"
+    "    // Thin white endpoint lines at the beginning and end of the sweep.\n"
+    "    float endpoint_inner = body_radius - 1.0;\n"
+    "    float endpoint_outer = radius * 0.68;\n"
+    "    float endpoint_width = max(radius * 0.012, 0.75);\n"
+    "\n"
+    "    float start_relative_angle = angle + max_arc;\n"
+    "    float start_line_x = sin(start_relative_angle) * distance_from_center;\n"
+    "    float start_line_y = cos(start_relative_angle) * distance_from_center;\n"
+    "    float start_line_segment =\n"
+    "        smoothstep(endpoint_inner - 0.75, endpoint_inner + 0.75, start_line_y) *\n"
+    "        (1.0 - smoothstep(endpoint_outer - 0.75, endpoint_outer + 0.75, start_line_y));\n"
+    "    float start_line_alpha =\n"
+    "        (1.0 - smoothstep(endpoint_width, endpoint_width + 0.75, abs(start_line_x))) *\n"
+    "        start_line_segment;\n"
+    "\n"
+    "    float end_relative_angle = angle - max_arc;\n"
+    "    float end_line_x = sin(end_relative_angle) * distance_from_center;\n"
+    "    float end_line_y = cos(end_relative_angle) * distance_from_center;\n"
+    "    float end_line_segment =\n"
+    "        smoothstep(endpoint_inner - 0.75, endpoint_inner + 0.75, end_line_y) *\n"
+    "        (1.0 - smoothstep(endpoint_outer - 0.75, endpoint_outer + 0.75, end_line_y));\n"
+    "    float end_line_alpha =\n"
+    "        (1.0 - smoothstep(endpoint_width, endpoint_width + 0.75, abs(end_line_x))) *\n"
+    "        end_line_segment;\n"
+    "\n"
+    "    float endpoint_alpha = max(start_line_alpha, end_line_alpha);\n"
+    "    output_color = mix(output_color, vec4(1.0), endpoint_alpha);\n"
+    "\n"
+    "    // Black value indicator running from the centre outward.\n"
+    "    float relative_angle = angle - value_angle;\n"
+    "    float indicator_x = sin(relative_angle) * distance_from_center;\n"
+    "    float indicator_y = cos(relative_angle) * distance_from_center;\n"
+    "\n"
+    "    float indicator_start = body_radius * 0.3;\n"
+    "    float indicator_end = body_radius;\n"
+    "    float indicator_width = radius * 0.02;\n"
+    "\n"
+    "    float indicator_segment = step(indicator_start, indicator_y) * step(indicator_y, indicator_end);\n"
+    "    float indicator_alpha =\n"
+    "        (1.0 - smoothstep(indicator_width,\n"
+    "                          indicator_width + 0.8,\n"
+    "                          abs(indicator_x))) *\n"
+    "        indicator_segment * body_alpha;\n"
+    "\n"
+    "    output_color = mix(output_color,\n"
+    "                       vec4(0.03, 0.03, 0.03, 1.0),\n"
+    "                       indicator_alpha);\n"
+    "\n"
+    "    gl_FragColor = output_color;\n"
+    "}\n";
 
   const char* kRotaryModulationFragmentShader =
       "varying " MEDIUMP " vec2 coordinates_out;\n"
@@ -996,16 +1048,33 @@ juce::OpenGLShaderProgram* Shaders::getShaderProgram(VertexShader vertex_shader,
   int shader_program_index = vertex_shader * kNumFragmentShaders + fragment_shader;
   if (shader_programs_.count(shader_program_index))
     return shader_programs_.at(shader_program_index).get();
+  if (failed_shader_programs_.count(shader_program_index))
+    return nullptr;
 
-  shader_programs_[shader_program_index] = std::make_unique<juce::OpenGLShaderProgram>(*open_gl_context_);
-  juce::OpenGLShaderProgram* result = shader_programs_[shader_program_index].get();
+  GLuint vertex_shader_id = getVertexShaderId(vertex_shader);
+  GLuint fragment_shader_id = getFragmentShaderId(fragment_shader);
+  if (vertex_shader_id == 0 || fragment_shader_id == 0) {
+    failed_shader_programs_.insert(shader_program_index);
+    DBG("Unable to create OpenGL shader program: shader compilation failed.");
+    return nullptr;
+  }
+
+  auto program = std::make_unique<juce::OpenGLShaderProgram>(*open_gl_context_);
+  juce::OpenGLShaderProgram* result = program.get();
   GLuint program_id = result->getProgramID();
-  open_gl_context_->extensions.glAttachShader(program_id, getVertexShaderId(vertex_shader));
-  open_gl_context_->extensions.glAttachShader(program_id, getFragmentShaderId(fragment_shader));
+  open_gl_context_->extensions.glAttachShader(program_id, vertex_shader_id);
+  open_gl_context_->extensions.glAttachShader(program_id, fragment_shader_id);
 //  if (varyings)
 //    open_gl_context_->extensions.glTransformFeedbackVaryings(program_id, 1, varyings, juce::gl::GL_INTERLEAVED_ATTRIBS);
 
-  result->link();
+  if (!result->link()) {
+    DBG("OpenGL shader program link failed:");
+    DBG(result->getLastError());
+    failed_shader_programs_.insert(shader_program_index);
+    return nullptr;
+  }
+
+  shader_programs_[shader_program_index] = std::move(program);
   return result;
 }
 
@@ -1130,7 +1199,12 @@ GLuint Shaders::createVertexShader(juce::OpenGLExtensionFunctions& extensions, V
   extensions.glShaderSource(shader_id, 1, &code, nullptr);
   extensions.glCompileShader(shader_id);
 
-  _ASSERT(checkShaderCorrect(extensions, shader_id));
+  if (!checkShaderCorrect(extensions, shader_id)) {
+    DBG("OpenGL vertex shader compilation failed.");
+    extensions.glDeleteShader(shader_id);
+    return 0;
+  }
+
   return shader_id;
 }
 
@@ -1141,9 +1215,15 @@ GLuint Shaders::createFragmentShader(juce::OpenGLExtensionFunctions& extensions,
   extensions.glShaderSource(shader_id, 1, &code, nullptr);
   extensions.glCompileShader(shader_id);
 
-  _ASSERT(checkShaderCorrect(extensions, shader_id));
+  if (!checkShaderCorrect(extensions, shader_id)) {
+    DBG("OpenGL fragment shader compilation failed.");
+    extensions.glDeleteShader(shader_id);
+    return 0;
+  }
+
   return shader_id;
 }
 
 Shaders::Shaders(juce::OpenGLContext& open_gl_context) : open_gl_context_(&open_gl_context),
-                                                   vertex_shader_ids_(), fragment_shader_ids_() { }
+                                                   vertex_shader_ids_(), fragment_shader_ids_(),
+                                                   vertex_shader_failed_(), fragment_shader_failed_() { }

@@ -17,6 +17,19 @@ namespace electrosynth {
 
 ModulationModuleSection::ModulationModuleSection(ModulationManager *modulation_manager,ModuleList<ModulatorBase>& module_list, juce::UndoManager& um) : ModulesInterface(module_list), modulation_manager(modulation_manager), undo(um)
 {
+    setName("Modulation");
+    toggle_button_->setVisible(false);
+
+    header_body_ = std::make_shared<OpenGlQuad>(Shaders::kColorFragment, "modulation_header");
+    header_body_->setInterceptsMouseClicks(false, false);
+    addOpenGlComponent(header_body_, true);
+
+    header_title_ = std::make_shared<PlainTextComponent>("modulation_title", getName());
+    header_title_->setFontType(PlainTextComponent::kLight);
+    header_title_->setJustification(juce::Justification::centred);
+    header_title_->setInterceptsMouseClicks(false, false);
+    addOpenGlComponent(header_title_);
+
     scroll_bar_ = std::make_unique<OpenGlScrollBar>(false);
 //    scroll_bar_->setShrinkLeft(true)
     addAndMakeVisible(scroll_bar_.get());
@@ -28,20 +41,17 @@ ModulationModuleSection::ModulationModuleSection(ModulationManager *modulation_m
     viewport_.setScrollBarPosition(false,true);
     viewport_.setScrollBarsShown(false, false, false, true);
 
-
-
     addListener(modulation_manager);
     //setInterceptsMouseClicks(false, true);
 }
 
-ModulationModuleSection::~ModulationModuleSection()
-{
+ModulationModuleSection::~ModulationModuleSection() {
     module_sections.clear();
 }
-void ModulationModuleSection::resized()
-{
-    static constexpr float kEffectOrderWidthPercent = 0.2f;
 
+void ModulationModuleSection::resized() {
+
+    static constexpr float kEffectOrderWidthPercent = 0.2f;
     ScopedLock lock(open_gl_critical_section_);
 
     int order_width = getWidth() * kEffectOrderWidthPercent;
@@ -51,14 +61,35 @@ void ModulationModuleSection::resized()
     int shadow_width = getComponentShadowWidth();
     int viewport_x = 0 + large_padding - shadow_width;
     int viewport_width = getWidth() - viewport_x - large_padding + 2 * shadow_width;
-    viewport_.setBounds(0, 0, getWidth(), getHeight());
+    const int title_width = static_cast<int>(getTitleWidth());
+    viewport_.setBounds(0, title_width, getWidth(), std::max(0, getHeight() - title_width));
     setEffectPositions();
 
-    scroll_bar_->setBounds(0, 0, getWidth(), large_padding - 2);
+    scroll_bar_->setBounds(0, title_width, getWidth(), large_padding - 2);
     scroll_bar_->setColor(findColour(Skin::kLightenScreen, true));
 
     SynthSection::resized();
+
+    header_body_->setBounds(0, 0, getWidth(), title_width);
+    header_body_->setColor(findColour(Skin::kBodyHeading, true));
+    header_title_->setBounds(0, 0, getWidth(), title_width);
+    header_title_->setText(getName());
+    header_title_->setTextSize(size_ratio_ * 14.0f);
+    header_title_->setColor(findColour(Skin::kHeadingText, true));
 }
+
+void ModulationModuleSection::paintBackground(juce::Graphics& g) {
+    g.setColour(findColour(Skin::kBody, true));
+    g.fillRoundedRectangle(getLocalBounds().toFloat(), findValue(Skin::kBodyRounding));
+    paintBody(g);
+
+    g.setColour(findColour(Skin::kBorder, true));
+    g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(0.5f), findValue(Skin::kBodyRounding), 1.0f);
+    paintBorder(g);
+
+    redoBackgroundImage();
+}
+
 void ModulationModuleSection::handlePopupResult(int result) {
 
     //std::vector<vital::ModulationConnection*> connections = getConnections();
@@ -245,4 +276,3 @@ void ModulationModuleSection::removeModule(ModulatorBase *newModule) {
         resized();
     }
 }
-

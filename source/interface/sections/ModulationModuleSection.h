@@ -24,6 +24,7 @@ public:
      }
      void redoBackgroundImage() override;
      void renderOpenGlComponents(OpenGlWrapper& open_gl, bool animate) override;
+    void paintBackground(juce::Graphics& g) override;
     void setEffectPositions() override;
     void resized() override;
      PopupItems createPopupMenu() override;
@@ -33,6 +34,8 @@ public:
      std::map<std::string, ModulationButton*> getAllModulationButtons() override;
 
      ModulationManager* modulation_manager;
+     std::shared_ptr<OpenGlQuad> header_body_;
+     std::shared_ptr<PlainTextComponent> header_title_;
      std::vector<std::unique_ptr<ModulationSection>> module_sections;
  void moduleAdded(ModulatorBase* newModule) override;
 

@@ -25,6 +25,7 @@
 #include <juce_opengl/juce_opengl.h>
 
 #include <map>
+#include <set>
 
 #include <juce_dsp/juce_dsp.h>
 
@@ -83,14 +84,26 @@ class Shaders {
     Shaders(juce::OpenGLContext& open_gl_context);
 
     GLuint getVertexShaderId(VertexShader shader) {
-      if (vertex_shader_ids_[shader] == 0)
+      if (vertex_shader_failed_[shader])
+        return 0;
+
+      if (vertex_shader_ids_[shader] == 0) {
         vertex_shader_ids_[shader] = createVertexShader(open_gl_context_->extensions, shader);
+        vertex_shader_failed_[shader] = vertex_shader_ids_[shader] == 0;
+      }
+
       return vertex_shader_ids_[shader];
     }
 
     GLuint getFragmentShaderId(FragmentShader shader) {
-      if (fragment_shader_ids_[shader] == 0)
+      if (fragment_shader_failed_[shader])
+        return 0;
+
+      if (fragment_shader_ids_[shader] == 0) {
         fragment_shader_ids_[shader] = createFragmentShader(open_gl_context_->extensions, shader);
+        fragment_shader_failed_[shader] = fragment_shader_ids_[shader] == 0;
+      }
+
       return fragment_shader_ids_[shader];
     }
 
@@ -108,8 +121,11 @@ class Shaders {
     juce::OpenGLContext* open_gl_context_;
     GLuint vertex_shader_ids_[kNumVertexShaders];
     GLuint fragment_shader_ids_[kNumFragmentShaders];
+    bool vertex_shader_failed_[kNumVertexShaders];
+    bool fragment_shader_failed_[kNumFragmentShaders];
 
     std::map<int, std::unique_ptr<juce::OpenGLShaderProgram>> shader_programs_;
+    std::set<int> failed_shader_programs_;
 };
 
 struct OpenGlWrapper {

@@ -20,10 +20,12 @@ public:
     MasterVoiceEnvelopeSection(const juce::ValueTree& v, juce::UndoManager &um,
         OpenGlWrapper &open_gl, SynthGuiData * data, std::unique_ptr<SynthSection>&&);
 
-        void resized() override;
+    void resized() override;
     void paintBackground(Graphics &g) override;
     std::unique_ptr<SynthSection> master_voice_envelope;
     std::shared_ptr<ModulationButton> mod_button;
+    std::shared_ptr<OpenGlQuad> header_body_;
+    std::shared_ptr<PlainTextComponent> header_title_;
 };
 class MainSection : public SynthSection
 {

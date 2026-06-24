@@ -39,6 +39,9 @@ AudioChainSection::AudioChainSection(ChainList<ProcessorBase> &chains, Modulatio
 
     setSidewaysHeading(false);
     addListener(m);
+
+    if (chains_.isEmpty())
+        chains_.appendChild(juce::ValueTree{IDs::CHAIN}, nullptr);
 }
 
 AudioChainSection::~AudioChainSection() {
@@ -56,8 +59,6 @@ void AudioChainSection::paintBackground(juce::Graphics &g) {
 
         g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(kAudioChainBorderWidth * 0.5f),
                                findValue(Skin::kBodyRounding), kAudioChainBorderWidth);
-
-        paintHeadingText(g);
 
         redoBackgroundImage();
     }

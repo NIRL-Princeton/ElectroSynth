@@ -260,6 +260,7 @@ protected:
     bool draw_when_not_visible_;
     bool active_;
     bool dirty_;
+    bool initialization_failed_;
     juce::Colour color_;
     juce::Colour alt_color_;
     juce::Colour mod_color_;

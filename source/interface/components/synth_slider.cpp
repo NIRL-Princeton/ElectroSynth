@@ -60,9 +60,9 @@ void OpenGlSlider::setSliderDisplayValues() {
     float thickness = findValue(Skin::kKnobArcThickness);
     float size = findValue(Skin::kKnobArcSize) * getKnobSizeScale() + thickness;
     float offset = findValue(Skin::kKnobOffset);
-    float radius_x = (size + 0.5f) / getWidth();
+    float radius_x = (size * 2.f) / getWidth();
     float center_y = 2.0f *offset / getHeight();
-    float radius_y = (size + 0.5f) / getHeight();
+    float radius_y = (size * 2.f) / getHeight();
     slider_quad_->setQuad(0, -radius_x, -center_y - radius_y, 2.0f * radius_x, 2.0f * radius_y);
     slider_quad_->setThumbAmount(findValue(Skin::kKnobHandleLength));
   }

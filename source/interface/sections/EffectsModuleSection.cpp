@@ -29,6 +29,16 @@ ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRect
     setSidewaysHeading(false);
     setName("FX");
 
+    header_body_ = std::make_shared<OpenGlQuad>(Shaders::kColorFragment, "effect_module_header");
+    header_body_->setInterceptsMouseClicks(false, false);
+    addOpenGlComponent(header_body_, true);
+
+    header_title_ = std::make_shared<PlainTextComponent>("effect_module_title", getName());
+    header_title_->setFontType(PlainTextComponent::kLight);
+    header_title_->setJustification(juce::Justification::centred);
+    header_title_->setInterceptsMouseClicks(false, false);
+    addOpenGlComponent(header_title_);
+
     toggle_button_->setVisible(false);
     setInterceptsMouseClicks(true,true);
 }
@@ -272,7 +282,7 @@ void EffectModuleSection::resized() {
     if (isExpanded()) {
         viewport_.setBounds(0,getTitleWidth(),getWidth(),getHeight()-getTitleWidth()-2);
         setEffectPositions();
-        scroll_bar_->setBounds(getWidth() - large_padding + 1, getTitleWidth() + large_padding, large_padding - 2, getHeight() -getTitleWidth()-(large_padding + 2 * shadow_width));
+        scroll_bar_->setBounds(getWidth() - large_padding, getTitleWidth() + large_padding, large_padding - 2, getHeight() - getTitleWidth()-(large_padding + 2 * shadow_width));
         scroll_bar_->setColor(findColour(Skin::kLightenScreen, true));
 
 
@@ -288,6 +298,14 @@ void EffectModuleSection::resized() {
     //ooter_body->setBounds(0,getHeight()-1, getWidth(), getTitleWidth());
     footer_body->setRounding(findValue(Skin::kBodyRounding));
     footer_body->setColor(findColour(Skin::kBody, true));
+
+    const int title_width = static_cast<int>(getTitleWidth());
+    header_body_->setBounds(0, 0, getWidth(), title_width);
+    header_body_->setColor(findColour(Skin::kBodyHeading, true));
+    header_title_->setBounds(0, 0, getWidth(), title_width);
+    header_title_->setText(getName());
+    header_title_->setTextSize(size_ratio_ * 14.0f);
+    header_title_->setColor(findColour(Skin::kHeadingText, true));
 }
 void EffectModuleSection::removeModule(ProcessorBase *newModule) {
     DBG(newModule->state.getProperty(IDs::uuid).toString());
@@ -455,7 +473,6 @@ void EffectModuleSection::paintBackground(Graphics &g) {
     g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(0.5f), findValue(Skin::kBodyRounding), 1.0f);
 
     paintBody(g);
-    paintHeadingText(g);
     paintBorder(g);
 
     redoBackgroundImage();
