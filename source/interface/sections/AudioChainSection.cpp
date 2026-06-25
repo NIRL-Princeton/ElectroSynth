@@ -40,8 +40,14 @@ AudioChainSection::AudioChainSection(ChainList<ProcessorBase> &chains, Modulatio
     setSidewaysHeading(false);
     addListener(m);
 
-    if (chains_.isEmpty())
-        chains_.appendChild(juce::ValueTree{IDs::CHAIN}, nullptr);
+    if (chains_.isEmpty()) {
+        juce::ValueTree oscillator(IDs::SOUNDMODULE);
+        oscillator.setProperty(IDs::type, "osc", nullptr);
+
+        juce::ValueTree default_chain(IDs::CHAIN);
+        default_chain.appendChild(oscillator, nullptr);
+        chains_.appendChild(default_chain, nullptr);
+    }
 }
 
 AudioChainSection::~AudioChainSection() {

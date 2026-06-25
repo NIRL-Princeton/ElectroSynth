@@ -43,7 +43,7 @@ public:
      std::vector<std::unique_ptr<ModulationSection>> module_sections;
      std::array<std::unique_ptr<OpenGlToggleButton>, kMaxTabs> tab_buttons_;
      std::array<std::shared_ptr<OpenGlQuad>, kMaxTabs> tab_borders_;
-     std::array<std::shared_ptr<OpenGlQuad>, kMaxTabs> selected_tab_tops_;
+     std::array<std::shared_ptr<OpenGlQuad>, kMaxTabs> selected_tab_bottoms_;
      std::array<std::shared_ptr<OpenGlQuad>, kMaxTabs> selected_tab_lefts_;
      std::array<std::shared_ptr<OpenGlQuad>, kMaxTabs> selected_tab_rights_;
      std::array<std::shared_ptr<OpenGlQuad>, kMaxTabs> selected_tab_line_masks_;

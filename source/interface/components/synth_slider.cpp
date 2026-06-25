@@ -200,7 +200,7 @@ SynthSlider::SynthSlider(juce::String name) : OpenGlSlider(name), show_popup_on_
                                                                               text_entry_width_percent_(kDefaultTextEntryWidthPercent),
                                                                               text_entry_height_percent_(kDefaultTextEntryHeightPercent),
                                                                               display_multiply_(0.0f), display_exponential_base_(2.0f),
-                                                                              string_lookup_(nullptr), extra_modulation_target_(nullptr),
+                                                                              string_lookup_(nullptr),
                                                                               synth_interface_(nullptr) /*attachment(param,pluginState, *this)*/{
     //setAttachment(param, pluginState);
     setComponentID (name);

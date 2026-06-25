@@ -3,9 +3,29 @@
 #include <chowdsp_plugin_state/chowdsp_plugin_state.h>
 #include "open_gl_image_component.h"
 #include "synth_section.h"
+#include "synth_slider.h"
 struct OpenGlWrapper;
 
 namespace electrosynth {
+    class ModulationSlotComponent : public juce::Component {
+    public:
+        ModulationSlotComponent(SynthSlider& destination_slider, int slot_index);
+
+        SynthSlider& getDestinationSlider() const { return destination_slider_; }
+        int getSlotIndex() const { return slot_index_; }
+        void setSourceName(juce::String source_name);
+        void clearSource() { setSourceName({}); }
+        bool isOccupied() const { return source_name_.isNotEmpty(); }
+        juce::Colour getSourceColor() const;
+
+    private:
+        SynthSlider& destination_slider_;
+        int slot_index_;
+        juce::String source_name_;
+
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ModulationSlotComponent)
+    };
+
 /** Clone of juce::GenericAudioProcessorEditor, but usable as a generic component */
     class ParametersView : public SynthSection {
     public:
@@ -50,7 +70,9 @@ namespace electrosynth {
         std::vector<std::unique_ptr<juce::Component>> comps;
         std::map<juce::Component*, std::shared_ptr<PlainTextComponent>> slider_labels_;
         std::map<juce::Component*, juce::Rectangle<int>> modulation_boxes_;
-        std::map<juce::Component*, std::unique_ptr<juce::Component>> modulation_box_targets_;
+        using ModulationSlots =
+            std::array<std::unique_ptr<ModulationSlotComponent>, SynthSlider::kNumModulationSlots>;
+        std::map<juce::Component*, ModulationSlots> modulation_box_targets_;
         bool vertically_center_knobs_ = false;
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ParametersView)
     };

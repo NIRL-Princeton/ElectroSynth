@@ -403,8 +403,24 @@ class SynthSlider : public OpenGlSlider, public juce::TextEditor::Listener {
     void setKnobSizeScale(float scale) { knob_size_scale_ = scale; }
     float getKnobSizeScale() const override { return knob_size_scale_; }
     void useSuffix(bool use) { use_suffix_ = use; }
-    void setExtraModulationTarget(juce::Component* component) { extra_modulation_target_ = component; }
-    juce::Component* getExtraModulationTarget() { return extra_modulation_target_; }
+    static constexpr int kNumModulationSlots = 3;
+
+    void setExtraModulationTarget(juce::Component* component) {
+      setExtraModulationTarget(0, component);
+    }
+    void setExtraModulationTarget(int slot, juce::Component* component) {
+      if (juce::isPositiveAndBelow(slot, kNumModulationSlots))
+        extra_modulation_targets_[slot] = component;
+    }
+    juce::Component* getExtraModulationTarget() { return getExtraModulationTarget(0); }
+    juce::Component* getExtraModulationTarget(int slot) {
+      if (juce::isPositiveAndBelow(slot, kNumModulationSlots))
+        return extra_modulation_targets_[slot];
+      return nullptr;
+    }
+    const std::array<juce::Component*, kNumModulationSlots>& getExtraModulationTargets() const {
+      return extra_modulation_targets_;
+    }
     void setModulationBarRight(bool right) { modulation_bar_right_ = right; }
     bool isModulationBarRight() { return modulation_bar_right_; }
 
@@ -476,7 +492,7 @@ class SynthSlider : public OpenGlSlider, public juce::TextEditor::Listener {
 
     const std::string* string_lookup_;
 
-    juce::Component* extra_modulation_target_;
+    std::array<juce::Component*, kNumModulationSlots> extra_modulation_targets_ {};
     SynthGuiInterface* synth_interface_;
     std::unique_ptr<OpenGlTextEditor> text_entry_;
 

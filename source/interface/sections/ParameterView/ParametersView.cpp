@@ -14,6 +14,39 @@
 
 namespace electrosynth {
 
+ModulationSlotComponent::ModulationSlotComponent(SynthSlider& destination_slider, int slot_index)
+    : destination_slider_(destination_slider),
+      slot_index_(slot_index)
+{
+    jassert(juce::isPositiveAndBelow(slot_index_, SynthSlider::kNumModulationSlots));
+    setComponentID(destination_slider_.getComponentID()
+                   + "_modulation_slot_"
+                   + juce::String(slot_index_));
+    setInterceptsMouseClicks(false, false);
+}
+
+void ModulationSlotComponent::setSourceName(juce::String source_name)
+{
+    if (source_name_ == source_name)
+        return;
+
+    source_name_ = std::move(source_name);
+    if (auto* parameters_view = findParentComponentOfClass<ParametersView>())
+        parameters_view->repaintBackground();
+}
+
+juce::Colour ModulationSlotComponent::getSourceColor() const
+{
+    if (source_name_.startsWithIgnoreCase("env"))
+        return ShaderColors::kEnvelopeTextColor;
+    if (source_name_.startsWithIgnoreCase("lfo"))
+        return ShaderColors::kLfoTextColor;
+    if (source_name_.startsWithIgnoreCase("vca")
+        || source_name_.containsIgnoreCase("master"))
+        return ShaderColors::kMasterEnvelopeTextColor;
+    return ShaderColors::kSoundModuleTextColor;
+}
+
 // Rotary slider that suppresses the value bubble popup on drag/hover.
 class NoPopupSynthSlider : public SynthSlider {
 public:
@@ -289,19 +322,33 @@ public:
         paintKnobShadows(g);
         paintChildrenBackgrounds(g);
 
-        const auto box_color = juce::Colour::fromRGB(54, 78, 79);
-        g.setColour(box_color);
+        const auto empty_border_color = juce::Colour::fromRGB(54, 78, 79);
 
         for (const auto& [slider, bounds] : modulation_boxes_) {
             if (slider == nullptr || !slider->isVisible())
                 continue;
 
-            auto box = bounds.toFloat();
-            g.drawRect(box, 1.0f);
-            const float first_divider = box.getX() + box.getWidth() / 3.0f;
-            const float second_divider = box.getX() + box.getWidth() * 2.0f / 3.0f;
-            g.drawLine(first_divider, box.getY(), first_divider, box.getBottom(), 1.0f);
-            g.drawLine(second_divider, box.getY(), second_divider, box.getBottom(), 1.0f);
+            auto slots = modulation_box_targets_.find(slider);
+            if (slots == modulation_box_targets_.end())
+                continue;
+
+            for (const auto& slot : slots->second) {
+                if (slot == nullptr)
+                    continue;
+
+                auto slot_bounds = slot->getBounds().toFloat();
+                if (slot->isOccupied()) {
+                    const auto source_color = slot->getSourceColor();
+                    g.setColour(source_color.withAlpha(0.28f));
+                    g.fillRect(slot_bounds.reduced(1.0f));
+                    g.setColour(source_color);
+                }
+                else {
+                    g.setColour(empty_border_color);
+                }
+
+                g.drawRect(slot_bounds, 1.0f);
+            }
         }
     }
 
@@ -318,12 +365,14 @@ public:
             slider_labels_[slider] = label;
 
             if (auto* synth_slider = dynamic_cast<SynthSlider*>(slider)) {
-                auto target = std::make_unique<juce::Component>();
-                target->setComponentID(synth_slider->getComponentID() + "_modulation_target");
-                target->setInterceptsMouseClicks(false, false);
-                addAndMakeVisible(target.get());
-                synth_slider->setExtraModulationTarget(target.get());
-                modulation_box_targets_[slider] = std::move(target);
+                ModulationSlots slots;
+                for (int slot_index = 0; slot_index < SynthSlider::kNumModulationSlots; ++slot_index) {
+                    auto target = std::make_unique<ModulationSlotComponent>(*synth_slider, slot_index);
+                    addAndMakeVisible(target.get());
+                    synth_slider->setExtraModulationTarget(slot_index, target.get());
+                    slots[slot_index] = std::move(target);
+                }
+                modulation_box_targets_[slider] = std::move(slots);
             }
         }
     }
@@ -410,8 +459,21 @@ public:
                     modulation_boxes_[slider] = box_bounds;
 
                     auto target = modulation_box_targets_.find(slider);
-                    if (target != modulation_box_targets_.end())
-                        target->second->setBounds(box_bounds);
+                    if (target != modulation_box_targets_.end()) {
+                        for (int slot_index = 0; slot_index < SynthSlider::kNumModulationSlots; ++slot_index) {
+                            const int slot_left =
+                                box_bounds.getX() + (slot_index * box_bounds.getWidth())
+                                                        / SynthSlider::kNumModulationSlots;
+                            const int slot_right =
+                                box_bounds.getX() + ((slot_index + 1) * box_bounds.getWidth())
+                                                        / SynthSlider::kNumModulationSlots;
+                            target->second[slot_index]->setBounds(
+                                slot_left,
+                                box_bounds.getY(),
+                                slot_right - slot_left,
+                                box_bounds.getHeight());
+                        }
+                    }
                 }
                 x += component_width + widget_margin;
             }

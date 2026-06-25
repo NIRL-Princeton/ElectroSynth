@@ -194,7 +194,7 @@ class ModulationManager : public SynthSection,
                                SynthSlider* slider, OpenGlMultiQuad* quads, int index);
     void createModulationSlider(std::string name, SynthSlider* slider, bool poly);
 
-    void connectModulation(std::string source, std::string destination);
+    bool connectModulation(std::string source, std::string destination, int destination_slot = -1);
     void removeModulation(std::string source, std::string destination);
     void setModulationSliderValue(int index, float value);
     void setModulationSliderBipolar(int index, bool bipolar);
@@ -294,6 +294,9 @@ class ModulationManager : public SynthSection,
   private:
 
     void setDestinationQuadBounds(ModulationDestination* destination);
+    int getModulationSlotAt(SynthSlider* slider, juce::Point<int> manager_position) const;
+    bool isModulationSlotOccupied(const std::string& destination, int destination_slot) const;
+    void updateModulationSlotVisuals();
     void makeCurrentModulatorAmountsVisible();
     void makeModulationsVisible(SynthSlider* destination, bool visible);
     void positionModulationAmountSlidersInside(const std::string& source,
@@ -319,6 +322,7 @@ class ModulationManager : public SynthSection,
     ModulationDestination* temporarily_set_destination_;
     SynthSlider* temporarily_set_synth_slider_;
     ModulationAmountKnob* temporarily_set_hover_slider_;
+    int temporarily_set_slot_;
     bool temporarily_set_bipolar_;
     OpenGlQuad drag_quad_;
     std::shared_ptr<ModulationExpansionBox> modulation_expansion_box_;
@@ -334,6 +338,7 @@ class ModulationManager : public SynthSection,
     bool modifying_;
     bool dragging_;
     bool changing_hover_modulation_;
+    bool component_update_pending_;
 
     ModulationButton* current_modulator_;
     std::map<std::string, ModulationButton*> modulation_buttons_;
@@ -357,4 +362,3 @@ class ModulationManager : public SynthSection,
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ModulationManager)
 };
-

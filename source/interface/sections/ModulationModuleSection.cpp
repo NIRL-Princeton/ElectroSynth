@@ -42,8 +42,8 @@ ModulationModuleSection::ModulationModuleSection(ModulationManager *modulation_m
         tab_borders_[i]->setThickness(1.3f, true);
         addOpenGlComponent(tab_borders_[i]);
 
-        selected_tab_tops_[i] = std::make_shared<OpenGlQuad>(
-            Shaders::kColorFragment, "selected_modulation_tab_top_" + juce::String(i));
+        selected_tab_bottoms_[i] = std::make_shared<OpenGlQuad>(
+            Shaders::kColorFragment, "selected_modulation_tab_bottom_" + juce::String(i));
         selected_tab_lefts_[i] = std::make_shared<OpenGlQuad>(
             Shaders::kColorFragment, "selected_modulation_tab_left_" + juce::String(i));
         selected_tab_rights_[i] = std::make_shared<OpenGlQuad>(
@@ -54,7 +54,7 @@ ModulationModuleSection::ModulationModuleSection(ModulationManager *modulation_m
         selected_tab_line_masks_[i]->setInterceptsMouseClicks(false, false);
         addOpenGlComponent(selected_tab_line_masks_[i]);
 
-        for (auto edge : { selected_tab_tops_[i], selected_tab_lefts_[i], selected_tab_rights_[i] }) {
+        for (auto edge : { selected_tab_bottoms_[i], selected_tab_lefts_[i], selected_tab_rights_[i] }) {
             edge->setInterceptsMouseClicks(false, false);
             edge->setColor(juce::Colours::white);
             addOpenGlComponent(edge);
@@ -73,6 +73,13 @@ ModulationModuleSection::ModulationModuleSection(ModulationManager *modulation_m
     viewport_.setScrollBarsShown(false, false, false, true);
 
     addListener(modulation_manager);
+
+    if (list.state.getNumChildren() == 0) {
+        juce::ValueTree default_envelope(IDs::MODULATOR);
+        default_envelope.setProperty(IDs::type, "env", nullptr);
+        list.appendChild(default_envelope, nullptr);
+    }
+
     //setInterceptsMouseClicks(false, true);
 }
 
@@ -94,6 +101,7 @@ void ModulationModuleSection::resized() {
     int viewport_x = 0 + large_padding - shadow_width;
     int viewport_width = getWidth() - viewport_x - large_padding + 2 * shadow_width;
     const int title_width = static_cast<int>(getTitleWidth());
+    const int tab_strip_y = getHeight() - kTabStripHeight;
 
     // set horizontal bounds of modulation tabs
     const int tab_width = (getWidth()- kMaxTabs) / kMaxTabs;
@@ -101,7 +109,7 @@ void ModulationModuleSection::resized() {
         const int left = i * tab_width;
         const int right = (i + 1) * tab_width;
         const juce::Rectangle<int> outline_bounds(
-            left + 4, title_width + 4, std::max(0, right - left - 8), kTabStripHeight - 8);
+            left + 4, tab_strip_y + 4, std::max(0, right - left - 8), kTabStripHeight - 8);
         tab_borders_[i]->setBounds(outline_bounds);
 
         // Shift the text two pixels right without moving the outline.
@@ -111,29 +119,31 @@ void ModulationModuleSection::resized() {
 
         static constexpr int kSelectedTabLineThickness = 2;
         static constexpr int kSelectedTabSideExtension = 4;
-        selected_tab_tops_[i]->setBounds(
-            outline_bounds.getX(), outline_bounds.getY(),
+        selected_tab_bottoms_[i]->setBounds(
+            outline_bounds.getX(), outline_bounds.getBottom() - kSelectedTabLineThickness,
             outline_bounds.getWidth(), kSelectedTabLineThickness);
         selected_tab_lefts_[i]->setBounds(
-            outline_bounds.getX(), outline_bounds.getY(),
+            outline_bounds.getX(), outline_bounds.getY() - kSelectedTabSideExtension,
             kSelectedTabLineThickness,
             outline_bounds.getHeight() + kSelectedTabSideExtension);
         selected_tab_rights_[i]->setBounds(
-            outline_bounds.getRight() - kSelectedTabLineThickness, outline_bounds.getY(),
+            outline_bounds.getRight() - kSelectedTabLineThickness,
+            outline_bounds.getY() - kSelectedTabSideExtension,
             kSelectedTabLineThickness,
             outline_bounds.getHeight() + kSelectedTabSideExtension);
         selected_tab_line_masks_[i]->setBounds(
             outline_bounds.getX() + kSelectedTabLineThickness,
-            outline_bounds.getBottom() - 1,
+            outline_bounds.getY() - kSelectedTabSideExtension - 1,
             std::max(0, outline_bounds.getWidth() - 2 * kSelectedTabLineThickness),
             kSelectedTabSideExtension + 2);
     }
 
-    viewport_.setBounds(0, title_width + kTabStripHeight, getWidth(), std::max(0, getHeight() - title_width - kTabStripHeight));
+    viewport_.setBounds(0, title_width, getWidth(),
+                        std::max(0, getHeight() - title_width - kTabStripHeight));
     setEffectPositions();
 
-    scroll_bar_->setBounds(0, title_width + kTabStripHeight, getWidth(), large_padding - 2);
-    scroll_bar_->setColor(findColour(Skin::kLightenScreen, true));
+    scroll_bar_->setBounds(0, 0, 0, 0);
+    scroll_bar_->setVisible(false);
 
     SynthSection::resized();
 
@@ -224,7 +234,7 @@ void ModulationModuleSection::updateTabs() {
         tab_buttons_[i]->setVisible(occupied);
         if (!occupied) {
             tab_borders_[i]->setVisible(false);
-            selected_tab_tops_[i]->setVisible(false);
+            selected_tab_bottoms_[i]->setVisible(false);
             selected_tab_lefts_[i]->setVisible(false);
             selected_tab_rights_[i]->setVisible(false);
             selected_tab_line_masks_[i]->setVisible(false);
@@ -246,7 +256,7 @@ void ModulationModuleSection::updateTabs() {
 
         tab_borders_[i]->setVisible(!selected);
         tab_borders_[i]->setColor(accent);
-        selected_tab_tops_[i]->setVisible(selected);
+        selected_tab_bottoms_[i]->setVisible(selected);
         selected_tab_lefts_[i]->setVisible(selected);
         selected_tab_rights_[i]->setVisible(selected);
         selected_tab_line_masks_[i]->setColor(findColour(Skin::kBody, true));
