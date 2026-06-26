@@ -240,6 +240,7 @@ void OpenGlComponent::destroy(juce::OpenGLContext& open_gl) {
 bool OpenGlComponent::isInit() {
     if (corners_)
         return corners_->shader() != nullptr;
+    return true;
 }
 
 float OpenGlComponent::findValue(Skin::ValueId value_id) {
