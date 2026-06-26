@@ -169,7 +169,7 @@ void ChainList<T>::deleteObject(ModuleList<T>* processor_base) {
     for (auto listener: listeners_) {
         listener->removeChain(processor_base);
     }
-
+    delete processor_base;
 }
 
 template <typename T>
