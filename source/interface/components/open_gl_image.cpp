@@ -105,8 +105,9 @@ void OpenGlImage::drawImage(OpenGlWrapper& open_gl) {
    GLsizeiptr vert_size = static_cast<GLsizeiptr>(static_cast<size_t>(kNumPositions * sizeof(float)));
 
    mutex_.lock();
-   if (dirty_)
+   if (dirty_) {
        open_gl.context.extensions.glBufferData(juce::gl::GL_ARRAY_BUFFER, vert_size, position_vertices_.get(), juce::gl::GL_STATIC_DRAW);
+   }
    dirty_ = false;
 
    open_gl.context.extensions.glBindBuffer(juce::gl::GL_ELEMENT_ARRAY_BUFFER, triangle_buffer_);
