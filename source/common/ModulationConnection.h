@@ -93,8 +93,8 @@ struct MappingWrapper;
             //DBG(juce::String(val));
         }
 
-        void setBypass(bool bypass) {}
-        void setStereo(bool stereo) {}
+        void setBypass(bool bypass) { bypass_ = bypass; }
+        void setStereo(bool stereo) { stereo_ = stereo; }
         bool isBipolar() const { return bipolar_; }
         bool isBypass() const {return bypass_; }
         bool isStereo() const {return stereo_; }

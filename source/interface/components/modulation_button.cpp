@@ -27,19 +27,22 @@
 ModulationButton:: ModulationButton(String name) : PlainShapeComponent(std::move(name)), parent_(nullptr),
                                                   mouse_state_(kNone), selected_(false), connect_right_(false),
                                                   draw_border_(false), active_modulation_(false), font_size_(12.0f),
-                                                  show_drag_drop_(false), drag_drop_alpha_(0.0f),initialized(false) {
+                                                  drag_drop_color_(juce::Colours::white),
+                                                  source_color_(juce::Colours::white),
+                                                  background_color_(juce::Colours::black),
+                                                  show_drag_drop_(true), drag_drop_alpha_(1.0f), initialized(false) {
   setWantsKeyboardFocus(true);
   setComponentID("mod");
   Path shape = Paths::dragDropArrows();
-  shape.addLineSegment(Line<float>(-50.0f, -50.0f, -50.0f, -50.0f), 0.2f);
+  //shape.addLineSegment(Line<float>(-50.0f, -50.0f, -50.0f, -50.0f), 0.2f);
   setShape(Paths::dragDropArrows());
   setComponent(&drag_drop_area_);
-  setActive(false);
+  setActive(true);
   setUseAlpha(true);
   setInterceptsMouseClicks(true, false);
   addAndMakeVisible(drag_drop_area_);
   drag_drop_area_.setInterceptsMouseClicks(false, false);
-  setColor(Colours::transparentWhite);
+  setColor(source_color_);
 }
 
 ModulationButton::~ModulationButton() {
@@ -102,55 +105,19 @@ Rectangle<int> ModulationButton::getModulationAreaBounds() {
 }
 
 void ModulationButton::paintBackground(Graphics& g) {
-  static constexpr float kShadowArea = 0.04f;
-
   if (getWidth() == 0 || getHeight() == 0)
     return;
 
-  if (selected_)
-    g.setColour(findColour(Skin::kModulationButtonSelected, true));
-  else
-    g.setColour(findColour(Skin::kModulationButtonUnselected, true));
-
   SynthSection* parent = findParentComponentOfClass<SynthSection>();
-  int rounding_amount = 0;
+  int rounding_amount = 4;
   if (parent)
     rounding_amount = parent->findValue(Skin::kBodyRounding);
 
-  Rectangle<float> meter_bounds = getMeterBounds().toFloat();
-  int width = getWidth();
-  int adjusted_width = connect_right_ ? width * 2 : width;
-  Rectangle<float> bounds(0, 0, adjusted_width, getHeight());
+  const auto bounds = getLocalBounds().toFloat();
+  g.setColour(background_color_);
   g.fillRoundedRectangle(bounds, rounding_amount);
-
-  g.setColour(findColour(Skin::kWidgetBackground, true));
-  g.fillRoundedRectangle(meter_bounds, meter_bounds.getWidth() / 2.0f);
-  float meter_width = meter_bounds.getWidth();
-  g.fillRect(meter_bounds.getX() + meter_width / 2.0f, meter_bounds.getY(), meter_width / 2, meter_bounds.getHeight());
-
-  if (draw_border_) {
-    g.setColour(findColour(Skin::kBorder, true));
-    g.drawRoundedRectangle(bounds.reduced(0.5f), rounding_amount, 1.0f);
-  }
-
-  int height = getHeight();
-  g.setColour(findColour(Skin::kBodyText, true));
-  g.setFont(Fonts::instance()->proportional_regular().withPointHeight(font_size_));
-  String text = text_override_;
-//  if (text.isEmpty())
-//    text = ModulationMatrix::getUiSourceDisplayName(getName());
-
-  int font_area_height = kFontAreaHeightRatio * width;
-  g.drawText(text, meter_bounds.getRight(), 0, width - meter_bounds.getRight(),
-             font_area_height, Justification::centred);
-
-  if (connect_right_ && !selected_) {
-    int shadow_width = width * kShadowArea;
-    Colour shadow_color = findColour(Skin::kShadow, true);
-    ColourGradient gradient(shadow_color, width, 0, shadow_color.withAlpha(0.0f), width - shadow_width, 0, false);
-    g.setGradientFill(gradient);
-    g.fillRect(width - shadow_width, 0, shadow_width, height);
-  }
+  g.setColour(source_color_);
+  g.drawRoundedRectangle(bounds.reduced(0.5f), rounding_amount, selected_ ? 2.0f : 1.0f);
 }
 
 void ModulationButton::parentHierarchyChanged() {
@@ -161,30 +128,16 @@ void ModulationButton::parentHierarchyChanged() {
 }
 
 void ModulationButton::resized() {
-  static constexpr float kBorder = 0.2f;
-
   PlainShapeComponent::resized();
-  Rectangle<float> meter_bounds = getMeterBounds().toFloat();
-  int left = meter_bounds.getRight();
-  int width = getWidth() - left;
-  int font_area_height = kFontAreaHeightRatio * width;
-  int top = font_area_height - (font_area_height - font_size_) * 0.5f;
-  int height = getHeight() - top;
-
-  float size_mult = 1.0f - 2.0f * kBorder;
-  drag_drop_area_.setBounds(left + width * kBorder, top + height * kBorder,
-                            width * size_mult, height * size_mult);
+  drag_drop_area_.setBounds(getLocalBounds().reduced(4));
 }
 
 void ModulationButton::render(OpenGlWrapper& open_gl, bool animate) {
   static constexpr float kDeltaAlpha = 0.15f;
 
-  float target = 0.0f;
-  if (show_drag_drop_) {
-    target = 1.0f;
-    if (mouse_state_ == kMouseDown || mouse_state_ == kMouseDragging)
-      target = 2.0f;
-  }
+  float target = 1.0f;
+  if (mouse_state_ == kMouseDown || mouse_state_ == kMouseDragging || mouse_state_ == kDraggingOut)
+    target = 1.35f;
 
   bool increase = drag_drop_alpha_ < target;
   if (increase)
@@ -201,17 +154,14 @@ void ModulationButton::render(OpenGlWrapper& open_gl, bool animate) {
   PlainShapeComponent::render(open_gl, animate);
 }
 
-void ModulationButton::init(OpenGlWrapper &open_gl)
-{
-    //DBG("intialiaidzed modbnutton");
+void ModulationButton::init(OpenGlWrapper &open_gl) {
     PlainShapeComponent::init(open_gl);
     //DBG(juce::String(image_.shader()->getProgramID()));
     if (image_.shader()->getProgramID() !=  0)
         initialized = true;
 }
 
-bool ModulationButton::isInit()
-{
+bool ModulationButton::isInit() {
     return initialized;
 }
 
@@ -286,7 +236,7 @@ void ModulationButton::mouseUp(const MouseEvent& e) {
 
 void ModulationButton::mouseEnter(const MouseEvent& e) {
   mouse_state_ = kHover;
-  drag_drop_color_ = findColour(Skin::kLightenScreen, true);
+  drag_drop_color_ = source_color_;
   show_drag_drop_ = true;//parent_->getSynth()->getSourceConnections(getName().toStdString()).empty();
   setActive(show_drag_drop_);
   redrawImage(true);
@@ -294,7 +244,7 @@ void ModulationButton::mouseEnter(const MouseEvent& e) {
 
 void ModulationButton::mouseExit(const MouseEvent& e) {
   mouse_state_ = kNone;
-  show_drag_drop_ = false;
+  show_drag_drop_ = true;
 }
 
 void ModulationButton::mouseWheelMove(const MouseEvent& e, const MouseWheelDetails& wheel) {
@@ -309,6 +259,14 @@ void ModulationButton::focusLost(FocusChangeType cause) {
 
 void ModulationButton::addListener(Listener* listener) {
   listeners_.push_back(listener);
+}
+
+void ModulationButton::setSourceColor(juce::Colour color) {
+  source_color_ = color;
+  drag_drop_color_ = color;
+  setColor(source_color_.withMultipliedAlpha(drag_drop_alpha_));
+  repaintBackground();
+  redrawImage(true);
 }
 
 void ModulationButton::disconnectIndex(int index) {
@@ -358,4 +316,3 @@ void ModulationButton::disconnectModulation(electrosynth::ModulationConnection* 
 //      listener->modulationCleared();
 //  }
 }
-

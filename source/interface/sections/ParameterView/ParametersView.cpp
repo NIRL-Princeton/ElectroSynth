@@ -25,14 +25,63 @@ ModulationSlotComponent::ModulationSlotComponent(SynthSlider& destination_slider
     setInterceptsMouseClicks(false, false);
 }
 
+void ModulationSlotComponent::paint(juce::Graphics& g)
+{
+    const auto bounds = getLocalBounds().toFloat();
+    const auto empty_border_color = juce::Colour::fromRGB(54, 78, 79);
+
+    if (isOccupied()) {
+        const auto source_color = getSourceColor();
+        const auto amount = juce::jlimit(0.0f, 1.0f, modulation_amount_);
+
+        g.setColour(source_color.withAlpha(0.28f));
+        g.fillRect(bounds.reduced(1.0f));
+
+        const float meter_thickness = std::max(2.0f, bounds.getHeight() * 0.12f);
+        const float meter_width = std::max(0.0f, bounds.getWidth() * amount - 2.0f);
+        g.setColour(source_color.withAlpha(0.45f));
+        g.fillRect(bounds.getX() + 1.0f,
+                   bounds.getBottom() - meter_thickness - 1.0f,
+                   meter_width,
+                   meter_thickness);
+
+        g.setColour(source_color);
+        g.setFont(juce::Font(std::max(9.0f, bounds.getHeight() * 0.45f), juce::Font::bold));
+        g.drawFittedText(getSourceLabel(), getLocalBounds().reduced(2, 1),
+                         juce::Justification::centred, 1);
+    }
+    else {
+        g.setColour(empty_border_color);
+    }
+
+    g.drawRect(bounds.reduced(0.5f), 1.0f);
+}
+
 void ModulationSlotComponent::setSourceName(juce::String source_name)
 {
     if (source_name_ == source_name)
         return;
 
     source_name_ = std::move(source_name);
-    if (auto* parameters_view = findParentComponentOfClass<ParametersView>())
+    repaint();
+    if (auto* parameters_view = findParentComponentOfClass<ParametersView>()) {
+        parameters_view->syncModulationSlotOpenGl();
         parameters_view->repaintBackground();
+    }
+}
+
+void ModulationSlotComponent::setModulationAmount(float amount)
+{
+    amount = juce::jlimit(0.0f, 1.0f, amount);
+    if (juce::approximatelyEqual(modulation_amount_, amount))
+        return;
+
+    modulation_amount_ = amount;
+    repaint();
+    if (auto* parameters_view = findParentComponentOfClass<ParametersView>()) {
+        parameters_view->syncModulationSlotOpenGl();
+        parameters_view->repaintBackground();
+    }
 }
 
 juce::Colour ModulationSlotComponent::getSourceColor() const
@@ -45,6 +94,27 @@ juce::Colour ModulationSlotComponent::getSourceColor() const
         || source_name_.containsIgnoreCase("master"))
         return ShaderColors::kMasterEnvelopeTextColor;
     return ShaderColors::kSoundModuleTextColor;
+}
+
+juce::String ModulationSlotComponent::getSourceLabel() const
+{
+    juce::String prefix;
+    if (source_name_.startsWithIgnoreCase("env"))
+        prefix = "Env ";
+    else if (source_name_.startsWithIgnoreCase("lfo"))
+        prefix = "Lfo ";
+    else if (source_name_.startsWithIgnoreCase("vca") || source_name_.containsIgnoreCase("master"))
+        prefix = "Env ";
+    else
+        return source_name_;
+
+    juce::String digits;
+    for (auto character : source_name_) {
+        if (juce::CharacterFunctions::isDigit(character))
+            digits += character;
+    }
+
+    return prefix + (digits.isNotEmpty() ? digits : "#");
 }
 
 // Rotary slider that suppresses the value bubble popup on drag/hover.
@@ -235,8 +305,7 @@ public:
 //==============================================================================
     ParametersView::ParametersView(chowdsp::PluginState &pluginState, chowdsp::ParamHolder &params, String name)
             // : ParametersView (pluginState.getParameterListeners(), params, name) {:
-    :
-    SynthSection(name)
+        : SynthSection(name)
     {
         setComponentID(name);
         setInterceptsMouseClicks(false,true);
@@ -257,7 +326,7 @@ public:
     }
 
     ParametersView::ParametersView(chowdsp::ParameterListeners& paramListeners, chowdsp::ParamHolder& params, String name)
-            :  SynthSection(name)
+        :  SynthSection(name)
     {
         setComponentID(name);
         setInterceptsMouseClicks(false,true);
@@ -324,6 +393,7 @@ public:
 
         const auto empty_border_color = juce::Colour::fromRGB(54, 78, 79);
 
+        // paint three box targets below the knob
         for (const auto& [slider, bounds] : modulation_boxes_) {
             if (slider == nullptr || !slider->isVisible())
                 continue;
@@ -339,9 +409,23 @@ public:
                 auto slot_bounds = slot->getBounds().toFloat();
                 if (slot->isOccupied()) {
                     const auto source_color = slot->getSourceColor();
+                    const auto amount = juce::jlimit(0.0f, 1.0f, slot->getModulationAmount());
+
                     g.setColour(source_color.withAlpha(0.28f));
                     g.fillRect(slot_bounds.reduced(1.0f));
+
+                    const float meter_thickness = std::max(2.0f, slot_bounds.getHeight() * 0.12f);
+                    const float meter_width = std::max(0.0f, slot_bounds.getWidth() * amount - 2.0f);
+                    g.setColour(source_color.withAlpha(0.45f));
+                    g.fillRect(slot_bounds.getX() + 1.0f,
+                               slot_bounds.getBottom() - meter_thickness - 1.0f,
+                               meter_width,
+                               meter_thickness);
+
                     g.setColour(source_color);
+                    g.setFont(juce::Font(std::max(9.0f, slot_bounds.getHeight() * 0.45f), juce::Font::bold));
+                    g.drawFittedText(slot->getSourceLabel(), slot->getBounds().reduced(2, 1),
+                                     juce::Justification::centred, 1);
                 }
                 else {
                     g.setColour(empty_border_color);
@@ -366,13 +450,49 @@ public:
 
             if (auto* synth_slider = dynamic_cast<SynthSlider*>(slider)) {
                 ModulationSlots slots;
+                ModulationSlotOpenGlSet open_gl_slots;
                 for (int slot_index = 0; slot_index < SynthSlider::kNumModulationSlots; ++slot_index) {
                     auto target = std::make_unique<ModulationSlotComponent>(*synth_slider, slot_index);
                     addAndMakeVisible(target.get());
                     synth_slider->setExtraModulationTarget(slot_index, target.get());
                     slots[slot_index] = std::move(target);
+
+                    auto body = std::make_shared<OpenGlQuad>(
+                        Shaders::kColorFragment,
+                        synth_slider->getComponentID() + "_modulation_slot_body_" + juce::String(slot_index));
+                    auto amount = std::make_shared<OpenGlQuad>(
+                        Shaders::kColorFragment,
+                        synth_slider->getComponentID() + "_modulation_slot_amount_" + juce::String(slot_index));
+                    auto border = std::make_shared<OpenGlQuad>(
+                        Shaders::kRoundedRectangleBorderFragment,
+                        synth_slider->getComponentID() + "_modulation_slot_border_" + juce::String(slot_index));
+                    auto label = std::make_shared<PlainTextComponent>(
+                        synth_slider->getComponentID() + "_modulation_slot_label_" + juce::String(slot_index), "");
+
+                    body->setInterceptsMouseClicks(false, false);
+                    amount->setInterceptsMouseClicks(false, false);
+                    border->setInterceptsMouseClicks(false, false);
+                    label->setInterceptsMouseClicks(false, false);
+                    body->setAlwaysOnTop(true);
+                    amount->setAlwaysOnTop(true);
+                    border->setAlwaysOnTop(true);
+                    label->setAlwaysOnTop(true);
+                    border->setThickness(1.0f, true);
+                    label->setFontType(PlainTextComponent::kRegular);
+                    label->setJustification(juce::Justification::centred);
+
+                    addOpenGlComponent(body);
+                    addOpenGlComponent(amount);
+                    addOpenGlComponent(border);
+                    addOpenGlComponent(label);
+
+                    open_gl_slots[slot_index].body = std::move(body);
+                    open_gl_slots[slot_index].amount = std::move(amount);
+                    open_gl_slots[slot_index].border = std::move(border);
+                    open_gl_slots[slot_index].label = std::move(label);
                 }
                 modulation_box_targets_[slider] = std::move(slots);
+                modulation_box_open_gl_[slider] = std::move(open_gl_slots);
             }
         }
     }
@@ -399,6 +519,7 @@ public:
         //DBG("--------" + getName() + "View -------------");
         //DBG("bounds x:" + juce::String(getLocalBounds().getX()) + " y:" + juce::String(getLocalBounds().getY()) + " width: " + juce::String(getLocalBounds().getWidth()) + " height: " + juce::String(getLocalBounds().getHeight()));
         //pimpl->groupItem.setBounds(getLocalBounds());
+        ensureSliderLabels();
 
         // creating osc/string component bounds
         const int knobs_per_row = getKnobsPerRow();
@@ -446,32 +567,47 @@ public:
                     slider->setBounds(left, top, right - left, knob_height);
                     slider->redoImage();
 
-                    const int box_width = std::max(
-                        0,
-                        std::min(kModulationBoxWidth, right - left - 2 * widget_margin));
+                    const int box_width = std::max(0, std::min(kModulationBoxWidth, right - left - 2 * widget_margin));
                     const int box_x = left + ((right - left) - box_width) / 2;
-                    const juce::Rectangle<int> box_bounds {
-                        box_x,
-                        slider->getBottom() + kModulationBoxGap,
-                        box_width,
-                        kModulationBoxHeight
-                    };
+                    const juce::Rectangle<int> box_bounds { box_x, slider->getBottom() + kModulationBoxGap,
+                                                            box_width, kModulationBoxHeight};
                     modulation_boxes_[slider] = box_bounds;
 
                     auto target = modulation_box_targets_.find(slider);
                     if (target != modulation_box_targets_.end()) {
                         for (int slot_index = 0; slot_index < SynthSlider::kNumModulationSlots; ++slot_index) {
-                            const int slot_left =
-                                box_bounds.getX() + (slot_index * box_bounds.getWidth())
+                            const int slot_left = box_bounds.getX() + (slot_index * box_bounds.getWidth())
                                                         / SynthSlider::kNumModulationSlots;
-                            const int slot_right =
-                                box_bounds.getX() + ((slot_index + 1) * box_bounds.getWidth())
+                            const int slot_right = box_bounds.getX() + ((slot_index + 1) * box_bounds.getWidth())
                                                         / SynthSlider::kNumModulationSlots;
-                            target->second[slot_index]->setBounds(
-                                slot_left,
-                                box_bounds.getY(),
-                                slot_right - slot_left,
-                                box_bounds.getHeight());
+                            target->second[slot_index]->setBounds(slot_left, box_bounds.getY(),
+                                                            slot_right - slot_left, box_bounds.getHeight());
+                            target->second[slot_index]->setVisible(true);
+                        }
+                    }
+
+                    auto open_gl = modulation_box_open_gl_.find(slider);
+                    if (open_gl != modulation_box_open_gl_.end()) {
+                        for (int slot_index = 0; slot_index < SynthSlider::kNumModulationSlots; ++slot_index) {
+                            const int slot_left = box_bounds.getX() + (slot_index * box_bounds.getWidth())
+                                                        / SynthSlider::kNumModulationSlots;
+                            const int slot_right = box_bounds.getX() + ((slot_index + 1) * box_bounds.getWidth())
+                                                        / SynthSlider::kNumModulationSlots;
+                            const juce::Rectangle<int> slot_bounds(
+                                slot_left, box_bounds.getY(), slot_right - slot_left, box_bounds.getHeight());
+
+                            auto& visuals = open_gl->second[slot_index];
+                            if (visuals.body) visuals.body->setBounds(slot_bounds);
+                            if (visuals.border) visuals.border->setBounds(slot_bounds);
+                            if (visuals.label) visuals.label->setBounds(slot_bounds.reduced(2, 1));
+
+                            const int meter_height = std::max(2, static_cast<int>(slot_bounds.getHeight() * 0.12f));
+                            if (visuals.amount) {
+                                visuals.amount->setBounds(slot_bounds.getX() + 1,
+                                                          slot_bounds.getBottom() - meter_height - 1,
+                                                          std::max(0, slot_bounds.getWidth() - 2),
+                                                          meter_height);
+                            }
                         }
                     }
                 }
@@ -480,7 +616,56 @@ public:
         }
 
         updateSliderLabels();
+        syncModulationSlotOpenGl();
         repaintBackground();
+    }
+
+    void ParametersView::syncModulationSlotOpenGl() {
+        const auto empty_border_color = juce::Colour::fromRGB(54, 78, 79);
+
+        for (auto& [slider, slots] : modulation_box_targets_) {
+            auto visuals_iter = modulation_box_open_gl_.find(slider);
+            if (visuals_iter == modulation_box_open_gl_.end())
+                continue;
+
+            for (int slot_index = 0; slot_index < SynthSlider::kNumModulationSlots; ++slot_index) {
+                auto* slot = slots[slot_index].get();
+                auto& visuals = visuals_iter->second[slot_index];
+                if (slot == nullptr)
+                    continue;
+
+                const bool occupied = slot->isOccupied();
+                const auto source_color = occupied ? slot->getSourceColor() : empty_border_color;
+                const float amount = juce::jlimit(0.0f, 1.0f, slot->getModulationAmount());
+                const auto slot_bounds = slot->getBounds();
+
+                if (visuals.body) {
+                    visuals.body->setColor(source_color.withAlpha(0.28f));
+                    visuals.body->setVisible(occupied);
+                }
+
+                if (visuals.amount) {
+                    visuals.amount->setColor(source_color.withAlpha(0.45f));
+                    visuals.amount->setVisible(occupied && amount > 0.0f);
+                    auto amount_bounds = visuals.amount->getBounds();
+                    amount_bounds.setWidth(std::max(0, static_cast<int>(
+                        std::round((slot_bounds.getWidth() - 2) * amount))));
+                    visuals.amount->setBounds(amount_bounds);
+                }
+
+                if (visuals.border) {
+                    visuals.border->setColor(source_color);
+                    visuals.border->setVisible(true);
+                }
+
+                if (visuals.label) {
+                    visuals.label->setText(occupied ? slot->getSourceLabel() : "");
+                    visuals.label->setTextSize(std::max(9.0f, slot_bounds.getHeight() * 0.45f));
+                    visuals.label->setColor(source_color);
+                    visuals.label->setVisible(occupied);
+                }
+            }
+        }
     }
 
     void ParametersView::init_() {

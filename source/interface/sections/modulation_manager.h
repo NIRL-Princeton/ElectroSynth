@@ -59,18 +59,21 @@ class ModulationAmountKnob : public SynthSlider {
 
     ModulationAmountKnob(juce::String name, int index, const ValueTree &v);
 
-    void mouseDown(const juce::MouseEvent& e) override;
-    void mouseUp(const juce::MouseEvent& e) override;
-    void mouseExit(const juce::MouseEvent& e) override;
-    void handleModulationMenuCallback(int result);
+	    void mouseDown(const juce::MouseEvent& e) override;
+	    void mouseUp(const juce::MouseEvent& e) override;
+	    void mouseExit(const juce::MouseEvent& e) override;
+	    void paint(juce::Graphics& g) override;
+	    void handleModulationMenuCallback(int result);
 
     void makeVisible(bool visible);
     void hideImmediately();
 
-    void setCurrentModulator(bool current);
-    void setDestinationComponent(juce::Component* component, const std::string& name);
-    juce::Colour getInternalColor();
-    void setSource(const std::string& name);
+	    void setCurrentModulator(bool current);
+	    void setDestinationComponent(juce::Component* component, const std::string& name);
+	    juce::Colour getInternalColor();
+	    void setSource(const std::string& name);
+	    juce::String getSourceLabel() const;
+	    juce::Colour getSourceColor() const;
 
     juce::Colour withBypassSaturation(juce::Colour color) const {
       if (bypass_)
@@ -89,10 +92,11 @@ class ModulationAmountKnob : public SynthSlider {
     virtual juce::Colour getThumbColor() const override {
       return withBypassSaturation(SynthSlider::getThumbColor());
     }
-    void valueChanged() override {
-        //DBG("valuechanged");
-        SynthSlider::valueChanged();
-    }
+	    void valueChanged() override {
+	        //DBG("valuechanged");
+	        SynthSlider::valueChanged();
+	        repaint();
+	    }
 
     void setBypass(bool bypass) { bypass_ = bypass; setColors(); }
     void setStereo(bool stereo) { stereo_ = stereo; }
@@ -130,8 +134,9 @@ class ModulationAmountKnob : public SynthSlider {
 
     juce::Point<int> mouse_down_position_;
     juce::Component* color_component_;
-    juce::String aux_name_;
-    juce::String name_;
+	    juce::String aux_name_;
+	    juce::String name_;
+	    juce::String source_name_;
     bool editing_;
     int index_;
     bool showing_;
@@ -192,16 +197,17 @@ class ModulationManager : public SynthSection,
 
     void createModulationMeter(
                                SynthSlider* slider, OpenGlMultiQuad* quads, int index);
-    void createModulationSlider(std::string name, SynthSlider* slider, bool poly);
+    void createModulationSlider(std::string name, SynthSlider* slider);
 
     bool connectModulation(std::string source, std::string destination, int destination_slot = -1);
-    void removeModulation(std::string source, std::string destination);
+    void removeModulation(std::string source, std::string destination, int destination_slot = -1);
     void setModulationSliderValue(int index, float value);
     void setModulationSliderBipolar(int index, bool bipolar);
     void setModulationSliderValues(int index, float value);
     void setModulationSliderScale(int index);
     void setModulationValues(std::string source, std::string destination,
-                             float amount, bool bipolar, bool stereo, bool bypass);
+                             float amount, bool bipolar, bool stereo, bool bypass,
+                             int destination_slot = -1);
     void reset() override;
     void initAuxConnections();
 
@@ -218,6 +224,7 @@ class ModulationManager : public SynthSection,
     bool hasFreeConnection();
     void startModulationMap(ModulationButton* source, const juce::MouseEvent& e) override;
     void modulationDragged(const juce::MouseEvent& e) override;
+    void positionDragIcon();
     void modulationWheelMoved(const juce::MouseEvent& e, const juce::MouseWheelDetails& wheel) override;
     void clearTemporaryModulation();
     void clearTemporaryHoverModulation();
@@ -258,10 +265,11 @@ class ModulationManager : public SynthSection,
     void menuFinished(SynthSlider* slider) override;
     void modulationsChanged(const std::string& name) override;
     int getIndexForModulationSlider(juce::Slider* slider);
-    int getModulationIndex(std::string source, std::string destination);
+    int getModulationIndex(std::string source, std::string destination, int destination_slot = -1);
     electrosynth::ModulationConnection* getConnectionForModulationSlider(juce::Slider* slider);
     electrosynth::ModulationConnection* getConnection(int index);
-    electrosynth::ModulationConnection* getConnection(const std::string& source, const std::string& dest);
+    electrosynth::ModulationConnection* getConnection(const std::string& source, const std::string& dest,
+                                                      int destination_slot = -1);
     void mouseDown(SynthSlider* slider) override;
     void mouseUp(SynthSlider* slider) override;
     void doubleClick(SynthSlider* slider) override;
@@ -299,13 +307,8 @@ class ModulationManager : public SynthSection,
     void updateModulationSlotVisuals();
     void makeCurrentModulatorAmountsVisible();
     void makeModulationsVisible(SynthSlider* destination, bool visible);
-    void positionModulationAmountSlidersInside(const std::string& source,
-                                               std::vector<electrosynth::ModulationConnection*> connections);
-    void positionModulationAmountSlidersCallout(const std::string& source,
-                                                std::vector<electrosynth::ModulationConnection*> connections);
     void showModulationAmountCallout(const std::string& source);
     void hideModulationAmountCallout();
-    void positionModulationAmountSliders(const std::string& source);
     void positionModulationAmountSliders();
     bool enteringHoverValue();
     void showModulationAmountOverlay(ModulationAmountKnob* slider);
@@ -325,6 +328,7 @@ class ModulationManager : public SynthSection,
     int temporarily_set_slot_;
     bool temporarily_set_bipolar_;
     OpenGlQuad drag_quad_;
+    PlainShapeComponent drag_icon_;
     std::shared_ptr<ModulationExpansionBox> modulation_expansion_box_;
     OpenGlQuad current_modulator_quad_;
     OpenGlQuad editing_rotary_amount_quad_;
@@ -356,8 +360,7 @@ class ModulationManager : public SynthSection,
     std::map<std::string, std::unique_ptr<ModulationMeter>> meter_lookup_;
     std::map<int, int> aux_connections_from_to_;
     std::map<int, int> aux_connections_to_from_;
-    std::unique_ptr<ModulationAmountKnob> modulation_amount_sliders_[electrosynth::kMaxModulationConnections];
-    std::unique_ptr<ModulationAmountKnob> modulation_hover_sliders_[electrosynth::kMaxModulationConnections];
+    std::unique_ptr<ModulationAmountKnob> modulation_icon_[electrosynth::kMaxModulationConnections];
     std::unique_ptr<ModulationAmountKnob> selected_modulation_sliders_[electrosynth::kMaxModulationConnections];
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ModulationManager)

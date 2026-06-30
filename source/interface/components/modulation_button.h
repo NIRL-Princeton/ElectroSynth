@@ -89,6 +89,8 @@ class ModulationButton : public PlainShapeComponent {
 
     void setForceEnableModulationSource();
     bool hasAnyModulation();
+    void setSourceColor(juce::Colour color);
+    juce::Colour getSourceColor() const { return source_color_; }
     void setFontSize(float size) { font_size_ = size; }
     Rectangle<int> getModulationAmountBounds(int index, int total);
     Rectangle<int> getModulationAreaBounds();
@@ -113,9 +115,10 @@ class ModulationButton : public PlainShapeComponent {
     float font_size_;
 
     Colour drag_drop_color_;
+    Colour source_color_;
+    Colour background_color_;
     bool show_drag_drop_;
     float drag_drop_alpha_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ModulationButton)
 };
-

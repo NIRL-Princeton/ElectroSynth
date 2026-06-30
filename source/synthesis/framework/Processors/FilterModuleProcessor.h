@@ -8,6 +8,10 @@
 #include "ParameterView/FxModuleTemplateView.h"
 #include "Identifiers.h"
 #include "Processors/ProcessorBase.h"
+
+// FilterModuleProcessor.h creates a struct of type <_tFiltModule>, which is defined in FilterModule.h,
+// to represent a filter module, and defines each knob
+
 namespace electrosynth{
     namespace utils
     {
@@ -16,15 +20,12 @@ namespace electrosynth{
     }
 }
 
-
-
-struct FilterParams : public LEAFParams<_tFiltModule >
-{
-    FilterParams(LEAF* leaf) : LEAFParams<_tFiltModule>(leaf)
-    {
-                                        add(cutoff,Q, amp);
+// creating the parameters associated with a filter module [cutoff, Q, and amp]
+struct FilterParams : public LEAFParams<_tFiltModule > {
+    FilterParams(LEAF* leaf) : LEAFParams<_tFiltModule>(leaf) {
+        add(cutoff,Q, amp);
     }
-    //add env watch param so that it isnt null
+    //add env watch param so that it isn't null
     chowdsp::FloatParameter::Ptr envwatchparam {
         juce::ParameterID { "watch", 100 },
         "watch",
@@ -37,6 +38,8 @@ struct FilterParams : public LEAFParams<_tFiltModule >
         &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal
     };
+
+    // this is where the knob labeled "Cutoff" is created
     chowdsp::MidiHzParameter::Ptr cutoff {
         juce::ParameterID{"cutoff" , 100},
         "Cutoff",
@@ -45,12 +48,12 @@ struct FilterParams : public LEAFParams<_tFiltModule >
         all_params[FiltParams::FiltCutoff],
         [this](float val)
         {
-            for (auto mod: modules)    tFiltModule_setParameter(mod,FiltCutoff,val);
-
-        DBG("Filt [0 - 1]" + juce::String(val) + " .. .  Filt actual Val" + juce::String(modules[0]->cutoffKnob));
+            for (auto mod: modules) tFiltModule_setParameter(mod,FiltCutoff,val);
+            DBG("Filt [0 - 1]" + juce::String(val) + " .. .  Filt actual Val" + juce::String(modules[0]->cutoffKnob));
         }
     };
 
+    // this is where the knob labeled "Q" is created
     chowdsp::FloatParameter::Ptr Q {
         juce::ParameterID{"resonance", 100},
         "Q",
@@ -58,39 +61,35 @@ struct FilterParams : public LEAFParams<_tFiltModule >
         1.f,
         all_params[FiltParams::FiltResonance],
         [this](float val)
-        {for (auto mod: modules)                 tFiltModule_setParameter(mod,FiltResonance,val);
-
-                                           },
+        {
+            for (auto mod: modules)  tFiltModule_setParameter(mod,FiltResonance,val);
+        },
         &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal
     };
+
+    // this is where the knob labeled "Amp" is created
     chowdsp::GainDBParameter::Ptr amp {
         juce::ParameterID{"amp", 100},
-        "amp",
+        "Amp",
         chowdsp::ParamUtils::createNormalisableRange(0.0f, 2.0f, 1.0f),
         1.f,
         all_params[FiltParams::FiltGain],
         [this](float val)
-        {for (auto mod: modules)    tFiltModule_setParameter(mod,FiltGain,val);
-                                            },
+        {
+            for (auto mod: modules) tFiltModule_setParameter(mod,FiltGain,val);
+        },
     };
-
 };
 
-
-
-class FilterModuleProcessor : public ProcessorStateBase<PluginStateImpl_<FilterParams>>
-{
+class FilterModuleProcessor : public ProcessorStateBase<PluginStateImpl_<FilterParams>> {
 public:
     FilterModuleProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree&, LEAF* leaf,juce::UndoManager*);
-
-
     void getNextAudioBlock (const juce::AudioSourceChannelInfo &bufferToFill) override {}
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
     void prepareToPlay (int samplesPerBlock, double sampleRate ) override {};
     void releaseResources() override {}
-    std::unique_ptr<SynthSection> createEditor() override
-    {
+    std::unique_ptr<SynthSection> createEditor() override {
         return std::make_unique<electrosynth::FxModuleTemplateView>(state_, state_.params, state.getProperty(IDs::type).toString() + state.getProperty(IDs::uuid).toString());
     }
 };

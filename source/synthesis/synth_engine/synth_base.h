@@ -66,8 +66,8 @@ public:
 
     std::vector<electrosynth::ModulationConnection *> getDestinationConnections(const std::string &destination);
 
-
-    electrosynth::ModulationConnection *getConnection(const std::string &source, const std::string &destination);
+    electrosynth::ModulationConnection *getConnection(const std::string &source, const std::string &destination,
+                                                      int destination_slot = -1);
 
     bool loadFromFile(File preset, std::string &error);
 
@@ -201,7 +201,14 @@ public:
 protected:
     electrosynth::mapping_change createMappingChange(electrosynth::ModulationConnection *mod);
 
-    bool isInvalidConnection(const electrosynth::mapping_change &change) { return false; }
+    bool isInvalidConnection(const electrosynth::mapping_change& change) {
+        return change.mapping == nullptr
+               || change.connection == nullptr
+               || change._source == nullptr
+               || change._dest == nullptr
+               || change.dest_param_index < 0
+               || change.dest_param_index >= MAX_NUM_PARAMS;
+    }
 
 
     virtual SynthGuiInterface *getGuiInterface() = 0;
