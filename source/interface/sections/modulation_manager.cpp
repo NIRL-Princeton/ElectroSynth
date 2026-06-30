@@ -641,6 +641,21 @@ bool ModulationManager::hasFreeConnection() {
   return false;
 }
 
+void ModulationManager::scheduleComponentUpdate()
+{
+  if (component_update_pending_)
+    return;                          // coalesce repeated add/remove triggers
+  component_update_pending_ = true;
+  juce::Component::SafePointer<ModulationManager> safe_this(this);
+  juce::MessageManager::callAsync([safe_this]() {
+    if (safe_this == nullptr)
+      return;                        // manager destroyed before this turn ran
+    safe_this->component_update_pending_ = false;  // reset before rebuild so
+                                     // componentAdded()'s not-ready retry logic still works
+    safe_this->componentAdded();
+  });
+}
+
 void 	ModulationManager::componentAdded()
 {
   FullInterface* full = findParentComponentOfClass<FullInterface>();
@@ -660,26 +675,49 @@ void 	ModulationManager::componentAdded()
   }
 
   component_update_pending_ = false;
-  full->open_gl_.context.executeOnGLThread ([this] (juce::OpenGLContext& openGLContext) {
-      for (auto& multiquad : rotary_destinations_)
-      {
-          multiquad.second->destroy (openGLContext);
-      }
-      for (auto& multiquad : rotary_meters_)
-      {
-          multiquad.second->destroy (openGLContext);
-      }
-      for (auto& multiquad : linear_meters_)
-      {
-          multiquad.second->destroy (openGLContext);
-      }
-      for (auto& multiquad : linear_destinations_)
-      {
-          multiquad.second->destroy (openGLContext);
-      }
 
+  // Async ownership handoff (replaces a blocking executeOnGLThread(...,true) that
+  // deadlocked the message thread -> watchdog SIGKILL when reached via removeModule
+  // -> listener->removed()). Move the old GL-backed modulation multiquads out of the
+  // active maps into a heap keep-alive, destroy their GL resources on the GL thread
+  // (non-blocking), then drop the keep-alive back on the message thread so the C++
+  // destructors run there (matching the prior behavior, where destruction happened at
+  // the message-thread .clear() below).
+  struct OldModResources {
+      std::map<juce::Viewport*, std::shared_ptr<OpenGlMultiQuad>> rotary_destinations;
+      std::map<juce::Viewport*, std::unique_ptr<OpenGlMultiQuad>> linear_destinations;
+      std::map<juce::Viewport*, std::shared_ptr<OpenGlMultiQuad>> rotary_meters;
+      std::map<juce::Viewport*, std::unique_ptr<OpenGlMultiQuad>> linear_meters;
+  };
+  auto old_resources = std::make_shared<OldModResources>();
+  {
+      // Move under the GL lock so we don't race the renderer reading these maps.
+      ScopedLock lock (open_gl_critical_section_);
+      old_resources->rotary_destinations = std::move (rotary_destinations_);
+      old_resources->linear_destinations = std::move (linear_destinations_);
+      old_resources->rotary_meters       = std::move (rotary_meters_);
+      old_resources->linear_meters       = std::move (linear_meters_);
+      rotary_destinations_.clear();
+      linear_destinations_.clear();
+      rotary_meters_.clear();
+      linear_meters_.clear();
+  }
+
+  full->open_gl_.context.executeOnGLThread ([old_resources] (juce::OpenGLContext& openGLContext) {
+      for (auto& multiquad : old_resources->rotary_destinations)
+          multiquad.second->destroy (openGLContext);
+      for (auto& multiquad : old_resources->rotary_meters)
+          multiquad.second->destroy (openGLContext);
+      for (auto& multiquad : old_resources->linear_meters)
+          multiquad.second->destroy (openGLContext);
+      for (auto& multiquad : old_resources->linear_destinations)
+          multiquad.second->destroy (openGLContext);
+      // Drop the final reference on the message thread (C++ destruction off the GL thread).
+      juce::MessageManager::callAsync ([old_resources]() mutable {
+          old_resources.reset();
+      });
   },
-      true);
+      false); // non-blocking: do NOT park the message thread
 
     auto sliders = full->getAllSliders();
     auto mod_buttons = full->getAllModulationButtons();

@@ -308,51 +308,56 @@ void EffectModuleSection::resized() {
     header_title_->setColor(findColour(Skin::kHeadingText, true));
 }
 void EffectModuleSection::removeModule(ProcessorBase *newModule) {
-    DBG(newModule->state.getProperty(IDs::uuid).toString());
-     DBG("prepartoremoeve");
-    // decltype(module_sections)::iterator it;
-    // {
-    //     juce::ScopedLock(this->open_gl_critical_section_);
-    //     it = std::remove_if(module_sections.begin(), module_sections.end(),
-    //                         [newModule](auto& section) {
-    //                             return section->state == newModule->state;
-    //                         });
-    // }
-    // leaving this here as its another way to accomplish this task
-     auto it = [&]() {
-         juce::ScopedLock lock(this->open_gl_critical_section_);
-         return std::partition(module_sections.begin(), module_sections.end(),
-                               [newModule](auto& section) {
-                                   return section->state != newModule->state;
-                               });
-     }();
+    // Find exactly the one module whose state matches. find_if (vs non-stable
+    // std::partition) does not reorder the surviving modules.
+    auto it = [&]() {
+        juce::ScopedLock lock(this->open_gl_critical_section_);
+        return std::find_if(module_sections.begin(), module_sections.end(),
+                            [newModule](auto& section) {
+                                return section->state == newModule->state;
+                            });
+    }();
 
+    // Guard: if not found (e.g. double-removal), dereferencing end() is UB.
+    if (it == module_sections.end())
+        return;
 
+    ModuleSection* section = it->get();
 
-        it->get()->setVisible(false);
+    // Make invisible before any rebake: paintChildrenBackgrounds skips invisible
+    // children, so the removed module is excluded from the scroll background.
+    section->setVisible(false);
 
-
-            auto *_parent = findParentComponentOfClass<SynthGuiInterface>();
-            _parent->getOpenGlWrapper()->context.executeOnGLThread([this, it](juce::OpenGLContext &openGLContext) {
-
-
-                auto a = it->get();
-                a->destroyOpenGlComponents(openGLContext);
-                this->container_->removeSubSection(a);
-                DBG("delete");
-                },true);
-
-
-    int height_to_remove = it->get()->height;
-    module_sections.erase(it);
-    DBG("deletesection");
-
-    for(auto listener : listeners_)
+    // Move ownership out of module_sections into a strong keep-alive, then erase the
+    // slot and remove the subsection from the container -- all on the message thread
+    // under open_gl_critical_section_, so container_->sub_sections_ and the slider maps
+    // are mutated consistently with the renderer/resized() (which hold the same lock).
+    // removeSubSection is CPU-only (no GL calls).
+    std::shared_ptr<ModuleSection> keep_alive;
     {
-        listener->removed();
+        juce::ScopedLock lock(this->open_gl_critical_section_);
+        keep_alive = std::shared_ptr<ModuleSection>(std::move(*it));
+        module_sections.erase(it);
+        this->container_->removeSubSection(keep_alive.get());
     }
-    // this->setSize(getWidth(),getHeight() - height_to_remove);
+
+    // Notify listeners (modulation rebuild is deferred/coalesced) and reflow. The
+    // container is already consistent, so resized()/redoBackgroundImage see valid state.
+    for (auto listener : listeners_)
+        listener->removed();
     resized();
+
+    // Async GL-only cleanup: free GL resources on the GL thread (non-blocking, so the
+    // message thread is never parked), then drop the keep-alive back on the message
+    // thread so ~ModuleSection() (a JUCE Component) runs there. The lambda captures
+    // keep_alive only and does NOT mutate container_/sub_sections_.
+    auto *_parent = findParentComponentOfClass<SynthGuiInterface>();
+    _parent->getOpenGlWrapper()->context.executeOnGLThread([keep_alive](juce::OpenGLContext &openGLContext) {
+        keep_alive->destroyOpenGlComponents(openGLContext);
+        juce::MessageManager::callAsync([keep_alive]() mutable {
+            keep_alive.reset();
+        });
+    }, false);
 }
 
 void EffectModuleSection::moduleListChanged() {
