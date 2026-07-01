@@ -1046,6 +1046,11 @@ void ModulationManager::updateModulationSlotVisuals() {
         auto* target = slider->second->getExtraModulationTarget(connection->destination_slot);
         if (auto* slot = dynamic_cast<electrosynth::ModulationSlotComponent*>(target)) {
             slot->setSourceName(connection->source_name);
+            if (auto button = modulation_buttons_.find(connection->source_name);
+                button != modulation_buttons_.end() && button->second != nullptr)
+                slot->setSourceDisplayLabel(button->second->getDisplayLabel());
+            else
+                slot->setSourceDisplayLabel({});
             slot->setModulationAmount(connection->getCurrentBaseValue());
         }
     }

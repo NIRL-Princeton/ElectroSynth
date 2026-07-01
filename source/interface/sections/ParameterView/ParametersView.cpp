@@ -15,18 +15,14 @@
 namespace electrosynth {
 
 ModulationSlotComponent::ModulationSlotComponent(SynthSlider& destination_slider, int slot_index)
-    : destination_slider_(destination_slider),
-      slot_index_(slot_index)
-{
+    : destination_slider_(destination_slider), slot_index_(slot_index) {
+
     jassert(juce::isPositiveAndBelow(slot_index_, SynthSlider::kNumModulationSlots));
-    setComponentID(destination_slider_.getComponentID()
-                   + "_modulation_slot_"
-                   + juce::String(slot_index_));
+    setComponentID(destination_slider_.getComponentID() + "_modulation_slot_" + juce::String(slot_index_));
     setInterceptsMouseClicks(false, false);
 }
 
-void ModulationSlotComponent::paint(juce::Graphics& g)
-{
+void ModulationSlotComponent::paint(juce::Graphics& g) {
     const auto bounds = getLocalBounds().toFloat();
     const auto empty_border_color = juce::Colour::fromRGB(54, 78, 79);
 
@@ -40,13 +36,10 @@ void ModulationSlotComponent::paint(juce::Graphics& g)
         const float meter_thickness = std::max(2.0f, bounds.getHeight() * 0.12f);
         const float meter_width = std::max(0.0f, bounds.getWidth() * amount - 2.0f);
         g.setColour(source_color.withAlpha(0.45f));
-        g.fillRect(bounds.getX() + 1.0f,
-                   bounds.getBottom() - meter_thickness - 1.0f,
-                   meter_width,
-                   meter_thickness);
+        g.fillRect(bounds.getX() + 1.0f, bounds.getBottom() - meter_thickness - 1.0f, meter_width, meter_thickness);
 
         g.setColour(source_color);
-        g.setFont(juce::Font(std::max(9.0f, bounds.getHeight() * 0.45f), juce::Font::bold));
+        g.setFont(juce::Font(std::max(9.0f, bounds.getHeight() * 0.45f), juce::Font::plain));
         g.drawFittedText(getSourceLabel(), getLocalBounds().reduced(2, 1),
                          juce::Justification::centred, 1);
     }
@@ -57,12 +50,23 @@ void ModulationSlotComponent::paint(juce::Graphics& g)
     g.drawRect(bounds.reduced(0.5f), 1.0f);
 }
 
-void ModulationSlotComponent::setSourceName(juce::String source_name)
-{
+void ModulationSlotComponent::setSourceName(juce::String source_name) {
     if (source_name_ == source_name)
         return;
 
     source_name_ = std::move(source_name);
+    repaint();
+    if (auto* parameters_view = findParentComponentOfClass<ParametersView>()) {
+        parameters_view->syncModulationSlotOpenGl();
+        parameters_view->repaintBackground();
+    }
+}
+
+void ModulationSlotComponent::setSourceDisplayLabel(juce::String display_label) {
+    if (display_label_ == display_label)
+        return;
+
+    display_label_ = std::move(display_label);
     repaint();
     if (auto* parameters_view = findParentComponentOfClass<ParametersView>()) {
         parameters_view->syncModulationSlotOpenGl();
@@ -84,8 +88,7 @@ void ModulationSlotComponent::setModulationAmount(float amount)
     }
 }
 
-juce::Colour ModulationSlotComponent::getSourceColor() const
-{
+juce::Colour ModulationSlotComponent::getSourceColor() const {
     if (source_name_.startsWithIgnoreCase("env"))
         return ShaderColors::kEnvelopeTextColor;
     if (source_name_.startsWithIgnoreCase("lfo"))
@@ -96,15 +99,16 @@ juce::Colour ModulationSlotComponent::getSourceColor() const
     return ShaderColors::kSoundModuleTextColor;
 }
 
-juce::String ModulationSlotComponent::getSourceLabel() const
-{
+juce::String ModulationSlotComponent::getSourceLabel() const { // for marking connections in the boxes underneath knobs
+    DBG("ModulationSlotComponent::getSourceLabel() : " + source_name_);
+    if (display_label_.isNotEmpty())
+        return display_label_;
+
     juce::String prefix;
-    if (source_name_.startsWithIgnoreCase("env"))
-        prefix = "Env ";
-    else if (source_name_.startsWithIgnoreCase("lfo"))
-        prefix = "Lfo ";
+    if (source_name_.startsWithIgnoreCase("env")) prefix = "Env ";
+    else if (source_name_.startsWithIgnoreCase("lfo")) prefix = "Lfo ";
     else if (source_name_.startsWithIgnoreCase("vca") || source_name_.containsIgnoreCase("master"))
-        prefix = "Env ";
+        prefix = "Master ";
     else
         return source_name_;
 
@@ -114,7 +118,7 @@ juce::String ModulationSlotComponent::getSourceLabel() const
             digits += character;
     }
 
-    return prefix + (digits.isNotEmpty() ? digits : "#");
+    return prefix + (digits.isNotEmpty() ? digits : "");
 }
 
 // Rotary slider that suppresses the value bubble popup on drag/hover.

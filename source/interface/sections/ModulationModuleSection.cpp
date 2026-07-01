@@ -278,6 +278,7 @@ void ModulationModuleSection::updateTabs() {
                                   kModButtonSize,
                                   kModButtonSize);
             mod_button->toFront(false);
+            mod_button->setDisplayLabel(label);
         }
 
         tab_borders_[i]->setVisible(!selected);
@@ -291,6 +292,8 @@ void ModulationModuleSection::updateTabs() {
         selected_tab_line_masks_[i]->setColor(findColour(Skin::kBody, true));
         selected_tab_line_masks_[i]->setVisible(selected);
     }
+
+
 }
 PopupItems ModulationModuleSection::createPopupMenu() {
     PopupItems options;

@@ -16,8 +16,9 @@ namespace electrosynth {
         SynthSlider& getDestinationSlider() const { return destination_slider_; }
         int getSlotIndex() const { return slot_index_; }
         void setSourceName(juce::String source_name);
+        void setSourceDisplayLabel(juce::String display_label);
         void setModulationAmount(float amount);
-        void clearSource() { setSourceName({}); setModulationAmount(0.0f); }
+        void clearSource() { setSourceName({}); setSourceDisplayLabel({}); setModulationAmount(0.0f); }
         bool isOccupied() const { return source_name_.isNotEmpty(); }
         juce::Colour getSourceColor() const;
         juce::String getSourceLabel() const;
@@ -27,6 +28,7 @@ namespace electrosynth {
         SynthSlider& destination_slider_;
         int slot_index_;
         juce::String source_name_;
+        juce::String display_label_;
         float modulation_amount_ = 0.0f;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ModulationSlotComponent)

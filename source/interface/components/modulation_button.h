@@ -98,6 +98,9 @@ class ModulationButton : public PlainShapeComponent {
     void setConnectRight(bool connect) { connect_right_ = connect; repaint(); }
     void setDrawBorder(bool border) { draw_border_ = border; repaint(); }
     void overrideText(String text) { text_override_ = std::move(text); repaint(); }
+    void setDisplayLabel(juce::String label) { display_label_ = std::move(label); }
+    juce::String getDisplayLabel() const { return display_label_; }
+    juce::String display_label_;
 
   private:
     void disconnectModulation(electrosynth::ModulationConnection* connection);
