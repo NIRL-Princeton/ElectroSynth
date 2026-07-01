@@ -40,7 +40,7 @@ namespace electrosynth
                                                        last_sample_rate_ (-1),
                                                        modulation_bank_ ((leaf))
     {
-        LEAF_init (&leaf, 44100.0f, memory, 536870912, []() { return (float) rand() / RAND_MAX; });
+        LEAF_init (&leaf, 48000.0f, memory, 536870912, []() { return (float) rand() / RAND_MAX; });
         //processors.push_back(std::make_shared<OscillatorModuleProcessor> (&leaf));
         //SoundEngine::init();
         LEAF_setErrorCallback(&leaf,LEAF_errorCallback);
