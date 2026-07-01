@@ -37,6 +37,7 @@ class ModulationMeter;
 class ModulationDestination;
 class SynthBase;
 namespace electrosynth{
+    struct ModulationConnection;
     class ModulationConnectionBank;
 }
 class ModulationAmountKnob : public SynthSlider {
@@ -307,6 +308,11 @@ class ModulationManager : public SynthSection,
     void updateModulationSlotVisuals();
     void makeCurrentModulatorAmountsVisible();
     void makeModulationsVisible(SynthSlider* destination, bool visible);
+    ModulationAmountKnob* getModulationAmountControl(const electrosynth::ModulationConnection* connection) const;
+    void syncModulationAmountControl(electrosynth::ModulationConnection* connection, ModulationAmountKnob* amount_knob);
+    bool placeModulationAmountInSlot(SynthSlider* destination,
+                                     const electrosynth::ModulationConnection* connection,
+                                     ModulationAmountKnob* amount_knob);
     void showModulationAmountCallout(const std::string& source);
     void hideModulationAmountCallout();
     void positionModulationAmountSliders();

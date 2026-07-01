@@ -2011,6 +2011,54 @@ void ModulationManager::makeCurrentModulatorAmountsVisible() {
   positionModulationAmountSliders();
 }
 
+ModulationAmountKnob* ModulationManager::getModulationAmountControl(
+    const electrosynth::ModulationConnection* connection) const {
+  if (connection == nullptr
+      || !juce::isPositiveAndBelow(connection->index_in_all_mods, electrosynth::kMaxModulationConnections))
+    return nullptr;
+
+  return modulation_icon_[connection->index_in_all_mods].get();
+}
+
+void ModulationManager::syncModulationAmountControl(
+    electrosynth::ModulationConnection* connection, ModulationAmountKnob* amount_knob) {
+  if (connection == nullptr || amount_knob == nullptr)
+    return;
+
+  if (!amount_knob->hasAux()) {
+    amount_knob->setValue(connection->getCurrentBaseValue(), dontSendNotification);
+    amount_knob->redoImage();
+  }
+
+  amount_knob->setSource(connection->source_name);
+  amount_knob->setBipolar(connection->isBipolar());
+  amount_knob->setStereo(connection->isStereo());
+  amount_knob->setBypass(connection->isBypass());
+}
+
+bool ModulationManager::placeModulationAmountInSlot(
+    SynthSlider* destination,
+    const electrosynth::ModulationConnection* connection,
+    ModulationAmountKnob* amount_knob) {
+  if (destination == nullptr
+      || connection == nullptr
+      || amount_knob == nullptr
+      || !juce::isPositiveAndBelow(connection->destination_slot, SynthSlider::kNumModulationSlots))
+    return false;
+
+  auto* target = destination->getExtraModulationTarget(connection->destination_slot);
+  if (target == nullptr)
+    return false;
+
+  const juce::Point<int> top_left = getLocalPoint(target, juce::Point<int>());
+  amount_knob->setBounds(top_left.x, top_left.y, target->getWidth(), target->getHeight());
+  amount_knob->setPopupPlacement(juce::BubbleComponent::below);
+  amount_knob->setAlwaysOnTop(true);
+  amount_knob->getQuadComponent()->setAlwaysOnTop(true);
+  amount_knob->getImageComponent()->setAlwaysOnTop(true);
+  return true;
+}
+
 void ModulationManager::makeModulationsVisible(SynthSlider* destination, bool visible) {
   SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
   if (destination == nullptr || parent == nullptr || changing_hover_modulation_)
@@ -2021,86 +2069,60 @@ void ModulationManager::makeModulationsVisible(SynthSlider* destination, bool vi
     return;
 
   std::vector<electrosynth::ModulationConnection*> connections = parent->getSynth()->getDestinationConnections(name);
-  std::vector<ModulationAmountKnob*> visible_modulation_icons;
+  int num_amount_controls = 0;
 
   for (electrosynth::ModulationConnection* connection : connections) {
-    if (connection == nullptr)
+    auto* amount_knob = getModulationAmountControl(connection);
+    if (amount_knob == nullptr)
       continue;
 
-    int index = connection->index_in_all_mods;
-    ModulationAmountKnob* hover_slider = modulation_icon_[index].get();
-    visible_modulation_icons.push_back(hover_slider);
-    if (!hover_slider->hasAux()) {
-      hover_slider->setValue(connection->getCurrentBaseValue(), dontSendNotification); //sould be an actualy value
-      hover_slider->redoImage();
-    }
-    hover_slider->setSource(connection->source_name);
-    hover_slider->setBipolar(false);
-    hover_slider->setStereo(false);
-    hover_slider->setBypass(false);
-//    hover_slider->setBipolar(connection->modulation_processor->isBipolar());
-//    hover_slider->setStereo(connection->modulation_processor->isStereo());
-//    hover_slider->setBypass(connection->modulation_processor->isBypassed());
+    syncModulationAmountControl(connection, amount_knob);
+    ++num_amount_controls;
   }
 
-  int hover_slider_width = size_ratio_ * 24.0f;
-  int num_sliders = (int)visible_modulation_icons.size();
-
+  int amount_control_width = size_ratio_ * 24.0f;
   juce::Rectangle<int> destination_bounds = getLocalArea(destination, destination->getLocalBounds());
   int x = destination_bounds.getRight();
   int y = destination_bounds.getBottom();
-  int beginning_offset = hover_slider_width * num_sliders / 2;
+  int beginning_offset = amount_control_width * num_amount_controls / 2;
   int delta_x = 0;
   int delta_y = 0;
 
   juce::BubbleComponent::BubblePlacement placement = destination->getModulationPlacement();
   if (placement == juce::BubbleComponent::below) {
     x = destination_bounds.getCentreX() - beginning_offset;
-    delta_x = hover_slider_width;
+    delta_x = amount_control_width;
   }
   else if (placement == juce::BubbleComponent::above) {
     x = destination_bounds.getCentreX() - beginning_offset;
-    y = destination_bounds.getY() - hover_slider_width;
-    delta_x = hover_slider_width;
+    y = destination_bounds.getY() - amount_control_width;
+    delta_x = amount_control_width;
   }
   else if (placement == juce::BubbleComponent::left) {
-    x = destination_bounds.getX() - hover_slider_width;
+    x = destination_bounds.getX() - amount_control_width;
     y = destination_bounds.getCentreY() - beginning_offset;
-    delta_y = hover_slider_width;
+    delta_y = amount_control_width;
   }
   else {
     y = destination_bounds.getCentreY() - beginning_offset;
-    delta_y = hover_slider_width;
+    delta_y = amount_control_width;
   }
 
   for (electrosynth::ModulationConnection* connection : connections) {
-    if (connection == nullptr)
+    auto* amount_knob = getModulationAmountControl(connection);
+    if (amount_knob == nullptr)
       continue;
 
-    ModulationAmountKnob* hover_slider = modulation_icon_[connection->index_in_all_mods].get();
-    if (hover_slider) {
-      bool placed_in_slot = false;
-      if (juce::isPositiveAndBelow(connection->destination_slot, SynthSlider::kNumModulationSlots)) {
-        if (auto* target = destination->getExtraModulationTarget(connection->destination_slot)) {
-          const juce::Point<int> top_left = getLocalPoint(target, juce::Point<int>());
-          hover_slider->setBounds(top_left.x, top_left.y, target->getWidth(), target->getHeight());
-          hover_slider->setPopupPlacement(juce::BubbleComponent::below);
-          hover_slider->setAlwaysOnTop(true);
-          hover_slider->getQuadComponent()->setAlwaysOnTop(true);
-          hover_slider->getImageComponent()->setAlwaysOnTop(true);
-          placed_in_slot = true;
-        }
-      }
-
-      if (!placed_in_slot) {
-        hover_slider->setPopupPlacement(placement);
-        hover_slider->setBounds(x, y, hover_slider_width, hover_slider_width);
-      }
-
-      hover_slider->makeVisible(visible && (!placed_in_slot || allVisible(destination)));
-      hover_slider->setAlpha(placed_in_slot ? 0.0f : 1.0f, true);
-      hover_slider->redoImage();
+    bool placed_in_slot = placeModulationAmountInSlot(destination, connection, amount_knob);
+    if (!placed_in_slot) {
+      amount_knob->setPopupPlacement(placement);
+      amount_knob->setBounds(x, y, amount_control_width, amount_control_width);
     }
+
+    amount_knob->makeVisible(visible && (!placed_in_slot || allVisible(destination)));
+    amount_knob->setAlpha(1.0f, true);
+    amount_knob->redoImage();
+
     x += delta_x;
     y += delta_y;
   }
