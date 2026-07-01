@@ -40,6 +40,7 @@ namespace electrosynth
                                                        last_sample_rate_ (-1),
                                                        modulation_bank_ ((leaf))
     {
+        // memory = new char[512 * 1024 * 1024];
         LEAF_init (&leaf, 48000.0f, memory, 536870912, []() { return (float) rand() / RAND_MAX; });
         //processors.push_back(std::make_shared<OscillatorModuleProcessor> (&leaf));
         //SoundEngine::init();
@@ -53,7 +54,8 @@ namespace electrosynth
         {
             tSimplePoly_create (&leaf.mempool, &voiceHandler.voices[i]);
             tSimplePoly_init (&leaf, voiceHandler.voices[i], MAX_NUM_VOICES);
-            voiceHandler.voices[i] = 0;
+            // voiceHandler.voice[i] = 0;
+            voiceHandler.voiceNote[i] = 0;
             voiceHandler.voiceIsSounding[i] = false;
             voiceHandler.voicePrevBend[i] = 0.0f;
         }
@@ -83,6 +85,7 @@ namespace electrosynth
 
     SoundEngine::~SoundEngine()
     {
+        // delete[] memory;
         //voice_handler_->prepareDestroy();
     }
 
@@ -155,18 +158,19 @@ namespace electrosynth
         for (auto& buffer : temp_fx_buffers)
             buffer.clear();
         //juce::MidiBuffer midimessages;
-        int mpe = voiceHandler.mpeMode ? 1 : 0;
+        // int mpe = voiceHandler.mpeMode ? 1 : 0;
+        int mpe = 0; // override because it seems MPE is not really implemented (Mike and Matt)
         int impe = 1 - mpe;
         for (int i = offset; i < samples + offset; i++)
         {
-            for (int v = 0; v < voiceHandler.numVoicesActive; ++v)
+            for (int v = 0; v < voiceHandler.numVoicesActive; v++)
             {
                 float tempNote = (float) tSimplePoly_getPitch (voiceHandler.voices[v * mpe], (uint8_t) (v * impe));
 
                 //added this check because if there is no active voice "getPitch" returns -1
                 if (tempNote >= 0.0f)
                 {
-                    //freeze pitch bend data on voices where a note off has happened and we are in the release phase
+                    //freeze pitch bend data on voices wleafhere a note off has happened and we are in the release phase
                     if (tSimplePoly_isOn (voiceHandler.voices[v * mpe], (uint8_t) (v * impe)))
                     {
                         //tempNote += pitchBend;
@@ -300,9 +304,10 @@ namespace electrosynth
         }
         // melatonin::printSparkline(audio_buffer, true);
 
-        if (getNumActiveVoices() == 0)
-        {
-        }
+        // bye bye for now (Mike and Matt)
+        //if (getNumActiveVoices() == 0)
+        // {
+        // }
         //   bufferDebugger->capture("main out", audio_buffer.getReadPointer(0), audio_buffer.getNumSamples(), -20.f, 20.f);
     }
 
