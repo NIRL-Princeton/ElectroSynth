@@ -21,7 +21,7 @@
 
 #include <iostream>
 #include "module_type_info.h"
-//#include "processors/funcmaps.h"
+#include "processors/funcmaps.h"
 constexpr std::array<float,MAX_NUM_PARAMS> createArray() {
     std::array<float, MAX_NUM_PARAMS> arr{};
     for (int i = 0; i < arr.size(); ++i) {
