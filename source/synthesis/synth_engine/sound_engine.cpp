@@ -43,7 +43,7 @@ namespace electrosynth
         LEAF_init (&leaf, 44100.0f, memory, 536870912, []() { return (float) rand() / RAND_MAX; });
         //processors.push_back(std::make_shared<OscillatorModuleProcessor> (&leaf));
         //SoundEngine::init();
-        LEAF_setErrorCallback(&leaf,LEAF_errorCallback);
+        LEAF_setErrorCallback(&leaf, LEAF_errorCallback);
         tSimplePoly_create (&leaf.mempool, &voiceHandler.voices[0]);
         tSimplePoly_init (&leaf, voiceHandler.voices[0], MAX_NUM_VOICES);
         voiceHandler.numVoicesActive = MAX_NUM_VOICES;
@@ -53,7 +53,8 @@ namespace electrosynth
         {
             tSimplePoly_create (&leaf.mempool, &voiceHandler.voices[i]);
             tSimplePoly_init (&leaf, voiceHandler.voices[i], MAX_NUM_VOICES);
-            voiceHandler.voices[i] = 0;
+            // voiceHandler.voices[i] = 0;
+            voiceHandler.voiceNote[i] = 0;
             voiceHandler.voiceIsSounding[i] = false;
             voiceHandler.voicePrevBend[i] = 0.0f;
         }
