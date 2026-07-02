@@ -318,6 +318,11 @@ void ModulationAmountKnob::mouseUp(const juce::MouseEvent& e) {
             source.setScreenPosition(mouse_down_position_.toFloat());
         }
     }
+
+    for (SliderListener* listener : slider_listeners_)
+        listener->endModulationEdit(this);
+
+    editing_ = false;
 }
 
 void ModulationAmountKnob::mouseExit(const juce::MouseEvent& e) {
@@ -729,7 +734,10 @@ void 	ModulationManager::componentAdded()
         rotary_meters_.clear();
         linear_destinations_.clear();
         linear_meters_.clear();
+        destination_lookup_.clear();
+        all_destinations_.clear();
         modulation_buttons_.clear();
+        modulation_callout_buttons_.clear();
         meter_lookup_.clear();
         num_linear_meters.clear();
         num_rotary_meters.clear();
@@ -1030,12 +1038,20 @@ void ModulationManager::updateModulationSlotVisuals() {
         }
     }
 
-    SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
-    if (parent == nullptr) return;
+	SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
+	if (parent == nullptr) return;
 
-    auto& bank = parent->getSynth()->getModulationBank();
-    for (int index = 0; index < electrosynth::kMaxModulationConnections; ++index) {
-        auto* connection = bank.atIndex(index);
+    auto get_display_label = [this](const std::string& source_name) {
+        if (auto button = modulation_buttons_.find(source_name);
+            button != modulation_buttons_.end() && button->second != nullptr)
+            return button->second->getDisplayLabel();
+
+        return juce::String();
+    };
+
+	auto& bank = parent->getSynth()->getModulationBank();
+	for (int index = 0; index < electrosynth::kMaxModulationConnections; ++index) {
+		auto* connection = bank.atIndex(index);
         if (connection == nullptr || connection->destination_name.empty()
                 || !juce::isPositiveAndBelow(connection->destination_slot, SynthSlider::kNumModulationSlots))
             continue;
@@ -1043,17 +1059,20 @@ void ModulationManager::updateModulationSlotVisuals() {
         auto slider = slider_model_lookup_.find(connection->destination_name);
         if (slider == slider_model_lookup_.end() || slider->second == nullptr) continue;
 
-        auto* target = slider->second->getExtraModulationTarget(connection->destination_slot);
-        if (auto* slot = dynamic_cast<electrosynth::ModulationSlotComponent*>(target)) {
-            slot->setSourceName(connection->source_name);
-            if (auto button = modulation_buttons_.find(connection->source_name);
-                button != modulation_buttons_.end() && button->second != nullptr)
-                slot->setSourceDisplayLabel(button->second->getDisplayLabel());
-            else
-                slot->setSourceDisplayLabel({});
-            slot->setModulationAmount(connection->getCurrentBaseValue());
-        }
-    }
+	    auto* target = slider->second->getExtraModulationTarget(connection->destination_slot);
+	    if (auto* slot = dynamic_cast<electrosynth::ModulationSlotComponent*>(target)) {
+	        slot->setSourceName(connection->source_name);
+	        slot->setSourceDisplayLabel(get_display_label(connection->source_name));
+	        slot->setModulationAmount(connection->getCurrentBaseValue());
+
+            if (auto aux = aux_connections_to_from_.find(connection->index_in_all_mods);
+                aux != aux_connections_to_from_.end()) {
+                if (auto* aux_connection = bank.atIndex(aux->second);
+                    aux_connection != nullptr && !aux_connection->source_name.empty())
+                    slot->setAuxSource(aux_connection->source_name, get_display_label(aux_connection->source_name));
+            }
+	    }
+	}
 
   // Parameter views inside sound/effect modules are rendered into cached
   // background images. Rebuild the full background after all slot states have
@@ -1712,6 +1731,8 @@ void ModulationManager::mouseDown(SynthSlider* slider) {
 void ModulationManager::mouseUp(SynthSlider* slider) {
   if (current_modulator_ && current_modulator_->isVisible())
     current_modulator_->grabKeyboardFocus();
+
+
 }
 
 void ModulationManager::doubleClick(SynthSlider* slider) {
@@ -1982,6 +2003,7 @@ void ModulationManager::addAuxConnection(int from_index, int to_index) {
   aux_connections_from_to_[from_index] = to_index;
   std::string aux_name = "modulation_" + std::to_string(from_index + 1) + "_amount";
   modulation_icon_[to_index]->setAux(aux_name);
+  updateModulationSlotVisuals();
 
 }
 
@@ -1993,6 +2015,7 @@ void ModulationManager::removeAuxSourceConnection(int from_index) {
   modulation_icon_[to_index]->removeAux();
   aux_connections_from_to_.erase(from_index);
   aux_connections_to_from_.erase(to_index);
+  updateModulationSlotVisuals();
 }
 
 void ModulationManager::removeAuxDestinationConnection(int to_index) {
@@ -2002,82 +2025,77 @@ void ModulationManager::removeAuxDestinationConnection(int to_index) {
   modulation_icon_[to_index]->removeAux();
   aux_connections_from_to_.erase(aux_connections_to_from_[to_index]);
   aux_connections_to_from_.erase(to_index);
+  updateModulationSlotVisuals();
 }
 
 void ModulationManager::makeCurrentModulatorAmountsVisible() {
-  for (auto& selected_slider : modulation_icon_)
-    selected_slider->makeVisible(false);
+    for (auto& selected_slider : modulation_icon_)
+        selected_slider->makeVisible(false);
 
-  positionModulationAmountSliders();
+    positionModulationAmountSliders();
 }
 
-ModulationAmountKnob* ModulationManager::getModulationAmountControl(
-    const electrosynth::ModulationConnection* connection) const {
-  if (connection == nullptr
-      || !juce::isPositiveAndBelow(connection->index_in_all_mods, electrosynth::kMaxModulationConnections))
-    return nullptr;
+ModulationAmountKnob* ModulationManager::getModulationAmountControl(const electrosynth::ModulationConnection* connection) const {
+    if (connection == nullptr
+        || !juce::isPositiveAndBelow(connection->index_in_all_mods, electrosynth::kMaxModulationConnections))
+        return nullptr;
 
-  return modulation_icon_[connection->index_in_all_mods].get();
+    return modulation_icon_[connection->index_in_all_mods].get();
 }
 
-void ModulationManager::syncModulationAmountControl(
-    electrosynth::ModulationConnection* connection, ModulationAmountKnob* amount_knob) {
-  if (connection == nullptr || amount_knob == nullptr)
-    return;
-
-  if (!amount_knob->hasAux()) {
-    amount_knob->setValue(connection->getCurrentBaseValue(), dontSendNotification);
-    amount_knob->redoImage();
-  }
-
-  amount_knob->setSource(connection->source_name);
-  amount_knob->setBipolar(connection->isBipolar());
-  amount_knob->setStereo(connection->isStereo());
-  amount_knob->setBypass(connection->isBypass());
-}
-
-bool ModulationManager::placeModulationAmountInSlot(
-    SynthSlider* destination,
-    const electrosynth::ModulationConnection* connection,
+void ModulationManager::syncModulationAmountControl(electrosynth::ModulationConnection* connection,
     ModulationAmountKnob* amount_knob) {
-  if (destination == nullptr
-      || connection == nullptr
-      || amount_knob == nullptr
+    if (connection == nullptr || amount_knob == nullptr)
+        return;
+
+    if (!amount_knob->hasAux()) {
+        amount_knob->setValue(connection->getCurrentBaseValue(), dontSendNotification);
+        amount_knob->redoImage();
+    }
+
+    amount_knob->setSource(connection->source_name);
+    amount_knob->setBipolar(connection->isBipolar());
+    amount_knob->setStereo(connection->isStereo());
+    amount_knob->setBypass(connection->isBypass());
+}
+
+bool ModulationManager::placeModulationAmountInSlot(SynthSlider* destination,
+    const electrosynth::ModulationConnection* connection, ModulationAmountKnob* amount_knob) {
+    if (destination == nullptr || connection == nullptr || amount_knob == nullptr
       || !juce::isPositiveAndBelow(connection->destination_slot, SynthSlider::kNumModulationSlots))
-    return false;
+        return false;
 
-  auto* target = destination->getExtraModulationTarget(connection->destination_slot);
-  if (target == nullptr)
-    return false;
+    auto* target = destination->getExtraModulationTarget(connection->destination_slot);
+    if (target == nullptr) return false;
 
-  const juce::Point<int> top_left = getLocalPoint(target, juce::Point<int>());
-  amount_knob->setBounds(top_left.x, top_left.y, target->getWidth(), target->getHeight());
-  amount_knob->setPopupPlacement(juce::BubbleComponent::below);
-  amount_knob->setAlwaysOnTop(true);
-  amount_knob->getQuadComponent()->setAlwaysOnTop(true);
-  amount_knob->getImageComponent()->setAlwaysOnTop(true);
-  return true;
+    const juce::Point<int> top_left = getLocalPoint(target, juce::Point<int>());
+    amount_knob->setBounds(top_left.x, top_left.y, target->getWidth(), target->getHeight());
+    amount_knob->setPopupPlacement(juce::BubbleComponent::below);
+    amount_knob->setAlwaysOnTop(true);
+    amount_knob->getQuadComponent()->setAlwaysOnTop(true);
+    amount_knob->getImageComponent()->setAlwaysOnTop(true);
+    amount_knob->getQuadComponent()->setVisible(false);
+    amount_knob->getImageComponent()->setVisible(false);
+    return true;
 }
 
 void ModulationManager::makeModulationsVisible(SynthSlider* destination, bool visible) {
-  SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
-  if (destination == nullptr || parent == nullptr || changing_hover_modulation_)
-    return;
+    SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
+    if (destination == nullptr || parent == nullptr || changing_hover_modulation_)
+        return;
 
-  std::string name = destination->getComponentID().toStdString();
-  if (slider_model_lookup_[name] != destination)
-    return;
+    std::string name = destination->getComponentID().toStdString();
+    if (slider_model_lookup_[name] != destination)
+        return;
 
-  std::vector<electrosynth::ModulationConnection*> connections = parent->getSynth()->getDestinationConnections(name);
-  int num_amount_controls = 0;
+    std::vector<electrosynth::ModulationConnection*> connections = parent->getSynth()->getDestinationConnections(name);
+    int num_amount_controls = 0;
 
-  for (electrosynth::ModulationConnection* connection : connections) {
-    auto* amount_knob = getModulationAmountControl(connection);
-    if (amount_knob == nullptr)
-      continue;
-
-    syncModulationAmountControl(connection, amount_knob);
-    ++num_amount_controls;
+    for (electrosynth::ModulationConnection* connection : connections) {
+        auto* amount_knob = getModulationAmountControl(connection);
+        if (amount_knob == nullptr) continue;
+        syncModulationAmountControl(connection, amount_knob);
+        ++num_amount_controls;
   }
 
   int amount_control_width = size_ratio_ * 24.0f;
@@ -2117,10 +2135,15 @@ void ModulationManager::makeModulationsVisible(SynthSlider* destination, bool vi
     if (!placed_in_slot) {
       amount_knob->setPopupPlacement(placement);
       amount_knob->setBounds(x, y, amount_control_width, amount_control_width);
+      amount_knob->setAlwaysOnTop(false);
+      amount_knob->getQuadComponent()->setAlwaysOnTop(false);
+      amount_knob->getImageComponent()->setAlwaysOnTop(false);
+      amount_knob->getQuadComponent()->setVisible(true);
+      amount_knob->getImageComponent()->setVisible(true);
     }
 
     amount_knob->makeVisible(visible && (!placed_in_slot || allVisible(destination)));
-    amount_knob->setAlpha(1.0f, true);
+    amount_knob->setAlpha(placed_in_slot ? 0.0f : 1.0f, true);
     amount_knob->redoImage();
 
     x += delta_x;

@@ -14,7 +14,48 @@
 
 namespace electrosynth {
 
-ModulationSlotComponent::ModulationSlotComponent(SynthSlider& destination_slider, int slot_index)
+    namespace {
+        juce::Colour getModulationSlotSourceColor(const juce::String& source_name) {
+            if (source_name.startsWithIgnoreCase("env"))
+                return ShaderColors::kEnvelopeTextColor;
+            if (source_name.startsWithIgnoreCase("lfo"))
+                return ShaderColors::kLfoTextColor;
+            if (source_name.startsWithIgnoreCase("vca")
+                || source_name.containsIgnoreCase("master"))
+                return ShaderColors::kMasterEnvelopeTextColor;
+            return ShaderColors::kSoundModuleTextColor;
+        }
+
+        juce::String getModulationSlotSourceLabel(const juce::String& source_name,
+                                                  const juce::String& display_label) {
+            if (display_label.isNotEmpty())
+                return display_label;
+
+            juce::String prefix;
+            if (source_name.startsWithIgnoreCase("env")) prefix = "Env ";
+            else if (source_name.startsWithIgnoreCase("lfo")) prefix = "Lfo ";
+            else if (source_name.startsWithIgnoreCase("vca") || source_name.containsIgnoreCase("master"))
+                prefix = "Master ";
+            else
+                return source_name;
+
+            juce::String digits;
+            for (auto character : source_name) {
+                if (juce::CharacterFunctions::isDigit(character))
+                    digits += character;
+            }
+
+            return prefix + (digits.isNotEmpty() ? digits : "");
+        }
+
+        juce::Rectangle<float> getAuxSlotBounds(juce::Rectangle<float> slot_bounds) {
+            auto aux_bounds = slot_bounds.reduced(2.0f, 2.0f);
+            aux_bounds.setTop(slot_bounds.getCentreY());
+            return aux_bounds;
+        }
+    }
+
+	ModulationSlotComponent::ModulationSlotComponent(SynthSlider& destination_slider, int slot_index)
     : destination_slider_(destination_slider), slot_index_(slot_index) {
 
     jassert(juce::isPositiveAndBelow(slot_index_, SynthSlider::kNumModulationSlots));
@@ -42,6 +83,18 @@ void ModulationSlotComponent::paint(juce::Graphics& g) {
         g.setFont(juce::Font(std::max(9.0f, bounds.getHeight() * 0.45f), juce::Font::plain));
         g.drawFittedText(getSourceLabel(), getLocalBounds().reduced(2, 1),
                          juce::Justification::centred, 1);
+
+        if (hasAuxSource()) {
+            const auto aux_bounds = getAuxSlotBounds(bounds);
+            const auto aux_color = getAuxSourceColor();
+            g.setColour(aux_color.withAlpha(0.32f));
+            g.fillRect(aux_bounds);
+            g.setColour(aux_color);
+            g.drawRect(aux_bounds, 1.0f);
+            g.setFont(juce::Font(std::max(7.0f, aux_bounds.getHeight() * 0.55f), juce::Font::plain));
+            g.drawFittedText(getAuxSourceLabel(), aux_bounds.toNearestInt().reduced(1, 0),
+                             juce::Justification::centred, 1);
+        }
     }
     else {
         g.setColour(empty_border_color);
@@ -89,36 +142,33 @@ void ModulationSlotComponent::setModulationAmount(float amount)
 }
 
 juce::Colour ModulationSlotComponent::getSourceColor() const {
-    if (source_name_.startsWithIgnoreCase("env"))
-        return ShaderColors::kEnvelopeTextColor;
-    if (source_name_.startsWithIgnoreCase("lfo"))
-        return ShaderColors::kLfoTextColor;
-    if (source_name_.startsWithIgnoreCase("vca")
-        || source_name_.containsIgnoreCase("master"))
-        return ShaderColors::kMasterEnvelopeTextColor;
-    return ShaderColors::kSoundModuleTextColor;
+    return getModulationSlotSourceColor(source_name_);
 }
 
 juce::String ModulationSlotComponent::getSourceLabel() const { // for marking connections in the boxes underneath knobs
     DBG("ModulationSlotComponent::getSourceLabel() : " + source_name_);
-    if (display_label_.isNotEmpty())
-        return display_label_;
+    return getModulationSlotSourceLabel(source_name_, display_label_);
+}
 
-    juce::String prefix;
-    if (source_name_.startsWithIgnoreCase("env")) prefix = "Env ";
-    else if (source_name_.startsWithIgnoreCase("lfo")) prefix = "Lfo ";
-    else if (source_name_.startsWithIgnoreCase("vca") || source_name_.containsIgnoreCase("master"))
-        prefix = "Master ";
-    else
-        return source_name_;
+void ModulationSlotComponent::setAuxSource(juce::String source_name, juce::String display_label) {
+    if (aux_source_name_ == source_name && aux_display_label_ == display_label)
+        return;
 
-    juce::String digits;
-    for (auto character : source_name_) {
-        if (juce::CharacterFunctions::isDigit(character))
-            digits += character;
+    aux_source_name_ = std::move(source_name);
+    aux_display_label_ = std::move(display_label);
+    repaint();
+    if (auto* parameters_view = findParentComponentOfClass<ParametersView>()) {
+        parameters_view->syncModulationSlotOpenGl();
+        parameters_view->repaintBackground();
     }
+}
 
-    return prefix + (digits.isNotEmpty() ? digits : "");
+juce::Colour ModulationSlotComponent::getAuxSourceColor() const {
+    return getModulationSlotSourceColor(aux_source_name_);
+}
+
+juce::String ModulationSlotComponent::getAuxSourceLabel() const {
+    return getModulationSlotSourceLabel(aux_source_name_, aux_display_label_);
 }
 
 // Rotary slider that suppresses the value bubble popup on drag/hover.
@@ -426,11 +476,23 @@ public:
                                meter_width,
                                meter_thickness);
 
-                    g.setColour(source_color);
-                    g.setFont(juce::Font(std::max(9.0f, slot_bounds.getHeight() * 0.45f), juce::Font::bold));
-                    g.drawFittedText(slot->getSourceLabel(), slot->getBounds().reduced(2, 1),
-                                     juce::Justification::centred, 1);
-                }
+	                    g.setColour(source_color);
+	                    g.setFont(juce::Font(std::max(9.0f, slot_bounds.getHeight() * 0.45f), juce::Font::bold));
+	                    g.drawFittedText(slot->getSourceLabel(), slot->getBounds().reduced(2, 1),
+	                                     juce::Justification::centred, 1);
+
+	                    if (slot->hasAuxSource()) {
+	                        const auto aux_bounds = getAuxSlotBounds(slot_bounds);
+	                        const auto aux_color = slot->getAuxSourceColor();
+	                        g.setColour(aux_color.withAlpha(0.32f));
+	                        g.fillRect(aux_bounds);
+	                        g.setColour(aux_color);
+	                        g.drawRect(aux_bounds, 1.0f);
+	                        g.setFont(juce::Font(std::max(7.0f, aux_bounds.getHeight() * 0.55f), juce::Font::bold));
+	                        g.drawFittedText(slot->getAuxSourceLabel(), aux_bounds.toNearestInt().reduced(1, 0),
+	                                         juce::Justification::centred, 1);
+	                    }
+	                }
                 else {
                     g.setColour(empty_border_color);
                 }
@@ -470,31 +532,54 @@ public:
                     auto border = std::make_shared<OpenGlQuad>(
                         Shaders::kRoundedRectangleBorderFragment,
                         synth_slider->getComponentID() + "_modulation_slot_border_" + juce::String(slot_index));
-                    auto label = std::make_shared<PlainTextComponent>(
-                        synth_slider->getComponentID() + "_modulation_slot_label_" + juce::String(slot_index), "");
+	                    auto label = std::make_shared<PlainTextComponent>(
+	                        synth_slider->getComponentID() + "_modulation_slot_label_" + juce::String(slot_index), "");
+	                    auto aux_body = std::make_shared<OpenGlQuad>(
+	                        Shaders::kColorFragment,
+	                        synth_slider->getComponentID() + "_modulation_slot_aux_body_" + juce::String(slot_index));
+	                    auto aux_border = std::make_shared<OpenGlQuad>(
+	                        Shaders::kRoundedRectangleBorderFragment,
+	                        synth_slider->getComponentID() + "_modulation_slot_aux_border_" + juce::String(slot_index));
+	                    auto aux_label = std::make_shared<PlainTextComponent>(
+	                        synth_slider->getComponentID() + "_modulation_slot_aux_label_" + juce::String(slot_index), "");
 
-                    body->setInterceptsMouseClicks(false, false);
-                    amount->setInterceptsMouseClicks(false, false);
-                    border->setInterceptsMouseClicks(false, false);
-                    label->setInterceptsMouseClicks(false, false);
-                    body->setAlwaysOnTop(true);
-                    amount->setAlwaysOnTop(true);
-                    border->setAlwaysOnTop(true);
-                    label->setAlwaysOnTop(true);
-                    border->setThickness(1.0f, true);
-                    label->setFontType(PlainTextComponent::kRegular);
-                    label->setJustification(juce::Justification::centred);
+	                    body->setInterceptsMouseClicks(false, false);
+	                    amount->setInterceptsMouseClicks(false, false);
+	                    border->setInterceptsMouseClicks(false, false);
+	                    label->setInterceptsMouseClicks(false, false);
+	                    aux_body->setInterceptsMouseClicks(false, false);
+	                    aux_border->setInterceptsMouseClicks(false, false);
+	                    aux_label->setInterceptsMouseClicks(false, false);
+	                    body->setAlwaysOnTop(true);
+	                    amount->setAlwaysOnTop(true);
+	                    border->setAlwaysOnTop(true);
+	                    label->setAlwaysOnTop(true);
+	                    aux_body->setAlwaysOnTop(true);
+	                    aux_border->setAlwaysOnTop(true);
+	                    aux_label->setAlwaysOnTop(true);
+	                    border->setThickness(1.0f, true);
+	                    aux_border->setThickness(1.0f, true);
+	                    label->setFontType(PlainTextComponent::kRegular);
+	                    label->setJustification(juce::Justification::centred);
+	                    aux_label->setFontType(PlainTextComponent::kRegular);
+	                    aux_label->setJustification(juce::Justification::centred);
 
-                    addOpenGlComponent(body);
-                    addOpenGlComponent(amount);
-                    addOpenGlComponent(border);
-                    addOpenGlComponent(label);
+	                    addOpenGlComponent(body);
+	                    addOpenGlComponent(amount);
+	                    addOpenGlComponent(border);
+	                    addOpenGlComponent(label);
+	                    addOpenGlComponent(aux_body);
+	                    addOpenGlComponent(aux_border);
+	                    addOpenGlComponent(aux_label);
 
-                    open_gl_slots[slot_index].body = std::move(body);
-                    open_gl_slots[slot_index].amount = std::move(amount);
-                    open_gl_slots[slot_index].border = std::move(border);
-                    open_gl_slots[slot_index].label = std::move(label);
-                }
+	                    open_gl_slots[slot_index].body = std::move(body);
+	                    open_gl_slots[slot_index].amount = std::move(amount);
+	                    open_gl_slots[slot_index].border = std::move(border);
+	                    open_gl_slots[slot_index].label = std::move(label);
+	                    open_gl_slots[slot_index].aux_body = std::move(aux_body);
+	                    open_gl_slots[slot_index].aux_border = std::move(aux_border);
+	                    open_gl_slots[slot_index].aux_label = std::move(aux_label);
+	                }
                 modulation_box_targets_[slider] = std::move(slots);
                 modulation_box_open_gl_[slider] = std::move(open_gl_slots);
             }
@@ -601,11 +686,16 @@ public:
                                 slot_left, box_bounds.getY(), slot_right - slot_left, box_bounds.getHeight());
 
                             auto& visuals = open_gl->second[slot_index];
-                            if (visuals.body) visuals.body->setBounds(slot_bounds);
-                            if (visuals.border) visuals.border->setBounds(slot_bounds);
-                            if (visuals.label) visuals.label->setBounds(slot_bounds.reduced(2, 1));
+	                            if (visuals.body) visuals.body->setBounds(slot_bounds);
+	                            if (visuals.border) visuals.border->setBounds(slot_bounds);
+	                            if (visuals.label) visuals.label->setBounds(slot_bounds.reduced(2, 1));
 
-                            const int meter_height = std::max(2, static_cast<int>(slot_bounds.getHeight() * 0.12f));
+	                            const auto aux_bounds = getAuxSlotBounds(slot_bounds.toFloat()).toNearestInt();
+	                            if (visuals.aux_body) visuals.aux_body->setBounds(aux_bounds);
+	                            if (visuals.aux_border) visuals.aux_border->setBounds(aux_bounds);
+	                            if (visuals.aux_label) visuals.aux_label->setBounds(aux_bounds.reduced(1, 0));
+
+	                            const int meter_height = std::max(2, static_cast<int>(slot_bounds.getHeight() * 0.12f));
                             if (visuals.amount) {
                                 visuals.amount->setBounds(slot_bounds.getX() + 1,
                                                           slot_bounds.getBottom() - meter_height - 1,
@@ -638,10 +728,12 @@ public:
                 if (slot == nullptr)
                     continue;
 
-                const bool occupied = slot->isOccupied();
-                const auto source_color = occupied ? slot->getSourceColor() : empty_border_color;
-                const float amount = juce::jlimit(0.0f, 1.0f, slot->getModulationAmount());
-                const auto slot_bounds = slot->getBounds();
+	                const bool occupied = slot->isOccupied();
+	                const auto source_color = occupied ? slot->getSourceColor() : empty_border_color;
+	                const bool has_aux = slot->hasAuxSource();
+	                const auto aux_color = has_aux ? slot->getAuxSourceColor() : empty_border_color;
+	                const float amount = juce::jlimit(0.0f, 1.0f, slot->getModulationAmount());
+	                const auto slot_bounds = slot->getBounds();
 
                 if (visuals.body) {
                     visuals.body->setColor(source_color.withAlpha(0.28f));
@@ -662,15 +754,32 @@ public:
                     visuals.border->setVisible(true);
                 }
 
-                if (visuals.label) {
-                    visuals.label->setText(occupied ? slot->getSourceLabel() : "");
-                    visuals.label->setTextSize(std::max(9.0f, slot_bounds.getHeight() * 0.45f));
-                    visuals.label->setColor(source_color);
-                    visuals.label->setVisible(occupied);
-                }
-            }
-        }
-    }
+	                if (visuals.label) {
+	                    visuals.label->setText(occupied ? slot->getSourceLabel() : "");
+	                    visuals.label->setTextSize(std::max(9.0f, slot_bounds.getHeight() * 0.45f));
+	                    visuals.label->setColor(source_color);
+	                    visuals.label->setVisible(occupied);
+	                }
+
+	                if (visuals.aux_body) {
+	                    visuals.aux_body->setColor(aux_color.withAlpha(0.32f));
+	                    visuals.aux_body->setVisible(occupied && has_aux);
+	                }
+
+	                if (visuals.aux_border) {
+	                    visuals.aux_border->setColor(aux_color);
+	                    visuals.aux_border->setVisible(occupied && has_aux);
+	                }
+
+	                if (visuals.aux_label) {
+	                    visuals.aux_label->setText(has_aux ? slot->getAuxSourceLabel() : "");
+	                    visuals.aux_label->setTextSize(std::max(7.0f, slot_bounds.getHeight() * 0.28f));
+	                    visuals.aux_label->setColor(aux_color);
+	                    visuals.aux_label->setVisible(occupied && has_aux);
+	                }
+	            }
+	        }
+	    }
 
     void ParametersView::init_() {
 //        pimpl->view.setRootItem(&pimpl->groupItem);
