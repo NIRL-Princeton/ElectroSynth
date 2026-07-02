@@ -285,7 +285,26 @@ void EffectModuleSection::resized() {
         scroll_bar_->setBounds(getWidth() - large_padding, getTitleWidth() + large_padding, large_padding - 2, getHeight() - getTitleWidth()-(large_padding + 2 * shadow_width));
         scroll_bar_->setColor(findColour(Skin::kLightenScreen, true));
 
-
+        // Clip every live child to the FX viewport while scrolling, matching
+        // SoundModuleSection::resized(). Without this, scrolled FX child content is not
+        // bounded to the visible viewport and bleeds into the section below.
+        container_->setScissorComponent(&viewport_);
+        for (auto component : container_->open_gl_components_)
+            component->setScissorComponent(&viewport_);
+        for (auto sub : container_->sub_sections_) {
+            sub->setScissorComponent(&viewport_);
+            for (auto slider : sub->all_sliders_)
+                slider.second->setScissorComponent(&viewport_);
+            for (auto component : sub->open_gl_components_)
+                component->setScissorComponent(&viewport_);
+            for (auto view : sub->sub_sections_) {
+                view->setScissorComponent(&viewport_);
+                for (auto slider : view->all_sliders_)
+                    slider.second->setScissorComponent(&viewport_);
+                for (auto component : view->open_gl_components_)
+                    component->setScissorComponent(&viewport_);
+            }
+        }
     }
     else
     {

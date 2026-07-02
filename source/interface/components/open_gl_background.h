@@ -41,6 +41,7 @@ public:
     void enableAttributes(juce::OpenGLContext& open_gl_context);
     void disableAttributes(juce::OpenGLContext& open_gl_context);
     void setComponent(juce::Component* component) { component_ = component; }
+    void setScissorComponent(juce::Component* scissor_component);
     bool isInit;
 
 private:
@@ -59,5 +60,6 @@ private:
     GLuint vertex_buffer_;
     GLuint triangle_buffer_;
     juce::Component* component_;
+    juce::Component* scissor_component_ = nullptr;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OpenGlBackground)
 };

@@ -19,6 +19,7 @@
 #include "look_and_feel/skin.h"
 #include "look_and_feel/fonts.h"
 #include "FullInterface.h"
+#include "open_gl_background.h"
 #include "open_gl_component.h"
 #include "synth_gui_interface.h"
 #include "synth_slider.h"
@@ -33,6 +34,12 @@ SynthSection::SynthSection(const String& name) : Component(name), parent_(nullpt
 }
 
 SynthSection::~SynthSection() =default;
+
+void SynthSection::setScissorComponent(juce::Component* scissor_component) {
+  scissor_component_ = scissor_component;
+  if (background_ != nullptr)
+    background_->setScissorComponent(scissor_component);
+}
 
 float SynthSection::findValue(Skin::ValueId value_id) const {
   if (value_lookup_.count(value_id)) {

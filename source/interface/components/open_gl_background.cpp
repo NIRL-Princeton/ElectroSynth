@@ -104,6 +104,10 @@ void OpenGlBackground::disableAttributes(juce::OpenGLContext& open_gl_context) {
         open_gl_context.extensions.glDisableVertexAttribArray(texture_coordinates_->attributeID);
 }
 
+void OpenGlBackground::setScissorComponent(juce::Component* scissor_component) {
+    scissor_component_ = scissor_component;
+}
+
 void OpenGlBackground::render(OpenGlWrapper& open_gl) {
     mutex_.lock();
     if( component_!=nullptr)
@@ -128,7 +132,13 @@ void OpenGlBackground::render(OpenGlWrapper& open_gl) {
     }
 
     juce::gl::glDisable(juce::gl::GL_BLEND);
-    juce::gl::glDisable(juce::gl::GL_SCISSOR_TEST);
+    if (scissor_component_ != nullptr) {
+        OpenGlComponent::setScissor(scissor_component_, open_gl);
+        juce::gl::glEnable(juce::gl::GL_SCISSOR_TEST);
+    }
+    else {
+        juce::gl::glDisable(juce::gl::GL_SCISSOR_TEST);
+    }
 
     image_shader_->use();
     bind(open_gl.context);
@@ -144,6 +154,8 @@ void OpenGlBackground::render(OpenGlWrapper& open_gl) {
 
     open_gl.context.extensions.glBindBuffer(juce::gl::GL_ARRAY_BUFFER, 0);
     open_gl.context.extensions.glBindBuffer(juce::gl::GL_ELEMENT_ARRAY_BUFFER, 0);
+    if (scissor_component_ != nullptr)
+        juce::gl::glDisable(juce::gl::GL_SCISSOR_TEST);
 
     mutex_.unlock();
 }

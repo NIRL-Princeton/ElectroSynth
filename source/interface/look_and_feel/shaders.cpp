@@ -645,6 +645,7 @@ namespace {
       "uniform " MEDIUMP " float thumb_amount;\n"
       "uniform " MEDIUMP " float start_pos;\n"
       "uniform " MEDIUMP " float max_arc;\n"
+      "uniform " MEDIUMP " float alpha_mult;\n"
       "varying " MEDIUMP " vec4 shader_values_out;\n"
       "varying " MEDIUMP " vec2 coordinates_out;\n"
       "void main() {\n"
@@ -737,6 +738,7 @@ namespace {
     "                       indicator_alpha);\n"
     "\n"
     "    gl_FragColor = output_color;\n"
+    "    gl_FragColor.a = gl_FragColor.a * alpha_mult;\n"
     "}\n";
 
   const char* kRotaryModulationFragmentShader =
