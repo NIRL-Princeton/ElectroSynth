@@ -542,7 +542,12 @@ namespace electrosynth
             // Here you can cast the processor to leaf::Processor* if needed
             return (innerIt->get()->procArray);
         }
-        jassertfalse;
+        if (proc_string == "VCA"
+            || (MasterVoiceEnvelopeProcessor != nullptr
+                && MasterVoiceEnvelopeProcessor->name == juce::String (proc_string)))
+            return MasterVoiceEnvelopeProcessor->procArray;
+
+        return nullptr;
     }
 
     std::array<ModuleHeader*, MAX_NUM_VOICES>* SoundEngine::getLEAFProcessorModulator (const std::string& proc_string)
@@ -582,7 +587,13 @@ namespace electrosynth
         std::getline (ss, proc_string, '_');
 
         auto proc = getLEAFProcessor (proc_string);
+        if (proc == nullptr || proc->at (0) == nullptr)
+            return { nullptr, -1 };
+
         int procID = proc->at (0)->moduleType;
+        if (procID < 0 || procID >= static_cast<int> (paramsAllArray.size()))
+            return { nullptr, -1 };
+
         std::string param_string;
         std::getline (ss, param_string, '_');
         int index = -1;

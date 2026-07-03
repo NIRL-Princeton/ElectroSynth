@@ -203,6 +203,7 @@ SynthSlider::SynthSlider(juce::String name) : OpenGlSlider(name), show_popup_on_
                                                                               string_lookup_(nullptr),
                                                                               synth_interface_(nullptr) /*attachment(param,pluginState, *this)*/{
     //setAttachment(param, pluginState);
+    setLookAndFeel(DefaultLookAndFeel::instance());
     setComponentID (name);
     text_entry_ = std::make_unique<OpenGlTextEditor>(name);
     text_entry_->setMonospace();

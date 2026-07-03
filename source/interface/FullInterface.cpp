@@ -36,12 +36,9 @@ FullInterface::FullInterface(SynthGuiData* synth_data) : SynthSection("full_inte
 {
     full_screen_section_ = nullptr;
     Skin default_skin;
-    setSkinValues(default_skin, true);
     default_skin.copyValuesToLookAndFeel(DefaultLookAndFeel::instance());
-
-
-
-
+    default_skin.copyValuesToLookAndFeel(TextLookAndFeel::instance());
+    juce::LookAndFeel::setDefaultLookAndFeel(DefaultLookAndFeel::instance());
 
     modulation_manager = std::make_unique<ModulationManager>(synth_data->tree, synth_data->synth);
     modulation_manager->setOpaque(false);
@@ -103,6 +100,7 @@ FullInterface::FullInterface(SynthGuiData* synth_data) : SynthSection("full_inte
     addSubSection(modulation_manager.get());
 
     about_section_->toFront(true);
+    copySkinValues(default_skin);
     //setOpaque(true);
     open_gl_context_.setContinuousRepainting(true);
     open_gl_context_.setOpenGLVersionRequired(OpenGLContext::openGL3_2);
@@ -164,8 +162,9 @@ void FullInterface::paintBackground(juce::Graphics& g) {
 
 void FullInterface::copySkinValues(const Skin& skin) {
 //   ScopedLock open_gl_lock(open_gl_critical_section_);
-//   skin.copyValuesToLookAndFeel(DefaultLookAndFeel::instance());
-//   setSkinValues(skin, true);
+   skin.copyValuesToLookAndFeel(DefaultLookAndFeel::instance());
+   skin.copyValuesToLookAndFeel(TextLookAndFeel::instance());
+   setSkinValues(skin, true);
 }
 
 void FullInterface::reloadSkin(const Skin& skin) {
@@ -534,8 +533,6 @@ std::map<std::string, SynthSlider*> FullInterface::getAllSliders(){
 std::map<std::string, ModulationButton*> FullInterface::getAllModulationButtons(){
     return main_->getAllModulationButtons();
 }
-
-
 
 
 

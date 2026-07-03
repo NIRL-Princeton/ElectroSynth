@@ -41,6 +41,7 @@ class ModulationMeter : public juce::Component {
     bool isModulated() const { return modulated_; }
     bool isRotary() const { return rotary_; }
     void setModulated(bool modulated) { modulated_ = modulated; }
+    void setCurrentValue(float value) { current_value_ = value; }
     float getModPercent() { return mod_percent_; }
 
     const SynthSlider* destination() { return destination_; }
@@ -69,4 +70,3 @@ class ModulationMeter : public juce::Component {
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ModulationMeter)
 };
-

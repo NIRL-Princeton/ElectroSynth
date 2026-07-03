@@ -113,9 +113,8 @@ void ModulationModuleSection::resized() {
         tab_borders_[i]->setBounds(outline_bounds);
 
         // Shift the text two pixels right without moving the outline.
-        tab_buttons_[i]->setBounds(outline_bounds.getX() + 2, outline_bounds.getY(),
-                                   std::max(0, outline_bounds.getWidth() - 2),
-                                   outline_bounds.getHeight());
+        tab_buttons_[i]->setBounds(outline_bounds.getX() + 4, outline_bounds.getY(),
+                                   std::max(0, outline_bounds.getWidth() - 4), outline_bounds.getHeight());
 
         static constexpr int kSelectedTabLineThickness = 2;
         static constexpr int kSelectedTabSideExtension = 4;
@@ -247,21 +246,54 @@ void ModulationModuleSection::updateTabs() {
                                 ? ShaderColors::kEnvelopeTextColor
                                 : ShaderColors::kLfoTextColor;
         const int number = is_envelope ? ++env_number : ++lfo_number;
-        tab_buttons_[i]->setText((is_envelope ? "  Env " : "  LFO ") + juce::String(number));
+        const auto label = (is_envelope ? "Env " : "LFO ") + juce::String(number);
+        tab_buttons_[i]->setText("  " + label);
         tab_buttons_[i]->setToggleState(selected, juce::dontSendNotification);
+        tab_buttons_[i]->setColour(Skin::kBody, findColour(Skin::kBody, true));
         tab_buttons_[i]->setColour(Skin::kTextComponentBackground, selected ? juce::Colours::transparentBlack : juce::Colours::black);
-        tab_buttons_[i]->setColour(Skin::kIconButtonOn, selected ? juce::Colours::white : accent);
-        tab_buttons_[i]->setColour(Skin::kIconButtonOff, selected ? juce::Colours::white : accent);
+        tab_buttons_[i]->setColour(Skin::kIconButtonOn, accent);
+        tab_buttons_[i]->setColour(Skin::kIconButtonOnPressed, accent);
+        tab_buttons_[i]->setColour(Skin::kIconButtonOnHover, accent.brighter(0.15f));
+        tab_buttons_[i]->setColour(Skin::kIconButtonOff, accent);
+        tab_buttons_[i]->setColour(Skin::kIconButtonOffPressed, accent);
+        tab_buttons_[i]->setColour(Skin::kIconButtonOffHover, accent.brighter(0.15f));
         tab_buttons_[i]->getGlComponent()->setColors();
+
+        if (auto* mod_button = module_sections[i]->getModulationButton()) {
+            static constexpr int kModButtonSize = 25;
+            static constexpr int kTextLeftPadding = 12;
+            static constexpr int kTextIconGap = 35;
+
+            const auto tab_bounds = tab_buttons_[i]->getBounds();
+            const int text_width = getLabelFont().getStringWidth(label);
+            const int max_icon_x = tab_bounds.getRight() - kModButtonSize;
+            const int wanted_icon_x = tab_bounds.getX() + kTextLeftPadding + text_width + kTextIconGap;
+            const int icon_x = max_icon_x >= tab_bounds.getX()
+                                   ? juce::jlimit(tab_bounds.getX(), max_icon_x, wanted_icon_x)
+                                   : tab_bounds.getX();
+            mod_button->setSourceColor(accent);
+            mod_button->setVisible(occupied);
+            mod_button->setBounds(icon_x,
+                                  tab_bounds.getCentreY() - kModButtonSize / 2,
+                                  kModButtonSize,
+                                  kModButtonSize);
+            mod_button->toFront(false);
+            mod_button->setDisplayLabel(label);
+        }
 
         tab_borders_[i]->setVisible(!selected);
         tab_borders_[i]->setColor(accent);
         selected_tab_bottoms_[i]->setVisible(selected);
+        selected_tab_bottoms_[i]->setColor(accent);
         selected_tab_lefts_[i]->setVisible(selected);
+        selected_tab_lefts_[i]->setColor(accent);
         selected_tab_rights_[i]->setVisible(selected);
+        selected_tab_rights_[i]->setColor(accent);
         selected_tab_line_masks_[i]->setColor(findColour(Skin::kBody, true));
         selected_tab_line_masks_[i]->setVisible(selected);
     }
+
+
 }
 PopupItems ModulationModuleSection::createPopupMenu() {
     PopupItems options;
@@ -311,6 +343,7 @@ void ModulationModuleSection::renderOpenGlComponents(OpenGlWrapper& open_gl, boo
 //    DBG("x_offset" + juce::String(x_offset));
     SynthSection::renderOpenGlComponents(open_gl, animate);
 }
+
 void ModulationModuleSection::redoBackgroundImage() {
     Colour background = findColour(Skin::kBackground, true);
 
@@ -339,6 +372,8 @@ void ModulationModuleSection::moduleAdded(ModulatorBase *newModule) {
     module_section->setInterceptsMouseClicks(false,true);
     parentHierarchyChanged();
     module_sections.emplace_back(std::move(module_section));
+    addOpenGlComponent(
+        std::static_pointer_cast<OpenGlImageComponent>(module_sections.back()->getModulationButtonPtr()));
     selected_tab_ = static_cast<int>(module_sections.size()) - 1;
     updateTabs();
     for(auto listener : listeners_) {

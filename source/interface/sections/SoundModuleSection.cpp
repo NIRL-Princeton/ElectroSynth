@@ -92,7 +92,8 @@ void SoundModuleSection::redoBackgroundImage() {
     Graphics background_graphics(background_image);
     background_graphics.addTransform(AffineTransform::scale(mult));
     background_graphics.fillAll(background);
-    container_->paintBackground(background_graphics);
+    if (isExpanded())
+        container_->paintBackground(background_graphics);
     background_.setOwnImage(background_image);
 }
 
@@ -265,6 +266,8 @@ void SoundModuleSection::resized() {
     auto header = area.removeFromTop(30);
     toggle_button_->setBounds(0,0,getTitleWidth(),getTitleWidth());
     if (isExpanded()) {
+        viewport_.setVisible(true);
+        container_->setVisible(true);
         viewport_.setBounds(0,getTitleWidth(),getWidth(),getHeight()-(getTitleWidth()*2)); //getHeight()-getTitleWidth() - (large_padding + 20 * shadow_width));
         setEffectPositions();
         setScrollBarRange();
@@ -293,6 +296,8 @@ void SoundModuleSection::resized() {
     }
     else
     {
+        viewport_.setVisible(false);
+        container_->setVisible(false);
         viewport_.setBounds(0,0,0,0);
         container_->setBounds(0,0,0,0);
         scroll_bar_->setVisible(false);

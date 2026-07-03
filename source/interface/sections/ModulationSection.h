@@ -16,21 +16,24 @@ class ModulationSection : public SynthSection
 {
 public:
     ModulationSection(  const juce::ValueTree &, std::unique_ptr<SynthSection> editor, juce::UndoManager& um);
-
     virtual ~ModulationSection();
 
     void paintBackground(Graphics& g) override;
-    //    void setParametersViewEditor(electrosynth::ParametersViewEditor&&);
+    // void setParametersViewEditor(electrosynth::ParametersViewEditor&&);
     // void paintBackgroundShadow(Graphics& g) override { if (isActive()) paintTabShadow(g); }
     void resized() override;
     juce::String getModulatorType() const;
-    //  void setActive(bool active) override;
+    //void setActive(bool active) override;
     //void sliderValueChanged(Slider* changed_slider) override;
     //void setAllValues(vital::control_map& controls) override;
     //void setFilterActive(bool active);
     juce::ValueTree state;
     void addModButtonListener(ModulationManager*);
     void buttonClicked(juce::Button* clicked_button) override;
+
+    ModulationButton* getModulationButton() const { return mod_button.get(); }
+    std::shared_ptr<ModulationButton> getModulationButtonPtr() const { return mod_button; }
+
 private:
 
     std::unique_ptr<SynthSection> _view;

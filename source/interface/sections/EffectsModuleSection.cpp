@@ -280,6 +280,8 @@ void EffectModuleSection::resized() {
     auto header = area.removeFromTop(30);
     toggle_button_->setBounds(0,0,getTitleWidth(),getTitleWidth());
     if (isExpanded()) {
+        viewport_.setVisible(true);
+        container_->setVisible(true);
         viewport_.setBounds(0,getTitleWidth(),getWidth(),getHeight()-getTitleWidth()-2);
         setEffectPositions();
         scroll_bar_->setBounds(getWidth() - large_padding, getTitleWidth() + large_padding, large_padding - 2, getHeight() - getTitleWidth()-(large_padding + 2 * shadow_width));
@@ -308,6 +310,8 @@ void EffectModuleSection::resized() {
     }
     else
     {
+        viewport_.setVisible(false);
+        container_->setVisible(false);
         viewport_.setBounds(0,0,0,0);
         container_->setBounds(0,0,0,0);
     }
@@ -484,7 +488,8 @@ void EffectModuleSection::redoBackgroundImage() {
     Graphics background_graphics(background_image);
     background_graphics.addTransform(AffineTransform::scale(mult));
     background_graphics.fillAll(background);
-    container_->paintBackground(background_graphics);
+    if (isExpanded())
+        container_->paintBackground(background_graphics);
     background_graphics.setColour(juce::Colours::aliceblue);
     background_graphics.fillRect(juce::Rectangle<float>(0.0f, 0.0f, 1.0f, (float)height));
     background_graphics.fillRect(juce::Rectangle<float>((float)width - 1.0f, 0.0f, 1.0f, (float)height));

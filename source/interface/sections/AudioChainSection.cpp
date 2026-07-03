@@ -285,6 +285,9 @@ void AudioChainSection::chainAdded(ModuleList<ProcessorBase> *module_list) {
     sound_module_sections.emplace_back(std::move(sound_interface));
 
     resized();
+
+    for (auto* listener : listeners_)
+        listener->added();
 }
 
 void AudioChainSection::chainChanged() {

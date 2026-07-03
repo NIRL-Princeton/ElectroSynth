@@ -632,6 +632,11 @@ electrosynth::ModulationConnectionBank &SynthBase::getModulationBank() {
 
 //this function does not set if it is disconnecting or not. you must do that outside this function
 electrosynth::mapping_change SynthBase::createMappingChange(electrosynth::ModulationConnection *connection) {
+    electrosynth::mapping_change change {};
+    change.connection = connection;
+    if (connection == nullptr)
+        return change;
+
     //leaf::Processor* source = engine_->getLEAFProcessor(proc_string);
     std::stringstream ss(connection->source_name);
     std::string proc_string;
@@ -639,8 +644,6 @@ electrosynth::mapping_change SynthBase::createMappingChange(electrosynth::Modula
     auto [dest, index] = engine_->getParameterInfo(connection->destination_name);
     auto source = engine_->getLEAFProcessorModulator(proc_string);
     connection->sourceProc_ = source;
-    electrosynth::mapping_change change;
-    change.connection = connection;
     change.mapping = connection->mapping_;
     change.destination = connection->destination_name;
     change.dest_param_index = index;
@@ -673,9 +676,11 @@ std::vector<electrosynth::ModulationConnection *> SynthBase::getDestinationConne
 }
 
 electrosynth::ModulationConnection *
-SynthBase::getConnection(const std::string &source, const std::string &destination) {
+SynthBase::getConnection(const std::string &source, const std::string &destination, int destination_slot) {
     for (auto &connection: mod_connections_) {
-        if (connection->source_name == source && connection->destination_name == destination)
+        if (connection->source_name == source
+            && connection->destination_name == destination
+            && (destination_slot < 0 || connection->destination_slot == destination_slot))
             return connection;
     }
     return nullptr;
@@ -683,7 +688,7 @@ SynthBase::getConnection(const std::string &source, const std::string &destinati
 
 bool SynthBase::connectModulation(const std::string &source, const std::string &destination,
                                   int destination_slot) {
-    electrosynth::ModulationConnection *connection = getConnection(source, destination);
+    electrosynth::ModulationConnection *connection = getConnection(source, destination, destination_slot);
     bool create = connection == nullptr;
     if (create) {
         if (destination_slot >= 0) {
