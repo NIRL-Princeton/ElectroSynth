@@ -90,7 +90,12 @@ public:
     void prepareToPlay (int samplesPerBlock, double sampleRate ) override {};
     void releaseResources() override {}
     std::unique_ptr<SynthSection> createEditor() override {
-        return std::make_unique<electrosynth::FxModuleTemplateView>(state_, state_.params, state.getProperty(IDs::type).toString() + state.getProperty(IDs::uuid).toString());
+        auto name = state.getProperty(IDs::type).toString() + state.getProperty(IDs::uuid).toString();
+        // Filter can live in either lane: horizontal ParametersView as a sound
+        // module, vertical FxModuleTemplateView as an effect module (FX panel).
+        if (state.hasType(IDs::SOUNDMODULE))
+            return std::make_unique<electrosynth::ParametersView>(state_, state_.params, name);
+        return std::make_unique<electrosynth::FxModuleTemplateView>(state_, state_.params, name);
     }
 };
 

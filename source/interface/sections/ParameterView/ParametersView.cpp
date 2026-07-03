@@ -430,6 +430,9 @@ public:
         if (getName().equalsIgnoreCase("VCA")
             || getName().containsIgnoreCase("master"))
             return ShaderColors::kMasterEnvelopeTextColor;
+        // Filter shares its label red with the FX panel in both lanes.
+        if (getName().startsWithIgnoreCase("filt"))
+            return ShaderColors::kEffectTextColor;
 
         return ShaderColors::kSoundModuleTextColor;
     }

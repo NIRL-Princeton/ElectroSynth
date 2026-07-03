@@ -61,6 +61,11 @@ public:
     void mouseDown(const juce::MouseEvent& e) override
     {
         DBG("mousedown");
+        // Right-clicks belong to the owning lane's create menu, not drag-reorder.
+        if (e.mods.isPopupMenu()) {
+            if (onPopupMenu) onPopupMenu(e);
+            return;
+        }
         dragStartY = e.getEventRelativeTo(getParentComponent()).position.getY();
         originalBounds = getBounds();
         toFront(true);
@@ -68,6 +73,8 @@ public:
 
     void mouseDrag(const juce::MouseEvent& e) override
     {
+        if (e.mods.isPopupMenu())
+            return;
         int deltaY = e.getEventRelativeTo(getParentComponent()).position.getY() - dragStartY;
         setTopLeftPosition(originalBounds.getX(), originalBounds.getY() + deltaY);
 
@@ -100,6 +107,7 @@ public:
     }
     std::function<void(ModuleSection*, juce::Rectangle<int>)> onDragMove;
     std::function<void(ModuleSection*, juce::Rectangle<int>)> onDragEnd;
+    std::function<void(const juce::MouseEvent&)> onPopupMenu;
 
     int dragStartY = 0;
     juce::Rectangle<int> originalBounds;

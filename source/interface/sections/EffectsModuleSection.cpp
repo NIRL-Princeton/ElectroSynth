@@ -219,6 +219,15 @@ void EffectModuleSection::moduleAdded(ProcessorBase *newModule) {
         setEffectPositions();
     };
 
+    // FX module sections intercept clicks for drag-reorder, which also swallows
+    // right-clicks before they reach ModulesInterface::mouseDown. Route those to
+    // the same create-effect popup the lane background shows.
+    module_section->onPopupMenu = [this](const juce::MouseEvent& e) {
+        PopupItems options = createPopupMenu();
+        showPopupSelector(this, getLocalPoint(e.eventComponent, e.getPosition()), options,
+                          [=](int selection) { handlePopupResult(selection); });
+    };
+
     { juce::ScopedLock lock(open_gl_critical_section_);
         container_->addSubSection(module_section.get());
     }
