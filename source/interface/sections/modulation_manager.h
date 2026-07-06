@@ -16,8 +16,6 @@
 
 #pragma once
 
-
-
 #include "bar_renderer.h"
 #include "modulation_button.h"
 #include "open_gl_component.h"
@@ -31,6 +29,7 @@
 #include "AudioChainSection.h"
 #include "ModulationModuleSection.h"
 #include "SoundModuleSection.h"
+
 class ExpandModulationButton;
 class ModulationMatrix;
 class ModulationMeter;
@@ -60,21 +59,20 @@ class ModulationAmountKnob : public SynthSlider {
 
     ModulationAmountKnob(juce::String name, int index, const ValueTree &v);
 
-	    void mouseDown(const juce::MouseEvent& e) override;
-	    void mouseUp(const juce::MouseEvent& e) override;
-	    void mouseExit(const juce::MouseEvent& e) override;
-	    void paint(juce::Graphics& g) override;
-	    void handleModulationMenuCallback(int result);
+    void mouseDown(const juce::MouseEvent& e) override;
+    void mouseUp(const juce::MouseEvent& e) override;
+    void mouseExit(const juce::MouseEvent& e) override;
+    void paint(juce::Graphics& g) override;
+    void handleModulationMenuCallback(int result);
 
     void makeVisible(bool visible);
     void hideImmediately();
 
-	    void setCurrentModulator(bool current);
-	    void setDestinationComponent(juce::Component* component, const std::string& name);
-	    juce::Colour getInternalColor();
-	    void setSource(const std::string& name);
-	    juce::String getSourceLabel() const;
-	    juce::Colour getSourceColor() const;
+    void setCurrentModulator(bool current);
+    void setDestinationComponent(juce::Component* component, const std::string& name);
+    void setSource(const std::string& name);
+    juce::String getSourceLabel() const;
+    juce::Colour getSourceColor() const;
 
     juce::Colour withBypassSaturation(juce::Colour color) const {
       if (bypass_)
@@ -99,7 +97,12 @@ class ModulationAmountKnob : public SynthSlider {
 	        repaint();
 	    }
 
-    void setBypass(bool bypass) { bypass_ = bypass; setColors(); }
+    void setBypass(bool bypass) {
+        bypass_ = bypass;
+        setColors();
+        redoImage();
+        repaint();
+    }
     void setStereo(bool stereo) { stereo_ = stereo; }
     void setBipolar(bool bipolar) { bipolar_ = bipolar; }
     bool isBypass() { return bypass_; }
@@ -135,9 +138,9 @@ class ModulationAmountKnob : public SynthSlider {
 
     juce::Point<int> mouse_down_position_;
     juce::Component* color_component_;
-	    juce::String aux_name_;
-	    juce::String name_;
-	    juce::String source_name_;
+    juce::String aux_name_;
+    juce::String name_;
+    juce::String source_name_;
     bool editing_;
     int index_;
     bool showing_;
@@ -223,7 +226,7 @@ class ModulationManager : public SynthSection,
     void modulationClicked(ModulationButton* source) override;
     void modulationCleared() override;
     bool hasFreeConnection();
-    void startModulationMap(ModulationButton* source, const juce::MouseEvent& e) override;
+    void startDestinationMap(ModulationButton* source, const juce::MouseEvent& e) override;
     void modulationDragged(const juce::MouseEvent& e) override;
     void positionDragIcon();
     void modulationWheelMoved(const juce::MouseEvent& e, const juce::MouseWheelDetails& wheel) override;
@@ -368,6 +371,10 @@ class ModulationManager : public SynthSection,
     std::map<int, int> aux_connections_to_from_;
     std::unique_ptr<ModulationAmountKnob> modulation_icon_[electrosynth::kMaxModulationConnections];
     std::unique_ptr<ModulationAmountKnob> selected_modulation_sliders_[electrosynth::kMaxModulationConnections];
+
+    void drawMappingMode(OpenGlWrapper& open_gl);
+    bool isMappingMode() const;
+    OpenGlQuad mapping_mode_dim_quad_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ModulationManager)
 };

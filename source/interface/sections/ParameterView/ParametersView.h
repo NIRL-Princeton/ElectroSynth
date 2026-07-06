@@ -18,17 +18,20 @@ namespace electrosynth {
 	        void setSourceName(juce::String source_name);
 	        void setSourceDisplayLabel(juce::String display_label);
 	        void setModulationAmount(float amount);
+	        void setBypass(bool bypass);
 	        void setAuxSource(juce::String source_name, juce::String display_label);
 	        void clearSource() {
 	            setSourceName({});
 	            setSourceDisplayLabel({});
 	            setModulationAmount(0.0f);
+	            setBypass(false);
 	            setAuxSource({}, {});
 	        }
 	        bool isOccupied() const { return source_name_.isNotEmpty(); }
 	        juce::Colour getSourceColor() const;
 	        juce::String getSourceLabel() const;
 	        float getModulationAmount() const { return modulation_amount_; }
+	        bool isBypass() const { return bypass_; }
 	        bool hasAuxSource() const { return aux_source_name_.isNotEmpty(); }
 	        juce::Colour getAuxSourceColor() const;
 	        juce::String getAuxSourceLabel() const;
@@ -41,6 +44,7 @@ namespace electrosynth {
 	        juce::String aux_source_name_;
 	        juce::String aux_display_label_;
 	        float modulation_amount_ = 0.0f;
+	        bool bypass_ = false;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ModulationSlotComponent)
     };

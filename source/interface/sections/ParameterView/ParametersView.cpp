@@ -4,6 +4,7 @@
 #include "synth_slider.h"
 #include "open_gl_background.h"
 #include "open_gl_combobox.h"
+#include <cmath>
 
 // ParametersView.cpp is the generic parameter-to-controller builder. Given a processor’s parameter list, it creates the right UI component
 // for each parameter:
@@ -53,6 +54,10 @@ namespace electrosynth {
             aux_bounds.setTop(slot_bounds.getCentreY());
             return aux_bounds;
         }
+
+        juce::Colour getBypassAdjustedColor(juce::Colour color, bool bypass) {
+            return bypass ? color.withSaturation(0.0f).withMultipliedBrightness(0.85f) : color;
+        }
     }
 
 	ModulationSlotComponent::ModulationSlotComponent(SynthSlider& destination_slider, int slot_index)
@@ -68,8 +73,8 @@ void ModulationSlotComponent::paint(juce::Graphics& g) {
     const auto empty_border_color = juce::Colour::fromRGB(54, 78, 79);
 
     if (isOccupied()) {
-        const auto source_color = getSourceColor();
-        const auto amount = juce::jlimit(0.0f, 1.0f, modulation_amount_);
+        const auto source_color = getBypassAdjustedColor(getSourceColor(), bypass_);
+        const auto amount = juce::jlimit(0.0f, 1.0f, std::abs(modulation_amount_));
 
         g.setColour(source_color.withAlpha(0.28f));
         g.fillRect(bounds.reduced(1.0f));
@@ -129,11 +134,23 @@ void ModulationSlotComponent::setSourceDisplayLabel(juce::String display_label) 
 
 void ModulationSlotComponent::setModulationAmount(float amount)
 {
-    amount = juce::jlimit(0.0f, 1.0f, amount);
+    amount = juce::jlimit(-1.0f, 1.0f, amount);
     if (juce::approximatelyEqual(modulation_amount_, amount))
         return;
 
     modulation_amount_ = amount;
+    repaint();
+    if (auto* parameters_view = findParentComponentOfClass<ParametersView>()) {
+        parameters_view->syncModulationSlotOpenGl();
+        parameters_view->repaintBackground();
+    }
+}
+
+void ModulationSlotComponent::setBypass(bool bypass) {
+    if (bypass_ == bypass)
+        return;
+
+    bypass_ = bypass;
     repaint();
     if (auto* parameters_view = findParentComponentOfClass<ParametersView>()) {
         parameters_view->syncModulationSlotOpenGl();
@@ -462,8 +479,8 @@ public:
 
                 auto slot_bounds = slot->getBounds().toFloat();
                 if (slot->isOccupied()) {
-                    const auto source_color = slot->getSourceColor();
-                    const auto amount = juce::jlimit(0.0f, 1.0f, slot->getModulationAmount());
+                    const auto source_color = getBypassAdjustedColor(slot->getSourceColor(), slot->isBypass());
+                    const auto amount = juce::jlimit(0.0f, 1.0f, std::abs(slot->getModulationAmount()));
 
                     g.setColour(source_color.withAlpha(0.28f));
                     g.fillRect(slot_bounds.reduced(1.0f));
@@ -729,10 +746,12 @@ public:
                     continue;
 
 	                const bool occupied = slot->isOccupied();
-	                const auto source_color = occupied ? slot->getSourceColor() : empty_border_color;
+	                const auto source_color = occupied
+	                    ? getBypassAdjustedColor(slot->getSourceColor(), slot->isBypass())
+	                    : empty_border_color;
 	                const bool has_aux = slot->hasAuxSource();
 	                const auto aux_color = has_aux ? slot->getAuxSourceColor() : empty_border_color;
-	                const float amount = juce::jlimit(0.0f, 1.0f, slot->getModulationAmount());
+	                const float amount = juce::jlimit(0.0f, 1.0f, std::abs(slot->getModulationAmount()));
 	                const auto slot_bounds = slot->getBounds();
 
                 if (visuals.body) {
