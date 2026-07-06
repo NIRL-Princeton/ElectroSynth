@@ -68,45 +68,7 @@ namespace electrosynth {
     setInterceptsMouseClicks(false, false);
 }
 
-void ModulationSlotComponent::paint(juce::Graphics& g) {
-    const auto bounds = getLocalBounds().toFloat();
-    const auto empty_border_color = juce::Colour::fromRGB(54, 78, 79);
-
-    if (isOccupied()) {
-        const auto source_color = getBypassAdjustedColor(getSourceColor(), bypass_);
-        const auto amount = juce::jlimit(0.0f, 1.0f, std::abs(modulation_amount_));
-
-        g.setColour(source_color.withAlpha(0.28f));
-        g.fillRect(bounds.reduced(1.0f));
-
-        const float meter_thickness = std::max(2.0f, bounds.getHeight() * 0.12f);
-        const float meter_width = std::max(0.0f, bounds.getWidth() * amount - 2.0f);
-        g.setColour(source_color.withAlpha(0.45f));
-        g.fillRect(bounds.getX() + 1.0f, bounds.getBottom() - meter_thickness - 1.0f, meter_width, meter_thickness);
-
-        g.setColour(source_color);
-        g.setFont(juce::Font(std::max(9.0f, bounds.getHeight() * 0.45f), juce::Font::plain));
-        g.drawFittedText(getSourceLabel(), getLocalBounds().reduced(2, 1),
-                         juce::Justification::centred, 1);
-
-        if (hasAuxSource()) {
-            const auto aux_bounds = getAuxSlotBounds(bounds);
-            const auto aux_color = getAuxSourceColor();
-            g.setColour(aux_color.withAlpha(0.32f));
-            g.fillRect(aux_bounds);
-            g.setColour(aux_color);
-            g.drawRect(aux_bounds, 1.0f);
-            g.setFont(juce::Font(std::max(7.0f, aux_bounds.getHeight() * 0.55f), juce::Font::plain));
-            g.drawFittedText(getAuxSourceLabel(), aux_bounds.toNearestInt().reduced(1, 0),
-                             juce::Justification::centred, 1);
-        }
-    }
-    else {
-        g.setColour(empty_border_color);
-    }
-
-    g.drawRect(bounds.reduced(0.5f), 1.0f);
-}
+void ModulationSlotComponent::paint(juce::Graphics& g) { DBG("fallback on ModulationSlotComponent::paint"); }
 
 void ModulationSlotComponent::setSourceName(juce::String source_name) {
     if (source_name_ == source_name)
@@ -456,67 +418,12 @@ public:
         g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
     }
 
-    void ParametersView::paintBackground(juce::Graphics& g) {
+    void ParametersView::paintBackground(juce::Graphics& g)
+    {
         SynthSection::paintContainer(g);
         paintBorder(g);
         paintKnobShadows(g);
         paintChildrenBackgrounds(g);
-
-        const auto empty_border_color = juce::Colour::fromRGB(54, 78, 79);
-
-        // paint three box targets below the knob
-        for (const auto& [slider, bounds] : modulation_boxes_) {
-            if (slider == nullptr || !slider->isVisible())
-                continue;
-
-            auto slots = modulation_box_targets_.find(slider);
-            if (slots == modulation_box_targets_.end())
-                continue;
-
-            for (const auto& slot : slots->second) {
-                if (slot == nullptr)
-                    continue;
-
-                auto slot_bounds = slot->getBounds().toFloat();
-                if (slot->isOccupied()) {
-                    const auto source_color = getBypassAdjustedColor(slot->getSourceColor(), slot->isBypass());
-                    const auto amount = juce::jlimit(0.0f, 1.0f, std::abs(slot->getModulationAmount()));
-
-                    g.setColour(source_color.withAlpha(0.28f));
-                    g.fillRect(slot_bounds.reduced(1.0f));
-
-                    const float meter_thickness = std::max(2.0f, slot_bounds.getHeight() * 0.12f);
-                    const float meter_width = std::max(0.0f, slot_bounds.getWidth() * amount - 2.0f);
-                    g.setColour(source_color.withAlpha(0.45f));
-                    g.fillRect(slot_bounds.getX() + 1.0f,
-                               slot_bounds.getBottom() - meter_thickness - 1.0f,
-                               meter_width,
-                               meter_thickness);
-
-	                    g.setColour(source_color);
-	                    g.setFont(juce::Font(std::max(9.0f, slot_bounds.getHeight() * 0.45f), juce::Font::bold));
-	                    g.drawFittedText(slot->getSourceLabel(), slot->getBounds().reduced(2, 1),
-	                                     juce::Justification::centred, 1);
-
-	                    if (slot->hasAuxSource()) {
-	                        const auto aux_bounds = getAuxSlotBounds(slot_bounds);
-	                        const auto aux_color = slot->getAuxSourceColor();
-	                        g.setColour(aux_color.withAlpha(0.32f));
-	                        g.fillRect(aux_bounds);
-	                        g.setColour(aux_color);
-	                        g.drawRect(aux_bounds, 1.0f);
-	                        g.setFont(juce::Font(std::max(7.0f, aux_bounds.getHeight() * 0.55f), juce::Font::bold));
-	                        g.drawFittedText(slot->getAuxSourceLabel(), aux_bounds.toNearestInt().reduced(1, 0),
-	                                         juce::Justification::centred, 1);
-	                    }
-	                }
-                else {
-                    g.setColour(empty_border_color);
-                }
-
-                g.drawRect(slot_bounds, 1.0f);
-            }
-        }
     }
 
     void ParametersView::ensureSliderLabels() {
@@ -712,7 +619,7 @@ public:
 	                            if (visuals.aux_border) visuals.aux_border->setBounds(aux_bounds);
 	                            if (visuals.aux_label) visuals.aux_label->setBounds(aux_bounds.reduced(1, 0));
 
-	                            const int meter_height = std::max(2, static_cast<int>(slot_bounds.getHeight() * 0.12f));
+	                            const int meter_height = std::max(2, static_cast<int>(slot_bounds.getHeight()));
                             if (visuals.amount) {
                                 visuals.amount->setBounds(slot_bounds.getX() + 1,
                                                           slot_bounds.getBottom() - meter_height - 1,
@@ -732,7 +639,7 @@ public:
     }
 
     void ParametersView::syncModulationSlotOpenGl() {
-        const auto empty_border_color = juce::Colour::fromRGB(54, 78, 79);
+        const auto empty_border_color = juce::Colours::transparentBlack;
 
         for (auto& [slider, slots] : modulation_box_targets_) {
             auto visuals_iter = modulation_box_open_gl_.find(slider);
@@ -745,14 +652,14 @@ public:
                 if (slot == nullptr)
                     continue;
 
-	                const bool occupied = slot->isOccupied();
-	                const auto source_color = occupied
+                const bool occupied = slot->isOccupied();
+                const auto source_color = occupied
 	                    ? getBypassAdjustedColor(slot->getSourceColor(), slot->isBypass())
 	                    : empty_border_color;
-	                const bool has_aux = slot->hasAuxSource();
-	                const auto aux_color = has_aux ? slot->getAuxSourceColor() : empty_border_color;
-	                const float amount = juce::jlimit(0.0f, 1.0f, std::abs(slot->getModulationAmount()));
-	                const auto slot_bounds = slot->getBounds();
+                const bool has_aux = slot->hasAuxSource();
+                const auto aux_color = has_aux ? slot->getAuxSourceColor() : empty_border_color;
+                const float amount = juce::jlimit(-1.0f, 1.0f, (slot->getModulationAmount()));
+                const auto slot_bounds = slot->getBounds();
 
                 if (visuals.body) {
                     visuals.body->setColor(source_color.withAlpha(0.28f));
@@ -760,11 +667,11 @@ public:
                 }
 
                 if (visuals.amount) {
-                    visuals.amount->setColor(source_color.withAlpha(0.45f));
-                    visuals.amount->setVisible(occupied && amount > 0.0f);
+                    visuals.amount->setColor(source_color.withAlpha(0.2f));
+                    visuals.amount->setVisible(occupied && amount > -1.f);
                     auto amount_bounds = visuals.amount->getBounds();
                     amount_bounds.setWidth(std::max(0, static_cast<int>(
-                        std::round((slot_bounds.getWidth() - 2) * amount))));
+                        std::round((slot_bounds.getWidth() - 2) * (amount+1)/2))) );
                     visuals.amount->setBounds(amount_bounds);
                 }
 

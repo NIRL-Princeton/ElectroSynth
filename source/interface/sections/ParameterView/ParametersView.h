@@ -96,15 +96,15 @@ namespace electrosynth {
         std::vector<std::unique_ptr<juce::Component>> comps;
         std::map<juce::Component*, std::shared_ptr<PlainTextComponent>> slider_labels_;
         std::map<juce::Component*, juce::Rectangle<int>> modulation_boxes_;
-        using ModulationSlots =
-            std::array<std::unique_ptr<ModulationSlotComponent>, SynthSlider::kNumModulationSlots>;
+        using ModulationSlots = std::array<std::unique_ptr<ModulationSlotComponent>, SynthSlider::kNumModulationSlots>;
         std::map<juce::Component*, ModulationSlots> modulation_box_targets_;
-	        struct ModulationSlotOpenGl {
-	            std::shared_ptr<OpenGlQuad> body;
-	            std::shared_ptr<OpenGlQuad> amount;
-	            std::shared_ptr<OpenGlQuad> border;
-	            std::shared_ptr<PlainTextComponent> label;
-	            std::shared_ptr<OpenGlQuad> aux_body;
+
+        struct ModulationSlotOpenGl {
+	            std::shared_ptr<OpenGlQuad> body; // filled background
+	            std::shared_ptr<OpenGlQuad> amount; // small meter on the bottom
+	            std::shared_ptr<OpenGlQuad> border; // border
+	            std::shared_ptr<PlainTextComponent> label; // source label
+	            std::shared_ptr<OpenGlQuad> aux_body; //
 	            std::shared_ptr<OpenGlQuad> aux_border;
 	            std::shared_ptr<PlainTextComponent> aux_label;
 	        };
