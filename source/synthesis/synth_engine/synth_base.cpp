@@ -686,11 +686,21 @@ SynthBase::getConnection(const std::string &source, const std::string &destinati
     return nullptr;
 }
 
-bool SynthBase::connectModulation(const std::string &source, const std::string &destination,
-                                  int destination_slot) {
+// does this source already have a connection to this destination?
+bool SynthBase::hasSourceDestinationConnection(const std::string &source, const std::string &destination) const
+{
+    for (auto* existing : mod_connections_)
+    {
+        if (existing->source_name == source && existing->destination_name == destination) return true;
+    }
+    return false;
+}
+
+bool SynthBase::connectModulation(const std::string &source, const std::string &destination, int destination_slot) {
+
     electrosynth::ModulationConnection *connection = getConnection(source, destination, destination_slot);
     bool create = connection == nullptr;
-    if (create) {
+    if (create && !hasSourceDestinationConnection (source, destination)) {
         if (destination_slot >= 0) {
             for (auto* existing : mod_connections_) {
                 if (existing->destination_name == destination
