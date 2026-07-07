@@ -233,7 +233,8 @@ void SoundModuleSection::paintBackground(juce::Graphics& g) {
 
 void SoundModuleSection::moduleAdded(ProcessorBase *newModule) {
     auto module_section = std::make_unique<ModuleSection>(newModule->state,std::move (newModule->createEditor()), undo);
-    { juce::ScopedLock lock(open_gl_critical_section_);
+    {
+        juce::ScopedLock lock(open_gl_critical_section_);
         container_->addSubSection(module_section.get());
     }
     module_section->setInterceptsMouseClicks(false, true);

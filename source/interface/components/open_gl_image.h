@@ -74,6 +74,7 @@ public:
 private:
     std::mutex mutex_;
     bool dirty_;
+    bool texture_loaded_;
 
     juce::Image *image_;
     int image_width_;

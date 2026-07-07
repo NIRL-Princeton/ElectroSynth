@@ -526,7 +526,7 @@ namespace electrosynth
         auto outerIt = std::find_if (processors.begin(), processors.end(), [&] (const auto& innerVec) {
             // Use find_if on the inner vector to look for the processor with the target name
             auto innerIt = std::find_if (innerVec.begin(), innerVec.end(), [&] (const auto& processor) {
-                return processor->name == juce::String (proc_string);
+                return processor != nullptr && processor->name == juce::String (proc_string);
             });
 
             // Return true if the processor was found in this inner vector
@@ -536,7 +536,7 @@ namespace electrosynth
         if (outerIt != processors.end())
         {
             auto innerIt = std::find_if (outerIt->begin(), outerIt->end(), [&] (const auto& processor) {
-                return processor->name == juce::String (proc_string);
+                return processor != nullptr && processor->name == juce::String (proc_string);
             });
 
             // Here you can cast the processor to leaf::Processor* if needed
@@ -556,7 +556,7 @@ namespace electrosynth
         auto outerIt = std::find_if (modSources.begin(), modSources.end(), [&] (const auto& innerVec) {
             // Use find_if on the inner vector to look for the processor with the target name
             auto innerIt = std::find_if (innerVec.begin(), innerVec.end(), [&] (const auto& processor) {
-                return processor->name == juce::String (proc_string);
+                return processor != nullptr && processor->name == juce::String (proc_string);
             });
 
             // Return true if the processor was found in this inner vector
@@ -566,7 +566,7 @@ namespace electrosynth
         if (outerIt != modSources.end())
         {
             auto innerIt = std::find_if (outerIt->begin(), outerIt->end(), [&] (const auto& processor) {
-                return processor->name == juce::String (proc_string);
+                return processor != nullptr && processor->name == juce::String (proc_string);
             });
 
             // Here you can cast the processor to leaf::Processor* if needed

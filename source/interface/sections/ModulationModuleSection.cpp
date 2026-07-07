@@ -364,6 +364,7 @@ std::map<std::string, ModulationButton*> ModulationModuleSection::getAllModulati
 }
 void ModulationModuleSection::moduleAdded(ModulatorBase *newModule) {
     auto module_section = std::make_unique<ModulationSection>( newModule->state, std::move((newModule->createEditor())), undo);
+
     {
         juce::ScopedLock lock(open_gl_critical_section_);
         container_->addSubSection(module_section.get());
@@ -372,8 +373,10 @@ void ModulationModuleSection::moduleAdded(ModulatorBase *newModule) {
     module_section->setInterceptsMouseClicks(false,true);
     parentHierarchyChanged();
     module_sections.emplace_back(std::move(module_section));
-    addOpenGlComponent(
-        std::static_pointer_cast<OpenGlImageComponent>(module_sections.back()->getModulationButtonPtr()));
+
+    auto mod_button = module_sections.back()->getModulationButtonPtr();
+
+    addOpenGlComponent(std::static_pointer_cast<OpenGlImageComponent>(mod_button));
     selected_tab_ = static_cast<int>(module_sections.size()) - 1;
     updateTabs();
     for(auto listener : listeners_) {
@@ -381,7 +384,10 @@ void ModulationModuleSection::moduleAdded(ModulatorBase *newModule) {
     }
 
     resized();
+    if (mod_button != nullptr)
+        mod_button->redrawImage(true);
 }
+
 void ModulationModuleSection::moduleListChanged() {
 
 }
@@ -390,7 +396,7 @@ void ModulationModuleSection::removeModule(ModulatorBase *newModule) {
     decltype(module_sections)::iterator it;
     {
         juce::ScopedLock(this->open_gl_critical_section_);
-        it = std::remove_if(module_sections.begin(), module_sections.end(),
+        it = std::find_if(module_sections.begin(), module_sections.end(),
                             [newModule](auto& section) {
                                 return section->state == newModule->state;
                             });
@@ -406,22 +412,34 @@ void ModulationModuleSection::removeModule(ModulatorBase *newModule) {
 
 
     if (it != module_sections.end()) {
-        it->get()->setVisible(false);
+        auto* section = it->get();
+        section->setVisible(false);
+        auto modulation_button = section->getModulationButtonPtr();
         if ((juce::OpenGLContext::getCurrentContext() == nullptr)) {
 
             auto *_parent = findParentComponentOfClass<SynthGuiInterface>();
-            _parent->getOpenGlWrapper()->context.executeOnGLThread([this, it](juce::OpenGLContext &openGLContext) {
+            if (_parent != nullptr) {
+                _parent->getOpenGlWrapper()->context.executeOnGLThread([this, section, modulation_button](juce::OpenGLContext &openGLContext) {
 
 
-                auto a = it->get();
-                a->destroyOpenGlComponents(openGLContext);
-                this->container_->removeSubSection(a);
+                    if (modulation_button != nullptr)
+                        this->destroyOpenGlComponent(*modulation_button, openGLContext);
+                    section->destroyOpenGlComponents(openGLContext);
+                    this->container_->removeSubSection(section);
 
-                },true);
+                    },true);
+            }
 
         }
+        else {
+            auto& openGLContext = *juce::OpenGLContext::getCurrentContext();
+            if (modulation_button != nullptr)
+                destroyOpenGlComponent(*modulation_button, openGLContext);
+            section->destroyOpenGlComponents(openGLContext);
+            container_->removeSubSection(section);
+        }
 
-        module_sections.erase(it, module_sections.end());
+        module_sections.erase(it);
         selected_tab_ = juce::jlimit(0, std::max(0, static_cast<int>(module_sections.size()) - 1), selected_tab_);
         updateTabs();
 

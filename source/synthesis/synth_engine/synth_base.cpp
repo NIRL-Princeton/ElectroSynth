@@ -724,6 +724,8 @@ bool SynthBase::connectModulation(const std::string &source, const std::string &
 void SynthBase::connectModulation(electrosynth::ModulationConnection *connection) {
     electrosynth::mapping_change change = createMappingChange(connection);
     if (isInvalidConnection(change)) {
+        if (connection->state.getParent().isValid())
+            connection->state.getParent().removeChild(connection->state, nullptr);
         connection->clearConnection();
     } else if (mod_connections_.count(connection) == 0) {
         change.disconnecting = false;
@@ -734,12 +736,14 @@ void SynthBase::connectModulation(electrosynth::ModulationConnection *connection
     }
 }
 
-//TODO remove from vcaluetress
+
 void SynthBase::disconnectModulation(electrosynth::ModulationConnection *connection) {
     if (mod_connections_.count(connection) == 0)
         return;
 
     electrosynth::mapping_change change = createMappingChange(connection);
+    if (connection->state.getParent().isValid())
+        connection->state.getParent().removeChild(connection->state, nullptr);
     connection->clearConnection();
 
     mod_connections_.remove(connection);

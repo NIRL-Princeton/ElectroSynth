@@ -232,7 +232,7 @@ class ModulationManager : public SynthSection,
     void modulationWheelMoved(const juce::MouseEvent& e, const juce::MouseWheelDetails& wheel) override;
     void clearTemporaryModulation();
     void clearTemporaryHoverModulation();
-    void modulationDraggedToHoverSlider(ModulationAmountKnob* hover_slider);
+    void makeAuxilaryModulationConnection(ModulationAmountKnob* hover_slider);
     void modulationDraggedToComponent(juce::Component* component, bool bipolar);
     void setTemporaryModulationBipolar(juce::Component* component, bool bipolar);
     void endModulationMap() override;
@@ -306,7 +306,8 @@ class ModulationManager : public SynthSection,
   private:
 
     void setDestinationQuadBounds(ModulationDestination* destination);
-    int getModulationSlotAt(SynthSlider* slider, juce::Point<int> manager_position) const;
+    bool isPointInsideDestinationDropArea(SynthSlider* slider, juce::Point<int> manager_position) const;
+    int findSlotForNewConnection(SynthSlider* slider) const;
     bool isModulationSlotOccupied(const std::string& destination, int destination_slot) const;
     void updateModulationSlotVisuals();
     void makeCurrentModulatorAmountsVisible();

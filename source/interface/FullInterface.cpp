@@ -263,7 +263,7 @@ void FullInterface::resized() {
 
 
    resized_width_ = width_;
-
+    
    juce::ScopedLock lock(open_gl_critical_section_);
    static constexpr int kTopHeight = 48;
 
