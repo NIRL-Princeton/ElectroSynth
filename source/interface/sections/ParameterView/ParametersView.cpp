@@ -27,8 +27,7 @@ namespace electrosynth {
             return ShaderColors::kSoundModuleTextColor;
         }
 
-        juce::String getModulationSlotSourceLabel(const juce::String& source_name,
-                                                  const juce::String& display_label) {
+        juce::String getModulationSlotSourceLabel(const juce::String& source_name, const juce::String& display_label) {
             if (display_label.isNotEmpty())
                 return display_label;
 
@@ -63,92 +62,92 @@ namespace electrosynth {
 	ModulationSlotComponent::ModulationSlotComponent(SynthSlider& destination_slider, int slot_index)
     : destination_slider_(destination_slider), slot_index_(slot_index) {
 
-    jassert(juce::isPositiveAndBelow(slot_index_, SynthSlider::kNumModulationSlots));
-    setComponentID(destination_slider_.getComponentID() + "_modulation_slot_" + juce::String(slot_index_));
-    setInterceptsMouseClicks(false, false);
-}
-
-void ModulationSlotComponent::paint(juce::Graphics& g) { DBG("fallback on ModulationSlotComponent::paint"); }
-
-void ModulationSlotComponent::setSourceName(juce::String source_name) {
-    if (source_name_ == source_name)
-        return;
-
-    source_name_ = std::move(source_name);
-    repaint();
-    if (auto* parameters_view = findParentComponentOfClass<ParametersView>()) {
-        parameters_view->syncModulationSlotOpenGl();
-        parameters_view->repaintBackground();
+        jassert(juce::isPositiveAndBelow(slot_index_, SynthSlider::kNumModulationSlots));
+        setComponentID(destination_slider_.getComponentID() + "_modulation_slot_" + juce::String(slot_index_));
+        setInterceptsMouseClicks(false, false);
     }
-}
 
-void ModulationSlotComponent::setSourceDisplayLabel(juce::String display_label) {
-    if (display_label_ == display_label)
-        return;
+    void ModulationSlotComponent::paint(juce::Graphics& g) { DBG("fallback on ModulationSlotComponent::paint"); }
 
-    display_label_ = std::move(display_label);
-    repaint();
-    if (auto* parameters_view = findParentComponentOfClass<ParametersView>()) {
-        parameters_view->syncModulationSlotOpenGl();
-        parameters_view->repaintBackground();
+    void ModulationSlotComponent::setSourceName(juce::String source_name) {
+        if (source_name_ == source_name)
+            return;
+
+        source_name_ = std::move(source_name);
+        repaint();
+        if (auto* parameters_view = findParentComponentOfClass<ParametersView>()) {
+            parameters_view->syncModulationSlotOpenGl();
+            parameters_view->repaintBackground();
+        }
     }
-}
 
-void ModulationSlotComponent::setModulationAmount(float amount)
-{
-    amount = juce::jlimit(-1.0f, 1.0f, amount);
-    if (juce::approximatelyEqual(modulation_amount_, amount))
-        return;
+    void ModulationSlotComponent::setSourceDisplayLabel(juce::String display_label) {
+        if (display_label_ == display_label)
+            return;
 
-    modulation_amount_ = amount;
-    repaint();
-    if (auto* parameters_view = findParentComponentOfClass<ParametersView>()) {
-        parameters_view->syncModulationSlotOpenGl();
-        parameters_view->repaintBackground();
+        display_label_ = std::move(display_label);
+        repaint();
+
+        if (auto* parameters_view = findParentComponentOfClass<ParametersView>()) {
+            parameters_view->syncModulationSlotOpenGl();
+            parameters_view->repaintBackground();
+        }
     }
-}
 
-void ModulationSlotComponent::setBypass(bool bypass) {
-    if (bypass_ == bypass)
-        return;
+    void ModulationSlotComponent::setModulationAmount(float amount) {
+        amount = juce::jlimit(-1.0f, 1.0f, amount);
+        if (juce::approximatelyEqual(modulation_amount_, amount))
+            return;
 
-    bypass_ = bypass;
-    repaint();
-    if (auto* parameters_view = findParentComponentOfClass<ParametersView>()) {
-        parameters_view->syncModulationSlotOpenGl();
-        parameters_view->repaintBackground();
+        modulation_amount_ = amount;
+        repaint();
+        if (auto* parameters_view = findParentComponentOfClass<ParametersView>()) {
+            parameters_view->syncModulationSlotOpenGl();
+            parameters_view->repaintBackground();
+        }
     }
-}
 
-juce::Colour ModulationSlotComponent::getSourceColor() const {
-    return getModulationSlotSourceColor(source_name_);
-}
+    void ModulationSlotComponent::setBypass(bool bypass) {
+        if (bypass_ == bypass)
+            return;
 
-juce::String ModulationSlotComponent::getSourceLabel() const { // for marking connections in the boxes underneath knobs
-    DBG("ModulationSlotComponent::getSourceLabel() : " + source_name_);
-    return getModulationSlotSourceLabel(source_name_, display_label_);
-}
-
-void ModulationSlotComponent::setAuxSource(juce::String source_name, juce::String display_label) {
-    if (aux_source_name_ == source_name && aux_display_label_ == display_label)
-        return;
-
-    aux_source_name_ = std::move(source_name);
-    aux_display_label_ = std::move(display_label);
-    repaint();
-    if (auto* parameters_view = findParentComponentOfClass<ParametersView>()) {
-        parameters_view->syncModulationSlotOpenGl();
-        parameters_view->repaintBackground();
+        bypass_ = bypass;
+        repaint();
+        if (auto* parameters_view = findParentComponentOfClass<ParametersView>()) {
+            parameters_view->syncModulationSlotOpenGl();
+            parameters_view->repaintBackground();
+        }
     }
-}
 
-juce::Colour ModulationSlotComponent::getAuxSourceColor() const {
-    return getModulationSlotSourceColor(aux_source_name_);
-}
+    juce::Colour ModulationSlotComponent::getSourceColor() const {
+        return getModulationSlotSourceColor(source_name_);
+    }
 
-juce::String ModulationSlotComponent::getAuxSourceLabel() const {
-    return getModulationSlotSourceLabel(aux_source_name_, aux_display_label_);
-}
+    juce::String ModulationSlotComponent::getSourceLabel() const { // for marking connections in the boxes underneath knobs
+        DBG("ModulationSlotComponent::getSourceLabel() : " + source_name_);
+        return getModulationSlotSourceLabel(source_name_, display_label_);
+    }
+
+    void ModulationSlotComponent::setAuxSource(juce::String source_name, juce::String display_label) {
+        if (aux_source_name_ == source_name && aux_display_label_ == display_label)
+            return;
+
+        aux_source_name_ = std::move(source_name);
+        aux_display_label_ = std::move(display_label);
+        repaint();
+        if (auto* parameters_view = findParentComponentOfClass<ParametersView>()) {
+            parameters_view->syncModulationSlotOpenGl();
+            parameters_view->repaintBackground();
+        }
+    }
+
+    juce::Colour ModulationSlotComponent::getAuxSourceColor() const {
+        return getModulationSlotSourceColor(aux_source_name_);
+    }
+
+    juce::String ModulationSlotComponent::getAuxSourceLabel() const {
+        return getModulationSlotSourceLabel(aux_source_name_, aux_display_label_);
+    }
 
 // Rotary slider that suppresses the value bubble popup on drag/hover.
 class NoPopupSynthSlider : public SynthSlider {

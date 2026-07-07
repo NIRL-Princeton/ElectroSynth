@@ -1078,20 +1078,14 @@ bool ModulationManager::isModulationSlotOccupied(
 }
 
 void ModulationManager::updateModulationSlotVisuals() {
-    for (const auto& [name, slider] : slider_model_lookup_) {
-        if (slider == nullptr) continue;
+		SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
+		if (parent == nullptr) return;
 
-        for (auto* target : slider->getExtraModulationTargets()) {
-            if (auto* slot = dynamic_cast<electrosynth::ModulationSlotComponent*>(target)) slot->clearSource();
-        }
-    }
+    std::vector<electrosynth::ModulationSlotComponent*> active_slots;
 
-	SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
-	if (parent == nullptr) return;
-
-    auto get_display_label = [this](const std::string& source_name) {
-        if (auto button = modulation_buttons_.find(source_name);
-            button != modulation_buttons_.end() && button->second != nullptr)
+	    auto get_display_label = [this](const std::string& source_name) {
+	        if (auto button = modulation_buttons_.find(source_name);
+	            button != modulation_buttons_.end() && button->second != nullptr)
             return button->second->getDisplayLabel();
 
         return juce::String();
@@ -1109,21 +1103,40 @@ void ModulationManager::updateModulationSlotVisuals() {
 
 	    auto* target = slider->second->getExtraModulationTarget(connection->destination_slot);
 	    if (auto* slot = dynamic_cast<electrosynth::ModulationSlotComponent*>(target)) {
+            active_slots.push_back(slot);
 	        slot->setSourceName(connection->source_name);
 	        slot->setSourceDisplayLabel(get_display_label(connection->source_name));
 	        slot->setModulationAmount(connection->getCurrentBaseValue());
 	        slot->setBypass(connection->isBypass());
 
+            bool has_aux = false;
             if (auto aux = aux_connections_to_from_.find(connection->index_in_all_mods);
                 aux != aux_connections_to_from_.end()) {
                 if (auto* aux_connection = bank.atIndex(aux->second);
-                    aux_connection != nullptr && !aux_connection->source_name.empty())
-                    slot->setAuxSource(aux_connection->source_name, get_display_label(aux_connection->source_name));
+                    aux_connection != nullptr && !aux_connection->source_name.empty()) {
+	                    slot->setAuxSource(aux_connection->source_name, get_display_label(aux_connection->source_name));
+                    has_aux = true;
+                }
             }
+            if (!has_aux)
+                slot->setAuxSource({}, {});
 	    }
-	}
+		}
 
-  // Parameter views inside sound/effect modules are rendered into cached
+    for (const auto& [name, slider] : slider_model_lookup_) {
+        if (slider == nullptr) continue;
+
+        for (auto* target : slider->getExtraModulationTargets()) {
+            auto* slot = dynamic_cast<electrosynth::ModulationSlotComponent*>(target);
+            if (slot == nullptr)
+                continue;
+
+            if (std::find(active_slots.begin(), active_slots.end(), slot) == active_slots.end())
+                slot->clearSource();
+        }
+    }
+
+	  // Parameter views inside sound/effect modules are rendered into cached
   // background images. Rebuild the full background after all slot states have
   // been updated so their source-colored icons are included in those caches.
     if (auto* full = parent->getGui())
