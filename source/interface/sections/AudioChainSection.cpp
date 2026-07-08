@@ -58,10 +58,9 @@ void AudioChainSection::paintBackground(juce::Graphics &g) {
     {
         static constexpr float kAudioChainBorderWidth = 20.0f;
 
-        // g.setColour(findColour(Skin::kBody, true));
-        g.setColour(juce::Colours::red);
+        g.setColour(findColour(Skin::kBody, true));
         g.fillRoundedRectangle(getLocalBounds().toFloat(), findValue(Skin::kBodyRounding));
-        // g.setColour(findColour(Skin::kBorder, true));
+        g.setColour(findColour(Skin::kBorder, true));
 
         g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(kAudioChainBorderWidth * 0.5f),
                                findValue(Skin::kBodyRounding), kAudioChainBorderWidth);

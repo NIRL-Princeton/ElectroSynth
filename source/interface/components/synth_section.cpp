@@ -867,9 +867,9 @@ void SynthSection::animate(bool animate) {
 }
 void SynthSection::showPopupDisplay(Component* source, const std::string& text,
     BubbleComponent::BubblePlacement placement, bool primary) {
-  FullInterface* parent = findParentComponentOfClass<FullInterface>();
-  if (parent)
-    parent->popupDisplay(source, text, placement, primary);
+    FullInterface* parent = findParentComponentOfClass<FullInterface>();
+    if (parent)
+        parent->popupDisplay(source, text, placement, primary);
 }
 
 void SynthSection::hidePopupDisplay(bool primary) {

@@ -260,24 +260,15 @@ void ModulesInterface<T>::resized() {
 
 
 template<typename T>
-void ModulesInterface<T>::mouseDown (const juce::MouseEvent& e)
-{
-    // // Find the component under the mouse
-    // if (auto* child = getComponentAt(e.getPosition()))
-    // {
-    //     if (auto* module = dynamic_cast<ModuleSection*>(child))
-    //     {
-    //         // Forward the event to the ModuleSection
-    //         module->mouseDown(e.getEventRelativeTo(module));
-    //         return;
-    //     }
-    // }
+void ModulesInterface<T>::mouseDown (const juce::MouseEvent& e) {
+    /*
     if(e.mods.isPopupMenu())
     {
         PopupItems options = createPopupMenu();
         showPopupSelector(this, e.getPosition(), options, [=](int selection) { handlePopupResult(selection); });
     }
     juce::Component::mouseDown(e);
+    */
 }
 
 
