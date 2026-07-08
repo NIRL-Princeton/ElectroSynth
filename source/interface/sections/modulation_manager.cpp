@@ -170,7 +170,7 @@ class ModulationDestination : public juce::Component {
         float width = getWidth();
         float height = getHeight();
 
-        if (isRotary()) {
+        if (rotary_) {
             float offset = destination_slider_->findValue(Skin::kKnobOffset);
             float rotary_width = size_multiple_ * destination_slider_->findValue(Skin::kKnobModMeterArcSize);
             float x = (width - rotary_width) / 2.0f;
@@ -531,8 +531,7 @@ void ModulationManager::createModulationSlider(std::string name, SynthSlider* sl
      [] (const auto* target) { return target != nullptr; });
 
     const bool rotary = slider->isRotary()
-                        && !slider->isTextOrCurve()
-                        && !has_slots;
+                        && !slider->isTextOrCurve(); //&& !has_slots;
 
     destination->setRectangle(slider->isTextOrCurve());
     destination->setRotary(rotary);
@@ -786,7 +785,7 @@ void ModulationManager::componentAdded() {
                     slider.second->getExtraModulationTargets().end(),
                     [] (const auto* target) { return target != nullptr; });
 
-            const bool rotary = slider.second->isRotary() && !slider.second->isTextOrCurve() && !has_slots;
+            const bool rotary = slider.second->isRotary() && !slider.second->isTextOrCurve(); // && !has_slots;
             const bool linear = !rotary;
 
                 juce::Viewport* viewport = slider.second->findParentComponentOfClass<juce::Viewport>();
@@ -802,7 +801,7 @@ void ModulationManager::componentAdded() {
             //DBG ("num rotary" + String (rotary_meters.second));
             rotary_destinations_[rotary_meters.first] = std::make_unique<OpenGlMultiQuad> (rotary_meters.second,
                 Shaders::kRingFragment); //kCircleFragment
-            rotary_destinations_[rotary_meters.first]->setThickness (3.0f);
+            rotary_destinations_[rotary_meters.first]->setThickness (55.0f);
             rotary_destinations_[rotary_meters.first]->setTargetComponent (this);
             rotary_destinations_[rotary_meters.first]->setScissorComponent (rotary_meters.first);
             rotary_destinations_[rotary_meters.first]->setAlpha (0.0f, true); //DEBUG FIX
@@ -836,7 +835,7 @@ void ModulationManager::componentAdded() {
                 slider.second->getExtraModulationTargets().end(),
                 [] (const auto* target) { return target != nullptr; });
 
-            const bool rotary = slider.second->isRotary() && !slider.second->isTextOrCurve() && !has_slots;
+            const bool rotary = slider.second->isRotary() && !slider.second->isTextOrCurve(); // && !has_slots;
             const bool linear = !rotary;
             Viewport* viewport = slider.second->findParentComponentOfClass<Viewport>();
 
@@ -1441,11 +1440,24 @@ void ModulationManager::initOpenGlComponents(OpenGlWrapper& open_gl) {
 }
 
 void ModulationManager::drawModulationDestinations(OpenGlWrapper& open_gl) {
-  for (auto& rotary_destination_group : rotary_destinations_)
-    rotary_destination_group.second->render(open_gl, true);
+    const bool mapping_mode = isMappingMode();
+    auto destination_color = findColour(Skin::kLightenScreen, true).brighter (1.0);
+    if (mapping_mode)
+        destination_color = current_source_ != nullptr ?
+                current_source_->getSourceColor() : destination_color;
 
-  for (auto& linear_destination_group : linear_destinations_)
-    linear_destination_group.second->render(open_gl, true);
+
+    for (auto& rotary_destination_group : rotary_destinations_) {
+        rotary_destination_group.second->setColor(destination_color);
+        rotary_destination_group.second->setAlpha(mapping_mode ? 0.4f : 0.0f);
+        rotary_destination_group.second->render(open_gl, true);
+    }
+
+    for (auto& linear_destination_group : linear_destinations_) {
+        linear_destination_group.second->setColor(destination_color);
+        linear_destination_group.second->setAlpha(mapping_mode ? 0.4f : 0.0f);
+        linear_destination_group.second->render(open_gl, true);
+}
 }
 
 void ModulationManager::drawCurrentModulator(OpenGlWrapper& open_gl) {
@@ -1459,7 +1471,7 @@ void ModulationManager::drawCurrentModulator(OpenGlWrapper& open_gl) {
   else
     current_modulator_quad_.setAlpha(0.0f);
 
-  current_modulator_quad_.setThickness(dragging_ ? 2.6f : 1.0f);
+  current_modulator_quad_.setThickness(dragging_ ? 3.0f : 1.0f);
   current_modulator_quad_.render(open_gl, true);
 }
 
@@ -1492,6 +1504,7 @@ void ModulationManager::renderOpenGlComponents(OpenGlWrapper& open_gl, bool anim
 
     ScopedLock lock(open_gl_critical_section_);
 
+    drawMappingMode(open_gl);
     SynthSection::renderOpenGlComponents(open_gl, animate); // render existing child/open-gl components
     OpenGlComponent::setViewPort(this, open_gl);
 
@@ -1505,7 +1518,6 @@ void ModulationManager::renderOpenGlComponents(OpenGlWrapper& open_gl, bool anim
     editing_rotary_amount_quad_.render(open_gl, animate);
     editing_linear_amount_quad_.render(open_gl, animate);
 
-    drawMappingMode(open_gl);
 
     drawModulationDestinations(open_gl);
 
