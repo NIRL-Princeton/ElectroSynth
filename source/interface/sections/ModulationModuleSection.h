@@ -37,7 +37,7 @@ public:
     void mouseEnter(const MouseEvent& event) override;
     void mouseExit(const MouseEvent& event) override;
     std::unique_ptr<OpenGlShapeButton> add_modulator_button_;
-    std::shared_ptr<OpenGlQuad> add_button_background_;
+    std::shared_ptr<OpenGlQuad> add_mod_button_background_;
 
 
     void scrollBarMoved(ScrollBar *scrollBarThatHasMoved, double newRangeStart) override;

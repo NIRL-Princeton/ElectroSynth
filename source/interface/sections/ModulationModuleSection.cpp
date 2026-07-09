@@ -63,10 +63,10 @@ ModulationModuleSection::ModulationModuleSection(ModulationManager *modulation_m
     }
 
     // Add modulator plus sign
-    add_button_background_ = std::make_shared<OpenGlQuad>(Shaders::kRoundedRectangleFragment, "modulation_button_background_");
-    add_button_background_->setInterceptsMouseClicks(false, false);
-    add_button_background_->setRounding(5.0f);
-    addOpenGlComponent (add_button_background_);
+    add_mod_button_background_ = std::make_shared<OpenGlQuad>(Shaders::kRoundedRectangleFragment, "modulation_button_background_");
+    add_mod_button_background_->setInterceptsMouseClicks(false, false);
+    add_mod_button_background_->setRounding(5.0f);
+    addOpenGlComponent (add_mod_button_background_);
 
     add_modulator_button_ = std::make_unique<OpenGlShapeButton>("Add Modulator");
     addAndMakeVisible (add_modulator_button_.get());
@@ -163,13 +163,13 @@ void ModulationModuleSection::resized() {
         add_modulator_button_->setColour(Skin::kIconButtonOffPressed, findColour(Skin::kIconButtonOffPressed, true));
 
 
-        add_button_background_->setVisible(true);
-        add_button_background_->setBounds(add_modulator_button_->getBounds().reduced(5.f));
-        add_button_background_->setColor(findColour(Skin::kBorder, true));
+        add_mod_button_background_->setVisible(true);
+        add_mod_button_background_->setBounds(add_modulator_button_->getBounds().reduced(5.f));
+        add_mod_button_background_->setColor(findColour(Skin::kBorder, true));
     }
     else {
         add_modulator_button_->setVisible(false);
-        add_button_background_->setVisible(false);
+        add_mod_button_background_->setVisible(false);
     }
 
 

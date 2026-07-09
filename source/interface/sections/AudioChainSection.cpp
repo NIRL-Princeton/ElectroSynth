@@ -218,7 +218,6 @@ void AudioChainSection::setEffectPositions() {
     setScrollBarRange();
     repaintBackground();
 }
-#include "FullInterface.h"
 
 void AudioChainSection::removeChain(ModuleList<ProcessorBase> *moduleToRemove) {
 
