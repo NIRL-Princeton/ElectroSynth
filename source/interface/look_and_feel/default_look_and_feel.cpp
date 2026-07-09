@@ -20,6 +20,9 @@
 #include "fonts.h"
 #include "paths.h"
 
+// default_look_and_feel.cpp contains CPU/JUCE drawing instructions for widget appearances (comboboxes, buttons, scrollbars, menus, tickboxes, etc.)
+// Then, OpenGL turns that JUCE-drawn widget into an OpenGL-rendered image and displays it in the UI. The exception is that the knobs/sliders
+// use custom OpenGL shader drawing more directly
 
 
 DefaultLookAndFeel::DefaultLookAndFeel() {
@@ -31,28 +34,39 @@ DefaultLookAndFeel::DefaultLookAndFeel() {
   setColour(BubbleComponent::backgroundColourId, Colour(0xff111111));
   setColour(BubbleComponent::outlineColourId, Colour(0xff333333));
   setColour(TooltipWindow::textColourId, Colour(0xffdddddd));
+
 }
 
 void DefaultLookAndFeel::fillTextEditorBackground(Graphics& g, int width, int height, TextEditor& text_editor) {
   if (width <= 0 || height <= 0)
     return;
 
-  float rounding = 5.0f;
-  SynthSection* parent = text_editor.findParentComponentOfClass<SynthSection>();
-  if (parent)
-    rounding = parent->findValue(Skin::kWidgetRoundedCorner);
-
-  g.setColour(text_editor.findColour(Skin::kTextEditorBackground, true));
-  g.fillRoundedRectangle(0, 0, width, height, rounding);
-  g.setColour(text_editor.findColour(Skin::kTextEditorBorder, true));
-  g.drawRoundedRectangle(0.5f, 0.5f, width - 1.0f, height - 1.0f, rounding, 1.0f);
+    SynthSection* parent = text_editor.findParentComponentOfClass<SynthSection>();
+    float rounding = 5.0f;
+    if (parent) rounding = parent->findValue(Skin::kWidgetRoundedCorner);
+    g.setColour(text_editor.findColour(Skin::kTextEditorBackground, true));
+    g.fillRoundedRectangle(0, 0, width, height, rounding);
+    g.setColour(text_editor.findColour(Skin::kTextEditorBorder, true));
+    g.drawRoundedRectangle(0.5f, 0.5f, width - 1.0f, height - 1.0f, rounding, 1.0f);
 }
 
 void DefaultLookAndFeel::drawPopupMenuBackground(Graphics& g, int width, int height) {
-  g.setColour(findColour(PopupMenu::backgroundColourId));
-  g.fillRoundedRectangle(0, 0, width, height, kPopupMenuBorder);
-  g.setColour(findColour(BubbleComponent::outlineColourId));
-  g.drawRoundedRectangle(0.5f, 0.5f, width - 1.0f, height - 1.0f, kPopupMenuBorder, 1.0f);
+    g.setColour(findColour(PopupMenu::backgroundColourId));
+    g.fillAll();
+    g.fillRoundedRectangle(0, 0, width, height, kPopupMenuBorder);
+    g.setColour(findColour(BubbleComponent::outlineColourId));
+    g.drawRoundedRectangle(0.5f, 0.5f, width - 2.0f, height - 2.0f, kPopupMenuBorder, 2.f);
+}
+
+juce::PopupMenu::Options DefaultLookAndFeel::getOptionsForComboBoxPopupMenu(juce::ComboBox& box, juce::Label&)
+{
+    return juce::PopupMenu::Options()
+        .withTargetComponent(&box)
+        .withItemThatMustBeVisible(box.getSelectedId())
+        .withInitiallySelectedItem(box.getSelectedId())
+        .withMinimumWidth(box.getWidth())
+        .withMaximumNumColumns(1)
+        .withStandardItemHeight(box.getHeight());
 }
 
 void DefaultLookAndFeel::drawScrollbar(Graphics& g, ScrollBar& scroll_bar, int x, int y, int width, int height,
@@ -82,14 +96,22 @@ void DefaultLookAndFeel::drawScrollbar(Graphics& g, ScrollBar& scroll_bar, int x
 
 void DefaultLookAndFeel::drawComboBox(Graphics& g, int width, int height, const bool button_down,
                                       int button_x, int button_y, int button_w, int button_h, ComboBox& box) {
-  static constexpr float kRoundness = 4.0f;
-  g.setColour(findColour(BubbleComponent::backgroundColourId));
-  g.fillRoundedRectangle(box.getLocalBounds().toFloat(), kRoundness);
-  Path path = Paths::downTriangle();
 
-  g.setColour(box.findColour(Skin::kTextComponentText, true));
-  Rectangle<int> arrow_bounds = box.getLocalBounds().removeFromRight(height);
-  g.fillPath(path, path.getTransformToScaleToFit(arrow_bounds.toFloat(), true));
+    auto bounds = box.getLocalBounds();
+
+    // ikd ES-style rectangular dark box
+    g.setColour(box.findColour(Skin::kBackground, true));
+    g.fillRect(bounds);
+
+    // thin border
+    g.setColour(box.findColour(Skin::kBorder, true));
+    // g.drawRect(bounds, 1);
+
+    // dropdown arrow
+    Path path = Paths::downTriangle();
+    const auto arrow_bounds = bounds.removeFromRight(height).expanded(4,4);
+    g.setColour(box.findColour(Skin::kTextComponentText, true));
+    g.fillPath(path, path.getTransformToScaleToFit(arrow_bounds.toFloat(), true));
 }
 
 void DefaultLookAndFeel::drawTickBox(Graphics& g, Component& component,
@@ -115,8 +137,16 @@ void DefaultLookAndFeel::drawCallOutBoxBackground(CallOutBox& call_out_box, Grap
 
 void DefaultLookAndFeel::drawButtonBackground(Graphics& g, Button& button, const Colour& background_color,
                                               bool hover, bool down) {
-  g.setColour(button.findColour(Skin::kPopupSelectorBackground, true));
-  g.fillRoundedRectangle(button.getLocalBounds().toFloat(), 5.0f);
+
+    auto bounds = button.getLocalBounds();
+    if (down) g.setColour(button.findColour(Skin::kUiButtonPressed, true));
+    else if (hover) g.setColour(button.findColour(Skin::kUiButtonHover, true));
+    else g.setColour(button.findColour(Skin::kUiButton, true));
+
+    g.fillRect(bounds);
+    g.setColour(button.findColour(Skin::kBorder, true));
+    g.drawRect(bounds, 1);
+
 }
 
 //int DefaultLookAndFeel::getSliderPopupPlacement(Slider& slider) {

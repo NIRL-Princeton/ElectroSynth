@@ -31,7 +31,8 @@ class EnvModuleProcessor;
 namespace electrosynth {
     using AudioGraphIOProcessor = juce::AudioProcessorGraph::AudioGraphIOProcessor;
     using Node = juce::AudioProcessorGraph::Node;
-  class SoundEngine : public NoteHandler {
+
+    class SoundEngine : public NoteHandler {
     public:
       static constexpr int kDefaultOversamplingAmount = 2;
       static constexpr int kDefaultSampleRate = 44100;
@@ -42,23 +43,17 @@ namespace electrosynth {
 //      void init() override;
       void processWithInput(const  float* audio_in, int num_samples) {
           //_ASSERT(num_samples <= output()->buffer_size);
-
           juce::FloatVectorOperations::disableDenormalisedNumberSupport();
-
-
-
-
-
-
       }
+
       juce::MidiBuffer empty;
 
       juce::CriticalSection myCoolLock;
       void process(juce::AudioSampleBuffer&, juce::MidiBuffer &);
       void process(juce::AudioSampleBuffer&,int channels, int samples, int offset);
       void processMappings();
-      void releaseResources()
-      {}
+      void releaseResources() {
+      }
 
       void prepareToPlay(double sampleRate, int samplesPerBlock)
       {
@@ -130,25 +125,25 @@ namespace electrosynth {
       void sostenutoOffRange(int sample, int from_channel, int to_channel);
       force_inline int getOversamplingAmount() const { return last_oversampling_amount_; }
 
-
-      ModulationConnectionBank modulation_bank_;
-      ModulationConnectionBank& getModulationBank() { return modulation_bank_; }
-      void checkOversampling();
+        ModulationConnectionBank modulation_bank_;
+        ModulationConnectionBank& getModulationBank() { return modulation_bank_; }
+        void checkOversampling();
 
         std::array<ModuleHeader*, MAX_NUM_VOICES>*  getLEAFProcessor(const std::string&);
-       std::array<ModuleHeader*, MAX_NUM_VOICES>* getLEAFProcessorModulator(const std::string&);
-      std::pair<  std::array<ModuleHeader*, MAX_NUM_VOICES>* , int> getParameterInfo(const std::string&);
-      std::vector<std::vector<std::unique_ptr<ProcessorBase>>> processors;
-      std::vector<std::unique_ptr<RoutingProcessor>> chainPostGain;
-      std::vector<leaf::tAudioRouting*> chain_to_lane_routings;
-      std::vector<std::unique_ptr<RoutingProcessor>> effectPreGain;
-      std::array<std::vector<std::unique_ptr<ProcessorBase>>,3> effects;
-      std::vector<std::vector<std::unique_ptr<ModulatorBase>>> modSources;
-      std::vector<MappingWrapper*> mappings;
-      void disconnectMapping(const electrosynth::mapping_change& change);
-      void connectMapping (const electrosynth::mapping_change& change);
-      ProcessorBase* getProcessorFromUUID(int uuid);
-      ModulatorBase* getModulatorFromUUID(int uuid);
+        std::array<ModuleHeader*, MAX_NUM_VOICES>* getLEAFProcessorModulator(const std::string&);
+        std::pair<  std::array<ModuleHeader*, MAX_NUM_VOICES>* , int> getParameterInfo(const std::string&);
+        std::vector<std::vector<std::unique_ptr<ProcessorBase>>> processors;
+        std::vector<std::unique_ptr<RoutingProcessor>> chainPostGain;
+        std::vector<leaf::tAudioRouting*> chain_to_lane_routings;
+        std::vector<std::unique_ptr<RoutingProcessor>> effectPreGain;
+        std::array<std::vector<std::unique_ptr<ProcessorBase>>,3> effects;
+        std::vector<std::vector<std::unique_ptr<ModulatorBase>>> modSources;
+        std::vector<MappingWrapper*> mappings;
+
+        void disconnectMapping(const electrosynth::mapping_change& change);
+        void connectMapping (const electrosynth::mapping_change& change);
+        ProcessorBase* getProcessorFromUUID(int uuid);
+        ModulatorBase* getModulatorFromUUID(int uuid);
 
      std::array<ModuleHeader*, MAX_NUM_VOICES>* getLeafProcessorFromUUID(int uuid);
       char memory[536870912]; //512 MB

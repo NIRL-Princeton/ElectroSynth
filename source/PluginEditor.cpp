@@ -11,8 +11,8 @@
 PluginEditor::PluginEditor (PluginProcessor& p)
     : AudioProcessorEditor (&p), SynthGuiInterface(&p), processorRef (p), was_animating_(true)
 {
-    static constexpr int kHeightBuffer = 50;
     juce::ignoreUnused (processorRef);
+
     setLookAndFeel(DefaultLookAndFeel::instance());
     gui_->reset();
     addAndMakeVisible(gui_.get());
@@ -25,7 +25,7 @@ PluginEditor::PluginEditor (PluginProcessor& p)
 
 
     Rectangle<int> total_bounds = Desktop::getInstance().getDisplays().getTotalBounds(true);
-    total_bounds.removeFromBottom(kHeightBuffer);
+    total_bounds.removeFromBottom(50);
 
     float window_size = 1.0f;
     window_size = std::min(window_size, total_bounds.getWidth() / (1.0f * electrosynth::kDefaultWindowWidth));
@@ -53,22 +53,13 @@ PluginEditor::~PluginEditor()
 //    g.drawText (helloWorld, area.removeFromTop (150), juce::Justification::centred, false);
 //}
 
-void PluginEditor::resized()
-{
+void PluginEditor::resized() {
     // layout the positions of your child components here
     auto area = getLocalBounds();
     area.removeFromBottom(50);
     AudioProcessorEditor::resized();
     gui_->setBounds(getLocalBounds());
-
-
 }
-
-
-
-
-
-
 
 void PluginEditor::setScaleFactor(float newScale) {
     AudioProcessorEditor::setScaleFactor(newScale);

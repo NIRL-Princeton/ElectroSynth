@@ -28,7 +28,11 @@ public:
     void removeModule(ProcessorBase* newModule)   override;
     void moduleListChanged() ;
     void paintBackground(Graphics &g) override;
+    void redoBackgroundImage() override;
+    void parentHierarchyChanged() override { redoBackgroundImage(); SynthSection::parentHierarchyChanged(); }
     std::shared_ptr<OpenGlQuad> footer_body;
+    std::shared_ptr<OpenGlQuad> header_body_;
+    std::shared_ptr<PlainTextComponent> header_title_;
 
 
     juce::ValueTree state;
@@ -46,4 +50,3 @@ public:
     int placeholderHeight = 0;
     juce::UndoManager& undo;
 };
-

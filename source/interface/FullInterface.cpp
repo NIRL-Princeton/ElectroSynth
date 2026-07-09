@@ -23,6 +23,9 @@
 #include "ModulationModuleSection.h"
 #include "modulation_manager.h"
 #include "test_section.h"
+#include "synth_base.h"
+#include "sound_engine.h"
+#include "midi_manager.h"
 
 FullInterface::FullInterface(SynthGuiData* synth_data) : SynthSection("full_interface"), width_(0), resized_width_(0),
                                                          last_render_scale_(0.0f), display_scale_(1.0f),
@@ -33,12 +36,9 @@ FullInterface::FullInterface(SynthGuiData* synth_data) : SynthSection("full_inte
 {
     full_screen_section_ = nullptr;
     Skin default_skin;
-    setSkinValues(default_skin, true);
     default_skin.copyValuesToLookAndFeel(DefaultLookAndFeel::instance());
-
-
-
-
+    default_skin.copyValuesToLookAndFeel(TextLookAndFeel::instance());
+    juce::LookAndFeel::setDefaultLookAndFeel(DefaultLookAndFeel::instance());
 
     modulation_manager = std::make_unique<ModulationManager>(synth_data->tree, synth_data->synth);
     modulation_manager->setOpaque(false);
@@ -100,6 +100,7 @@ FullInterface::FullInterface(SynthGuiData* synth_data) : SynthSection("full_inte
     addSubSection(modulation_manager.get());
 
     about_section_->toFront(true);
+    copySkinValues(default_skin);
     //setOpaque(true);
     open_gl_context_.setContinuousRepainting(true);
     open_gl_context_.setOpenGLVersionRequired(OpenGLContext::openGL3_2);
@@ -161,8 +162,9 @@ void FullInterface::paintBackground(juce::Graphics& g) {
 
 void FullInterface::copySkinValues(const Skin& skin) {
 //   ScopedLock open_gl_lock(open_gl_critical_section_);
-//   skin.copyValuesToLookAndFeel(DefaultLookAndFeel::instance());
-//   setSkinValues(skin, true);
+   skin.copyValuesToLookAndFeel(DefaultLookAndFeel::instance());
+   skin.copyValuesToLookAndFeel(TextLookAndFeel::instance());
+   setSkinValues(skin, true);
 }
 
 void FullInterface::reloadSkin(const Skin& skin) {
@@ -261,7 +263,7 @@ void FullInterface::resized() {
 
 
    resized_width_ = width_;
-
+    
    juce::ScopedLock lock(open_gl_critical_section_);
    static constexpr int kTopHeight = 48;
 
@@ -322,6 +324,27 @@ void FullInterface::showAboutSection()
 {
     juce::ScopedLock lock(open_gl_critical_section_);
     about_section_->setVisible(true);
+}
+
+void FullInterface::sendToDeviceRequested() {
+    auto outputs = juce::MidiOutput::getAvailableDevices();
+    const juce::MidiDeviceInfo* electroDevice = nullptr;
+
+    for (const auto& device : outputs) {
+        if (device.name.contains("Electrobass") || device.name.contains("Electrosteel")) {
+            electroDevice = &device;
+            break;
+        }
+    }
+
+    if (electroDevice != nullptr) {
+        auto midiOutput = juce::MidiOutput::openDevice(electroDevice->identifier);
+        if (midiOutput) {
+            leaf::tMappingPreset7Bit preset7Bit;
+            // message size 48 bytes bc w lose one every 4 based on usb midi standard, no more than 64 based on bulk endpoint standard?
+            sendPresetOverMidi(preset7Bit, electrosynth::kSysexChunkSize, midiOutput.get());
+        }
+    }
 }
 void FullInterface::animate(bool animate) {
    if (animate_ != animate)
@@ -510,8 +533,6 @@ std::map<std::string, SynthSlider*> FullInterface::getAllSliders(){
 std::map<std::string, ModulationButton*> FullInterface::getAllModulationButtons(){
     return main_->getAllModulationButtons();
 }
-
-
 
 
 

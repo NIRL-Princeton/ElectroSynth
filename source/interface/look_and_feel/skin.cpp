@@ -79,13 +79,13 @@ namespace {
   };
 
   const std::string kColorNames[Skin::kNumColors] = {
-      "Background",
-      "Body",
-      "Body Heading Background",
-      "Heading Text",
+      "Background",                 // used for background of combobox (black)
+      "Body",                       // actual background (black)
+      "Body Heading Background",    // colored bar behind "Sound Module #N" and "FX" (dark gray)
+      "Heading Text",               //
       "Preset Text",
-      "Body Text",
-      "Border",
+      "Body Text",                  // knob labels, combo box arrow and text (white)
+      "Border",                     // outline around sections (dark gray)
       "Label Background",
       "Label Connection",
       "Power Button On",
@@ -136,7 +136,7 @@ namespace {
 
       "Icon Selector Icon",
 
-      "Icon Button Off",
+      "Icon Button Off",                    // dropdown, X, and Audio/MIDI Settings color (light gray)
       "Icon Button Off Hover",
       "Icon Button Off Pressed",
       "Icon Button On",
@@ -183,8 +183,8 @@ void Skin::loadDefaultSkin() {
   std::string skin_string = skin.readEntireStreamAsString().toStdString();
 
   try {
-    json data = json::parse(skin_string, nullptr, false);
-    jsonToState(data);
+      json data = json::parse(skin_string, nullptr, false);
+      jsonToState(data);
   }
   catch (const json::exception& e) {
   }

@@ -71,6 +71,17 @@ struct LEAFParams : public chowdsp::ParamHolder
 
 // Trait to detect whether a type derives from LEAFParams<T> for any T
 
+// Holds ParameterState as a base so it outlives chowdsp::PluginState (and its
+// ParameterListeners) when both are bases of PluginStateImpl_. C++ destroys
+// bases in reverse declaration order, so declaring this first means it is
+// destroyed last — after ParameterListeners::~ParameterListeners() has finished
+// calling removeListener() on the parameter objects.
+template <typename ParameterState>
+struct ParamOwner {
+    explicit ParamOwner(LEAF* leaf) : params(leaf) {}
+    ParameterState params;
+};
+
     /**
  * Template type to hold a plugin's state.
  *
@@ -79,12 +90,14 @@ struct LEAFParams : public chowdsp::ParamHolder
  * @tparam Serializer           A type that implements chowdsp::BaseSerializer (JSONSerializer by default)
  */
     template <typename ParameterState, typename NonParameterState = chowdsp::NonParamState, typename Serializer = chowdsp::XMLSerializer>
-class PluginStateImpl_ : public chowdsp::PluginState
+class PluginStateImpl_ : private ParamOwner<ParameterState>, public chowdsp::PluginState
     {
         static_assert (std::is_base_of_v<chowdsp::ParamHolder,ParameterState>, "ParameterState must be a chowdsp::ParamHolder!");
         static_assert (std::is_base_of_v<chowdsp::NonParamState, NonParameterState>, "NonParameterState must be a chowdsp::NonParamState!");
 
     public:
+        using ParamOwner<ParameterState>::params;
+
         /** Constructs a plugin state with no processor */
         explicit PluginStateImpl_ (LEAF* leaf, juce::UndoManager* um = nullptr);
 
@@ -111,7 +124,6 @@ class PluginStateImpl_ : public chowdsp::PluginState
         /** Returns the plugin non-parameter state */
         [[nodiscard]] const chowdsp::NonParamState& getNonParameters() const override;
 
-        ParameterState params;
         NonParameterState nonParams;
 
     private:
@@ -121,13 +133,15 @@ class PluginStateImpl_ : public chowdsp::PluginState
     };
 
     template <typename ParameterState, typename NonParameterState, typename Serializer>
-    PluginStateImpl_<ParameterState,  NonParameterState, Serializer>::PluginStateImpl_ (LEAF* leaf, juce::UndoManager* um) : params(leaf)
+    PluginStateImpl_<ParameterState,  NonParameterState, Serializer>::PluginStateImpl_ (LEAF* leaf, juce::UndoManager* um)
+        : ParamOwner<ParameterState>(leaf)
     {
         initialise (params, nullptr, um);
     }
 
     template <typename ParameterState, typename NonParameterState, typename Serializer>
-    PluginStateImpl_<ParameterState,  NonParameterState, Serializer>::PluginStateImpl_ ( LEAF* leaf, juce::AudioProcessor& proc, juce::UndoManager* um) : params(leaf)
+    PluginStateImpl_<ParameterState,  NonParameterState, Serializer>::PluginStateImpl_ ( LEAF* leaf, juce::AudioProcessor& proc, juce::UndoManager* um)
+        : ParamOwner<ParameterState>(leaf)
     {
         initialise (params, &proc, um);
     }

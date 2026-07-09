@@ -19,9 +19,7 @@ public:
         SynthSection::resized();
     }
     void paintBackground(Graphics& g) override {
-        g.fillAll(findColour(Skin::kBackground, true));
-
-        // paintHeadingText(g);
+        g.fillAll(findColour(Skin::kBody, true));
         paintChildrenShadows(g);
         paintChildrenBackgrounds(g);
     }
@@ -49,8 +47,7 @@ public:
     // void mouseDown (const juce::MouseEvent& e) override;
     void setFocus() { grabKeyboardFocus(); }
     void setEffectPositions() ;
-   void  mouseDown (const juce::MouseEvent& e)
-    {
+   void  mouseDown (const juce::MouseEvent& e) {
         if(e.mods.isPopupMenu())
         {
             PopupItems options = createPopupMenu();
@@ -96,18 +93,16 @@ public:
     ModulationManager* modulation_manager_;
     std::shared_ptr<OpenGlQuad> footer_quad_;
     juce::UndoManager& undo;
+
     void added() override {
-
         resized();
-        // setSize(getWidth(), getHeight()+100);
     }
-    void removed() override{
-    redoBackgroundImage();
-        // setSize(getWidth(), getHeight()-100);
-    }
-    void effectsMoved() override{
 
-    };
+    void removed() override{
+        resized();
+        redoBackgroundImage();
+    }
+    void effectsMoved() override { }
 
 };
 

@@ -195,23 +195,15 @@ ModulesInterface<T>::~ModulesInterface() {
 }
 template<typename T>
 void ModulesInterface<T>::paintBackground(Graphics& g) {
-    g.setColour(Colours::purple);
-    // Colour background = findColour(Skin::kBackground, true);
-    // g.setColour(background);
-    // g.fillRect(getLocalBounds().withRight(getWidth() - findValue(Skin::kLargePadding) / 2));
 
+    g.setColour(findColour(Skin::kBody, true));
     g.fillRoundedRectangle(getLocalBounds().toFloat(), findValue(Skin::kBodyRounding));
-
-    int body_rounding = findValue(Skin::kBodyRounding);
-    g.setColour(Colours::red);
-    g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(0.5f), body_rounding, 1.0f);
-   // paintContainer(g);
     paintBody(g);
-   paintHeadingText(g);
+    paintHeadingText(g);
 
-    // paintChildrenBackgrounds(g);
+    g.setColour(findColour(Skin::kBorder, true));
+    g.drawRoundedRectangle (getLocalBounds().toFloat().reduced(0.5f), findValue(Skin::kBodyRounding), 1.0f);
     paintBorder(g);
-    // paintChildBackground(g,container_.get());
 
     redoBackgroundImage();
 }
@@ -328,9 +320,11 @@ void ModulesInterface<T>::renderOpenGlComponents(OpenGlWrapper& open_gl, bool an
     background_.setBottomLeft(-1.0f, 1.0f - 2.0f * height_ratio + y_offset);
     background_.setBottomRight(-1.0f + 2.0f * width_ratio, 1.0f - 2.0f * height_ratio + y_offset);
     background_.setColor(Colours::white);
+    background_.setScissor(true);
+    OpenGlComponent::setScissor(&viewport_, open_gl);
     background_.drawImage(open_gl);
 
-    OpenGlComponent::setScissorBounds(this, getLocalBounds(),open_gl);
+    OpenGlComponent::setScissor(&viewport_, open_gl);
     //TODO: clean up. this is to check here becuase I can do this creationlazy do better
     // for (auto sub : sub_sections_) {
     //     OpenGlComponent::setScissorBounds(sub, viewport_.getLocalBounds(), open_gl);

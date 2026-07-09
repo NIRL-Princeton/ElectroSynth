@@ -23,10 +23,9 @@
 #include "synth_slider.h"
 #include "text_look_and_feel.h"
 #include "ModulationConnection.h"
-ModulationMeter::ModulationMeter(
-                                 const SynthSlider* slider, OpenGlMultiQuad* quads, int index) :
-         destination_(slider),
-        quads_(quads), index_(index), current_value_(0.0), mod_percent_(0.0) {
+ModulationMeter::ModulationMeter(const SynthSlider* slider, OpenGlMultiQuad* quads, int index) :
+         destination_(slider), quads_(quads), index_(index), current_value_(0.0f), mod_percent_(0.0f),
+         modulated_(false), rotary_(false), left_(0.0f), right_(0.0f), top_(0.0f), bottom_(0.0f) {
 
   rotary_ = destination_->isRotary() && !destination_->isTextOrCurve();
 
@@ -47,17 +46,13 @@ void ModulationMeter::resized() {
 //    setModulated(!connections.empty());
   }
 
-  if (isVisible())
-    setVertices();
-  else
-    collapseVertices();
+  if (isVisible()) setVertices();
+  else collapseVertices();
 }
 
 void ModulationMeter::setActive(bool active) {
-  if (active)
-    setVertices();
-  else
-    collapseVertices();
+  if (active) setVertices();
+  else collapseVertices();
 }
 
 juce::Rectangle<float> ModulationMeter::getMeterBounds() {
@@ -148,13 +143,21 @@ void ModulationMeter::setAmountQuadVertices(OpenGlQuad& quad) {
 }
 
 void ModulationMeter::updateDrawing(bool use_poly) {
-//  if (mono_total_) {
-//    current_value_ = mono_total_->trigger_value;
-//    if (poly_total_ && use_poly)
-//      current_value_ += poly_total_->trigger_value;
-//  }
+    /*
+  if (mono_total_) {
+      current_value_ = mono_total_->trigger_value;
+    if (poly_total_ && use_poly)
+      current_value_ += poly_total_->trigger_value;
+
+  }
+  */
 
   float range = destination_->getMaximum() - destination_->getMinimum();
+  if (range == 0.0f) {
+    collapseVertices();
+    return;
+  }
+
   float value = (current_value_ - destination_->getMinimum()) * (1.0f / range);
   mod_percent_ = electrosynth::utils::clamp(value, 0.0f, 1.0f);
   float knob_percent = (destination_->getValue() - destination_->getMinimum()) / range;

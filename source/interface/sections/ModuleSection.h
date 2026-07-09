@@ -9,14 +9,20 @@
 #include "ParameterView/ParametersView.h"
 #include <juce_gui_basics/juce_gui_basics.h>
 #include "open_gl_background.h"
+#include "open_gl_image_component.h"
 #include "ProcessorBase.h"
 
 class ModuleSection : public SynthSection
 {
 public:
+    static constexpr int kHeaderHeight = 36;
+    static constexpr int kContentBottomPadding = 30;
+
     ModuleSection(const juce::ValueTree &, std::unique_ptr<SynthSection> editor, juce::UndoManager& um);
 
     virtual ~ModuleSection();
+    int getPreferredHeight() const override;
+    int refreshHeight();
     void repaintModuleBackground()
     {
         background_->lock();
@@ -39,6 +45,11 @@ public:
 //    void setParametersViewEditor(electrosynth::ParametersViewEditor&&);
     // void paintBackgroundShadow(Graphics& g) override { if (isActive()) paintTabShadow(g); }
     void resized() override;
+    void setDrawBottomSeparator(bool should_draw) {
+        draw_bottom_separator_ = should_draw;
+        if (bottom_separator_ != nullptr)
+            bottom_separator_->setVisible(should_draw);
+    }
   //  void setActive(bool active) override;
     //void sliderValueChanged(Slider* changed_slider) override;
     //void setAllValues(vital::control_map& controls) override;
@@ -77,6 +88,8 @@ public:
     juce::ValueTree state;
     void buttonClicked(juce::Button* clicked_button) override;
     std::unique_ptr<OpenGlShapeButton> exit_button_;
+    std::shared_ptr<PlainTextComponent> title_text_;
+    std::shared_ptr<OpenGlQuad> bottom_separator_;
     void addListener(Listener* listener) { listeners_.push_back(listener); }
     void mouseEnter(const juce::MouseEvent& e) {
         hover_ = true;
@@ -94,6 +107,7 @@ public:
     int height = 100;
 private:
     bool isDragging = false;
+    bool draw_bottom_separator_ = false;
     juce::Image background_image_;
     std::unique_ptr<SynthSection> _view;
     std::vector<Listener*> listeners_;

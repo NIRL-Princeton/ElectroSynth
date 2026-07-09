@@ -233,6 +233,7 @@ class HeaderSection : public SynthSection, public LogoSection::Listener {
         virtual ~Listener() { }
 
         virtual void showAboutSection() = 0;
+        virtual void sendToDeviceRequested() = 0;
     };
     void mouseEnter (const MouseEvent& event)
     {
@@ -269,6 +270,8 @@ class HeaderSection : public SynthSection, public LogoSection::Listener {
     std::vector<Listener*> listeners_;
 
     int tab_offset_;
+    std::unique_ptr<OpenGlTextButton> audioSettingsButton;
+    std::unique_ptr<OpenGlTextButton> sendToDeviceButton;
     std::unique_ptr<PlainTextComponent> temporary_tab_;
     std::unique_ptr<OpenGlShapeButton> exit_temporary_button_;
     std::shared_ptr<OpenGlQuad> body_;

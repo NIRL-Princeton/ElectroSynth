@@ -333,6 +333,7 @@ class SynthSection : public Component, public Slider::Listener,
     float getWidgetMargin();
     float getWidgetRounding();
     float getSizeRatio() const { return size_ratio_; }
+    virtual int getPreferredHeight() const { return 100; }
     int getPopupWidth() const { return kDefaultPopupMenuWidth * size_ratio_; }
     int getDualPopupWidth() const { return kDefaultDualPopupMenuWidth * size_ratio_; }
     virtual void setSkinValues(const Skin& skin, bool top_level);
@@ -372,6 +373,7 @@ protected:
     void placeTempoControls(int x, int y, int width, int height, SynthSlider* tempo, SynthSlider* sync);
     void placeRotaryOption(Component* option, SynthSlider* rotary);
     void placeKnobsInArea(Rectangle<int> area, std::vector<std::unique_ptr<Component>> &knobs);
+    void placeKnobsInAreaRows(Rectangle<int> area, std::vector<std::unique_ptr<Component>>& knobs, int knobsPerRow);
 
     void lockCriticalSection();
     void unlockCriticalSection();
@@ -406,4 +408,3 @@ protected:
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SynthSection)
 };
-

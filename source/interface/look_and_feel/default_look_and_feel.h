@@ -27,7 +27,7 @@ class LeftAlignedScrollBar : public juce::ScrollBar {
 
 class DefaultLookAndFeel : public juce::LookAndFeel_V4 {
   public:
-    static constexpr int kPopupMenuBorder = 4;
+    static constexpr int kPopupMenuBorder = 8;
 
     ~DefaultLookAndFeel() { }
 
@@ -36,6 +36,7 @@ class DefaultLookAndFeel : public juce::LookAndFeel_V4 {
     void drawTextEditorOutline(juce::Graphics& g, int width, int height, juce::TextEditor& text_editor) override { }
     void fillTextEditorBackground(juce::Graphics& g, int width, int height, juce::TextEditor& text_editor) override;
     void drawPopupMenuBackground(juce::Graphics& g, int width, int height) override;
+    juce::PopupMenu::Options getOptionsForComboBoxPopupMenu(juce::ComboBox& box, juce::Label& label) override;
 
     virtual void drawScrollbar(juce::Graphics& g, juce::ScrollBar& scroll_bar, int x, int y, int width, int height,
                                bool vertical, int thumb_position, int thumb_size,
@@ -70,4 +71,3 @@ class DefaultLookAndFeel : public juce::LookAndFeel_V4 {
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DefaultLookAndFeel)
 };
-

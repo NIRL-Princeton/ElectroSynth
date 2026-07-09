@@ -52,6 +52,8 @@ public:
 
     inline void setPosition(float x, float y, int index)
     {
+        if (position_vertices_[index] == x && position_vertices_[index + 1] == y)
+            return;
         position_vertices_[index] = x;
         position_vertices_[index + 1] = y;
         dirty_ = true;
@@ -72,6 +74,7 @@ public:
 private:
     std::mutex mutex_;
     bool dirty_;
+    bool texture_loaded_;
 
     juce::Image *image_;
     int image_width_;
