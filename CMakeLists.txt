@@ -90,6 +90,8 @@ juce_add_plugin("${PROJECT_NAME}"
 add_library(SharedCode INTERFACE
         source/synthesis/framework/Processors/SoftClipModuleProcessor.cpp
         source/synthesis/framework/Processors/SoftClipModuleProcessor.h
+        source/synthesis/framework/Processors/NoiseModuleProcessor.cpp
+        source/synthesis/framework/Processors/NoiseModuleProcessor.h
 
 
 )
