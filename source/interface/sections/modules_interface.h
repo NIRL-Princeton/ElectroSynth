@@ -24,11 +24,9 @@ class ModulesContainer : public SynthSection {
             SynthSection::resized();
         }
     void paintBackground(Graphics& g) override {
-            g.fillAll(findColour(Skin::kBody, true));
-           // paintHeadingText(g);
-paintChildrenShadows(g);
-paintChildrenBackgrounds(g);
-}
+            paintChildrenShadows(g);
+            paintChildrenBackgrounds(g);
+        }
 };
 
 class EffectsViewport : public juce::Viewport {
@@ -47,7 +45,24 @@ public:
         for (Listener* listener : listeners_)
             listener->startScroll();
 
-        Viewport::mouseWheelMove(e, wheel);
+        auto axis_locked_wheel = wheel;
+        const bool vertical_viewport = isVerticalScrollbarOnTheRight();
+
+        if (vertical_viewport)
+            axis_locked_wheel.deltaX = 0.0f;
+        else
+            axis_locked_wheel.deltaY = 0.0f;
+
+        const bool scrolled = useMouseWheelMoveIfNeeded(e, axis_locked_wheel);
+
+        auto position = getViewPosition();
+        if (vertical_viewport && position.getX() != 0)
+            setViewPosition(0, position.getY());
+        else if (!vertical_viewport && position.getY() != 0)
+            setViewPosition(position.getX(), 0);
+
+        if (!scrolled)
+            Component::mouseWheelMove(e, wheel);
 
         for (Listener* listener : listeners_)
             listener->endScroll();
@@ -108,7 +123,8 @@ public:
     void addListener(Listener* listener) { listeners_.push_back(listener); }
     void effectsScrolled(int position) override {
         setScrollBarRange();
-        scroll_bar_->setCurrentRange(position, viewport_.getHeight());
+        if (scroll_bar_ != nullptr)
+            scroll_bar_->setCurrentRange(position, viewport_.getHeight());
         // DBG("position: " + String(position));
         for (Listener* listener : listeners_)
             listener->effectsMoved();
@@ -175,6 +191,7 @@ ModulesInterface<T>::ModulesInterface( ModuleList<T>& list_) : SynthSection("mod
     viewport_.setViewedComponent(container_.get());
     viewport_.addListener(this);
     viewport_.setInterceptsMouseClicks(false,true);
+    viewport_.setScrollBarsShown(false, false, false, false);
     //breaks sacling if true
     addSubSection(container_.get(), false);
 
@@ -362,8 +379,11 @@ void ModulesInterface<T>::scrollBarMoved(ScrollBar* scroll_bar, double range_sta
 }
 template<typename T>
 void ModulesInterface<T>::setScrollBarRange() {
-    scroll_bar_->setRangeLimits(0.0, container_->getHeight());
-    scroll_bar_->setCurrentRange(scroll_bar_->getCurrentRangeStart(), viewport_.getHeight(), dontSendNotification);
+    if (scroll_bar_ != nullptr) {
+        scroll_bar_->setRangeLimits(0.0, container_->getHeight());
+        scroll_bar_->setCurrentRange(scroll_bar_->getCurrentRangeStart(), viewport_.getHeight(), dontSendNotification);
+    }
+
  //   DBG("container height: " + String(container_->getHeight()));
   //  DBG("viewport height: " + String(viewport_.getHeight()));
    // DBG("scrollbar range: " + String(scroll_bar_->getCurrentRangeStart()) );

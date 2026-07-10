@@ -48,6 +48,8 @@ AudioChainSection::AudioChainSection(ChainList<ProcessorBase> &chains, Modulatio
         default_chain.appendChild(oscillator, nullptr);
         chains_.appendChild(default_chain, nullptr);
     }
+
+    setSkinOverride(Skin::kSoundModule);
 }
 
 AudioChainSection::~AudioChainSection() {
@@ -85,7 +87,7 @@ void AudioChainSection::redoBackgroundImage() {
 
 void AudioChainSection::resized() {
     static constexpr float kEffectOrderWidthPercent = 0.2f;
-    static constexpr int kScrollBarInset = 14;
+    static constexpr int kScrollBarInset = 5;
     static constexpr int kScrollBarWidth = 7;
     ScopedLock lock(open_gl_critical_section_);
 
@@ -140,7 +142,7 @@ void AudioChainSection::renderOpenGlComponents(OpenGlWrapper &open_gl, bool anim
     background_.setTopRight(-1.0f + 2.0f * width_ratio, 1.0f + y_offset);
     background_.setBottomLeft(-1.0f, 1.0f - 2.0f * height_ratio + y_offset);
     background_.setBottomRight(-1.0f + 2.0f * width_ratio, 1.0f - 2.0f * height_ratio + y_offset);
-    background_.setColor(Colours::white);
+    background_.setColor(findColour(Skin::kBackground, true));
     background_.drawImage(open_gl);
     OpenGlComponent::setScissorBounds(this, viewport_.getBounds(), open_gl);
     SynthSection::renderOpenGlComponents(open_gl, animate);
