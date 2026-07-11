@@ -27,7 +27,9 @@ ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRect
         EffectModuleSection::moduleAdded(obj);
     }
     setSidewaysHeading(false);
-    setName("FX");
+    // Lane label derives from the EffectList's lane index (0/1/2) rather than a
+    // hardcoded "FX" string, so the three lanes read "Lane 1/2/3".
+    setName("Lane " + juce::String(module_list.lane + 1));
 
     header_body_ = std::make_shared<OpenGlQuad>(Shaders::kColorFragment, "effect_module_header");
     header_body_->setInterceptsMouseClicks(false, false);
@@ -38,6 +40,18 @@ ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRect
     header_title_->setJustification(juce::Justification::centred);
     header_title_->setInterceptsMouseClicks(false, false);
     addOpenGlComponent(header_title_);
+
+    // Two coincident overlay passes mirror ModulationModuleSection::paintBackground(),
+    // which paints the same 1.0 outline twice. They remain above the scrolling content.
+    border_overlay_ = std::make_shared<OpenGlQuad>(Shaders::kRoundedRectangleBorderFragment, "effect_lane_border");
+    border_overlay_second_pass_ = std::make_shared<OpenGlQuad>(
+        Shaders::kRoundedRectangleBorderFragment, "effect_lane_border_second_pass");
+    border_overlay_->setInterceptsMouseClicks(false, false);
+    border_overlay_second_pass_->setInterceptsMouseClicks(false, false);
+    border_overlay_->setAlwaysOnTop(true);
+    border_overlay_second_pass_->setAlwaysOnTop(true);
+    addOpenGlComponent(border_overlay_);
+    addOpenGlComponent(border_overlay_second_pass_);
 
     toggle_button_->setVisible(false);
     setInterceptsMouseClicks(true,true);
@@ -78,7 +92,8 @@ void EffectModuleSection::setEffectPositions() {
     if (getWidth() <= 0 || getHeight() <= 0)
         return;
 
-    int padding = getPadding();
+    // No vertical gap between stacked FX modules (FX-local; SoundModuleSection unaffected).
+    int padding = 0;
     int start_y = 0;
 
     for (int i = 0; i < module_sections.size(); ++i) {
@@ -88,7 +103,12 @@ void EffectModuleSection::setEffectPositions() {
             y += placeholderHeight;
         }
 
-        module_sections[i]->height = viewport_.getHeight();
+        // Size each FX module from its contained view's dynamic row layout instead of the
+        // full viewport height. Set bounds once first so the FX view gets its width and can
+        // compute a width-dependent row count, then read the preferred height and apply it.
+        // (FX-local: SoundModuleSection sizes its modules separately.)
+        module_sections[i]->setBounds(0, y, getWidth(), module_sections[i]->height);
+        module_sections[i]->height = module_sections[i]->getPreferredHeight();
         module_sections[i]->setBounds(0, y, getWidth(), module_sections[i]->height);
         start_y = y + module_sections[i]->height + padding;
     }
@@ -166,7 +186,8 @@ void EffectModuleSection::moduleAdded(ProcessorBase *newModule) {
             if (getWidth() <= 0 || getHeight() <= 0)
                 return;
 
-            int padding = getPadding();
+            // No vertical gap between stacked FX modules (see setEffectPositions).
+            int padding = 0;
             int start_y = 0;
 
             for (int i = 0; i < module_sections.size(); ++i) {
@@ -338,6 +359,19 @@ void EffectModuleSection::resized() {
     header_title_->setText(getName());
     header_title_->setTextSize(size_ratio_ * 14.0f);
     header_title_->setColor(findColour(Skin::kHeadingText, true));
+
+    const auto border_bounds = getLocalBounds();
+    const auto border_color = findColour(Skin::kBorder, true);
+    // The rounded-border shader's zero-radius inner mask has non-zero alpha across the
+    // quad interior. A half-unit floor is the shader's antialias cutoff and keeps a
+    // square-looking zero-radius skin border transparent away from its perimeter.
+    const auto border_rounding = std::max(0.5f, findValue(Skin::kBodyRounding));
+    for (auto* border : { border_overlay_.get(), border_overlay_second_pass_.get() }) {
+        border->setBounds(border_bounds);
+        border->setColor(border_color);
+        border->setRounding(border_rounding);
+        border->setThickness(1.0f, true);
+    }
 }
 void EffectModuleSection::removeModule(ProcessorBase *newModule) {
     // Find exactly the one module whose state matches. find_if (vs non-stable
@@ -499,9 +533,6 @@ void EffectModuleSection::redoBackgroundImage() {
     background_graphics.fillAll(background);
     if (isExpanded())
         container_->paintBackground(background_graphics);
-    background_graphics.setColour(juce::Colours::aliceblue);
-    background_graphics.fillRect(juce::Rectangle<float>(0.0f, 0.0f, 1.0f, (float)height));
-    background_graphics.fillRect(juce::Rectangle<float>((float)width - 1.0f, 0.0f, 1.0f, (float)height));
     background_.setOwnImage(background_image);
 }
 
@@ -512,7 +543,6 @@ void EffectModuleSection::paintBackground(Graphics &g) {
     g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(0.5f), findValue(Skin::kBodyRounding), 1.0f);
 
     paintBody(g);
-    paintBorder(g);
 
     redoBackgroundImage();
 }

@@ -33,6 +33,10 @@ public:
     std::shared_ptr<OpenGlQuad> footer_body;
     std::shared_ptr<OpenGlQuad> header_body_;
     std::shared_ptr<PlainTextComponent> header_title_;
+    // Coincident GL overlays reproduce the Modulation panel's twice-painted 1.0 outline
+    // while keeping the FX perimeter above its scroll image and module content.
+    std::shared_ptr<OpenGlQuad> border_overlay_;
+    std::shared_ptr<OpenGlQuad> border_overlay_second_pass_;
 
 
     juce::ValueTree state;

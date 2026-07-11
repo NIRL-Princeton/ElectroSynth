@@ -15,6 +15,10 @@ public:
     void resized() override;
     void paintBackground(juce::Graphics& g) override;
 
+    // FX-only: height derived from the dynamic row layout so the module shrinks/grows
+    // with its visible-control count instead of filling the full viewport height.
+    int getPreferredHeight() const override;
+
 private:
     static constexpr int kMaxEffectSlots = 5;
 
@@ -22,12 +26,10 @@ private:
     void updateLabels();
 
     std::vector<std::unique_ptr<juce::Component>> comps;
-    std::vector<std::unique_ptr<SynthSlider>> placeholders_;
     std::unique_ptr<SynthSlider> mix_knob_;
     std::unique_ptr<SynthSlider> postgain_knob_;
 
     std::map<juce::Component*, std::shared_ptr<PlainTextComponent>> slider_labels_;
-    std::array<juce::Rectangle<int>, 7> mod_boxes_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FxModuleTemplateView)
 };

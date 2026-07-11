@@ -811,18 +811,9 @@ FxModuleTemplateView::FxModuleTemplateView(chowdsp::PluginState& pluginState,
         },
         [](auto&) {});
 
-    for (int i = (int)comps.size(); i < kMaxEffectSlots; ++i) {
-        auto ph = std::make_unique<NoPopupSynthSlider>("Param " + juce::String(i + 1));
-        ph->setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
-        ph->setScrollWheelEnabled(false);
-        ph->setEnabled(false);
-        addSlider(ph.get(), true);
-        ph->parentHierarchyChanged();
-        ph->setActive(false);
-        ph->setAlpha(0.3f, true);
-        placeholders_.push_back(std::move(ph));
-    }
-
+    // Mix / PostGain are intended visible FX controls. NOTE: they are currently
+    // UI-only (no chowdsp parameter attachment) and are NOT wired to DSP yet.
+    // No greyed-out placeholder knobs are created for empty slots.
     mix_knob_ = std::make_unique<NoPopupSynthSlider>("Mix");
     mix_knob_->setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
     mix_knob_->setScrollWheelEnabled(false);
@@ -838,7 +829,7 @@ FxModuleTemplateView::FxModuleTemplateView(chowdsp::PluginState& pluginState,
     postgain_knob_->parentHierarchyChanged();
 
     setLookAndFeel(DefaultLookAndFeel::instance());
-    setOpaque(true);
+    setOpaque(false);
     ensureLabels();
 }
 
@@ -848,11 +839,14 @@ FxModuleTemplateView::~FxModuleTemplateView() = default;
 // vertical spacing for the narrow FX panel ONLY. They do not touch global skin
 // values or shared SynthSlider rendering constants.
 namespace {
-    constexpr float kFxKnobScale     = 0.7225f; // 0.85 * 0.85 — FX knob/tick-arc footprint
-    constexpr int   kFxLabelHeight   = 18;     // tall enough to avoid clipping descenders
-    constexpr int   kFxLabelToArcGap = 2;      // label bottom -> top of tick arc
-    constexpr int   kFxArcToModGap   = 4;      // bottom of tick arc -> mod box top
-    constexpr int   kFxModBoxHeight  = 16;
+    constexpr float kFxKnobScale       = 0.7225f; // 0.85 * 0.85 — FX knob/tick-arc footprint
+    constexpr int   kFxLabelHeight     = 18;      // tall enough to avoid clipping descenders
+    constexpr int   kFxLabelToArcGap   = 2;       // label bottom -> top of tick arc
+    constexpr int   kFxRowTopPad       = 10;      // padding above the first row
+    constexpr int   kFxRowBottomPad    = 2;       // padding below the last row
+    constexpr int   kFxRowGap          = 16;      // breathing room between stacked rows
+    constexpr int   kFxMinKnobCellWidth = 76;     // min horizontal cell per knob (drives knobs-per-row)
+    constexpr int   kFxSideInset       = 1;       // side inset = border thickness (paintBorder draws 1px)
 }
 
 void FxModuleTemplateView::ensureLabels() {
@@ -889,88 +883,99 @@ void FxModuleTemplateView::updateLabels() {
     }
 }
 
-void FxModuleTemplateView::resized() {
-    const int w = getWidth();
-    const int H = getHeight();
+// FX-only preferred height, mirroring resized()'s dynamic layout: derive the row count
+// the same way (visible controls, knobs-per-row from lane width) and size for exactly
+// that many rows plus padding. No fixed module height.
+int FxModuleTemplateView::getPreferredHeight() const {
+    const int n = (int) comps.size() + (mix_knob_ != nullptr ? 1 : 0)
+                                     + (postgain_knob_ != nullptr ? 1 : 0);
+    if (n <= 0)
+        return kFxRowTopPad + kFxRowBottomPad;
 
-    // Shrink the FX knob/tick-arc footprint locally via each slider's per-instance
-    // knob_size_scale_ (used by both the raster and GL rotary paths). This does NOT
-    // change global skin values or shared SynthSlider constants, so other sections
-    // are unaffected.
-    for (auto* slider : all_sliders_v)
-        if (auto* ss = dynamic_cast<SynthSlider*>(slider))
-            ss->setKnobSizeScale(kFxKnobScale);
-
-    // Rendered knob box, matched to the 85%-scaled arc (scale applies to arc size and
-    // thickness together) so the graphic fits its box exactly.
     const int knobPx = std::max(1, (int) std::ceil(
         kFxKnobScale * 2.0f * (findValue(Skin::kKnobArcSize)
                                + findValue(Skin::kKnobArcThickness))));
 
-    // Divide the panel into kRows equal vertical bands. Within each band: label at the
-    // top, a full-height mod box anchored at the band's bottom (so its bottom is always
-    // <= H), and the knob/arc centered in the remaining space. Gaps flex with H; the
-    // knob keeps its FX-local kFxKnobScale size and the mod box keeps full height, so
-    // layout can never push a mod box past the panel bottom.
-    constexpr int kRows = 5;
-    const int rowSlotH = H / kRows;
+    const int perRow  = std::max(1, std::min(getWidth() / kFxMinKnobCellWidth, n));
+    const int numRows = (n + perRow - 1) / perRow; // matches resized()'s grouping row count
+    const int rowContentH = kFxLabelHeight + kFxLabelToArcGap + knobPx;
 
-    auto placeKnob = [&](juce::Component* comp, int centreX, int slotW, int row, int modIdx) {
-        if (comp == nullptr)
-            return;
-        const int slotTop    = row * rowSlotH;
-        const int slotBottom = slotTop + rowSlotH;            // <= kRows*rowSlotH <= H
-        const int modBoxTop  = slotBottom - kFxModBoxHeight;  // full height, bottom = slotBottom
-        // Center the knob/arc in the space between the label and the mod box.
-        const int midTop    = slotTop + kFxLabelHeight + kFxLabelToArcGap;
-        const int midBottom = modBoxTop - kFxArcToModGap;
-        const int arcTop    = midTop + std::max(0, ((midBottom - midTop) - knobPx) / 2);
-        comp->setBounds(centreX - knobPx / 2, arcTop, knobPx, knobPx);
+    return kFxRowTopPad + numRows * rowContentH
+         + (numRows - 1) * kFxRowGap + kFxRowBottomPad;
+}
 
-        // Mod box: full height, anchored at the band bottom, centered in the slot.
-        // Clamp the width to the slot interior (like the oscillator ParametersView boxes)
-        // so it can never be wider than its slot / escape the panel.
-        constexpr int kFxModBoxMargin = 2;
-        const int desired_bw = slotW * 23 / 20;
-        const int bw = std::max(0, std::min(desired_bw, slotW - 2 * kFxModBoxMargin));
-        mod_boxes_[modIdx] = { centreX - bw / 2, modBoxTop, bw, kFxModBoxHeight };
-    };
+void FxModuleTemplateView::resized() {
+    // 1. Lane width.
+    const int w = getWidth();
 
-    auto slotComp = [&](int slotIdx) -> juce::Component* {
-        if (slotIdx < (int)comps.size())
-            return comps[slotIdx].get();
-        const int phIdx = slotIdx - (int)comps.size();
-        if (phIdx < (int)placeholders_.size())
-            return placeholders_[phIdx].get();
-        return nullptr;
-    };
+    // 2. Shrink the FX knob/tick-arc footprint locally (raster + GL rotary). Does NOT
+    // change global skin values or shared SynthSlider constants.
+    for (auto* slider : all_sliders_v)
+        if (auto* ss = dynamic_cast<SynthSlider*>(slider))
+            ss->setKnobSizeScale(kFxKnobScale);
 
-    // Row 0: slot 0 (single)
-    { int kw = w * 3 / 10; placeKnob(slotComp(0), w / 2, kw, 0, 0); }
+    // 3. Rendered knob box, matched to the FX-scaled arc.
+    const int knobPx = std::max(1, (int) std::ceil(
+        kFxKnobScale * 2.0f * (findValue(Skin::kKnobArcSize)
+                               + findValue(Skin::kKnobArcThickness))));
 
-    // Row 1: slots 1 & 2 (two columns)
-    { int colW = w / 2; int kw = colW / 2;
-      placeKnob(slotComp(1), colW / 2,        kw, 1, 1);
-      placeKnob(slotComp(2), colW + colW / 2, kw, 1, 2); }
+    // 4. Visible controls in order: real params, then Mix, then PostGain. No placeholders.
+    std::vector<juce::Component*> controls;
+    controls.reserve(comps.size() + 2);
+    for (auto& c : comps)
+        controls.push_back(c.get());
+    if (mix_knob_ != nullptr)
+        controls.push_back(mix_knob_.get());
+    if (postgain_knob_ != nullptr)
+        controls.push_back(postgain_knob_.get());
 
-    // Row 2: slots 3 & 4 (two columns)
-    { int colW = w / 2; int kw = colW / 2;
-      placeKnob(slotComp(3), colW / 2,        kw, 2, 3);
-      placeKnob(slotComp(4), colW + colW / 2, kw, 2, 4); }
+    // 5. Knobs per row = as many as fit the lane width, clamped to [1, n].
+    const int n = (int) controls.size();
+    if (n == 0) {
+        SynthSection::resized();
+        return;
+    }
+    // perRow ignores the side inset; the inset only trims the row area used for centering.
+    const int perRow = std::max(1, std::min(w / kFxMinKnobCellWidth, n));
 
-    // Row 3: Mix
-    { int kw = w * 27 / 100; placeKnob(mix_knob_.get(), w / 2, kw, 3, 5); }
+    // 6. Row sizes. remainder becomes a smaller FIRST row so every later row (incl. the
+    // final Mix/PostGain row) is full; single-per-row when only one fits.
+    std::vector<int> rows;
+    if (perRow <= 1) {
+        rows.assign(n, 1);
+    } else {
+        const int leftover = n % perRow;
+        if (leftover != 0)
+            rows.push_back(leftover);
+        for (int placed = leftover; placed < n; placed += perRow)
+            rows.push_back(perRow);
+    }
 
-    // Row 4: PostGain
-    { int kw = w * 27 / 100; placeKnob(postgain_knob_.get(), w / 2, kw, 4, 6); }
+    // 7. Position controls row by row, each row centered horizontally within the inset area.
+    const int rowContentH = kFxLabelHeight + kFxLabelToArcGap + knobPx;
+    const int cellW = (w - 2 * kFxSideInset) / perRow;
+    int idx = 0;
+    int y = kFxRowTopPad;
+    for (int cnt : rows) {
+        const int startX = kFxSideInset + ((w - 2 * kFxSideInset) - cnt * cellW) / 2;
+        const int arcTop = y + kFxLabelHeight + kFxLabelToArcGap;
+        for (int c = 0; c < cnt && idx < n; ++c, ++idx) {
+            const int centreX = startX + c * cellW + cellW / 2;
+            controls[idx]->setBounds(centreX - knobPx / 2, arcTop, knobPx, knobPx);
+        }
+        y += rowContentH + kFxRowGap;
+    }
 
+    // 8. Redo slider images + labels.
     for (auto* slider : all_sliders_v)
         if (auto* synth_slider = dynamic_cast<SynthSlider*>(slider))
             synth_slider->redoImage();
     updateLabels();
 
+    // 9. Base resize.
     SynthSection::resized();
 
+    // 10. Existing note, kept once.
     // NOTE: Do NOT call repaintBackground() here.
     //
     // repaintBackground() walks up to FullInterface and stamps this view's
@@ -990,37 +995,17 @@ void FxModuleTemplateView::resized() {
     // normally because they are not inside a scrolling viewport.
 }
 
-static void drawModulationBox(juce::Graphics& g, juce::Rectangle<int> bounds, juce::Colour col) {
-    auto r = bounds.toFloat();
-    g.setColour(col);
-    g.drawRect(r, 1.0f);
-    float x1 = r.getX() + r.getWidth() / 3.0f;
-    float x2 = r.getX() + r.getWidth() * 2.0f / 3.0f;
-    g.drawLine(x1, r.getY(), x1, r.getBottom(), 1.0f);
-    g.drawLine(x2, r.getY(), x2, r.getBottom(), 1.0f);
-}
-
 void FxModuleTemplateView::paintBackground(juce::Graphics& g) {
     SynthSection::paintContainer(g);
     paintBorder(g);
     paintKnobShadows(g);
     paintChildrenBackgrounds(g);
 
-    // Dim placeholder knob face area with a dark overlay
-    g.setColour(juce::Colours::black.withAlpha(0.35f));
-    for (auto& ph : placeholders_)
-        g.fillRect(ph->getBounds());
+    // FX modulation boxes are hidden for now, but the layout still reserves their space
+    // to preserve row spacing (see mod_boxes_ / kFxModBoxHeight in resized()). The old
+    // drawModulationBox() rendering pass is intentionally omitted so no boxes are drawn.
 
     // Slider labels render as OpenGL PlainTextComponents (see ensureLabels/updateLabels).
-
-    // Modulation boxes — muted color for placeholder slots (indices comps.size()..kMaxEffectSlots-1)
-    // boxes that go under knobs to indicate routing
-    const juce::Colour activeBoxCol = juce::Colour::fromRGB(54, 78, 79);
-    const juce::Colour inactiveBoxCol = juce::Colour::fromRGB(54, 78, 79).withAlpha(0.5f);
-    for (int i = 0; i < (int)mod_boxes_.size(); ++i) {
-        bool isPlaceholder = (i >= (int)comps.size() && i < kMaxEffectSlots);
-        drawModulationBox(g, mod_boxes_[i], isPlaceholder ? inactiveBoxCol : activeBoxCol);
-    }
 }
 
 }//naemspace bitlkavier
