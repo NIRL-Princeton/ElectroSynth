@@ -16,8 +16,8 @@
 #include "EffectList.h"
 #include "modulation_manager.h"
 #include "FullInterface.h"
-MasterVoiceEnvelopeSection:: MasterVoiceEnvelopeSection(const juce::ValueTree& v, juce::UndoManager &um,
-                                                        OpenGlWrapper &open_gl, SynthGuiData * data, std::unique_ptr<SynthSection>&& view) : SynthSection("MasterEnv"), mod_button(std::make_unique<ModulationButton>("mod_masterenv")), master_voice_envelope(std::move(view)) {
+MasterVoiceEnvelopeSection:: MasterVoiceEnvelopeSection(const juce::ValueTree& v, juce::UndoManager &um, OpenGlWrapper &open_gl,
+                                                        SynthGuiData * data, std::unique_ptr<SynthSection>&& view) : SynthSection("MasterEnv"), mod_button(std::make_unique<ModulationButton>("mod_masterenv")), master_voice_envelope(std::move(view)) {
     setName("Master Voice Envelope");
     setSidewaysHeading(false);
     header_body_ = std::make_shared<OpenGlQuad>(Shaders::kColorFragment, "master_voice_envelope_header");

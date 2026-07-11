@@ -19,6 +19,7 @@ public:
 
     PopupItems createPopupMenu() override;
     void handlePopupResult(int result) override;
+    void mouseDown(const juce::MouseEvent& e) override;
 
     std::map<std::string, SynthSlider*> getAllSliders() override;
     std::vector<std::unique_ptr<ModuleSection>> module_sections;

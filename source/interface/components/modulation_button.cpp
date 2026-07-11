@@ -207,7 +207,7 @@ void ModulationButton::mouseDrag(const MouseEvent& e) {
 
   if (!getLocalBounds().contains(e.getPosition()) && mouse_state_ != kDraggingOut) {
     for (Listener* listener : listeners_)
-      listener->startModulationMap(this, e);
+      listener->startDestinationMap(this, e);
     mouse_state_ = kDraggingOut;
     setMouseCursor(MouseCursor::DraggingHandCursor);
   }

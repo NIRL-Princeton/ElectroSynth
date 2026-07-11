@@ -49,7 +49,7 @@ void ModulationSection::resized()
     _view->setBounds(getLocalBounds());
     if (mod_button->getParentComponent() == this)
         mod_button->setBounds(_view->getRight() - 40, getY(),40,40);
-    exit_button_->setBounds(0,0, 50,50);
+    exit_button_->setBounds(0,0, 30,30);
 
     int knob_y2 =0;
     SynthSection::resized();

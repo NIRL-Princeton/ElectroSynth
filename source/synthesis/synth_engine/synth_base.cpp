@@ -686,11 +686,21 @@ SynthBase::getConnection(const std::string &source, const std::string &destinati
     return nullptr;
 }
 
-bool SynthBase::connectModulation(const std::string &source, const std::string &destination,
-                                  int destination_slot) {
+// does this source already have a connection to this destination?
+bool SynthBase::hasSourceDestinationConnection(const std::string &source, const std::string &destination) const
+{
+    for (auto* existing : mod_connections_)
+    {
+        if (existing->source_name == source && existing->destination_name == destination) return true;
+    }
+    return false;
+}
+
+bool SynthBase::connectModulation(const std::string &source, const std::string &destination, int destination_slot) {
+
     electrosynth::ModulationConnection *connection = getConnection(source, destination, destination_slot);
     bool create = connection == nullptr;
-    if (create) {
+    if (create && !hasSourceDestinationConnection (source, destination)) {
         if (destination_slot >= 0) {
             for (auto* existing : mod_connections_) {
                 if (existing->destination_name == destination
@@ -714,6 +724,8 @@ bool SynthBase::connectModulation(const std::string &source, const std::string &
 void SynthBase::connectModulation(electrosynth::ModulationConnection *connection) {
     electrosynth::mapping_change change = createMappingChange(connection);
     if (isInvalidConnection(change)) {
+        if (connection->state.getParent().isValid())
+            connection->state.getParent().removeChild(connection->state, nullptr);
         connection->clearConnection();
     } else if (mod_connections_.count(connection) == 0) {
         change.disconnecting = false;
@@ -724,12 +736,14 @@ void SynthBase::connectModulation(electrosynth::ModulationConnection *connection
     }
 }
 
-//TODO remove from vcaluetress
+
 void SynthBase::disconnectModulation(electrosynth::ModulationConnection *connection) {
     if (mod_connections_.count(connection) == 0)
         return;
 
     electrosynth::mapping_change change = createMappingChange(connection);
+    if (connection->state.getParent().isValid())
+        connection->state.getParent().removeChild(connection->state, nullptr);
     connection->clearConnection();
 
     mod_connections_.remove(connection);

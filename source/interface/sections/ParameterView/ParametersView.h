@@ -18,17 +18,20 @@ namespace electrosynth {
 	        void setSourceName(juce::String source_name);
 	        void setSourceDisplayLabel(juce::String display_label);
 	        void setModulationAmount(float amount);
+	        void setBypass(bool bypass);
 	        void setAuxSource(juce::String source_name, juce::String display_label);
 	        void clearSource() {
 	            setSourceName({});
 	            setSourceDisplayLabel({});
 	            setModulationAmount(0.0f);
+	            setBypass(false);
 	            setAuxSource({}, {});
 	        }
 	        bool isOccupied() const { return source_name_.isNotEmpty(); }
 	        juce::Colour getSourceColor() const;
 	        juce::String getSourceLabel() const;
 	        float getModulationAmount() const { return modulation_amount_; }
+	        bool isBypass() const { return bypass_; }
 	        bool hasAuxSource() const { return aux_source_name_.isNotEmpty(); }
 	        juce::Colour getAuxSourceColor() const;
 	        juce::String getAuxSourceLabel() const;
@@ -41,6 +44,7 @@ namespace electrosynth {
 	        juce::String aux_source_name_;
 	        juce::String aux_display_label_;
 	        float modulation_amount_ = 0.0f;
+	        bool bypass_ = false;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ModulationSlotComponent)
     };
@@ -92,15 +96,15 @@ namespace electrosynth {
         std::vector<std::unique_ptr<juce::Component>> comps;
         std::map<juce::Component*, std::shared_ptr<PlainTextComponent>> slider_labels_;
         std::map<juce::Component*, juce::Rectangle<int>> modulation_boxes_;
-        using ModulationSlots =
-            std::array<std::unique_ptr<ModulationSlotComponent>, SynthSlider::kNumModulationSlots>;
+        using ModulationSlots = std::array<std::unique_ptr<ModulationSlotComponent>, SynthSlider::kNumModulationSlots>;
         std::map<juce::Component*, ModulationSlots> modulation_box_targets_;
-	        struct ModulationSlotOpenGl {
-	            std::shared_ptr<OpenGlQuad> body;
-	            std::shared_ptr<OpenGlQuad> amount;
-	            std::shared_ptr<OpenGlQuad> border;
-	            std::shared_ptr<PlainTextComponent> label;
-	            std::shared_ptr<OpenGlQuad> aux_body;
+
+        struct ModulationSlotOpenGl {
+	            std::shared_ptr<OpenGlQuad> body; // filled background
+	            std::shared_ptr<OpenGlQuad> amount; // small meter on the bottom
+	            std::shared_ptr<OpenGlQuad> border; // border
+	            std::shared_ptr<PlainTextComponent> label; // source label
+	            std::shared_ptr<OpenGlQuad> aux_body; //
 	            std::shared_ptr<OpenGlQuad> aux_border;
 	            std::shared_ptr<PlainTextComponent> aux_label;
 	        };

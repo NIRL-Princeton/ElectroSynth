@@ -62,7 +62,6 @@ void ModuleSection::paintBackground(juce::Graphics &g) {
     paintContainer(g);
     paintKnobShadows(g);
     paintChildrenBackgrounds(g);
-
 }
 
 void ModuleSection::resized() {

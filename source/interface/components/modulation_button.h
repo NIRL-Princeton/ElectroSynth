@@ -55,7 +55,7 @@ class ModulationButton : public PlainShapeComponent {
         virtual void modulationDisconnected(electrosynth::ModulationConnection* connection, bool last) { }
         virtual void modulationSelected(ModulationButton* source) { }
         virtual void modulationLostFocus(ModulationButton* source) { }
-        virtual void startModulationMap(ModulationButton* source, const MouseEvent& e) { }
+        virtual void startDestinationMap(ModulationButton* source, const MouseEvent& e) { }
         virtual void modulationDragged(const MouseEvent& e) { }
         virtual void modulationWheelMoved(const MouseEvent& e, const MouseWheelDetails& wheel) { }
         virtual void endModulationMap() { }

@@ -15,7 +15,8 @@ namespace electrosynth {
     class SoundEngine;
 }
 
-ModulationModuleSection::ModulationModuleSection(ModulationManager *modulation_manager,ModuleList<ModulatorBase>& module_list, juce::UndoManager& um) : ModulesInterface(module_list), modulation_manager(modulation_manager), undo(um)
+ModulationModuleSection::ModulationModuleSection(ModulationManager *modulation_manager, ModuleList<ModulatorBase>& module_list,
+    juce::UndoManager& um) : ModulesInterface(module_list), modulation_manager(modulation_manager), undo(um)
 {
     setName("Modulation");
     toggle_button_->setVisible(false);
@@ -61,6 +62,20 @@ ModulationModuleSection::ModulationModuleSection(ModulationManager *modulation_m
         }
     }
 
+    // Add modulator plus sign
+    add_mod_button_background_ = std::make_shared<OpenGlQuad>(Shaders::kRoundedRectangleFragment, "modulation_button_background_");
+    add_mod_button_background_->setInterceptsMouseClicks(false, false);
+    add_mod_button_background_->setRounding(5.0f);
+    addOpenGlComponent (add_mod_button_background_);
+
+    add_modulator_button_ = std::make_unique<OpenGlShapeButton>("Add Modulator");
+    addAndMakeVisible (add_modulator_button_.get());
+    addOpenGlComponent (add_modulator_button_->getGlComponent());
+    add_modulator_button_->addListener (this);
+    add_modulator_button_->setShape(Paths::plus (150));
+    add_modulator_button_->addMouseListener (this, false);
+
+
     scroll_bar_ = std::make_unique<OpenGlScrollBar>(false);
 //    scroll_bar_->setShrinkLeft(true)
     addAndMakeVisible(scroll_bar_.get());
@@ -90,16 +105,11 @@ ModulationModuleSection::~ModulationModuleSection() {
 void ModulationModuleSection::resized() {
 
     static constexpr float kEffectOrderWidthPercent = 0.2f;
+    static constexpr int kAddButtonSize = 34;
+    static constexpr int kAddButtonGap = 6;
+
     ScopedLock lock(open_gl_critical_section_);
 
-    int order_width = getWidth() * kEffectOrderWidthPercent;
-    //    effect_order_->setBounds(0, 0, order_width, getHeight());
-    //    effect_order_->setSizeRatio(size_ratio_);
-    int padding = findValue(Skin::kPadding);
-    int large_padding = findValue(Skin::kLargePadding);
-    int shadow_width = getComponentShadowWidth();
-    int viewport_x = 0 + large_padding - shadow_width;
-    int viewport_width = getWidth() - viewport_x - large_padding + 2 * shadow_width;
     const int title_width = static_cast<int>(getTitleWidth());
     const int tab_strip_y = getHeight() - kTabStripHeight;
 
@@ -137,6 +147,32 @@ void ModulationModuleSection::resized() {
             kSelectedTabSideExtension + 2);
     }
 
+    const int tabCount = static_cast<int>(module_sections.size());
+    if (tabCount < kMaxTabs) {
+        const int lastTabIndex = std::max(0, tabCount - 1);
+        const auto lastTabBounds = tabCount > 0 ? tab_buttons_[lastTabIndex]->getBounds()
+        : juce::Rectangle<int>(0, getHeight()-kTabStripHeight + 4, 0, kTabStripHeight - 8);
+
+        const int x = lastTabBounds.getRight() + kAddButtonGap;
+        const int y = lastTabBounds.getCentreY() - kAddButtonSize/2;
+
+        add_modulator_button_->setVisible(true);
+        add_modulator_button_->setBounds(x, y, kAddButtonSize, kAddButtonSize);
+        add_modulator_button_->setColour(Skin::kIconButtonOff, findColour(Skin::kIconButtonOff, true));
+        add_modulator_button_->setColour(Skin::kIconButtonOffHover, findColour(Skin::kIconButtonOffHover, true));
+        add_modulator_button_->setColour(Skin::kIconButtonOffPressed, findColour(Skin::kIconButtonOffPressed, true));
+
+
+        add_mod_button_background_->setVisible(true);
+        add_mod_button_background_->setBounds(add_modulator_button_->getBounds().reduced(5.f));
+        add_mod_button_background_->setColor(findColour(Skin::kBorder, true));
+    }
+    else {
+        add_modulator_button_->setVisible(false);
+        add_mod_button_background_->setVisible(false);
+    }
+
+
     viewport_.setBounds(0, title_width, getWidth(),
                         std::max(0, getHeight() - title_width - kTabStripHeight));
     setEffectPositions();
@@ -165,6 +201,21 @@ void ModulationModuleSection::paintBackground(juce::Graphics& g) {
     paintBorder(g);
 
     redoBackgroundImage();
+}
+
+void ModulationModuleSection::mouseEnter(const MouseEvent& event) {
+    if (event.eventComponent == add_modulator_button_.get()) {
+        showPopupDisplay(
+            add_modulator_button_.get(),
+            "Click to add modulator",
+            juce::BubbleComponent::right,
+            true);
+    }
+}
+
+ void ModulationModuleSection::mouseExit(const MouseEvent& event) {
+    if (event.eventComponent == add_modulator_button_.get())
+        hidePopupDisplay(true);
 }
 
 void ModulationModuleSection::handlePopupResult(int result) {
@@ -213,6 +264,13 @@ void ModulationModuleSection::setEffectPositions() {
 }
 
 void ModulationModuleSection::buttonClicked(juce::Button* button) {
+    if (button == add_modulator_button_.get()) {
+        hidePopupDisplay(true);
+        showPopupSelector (add_modulator_button_.get(), add_modulator_button_->getLocalBounds().getCentre(),
+            createPopupMenu(), [this] (int selection) {handlePopupResult (selection);});
+    }
+
+
     for (int i = 0; i < kMaxTabs; ++i) {
         if (button == tab_buttons_[i].get() && i < static_cast<int>(module_sections.size())) {
             selected_tab_ = i;
@@ -357,13 +415,14 @@ void ModulationModuleSection::redoBackgroundImage() {
     container_->paintBackground(background_graphics);
     background_.setOwnImage(background_image);
 }
-std::map<std::string, ModulationButton*> ModulationModuleSection::getAllModulationButtons()
-{
+std::map<std::string, ModulationButton*> ModulationModuleSection::getAllModulationButtons() {
     //test_->getAllSliders();
     return container_->getAllModulationButtons();
 }
+
 void ModulationModuleSection::moduleAdded(ModulatorBase *newModule) {
     auto module_section = std::make_unique<ModulationSection>( newModule->state, std::move((newModule->createEditor())), undo);
+
     {
         juce::ScopedLock lock(open_gl_critical_section_);
         container_->addSubSection(module_section.get());
@@ -372,8 +431,10 @@ void ModulationModuleSection::moduleAdded(ModulatorBase *newModule) {
     module_section->setInterceptsMouseClicks(false,true);
     parentHierarchyChanged();
     module_sections.emplace_back(std::move(module_section));
-    addOpenGlComponent(
-        std::static_pointer_cast<OpenGlImageComponent>(module_sections.back()->getModulationButtonPtr()));
+
+    auto mod_button = module_sections.back()->getModulationButtonPtr();
+
+    addOpenGlComponent(std::static_pointer_cast<OpenGlImageComponent>(mod_button));
     selected_tab_ = static_cast<int>(module_sections.size()) - 1;
     updateTabs();
     for(auto listener : listeners_) {
@@ -381,7 +442,10 @@ void ModulationModuleSection::moduleAdded(ModulatorBase *newModule) {
     }
 
     resized();
+    if (mod_button != nullptr)
+        mod_button->redrawImage(true);
 }
+
 void ModulationModuleSection::moduleListChanged() {
 
 }
@@ -390,7 +454,7 @@ void ModulationModuleSection::removeModule(ModulatorBase *newModule) {
     decltype(module_sections)::iterator it;
     {
         juce::ScopedLock(this->open_gl_critical_section_);
-        it = std::remove_if(module_sections.begin(), module_sections.end(),
+        it = std::find_if(module_sections.begin(), module_sections.end(),
                             [newModule](auto& section) {
                                 return section->state == newModule->state;
                             });
@@ -406,22 +470,34 @@ void ModulationModuleSection::removeModule(ModulatorBase *newModule) {
 
 
     if (it != module_sections.end()) {
-        it->get()->setVisible(false);
+        auto* section = it->get();
+        section->setVisible(false);
+        auto modulation_button = section->getModulationButtonPtr();
         if ((juce::OpenGLContext::getCurrentContext() == nullptr)) {
 
             auto *_parent = findParentComponentOfClass<SynthGuiInterface>();
-            _parent->getOpenGlWrapper()->context.executeOnGLThread([this, it](juce::OpenGLContext &openGLContext) {
+            if (_parent != nullptr) {
+                _parent->getOpenGlWrapper()->context.executeOnGLThread([this, section, modulation_button](juce::OpenGLContext &openGLContext) {
 
 
-                auto a = it->get();
-                a->destroyOpenGlComponents(openGLContext);
-                this->container_->removeSubSection(a);
+                    if (modulation_button != nullptr)
+                        this->destroyOpenGlComponent(*modulation_button, openGLContext);
+                    section->destroyOpenGlComponents(openGLContext);
+                    this->container_->removeSubSection(section);
 
-                },true);
+                    },true);
+            }
 
         }
+        else {
+            auto& openGLContext = *juce::OpenGLContext::getCurrentContext();
+            if (modulation_button != nullptr)
+                destroyOpenGlComponent(*modulation_button, openGLContext);
+            section->destroyOpenGlComponents(openGLContext);
+            container_->removeSubSection(section);
+        }
 
-        module_sections.erase(it, module_sections.end());
+        module_sections.erase(it);
         selected_tab_ = juce::jlimit(0, std::max(0, static_cast<int>(module_sections.size()) - 1), selected_tab_);
         updateTabs();
 

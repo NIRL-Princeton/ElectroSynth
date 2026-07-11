@@ -21,6 +21,8 @@ ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRect
     scroll_bar_->addListener(this);
     viewport_.setScrollBarPosition(true, false); //use this to determine viewport scroll type in effectsviewport
     viewport_.setScrollBarsShown(false, false, true, false);
+    viewport_.addMouseListener(this, false);
+    container_->addMouseListener(this, false);
 
     addListener(m);
     for (auto obj : list) {
@@ -129,6 +131,16 @@ PopupItems EffectModuleSection::createPopupMenu() {
     options.addItem(1, "add filt");
     options.addItem(2, "add delay");
     return options;
+}
+
+void EffectModuleSection::mouseDown(const juce::MouseEvent& e) {
+    if (e.mods.isPopupMenu()) {
+        PopupItems options = createPopupMenu();
+        showPopupSelector(this, getLocalPoint(e.eventComponent, e.getPosition()), options,
+                          [this](int selection) { handlePopupResult(selection); });
+    }
+
+    juce::Component::mouseDown(e);
 }
 
 

@@ -74,6 +74,8 @@ public:
     std::unique_ptr<electrosynth::ModulationConnection>
     createConnection(const std::string &from, const std::string &to);
 
+    bool hasSourceDestinationConnection(const std::string &source, const std::string &destination) const;
+
     bool connectModulation(const std::string &source, const std::string &destination,
                            int destination_slot = -1);
 

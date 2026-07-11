@@ -36,6 +36,7 @@ struct MappingWrapper;
         {
             //count--;
         }
+
         static bool isModulationSourceDefaultBipolar(const std::string& source);
         void setSource(int uuid_from)
         {
@@ -72,28 +73,33 @@ struct MappingWrapper;
             state.removeProperty(IDs::destIdx, nullptr);
         }
 
-        float getCurrentBaseValue()
+        float getScaledAmountForMapping(float val) const
         {
-            // if(scalingValue_ != nullptr)
-            // {
-            //     return scalingValue_->load();
-            // }
-            // return 0.5f;
-            return scalingValue_;
-        }
-        void setScalingValue(float val)
-        {
-            // if(scalingValue_ != nullptr)
-            // {
-                if (isBipolar())
-                    scalingValue_.store(val *0.5f);
-                else
-                    scalingValue_.store(val);
-            // }
-            //DBG(juce::String(val));
+            return isBipolar() ? val * 0.5f : val;
         }
 
-        void setBypass(bool bypass) { bypass_ = bypass; }
+        void updateEffectiveScalingValue() // audio mapping and process mapping reads scalingValue_ to adjust modulation effect
+        {
+            scalingValue_.store(bypass_ ? 0.0f : baseScalingValue_.load());
+        }
+
+        float getCurrentBaseValue()
+        {
+            return baseScalingValue_.load();
+        }
+
+
+        void setScalingValue(float val)
+        {
+            baseScalingValue_.store(getScaledAmountForMapping (val));
+            updateEffectiveScalingValue();
+        }
+
+        void setBypass(bool bypass)
+        {
+            bypass_ = bypass;
+            updateEffectiveScalingValue();
+        }
         void setStereo(bool stereo) { stereo_ = stereo; }
         bool isBipolar() const { return bipolar_; }
         bool isBypass() const {return bypass_; }
@@ -131,7 +137,8 @@ struct MappingWrapper;
         LEAF &leaf_;
         std::array<ModuleHeader*, MAX_NUM_VOICES>* sourceProc_;
 
-        std::atomic<float> scalingValue_;
+        std::atomic<float> baseScalingValue_ { 0.0f }; // UI/user amount
+        std::atomic<float> scalingValue_; // DSP effective amount
         std::atomic<float>* bipolarOffset;
 
         MappingWrapper* mapping_;

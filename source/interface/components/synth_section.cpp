@@ -407,6 +407,8 @@ void SynthSection::destroyOpenGlComponent(OpenGlComponent const& open_gl_compone
     {
         return *p == open_gl_component;
     });
+    if (new_logical_end == open_gl_components_.end())
+        return;
 //    //calls destroy function
 //    new_logical_end->get()->destroy(open_gl);
 //
@@ -494,32 +496,33 @@ void SynthSection::removeSliders(std::map<std::string,SynthSlider*> toRemove) {
   }
 }
 void SynthSection::addSubSection(SynthSection* sub_section, bool show) {
-  sub_section->setParent(this);
+    sub_section->setParent(this);
 
-  if (show)
-    addAndMakeVisible(sub_section);
+    if (show)
+        addAndMakeVisible(sub_section);
 
-  sub_sections_.push_back(sub_section);
+    sub_sections_.push_back(sub_section);
 
-  std::map<std::string, SynthSlider*> sub_sliders = sub_section->getAllSliders();
-  all_sliders_.insert(sub_sliders.begin(), sub_sliders.end());
+    std::map<std::string, SynthSlider*> sub_sliders = sub_section->getAllSliders();
+    all_sliders_.insert(sub_sliders.begin(), sub_sliders.end());
 
-  std::map<std::string, ToggleButton*> sub_buttons = sub_section->getAllButtons();
-  all_buttons_.insert(sub_buttons.begin(), sub_buttons.end());
+    std::map<std::string, ToggleButton*> sub_buttons = sub_section->getAllButtons();
+    all_buttons_.insert(sub_buttons.begin(), sub_buttons.end());
 
-  std::map<std::string, ModulationButton*> sub_mod_buttons = sub_section->getAllModulationButtons();
-  all_modulation_buttons_.insert(sub_mod_buttons.begin(), sub_mod_buttons.end());
+    std::map<std::string, ModulationButton*> sub_mod_buttons = sub_section->getAllModulationButtons();
+    all_modulation_buttons_.insert(sub_mod_buttons.begin(), sub_mod_buttons.end());
 }
 
 void SynthSection::removeSubSection(SynthSection* section) {
-  this->removeSliders( section->getAllSliders());
-  for (auto [key,mod] : section->modulation_buttons_) {
-    this->all_modulation_buttons_.erase(key);
-  }
-  auto location = std::find(sub_sections_.begin(), sub_sections_.end(), section);
-  if (location != sub_sections_.end())
-    sub_sections_.erase(location);
+    this->removeSliders( section->getAllSliders());
 
+    for (auto [key,mod] : section->all_modulation_buttons_) {
+        this->all_modulation_buttons_.erase(key);
+    }
+
+    auto location = std::find(sub_sections_.begin(), sub_sections_.end(), section);
+    if (location != sub_sections_.end())
+        sub_sections_.erase(location);
 }
 
 void SynthSection::setScrollWheelEnabled(bool enabled) {
@@ -871,9 +874,9 @@ void SynthSection::animate(bool animate) {
 }
 void SynthSection::showPopupDisplay(Component* source, const std::string& text,
     BubbleComponent::BubblePlacement placement, bool primary) {
-  FullInterface* parent = findParentComponentOfClass<FullInterface>();
-  if (parent)
-    parent->popupDisplay(source, text, placement, primary);
+    FullInterface* parent = findParentComponentOfClass<FullInterface>();
+    if (parent)
+        parent->popupDisplay(source, text, placement, primary);
 }
 
 void SynthSection::hidePopupDisplay(bool primary) {

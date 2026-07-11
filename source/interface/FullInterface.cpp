@@ -72,6 +72,8 @@ FullInterface::FullInterface(SynthGuiData* synth_data) : SynthSection("full_inte
 //        inspector->setVisible (true);
 //    };
 //    inspectButton->setAlwaysOnTop(true);
+
+    addSubSection(modulation_manager.get());
     popup_selector_ = std::make_unique<SinglePopupSelector>();
     addSubSection(popup_selector_.get());
     popup_selector_->setVisible(false);
@@ -96,8 +98,6 @@ FullInterface::FullInterface(SynthGuiData* synth_data) : SynthSection("full_inte
     about_section_ = std::make_unique<AboutSection>("about");
     addSubSection(about_section_.get(), false);
     addChildComponent(about_section_.get());
-
-    addSubSection(modulation_manager.get());
 
     about_section_->toFront(true);
     copySkinValues(default_skin);
@@ -368,9 +368,9 @@ void FullInterface::reset() {
 
 void FullInterface::popupDisplay(juce::Component* source, const std::string& text,
     juce::BubbleComponent::BubblePlacement placement, bool primary) {
-   PopupDisplay* display = primary ? popup_display_1_.get() : popup_display_2_.get();
-   display->setContent(text, getLocalArea(source, source->getLocalBounds()), placement);
-   display->setVisible(true);
+    PopupDisplay* display = primary ? popup_display_1_.get() : popup_display_2_.get();
+    display->setContent(text, getLocalArea(source, source->getLocalBounds()), placement);
+    display->setVisible(true);
 }
 
 //void FullInterface::prepDisplay(PreparationSection* prep)
@@ -533,7 +533,6 @@ std::map<std::string, SynthSlider*> FullInterface::getAllSliders(){
 std::map<std::string, ModulationButton*> FullInterface::getAllModulationButtons(){
     return main_->getAllModulationButtons();
 }
-
 
 
 

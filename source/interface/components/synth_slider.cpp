@@ -759,7 +759,8 @@ void SynthSlider::setDefaultRange() {
 }
 
 void SynthSlider::addSliderListener(SynthSlider::SliderListener* listener) {
-  slider_listeners_.push_back(listener);
+  if (std::find(slider_listeners_.begin(), slider_listeners_.end(), listener) == slider_listeners_.end())
+    slider_listeners_.push_back(listener);
 }
 
 void SynthSlider::showPopup(bool primary) {

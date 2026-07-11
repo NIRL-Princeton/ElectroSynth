@@ -25,17 +25,25 @@ public:
          for (Listener* listener : listeners_)
              listener->effectsMoved();
      }
-     void redoBackgroundImage() override;
-     void renderOpenGlComponents(OpenGlWrapper& open_gl, bool animate) override;
+
+    void redoBackgroundImage() override;
+    void renderOpenGlComponents(OpenGlWrapper& open_gl, bool animate) override;
     void paintBackground(juce::Graphics& g) override;
     void setEffectPositions() override;
     void resized() override;
-     PopupItems createPopupMenu() override;
-     void handlePopupResult(int result) override;
-     void scrollBarMoved(ScrollBar *scrollBarThatHasMoved, double newRangeStart) override;
+    PopupItems createPopupMenu() override;
+    void handlePopupResult(int result) override;
+
+    void mouseEnter(const MouseEvent& event) override;
+    void mouseExit(const MouseEvent& event) override;
+    std::unique_ptr<OpenGlShapeButton> add_modulator_button_;
+    std::shared_ptr<OpenGlQuad> add_mod_button_background_;
+
+
+    void scrollBarMoved(ScrollBar *scrollBarThatHasMoved, double newRangeStart) override;
     void setScrollBarRange() override;
-     void buttonClicked(juce::Button* button) override;
-     std::map<std::string, ModulationButton*> getAllModulationButtons() override;
+    void buttonClicked(juce::Button* button) override;
+    std::map<std::string, ModulationButton*> getAllModulationButtons() override;
 
      ModulationManager* modulation_manager;
      std::shared_ptr<OpenGlQuad> header_body_;

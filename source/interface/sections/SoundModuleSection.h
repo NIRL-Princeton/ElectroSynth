@@ -38,6 +38,11 @@ public:
     std::shared_ptr<PlainTextComponent> header_title_;
     std::unique_ptr<OpenGlShapeButton> exit_button_;
 
+    std::unique_ptr<OpenGlShapeButton> add_to_module_button_;
+    std::shared_ptr<OpenGlQuad> add_button_background_;
+    void mouseEnter(const MouseEvent& event) override;
+    void mouseExit(const MouseEvent& event) override;
+
     void buttonClicked(juce::Button* clicked_button) override;
     juce::ValueTree state;
     // void renderOpenGlComponents(OpenGlWrapper &open_gl, bool animate) override;
