@@ -118,7 +118,8 @@ const std::array<std::vector<std::string>, 9> paramsAllArray =
             "gain",
             "tilt",
             "peakAmt",
-            "peakFreq"
+            "peakFreq",
+            "peakBandwidth"
         }
     }
 

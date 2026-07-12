@@ -231,6 +231,8 @@ message("C++ Compiler ID: ${CMAKE_CXX_COMPILER_ID}")
 # Get the C++ compiler version
 message("C++ Compiler Version: ${CMAKE_CXX_COMPILER_VERSION}")
 
+set(CMAKE_CXX_STANDARD 17)
+
 # Removes optimizations ?
 #set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
 #set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0")

@@ -14,7 +14,7 @@ struct NoiseParams : public LEAFParams<_tNoiseModule>
 {
     NoiseParams(LEAF* leaf) : LEAFParams<_tNoiseModule>(leaf)
     {
-        add(gain, tilt, peakGain, peakFreq);
+        add(gain, tilt, peakGain, peakFreq, peakBandwidth);
     }
 
     //add env watch param so that it isnt null
@@ -35,7 +35,7 @@ struct NoiseParams : public LEAFParams<_tNoiseModule>
     chowdsp::GainDBParameter::Ptr gain {
         juce::ParameterID{"gain", 100},
         "Gain",
-        chowdsp::ParamUtils::createNormalisableRange(0.0f, 2.0f, 1.0f),
+        chowdsp::ParamUtils::createNormalisableRange(0.0f, 2.0f, 1.f),
         1.f,
         all_params[NosParams::NoiseGain],
         [this](float val)
@@ -47,8 +47,8 @@ struct NoiseParams : public LEAFParams<_tNoiseModule>
     chowdsp::FloatParameter::Ptr tilt {
         juce::ParameterID { "tilt", 100 },
         "Tilt",
-        chowdsp::ParamUtils::createNormalisableRange (0.0f, 1.0f, 0.5f),
-        1.0f,
+        chowdsp::ParamUtils::createNormalisableRange (0.f, 1.0f, .5f),
+        0.5f,
         all_params[NosParams::NoiseTilt],
         [this] (float val)
         {for (auto mod: modules) tNoiseModule_setParameter(mod, NoiseTilt,val);
@@ -61,7 +61,7 @@ struct NoiseParams : public LEAFParams<_tNoiseModule>
     chowdsp::GainDBParameter::Ptr peakGain {
         juce::ParameterID{"peakGain", 100},
         "PeakGain",
-        chowdsp::ParamUtils::createNormalisableRange(0.0f, 2.0f, 1.0f),
+        chowdsp::ParamUtils::createNormalisableRange(0.f, 2.0f, 1.0f),
         1.f,
         all_params[NosParams::NoisePeakGain],
         [this](float val)
@@ -69,15 +69,28 @@ struct NoiseParams : public LEAFParams<_tNoiseModule>
         },
     };
 
-    // peakFreq
-    chowdsp::FloatParameter::Ptr peakFreq {
-        juce::ParameterID { "peakFreq", 100 },
+    //
+    chowdsp::FreqHzParameter::Ptr peakFreq {
+        juce::ParameterID{"peakFreq" , 100},
         "PeakFreq",
-        chowdsp::ParamUtils::createNormalisableRange (0.0f, 1.0f, 0.5f),
-        1.0f,
+        chowdsp::ParamUtils::createNormalisableRange(20.f, 20000.f, 500.f),
+        500.f,
         all_params[NosParams::NoisePeakFreq],
-        [this] (float val)
-        {for (auto mod: modules) tNoiseModule_setParameter(mod, NoisePeakFreq, val);
+        [this](float val)
+        {
+            for (auto mod: modules) tNoiseModule_setParameter(mod,NoisePeakFreq,val);
+            //DBG("Noise [0 - 1]" + juce::String(val) + " .. .  peakFreq actual Val" + juce::String(modules[0]->peakFreq));
+        }
+    };
+
+    chowdsp::FloatParameter::Ptr peakBandwidth {
+        juce::ParameterID { "peakBandwidth", 100 },
+        "PeakBandwidth",
+        chowdsp::ParamUtils::createNormalisableRange (0.0f, 1.0f, 0.5f),
+        0.5f,
+        all_params[NosParams::NoisePeakBandwidth],
+        [this] (float val) {
+            for (auto mod: modules) tNoiseModule_setParameter(mod,NoisePeakBandwidth,val);
         },
         &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal
