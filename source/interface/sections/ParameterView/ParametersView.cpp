@@ -16,38 +16,6 @@
 namespace electrosynth {
 
     namespace {
-        juce::Colour getModulationSlotSourceColor(const juce::String& source_name) {
-            if (source_name.startsWithIgnoreCase("env"))
-                return ShaderColors::kEnvelopeTextColor;
-            if (source_name.startsWithIgnoreCase("lfo"))
-                return ShaderColors::kLfoTextColor;
-            if (source_name.startsWithIgnoreCase("vca")
-                || source_name.containsIgnoreCase("master"))
-                return ShaderColors::kMasterEnvelopeTextColor;
-            return ShaderColors::kSoundModuleTextColor;
-        }
-
-        juce::String getModulationSlotSourceLabel(const juce::String& source_name, const juce::String& display_label) {
-            if (display_label.isNotEmpty())
-                return display_label;
-
-            juce::String prefix;
-            if (source_name.startsWithIgnoreCase("env")) prefix = "Env ";
-            else if (source_name.startsWithIgnoreCase("lfo")) prefix = "Lfo ";
-            else if (source_name.startsWithIgnoreCase("vca") || source_name.containsIgnoreCase("master"))
-                prefix = "Master ";
-            else
-                return source_name;
-
-            juce::String digits;
-            for (auto character : source_name) {
-                if (juce::CharacterFunctions::isDigit(character))
-                    digits += character;
-            }
-
-            return prefix + (digits.isNotEmpty() ? digits : "");
-        }
-
         juce::Rectangle<float> getAuxSlotBounds(juce::Rectangle<float> slot_bounds) {
             auto aux_bounds = slot_bounds.reduced(2.0f, 2.0f);
             aux_bounds.setTop(slot_bounds.getCentreY());
@@ -120,12 +88,31 @@ namespace electrosynth {
     }
 
     juce::Colour ModulationSlotComponent::getSourceColor() const {
-        return getModulationSlotSourceColor(source_name_);
+        if (source_name_.startsWithIgnoreCase("env"))
+            return findColour(Skin::kEnvelopeAccent);
+        if (source_name_.startsWithIgnoreCase("lfo"))
+            return findColour(Skin::kLFOAccent);
+        if (source_name_.startsWithIgnoreCase("vca") || source_name_.containsIgnoreCase("master"))
+            return findColour(Skin::kMasterEnvelopeAccent);
+        return ShaderColors::kSoundModuleTextColor;
     }
 
     juce::String ModulationSlotComponent::getSourceLabel() const { // for marking connections in the boxes underneath knobs
-        DBG("ModulationSlotComponent::getSourceLabel() : " + source_name_);
-        return getModulationSlotSourceLabel(source_name_, display_label_);
+        if (display_label_.isNotEmpty()) return display_label_;
+
+        juce::String prefix;
+        if (source_name_.startsWithIgnoreCase("env")) prefix = "Env ";
+        else if (source_name_.startsWithIgnoreCase("lfo")) prefix = "Lfo ";
+        else if (source_name_.startsWithIgnoreCase("vca") || source_name_.containsIgnoreCase("master")) prefix = "Master ";
+        else return source_name_;
+
+        juce::String digits;
+        for (auto character : source_name_) {
+            if (juce::CharacterFunctions::isDigit(character))
+                digits += character;
+        }
+
+        return prefix + (digits.isNotEmpty() ? digits : "");
     }
 
     void ModulationSlotComponent::setAuxSource(juce::String source_name, juce::String display_label) {
@@ -141,13 +128,6 @@ namespace electrosynth {
         }
     }
 
-    juce::Colour ModulationSlotComponent::getAuxSourceColor() const {
-        return getModulationSlotSourceColor(aux_source_name_);
-    }
-
-    juce::String ModulationSlotComponent::getAuxSourceLabel() const {
-        return getModulationSlotSourceLabel(aux_source_name_, aux_display_label_);
-    }
 
 // Rotary slider that suppresses the value bubble popup on drag/hover.
 class NoPopupSynthSlider : public SynthSlider {
@@ -402,15 +382,7 @@ public:
     }
 
     juce::Colour ParametersView::getSliderLabelColor() const {
-        if (getName().startsWithIgnoreCase("env"))
-            return ShaderColors::kEnvelopeTextColor;
-        if (getName().startsWithIgnoreCase("lfo"))
-            return ShaderColors::kLfoTextColor;
-        if (getName().equalsIgnoreCase("VCA")
-            || getName().containsIgnoreCase("master"))
-            return ShaderColors::kMasterEnvelopeTextColor;
-
-        return ShaderColors::kSoundModuleTextColor;
+        return findColour(Skin::kBodyText, true);
     }
 
     void ParametersView::paint(juce::Graphics &g) {
@@ -656,7 +628,7 @@ public:
 	                    ? getBypassAdjustedColor(slot->getSourceColor(), slot->isBypass())
 	                    : empty_border_color;
                 const bool has_aux = slot->hasAuxSource();
-                const auto aux_color = has_aux ? slot->getAuxSourceColor() : empty_border_color;
+                const auto aux_color = has_aux ? slot->getSourceColor() : empty_border_color;
                 const float amount = juce::jlimit(-1.0f, 1.0f, (slot->getModulationAmount()));
                 const auto slot_bounds = slot->getBounds();
 
@@ -697,7 +669,7 @@ public:
 	                }
 
 	                if (visuals.aux_label) {
-	                    visuals.aux_label->setText(has_aux ? slot->getAuxSourceLabel() : "");
+	                    visuals.aux_label->setText(has_aux ? slot->getSourceLabel() : "");
 	                    visuals.aux_label->setTextSize(std::max(7.0f, slot_bounds.getHeight() * 0.28f));
 	                    visuals.aux_label->setColor(aux_color);
 	                    visuals.aux_label->setVisible(occupied && has_aux);

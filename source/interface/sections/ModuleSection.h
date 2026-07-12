@@ -12,62 +12,40 @@
 #include "open_gl_image_component.h"
 #include "ProcessorBase.h"
 
-class ModuleSection : public SynthSection
-{
+class ModuleSection : public SynthSection {
 public:
     static constexpr int kHeaderHeight = 36;
-    static constexpr int kContentBottomPadding = 30;
+    static constexpr int kContentBottomPadding = 36;
 
     ModuleSection(const juce::ValueTree &, std::unique_ptr<SynthSection> editor, juce::UndoManager& um);
 
     virtual ~ModuleSection();
     int getPreferredHeight() const override;
     int refreshHeight();
-    void repaintModuleBackground()
-    {
-        background_->lock();
-        background_image_ = juce::Image(juce::Image::RGB, getWidth(),getHeight(), true);
-        juce::Graphics g(background_image_);
-        // if (prep_view.get() != nullptr)
-            paintChildBackground(g, this);
-        background_->updateBackgroundImage(background_image_);
-        background_->unlock();
-    }
-    void renderOpenGlComponents(OpenGlWrapper &open_gl, bool animate) override {
-        if(!background_->isInit) {
-        background_->init(open_gl);
-        }
-        // background_->render(open_gl);
+    void setAreaSkinOverride(Skin::SectionOverride skin_override);
 
+    void renderOpenGlComponents(OpenGlWrapper &open_gl, bool animate) override {
         SynthSection::renderOpenGlComponents(open_gl,animate);
     }
-    void paintBackground(Graphics& g) override;
-//    void setParametersViewEditor(electrosynth::ParametersViewEditor&&);
-    // void paintBackgroundShadow(Graphics& g) override { if (isActive()) paintTabShadow(g); }
+
     void resized() override;
+
+    void paintBackground(Graphics& g) override;
+
     void setDrawBottomSeparator(bool should_draw) {
         draw_bottom_separator_ = should_draw;
         if (bottom_separator_ != nullptr)
             bottom_separator_->setVisible(should_draw);
     }
-  //  void setActive(bool active) override;
-    //void sliderValueChanged(Slider* changed_slider) override;
-    //void setAllValues(vital::control_map& controls) override;
-    //void setFilterActive(bool active);
-//    void mouseEnter (const MouseEvent& event)
-//    {
-//        DBG("mouseenter doulesection");
-//    }
-    void mouseDown(const juce::MouseEvent& e) override
-    {
+
+    void mouseDown(const juce::MouseEvent& e) override {
         DBG("mousedown");
         dragStartY = e.getEventRelativeTo(getParentComponent()).position.getY();
         originalBounds = getBounds();
         toFront(true);
     }
 
-    void mouseDrag(const juce::MouseEvent& e) override
-    {
+    void mouseDrag(const juce::MouseEvent& e) override {
         int deltaY = e.getEventRelativeTo(getParentComponent()).position.getY() - dragStartY;
         setTopLeftPosition(originalBounds.getX(), originalBounds.getY() + deltaY);
 
@@ -77,27 +55,29 @@ public:
         DBG("afterdrag");
     }
 
-    void mouseUp(const juce::MouseEvent&) override
-    {
+    void mouseUp(const juce::MouseEvent&) override {
         DBG("mousseup");
         // if(
         if (isDragging == true&&onDragEnd) onDragEnd(this, getBounds());
         DBG("afterup");
         isDragging = false;
     }
+
+    void mouseEnter(const juce::MouseEvent& e) {
+        hover_ = true;
+    }
+
+    void mouseExit(const juce::MouseEvent& e) override {
+        hover_ = false;
+    }
+
     juce::ValueTree state;
     void buttonClicked(juce::Button* clicked_button) override;
     std::unique_ptr<OpenGlShapeButton> exit_button_;
     std::shared_ptr<PlainTextComponent> title_text_;
     std::shared_ptr<OpenGlQuad> bottom_separator_;
     void addListener(Listener* listener) { listeners_.push_back(listener); }
-    void mouseEnter(const juce::MouseEvent& e) {
-        hover_ = true;
-    }
-    void mouseExit(const juce::MouseEvent& e) override
-    {
-        hover_ = false;
-    }
+
     std::function<void(ModuleSection*, juce::Rectangle<int>)> onDragMove;
     std::function<void(ModuleSection*, juce::Rectangle<int>)> onDragEnd;
 
@@ -105,6 +85,7 @@ public:
     juce::Rectangle<int> originalBounds;
     bool hover_;
     int height = 100;
+
 private:
     bool isDragging = false;
     bool draw_bottom_separator_ = false;

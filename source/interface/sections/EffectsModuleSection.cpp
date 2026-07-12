@@ -41,6 +41,8 @@ ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRect
 
     toggle_button_->setVisible(false);
     setInterceptsMouseClicks(true,true);
+
+    setSkinOverride(Skin::kFx);
 }
 
 EffectModuleSection::~EffectModuleSection() {
@@ -118,6 +120,7 @@ std::map<std::string, SynthSlider *> EffectModuleSection::getAllSliders() {
 
 void EffectModuleSection::moduleAdded(ProcessorBase *newModule) {
     auto module_section = std::make_unique<ModuleSection>(newModule->state,std::move (newModule->createEditor()), undo);
+    module_section->setAreaSkinOverride(Skin::kFx);
     module_section->height = 300;
     module_section->onDragMove = [this](ModuleSection* dragged, juce::Rectangle<int> bounds) {
         int midY = bounds.getCentreY();
@@ -222,6 +225,7 @@ void EffectModuleSection::moduleAdded(ProcessorBase *newModule) {
     { juce::ScopedLock lock(open_gl_critical_section_);
         container_->addSubSection(module_section.get());
     }
+    module_section->applySkinFromTopLevel();
     module_section->setInterceptsMouseClicks(true, true);
     parentHierarchyChanged();
     //int height_to_add  = module_section->height;

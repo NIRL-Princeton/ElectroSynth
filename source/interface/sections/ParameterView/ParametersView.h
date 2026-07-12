@@ -33,8 +33,6 @@ namespace electrosynth {
 	        float getModulationAmount() const { return modulation_amount_; }
 	        bool isBypass() const { return bypass_; }
 	        bool hasAuxSource() const { return aux_source_name_.isNotEmpty(); }
-	        juce::Colour getAuxSourceColor() const;
-	        juce::String getAuxSourceLabel() const;
 
     private:
         SynthSlider& destination_slider_;

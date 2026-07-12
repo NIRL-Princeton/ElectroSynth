@@ -13,19 +13,12 @@ namespace {
     constexpr int kExitButtonRightOffset = 50;
 }
 
-ModuleSection::ModuleSection(const juce::ValueTree &v, std::unique_ptr<SynthSection> editor, juce::UndoManager& um) : SynthSection(editor->getName()), state(v), _view(std::move(editor)), undo(um)
-{
+ModuleSection::ModuleSection(const juce::ValueTree &v, std::unique_ptr<SynthSection> editor, juce::UndoManager& um)
+    : SynthSection(editor->getName()), state(v), _view(std::move(editor)), undo(um) {
 
-    background_ = std::make_unique<OpenGlBackground>();
-
-    // addOpenGlComponent(background_);
-    background_->setComponent(this);
-    // background_->paintEntireComponent(false);
-    // background_->setInterceptsMouseClicks(false, false);
     setComponentID(_view->getName());
     addSubSection(_view.get());
     _view->setAlwaysOnTop(true);
-    // setInterceptsMouseClicks(true,false);
 
     title_text_ = std::make_shared<PlainTextComponent>("module_title", getName());
     title_text_->setFontType(PlainTextComponent::kRegular);
@@ -47,6 +40,12 @@ ModuleSection::ModuleSection(const juce::ValueTree &v, std::unique_ptr<SynthSect
 
 ModuleSection::~ModuleSection() = default;
 
+void ModuleSection::setAreaSkinOverride(Skin::SectionOverride skin_override) {
+    setSkinOverride(skin_override);
+    if (_view != nullptr)
+        _view->setSkinOverride(skin_override);
+}
+
 int ModuleSection::getPreferredHeight() const {
     return (_view != nullptr ? _view->getPreferredHeight() : 0)
            + kHeaderHeight
@@ -58,19 +57,12 @@ int ModuleSection::refreshHeight() {
     return height;
 }
 
-void ModuleSection::paintBackground(juce::Graphics &g) {
-    paintContainer(g);
-    paintKnobShadows(g);
-    paintChildrenBackgrounds(g);
-}
-
 void ModuleSection::resized() {
     auto local = getLocalBounds();
     local.removeFromTop(kHeaderHeight);
     local.removeFromBottom(kContentBottomPadding);
     _view->setBounds(local);
     SynthSection::resized();
-    // background_->setBounds(getLocalBounds());
 
     title_text_->setBounds(0, 0, getWidth(), kHeaderHeight);
     title_text_->setText(getName());
@@ -90,27 +82,20 @@ void ModuleSection::resized() {
     bottom_separator_->setColor(findColour(Skin::kBodyHeading, true));
     bottom_separator_->setVisible(draw_bottom_separator_);
 
-    auto background_image_ = juce::Image(juce::Image::RGB, getWidth(),getHeight(), true);
-    // juce::Graphics g(background_image_);
-    // paintChildBackground(g,this);
-    // background_->draw_image_
-    // background_->updateBackgroundImage(background_image_);
-    // background_->unlock();
-    repaintModuleBackground();
-
 }
 
-//void ModuleSection::setParametersViewEditor (electrosynth::ParametersViewEditor&& editor)
-//{
-//   _view_editor = editor;
-//   addSubSection(_view);
-//
-//}
 void ModuleSection::buttonClicked(juce::Button *button) {
     if (button == exit_button_.get()) {
         this->setVisible(false);
-        //DBG("state " state.getParent())
         undo.beginNewTransaction();
         state.getParent().removeChild(state,&undo);
     }
+}
+
+void ModuleSection::paintBackground(juce::Graphics &g) {
+    //paintContainer(g);
+    // g.setColour(findColour(Skin::kBorder, true));
+    //paintBorder(g);
+    //paintKnobShadows(g);
+    // paintChildrenBackgrounds(g);
 }

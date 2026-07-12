@@ -23,6 +23,7 @@ public:
     // void paintBackgroundShadow(Graphics& g) override { if (isActive()) paintTabShadow(g); }
     void resized() override;
     juce::String getModulatorType() const;
+    void setAreaSkinOverride(Skin::SectionOverride skin_override);
     //void setActive(bool active) override;
     //void sliderValueChanged(Slider* changed_slider) override;
     //void setAllValues(vital::control_map& controls) override;

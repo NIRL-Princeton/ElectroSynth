@@ -26,11 +26,11 @@
 SynthSection::SynthSection(const String& name) : Component(name), parent_(nullptr), activator_(nullptr),
                                                  preset_selector_(nullptr), preset_selector_half_width_(false),
                                                  skin_override_(Skin::kNone), size_ratio_(1.0f),
-                                                 active_(true), sideways_heading_(true), background_(nullptr) , scissor_component_(nullptr){
-
-  setWantsKeyboardFocus(true);
-
+                                                 active_(true), sideways_heading_(true), background_(nullptr) , scissor_component_(nullptr)
+{
+    setWantsKeyboardFocus(true);
 }
+
 
 SynthSection::~SynthSection() =default;
 
@@ -124,6 +124,11 @@ void SynthSection::setSkinValues(const Skin& skin, bool top_level) {
 
   for (auto& open_gl_component : open_gl_components_)
     open_gl_component->setSkinValues(skin);
+}
+
+void SynthSection::applySkinFromTopLevel() {
+  if (auto* full_interface = findParentComponentOfClass<FullInterface>())
+    full_interface->applySkinToSubtree(this);
 }
 
 void SynthSection::repaintBackground() {
@@ -792,7 +797,7 @@ Font SynthSection::getLabelFont() {
 }
 
 void SynthSection::setLabelFont(Graphics& g) {
-  g.setColour(findColour(Skin::kBodyText, true));
+  // g.setColour(findColour(Skin::kBodyText, true));
   g.setFont(getLabelFont());
 }
 
@@ -836,7 +841,7 @@ void SynthSection::drawLabel(Graphics& g, String text, Rectangle<int> component_
   if (component_bounds.getWidth() <= 0 || component_bounds.getHeight() <= 0)
     return;
 
-  g.setColour(findColour(Skin::kBodyText, true));
+  // g.setColour(findColour(Skin::kBodyText, true));
   Rectangle<int> background_bounds = getLabelBackgroundBounds(component_bounds, text_component);
   g.drawText(text, component_bounds.getX(), background_bounds.getY(),
                    component_bounds.getWidth(), background_bounds.getHeight(), Justification::centred, false);

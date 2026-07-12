@@ -93,8 +93,8 @@ void OpenGlSlider:: redoImage(bool skip_image) {
     slider_quad_->setBackgroundColor(background_color_);
   }
   else {
-    slider_quad_->setModColor(juce::Colours::transparentBlack);
-    slider_quad_->setBackgroundColor(juce::Colours::transparentBlack);
+    slider_quad_->setModColor(findColour(Skin::kWidgetBackground, true).withAlpha(0.0f));
+    slider_quad_->setBackgroundColor(findColour(Skin::kWidgetBackground, true).withAlpha(0.0f));
   }
 
   if (isModulationKnob()) {
@@ -683,6 +683,7 @@ void SynthSlider::drawRotaryShadow(juce::Graphics &g) {
         tickMark.addRectangle(-tick_thickness * 0.5f, tick_y, tick_thickness, tick_length);
         tickMark.applyTransform(juce::AffineTransform::rotation(angle).translated(center_x, center_y));
 
+        g.setColour(findColour(Skin::kRotaryArcUnselected, true));
         g.fillPath(tickMark);
     }
 
@@ -691,16 +692,12 @@ void SynthSlider::drawRotaryShadow(juce::Graphics &g) {
     float rw = ellipse.getWidth();
     float border = rw * 0.025f;
 
-        // shadow
-    g.setColour(juce::Colours::dimgrey);
+    g.setColour(findColour(Skin::kShadow, true));
     //g.fillEllipse(ellipse.getX() - border, ellipse.getY() - border, ellipse.getWidth() + border * 2.0f, ellipse.getHeight() + border * 3.0f);
-        // white knob face
-    g.setColour(juce::Colours::white);
+    g.setColour(findColour(Skin::kRotaryBody, true));
     g.fillEllipse(ellipse.reduced(7.5f));
 
-
-        // thin dark outline
-    g.setColour(juce::Colours::black);
+    g.setColour(findColour(Skin::kRotaryBodyBorder, true));
     g.drawEllipse(ellipse.reduced(0.5f), 1.0f);
 
     const float slider_pos = valueToProportionOfLength(getValue());

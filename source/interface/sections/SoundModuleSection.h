@@ -29,7 +29,6 @@ public:
     void moduleAdded(ProcessorBase* newModule) override;
     void paintBackground(juce::Graphics& g) override;
     void resized() override;
-    void effectsScrolled(int position) override;
     void removeModule(ProcessorBase* newModule)   override;
     void moduleListChanged() ;
     void redoBackgroundImage() override;

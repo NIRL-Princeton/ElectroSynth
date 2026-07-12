@@ -21,14 +21,19 @@
 
 namespace {
   const std::string kOverrideNames[Skin::kNumSectionOverrides] = {
-    "All",
-    "Logo",
-    "Header",
-        "Overlays",
-        "Popup Browser",
-        "Preset Browser",
-        "Modulation Drag Drop",
-        "Modulator Section"
+         "None",
+      "General",
+      "Header",
+	      "Sound Module",
+	      "FX",
+	      "Modulation",
+	      "Envelope",
+	      "LFO",
+	      "Master Env",
+      "Overlays",
+      "Popup Browser",
+      "Preset Browser",
+      "Modulation Drag Drop"
   };
 
   const std::string kValueNames[Skin::kNumSkinValueIds] = {
@@ -90,6 +95,12 @@ namespace {
       "Label Connection",
       "Power Button On",
       "Power Button Off",
+
+      "Sound Module Accent",
+      "FX Accent",
+      "Envelope Accent",
+      "LFO Accent",
+      "Master Envelope Accent",
 
       "Overlay Screen",
       "Lighten Screen",
@@ -157,6 +168,124 @@ namespace {
       "Text Editor Selection"
 
   };
+
+    namespace {
+        bool isReferenceString(const json& value) {
+            if (!value.is_string()) return false;
+
+            std::string text = value.get<std::string>();
+            return text.size() > 2 && text.front() == '{' && text.back() == '}';
+        }
+
+        json resolveSkinValue(const json& root, const json& section, const json& value) {
+            if (!isReferenceString(value)) return value;
+
+            std::string ref = value.get<std::string>();
+            ref = ref.substr(1, ref.size() - 2);
+
+            json resolved;
+
+            if (ref.rfind("palette.", 0) == 0) {
+                std::string key = ref.substr(std::string("palette.").size());
+                resolved = root["palette"][key];
+            }
+            else if (ref.rfind("shared.", 0) == 0) {
+                std::string key = ref.substr(std::string("shared.").size());
+                resolved = root["shared"][key];
+            }
+            else if (ref.rfind("section.", 0) == 0) {
+                std::string key = ref.substr(std::string("section.").size());
+                resolved = section[key];
+            }
+            else {
+                return value;
+            }
+
+            return resolveSkinValue(root, section, resolved);
+        }
+
+        void addLegacyDefaults(json& flat) {
+            flat["Background"] = "ff000000";
+            flat["Body"] = "ff000000";
+            flat["Body Heading Background"] = "ff333333";
+            flat["Heading Text"] = "ffEFF0F0";
+            flat["Preset Text"] = "ffffffff";
+            flat["Body Text"] = "ffFFFF00";
+            flat["Border"] = "ff333333";
+            flat["Label Background"] = "ff3e4245";
+            flat["Label Connection"] = "393636";
+            flat["Power Button On"] = "ffFFFF00";
+            flat["Power Button Off"] = "ff606265";
+
+            flat["Overlay Screen"] = "22000000";
+            flat["Lighten Screen"] = "22ffffff";
+            flat["Shadow"] = "66000000";
+            flat["Popup Selector Background"] = "ff2c3033";
+            flat["Popup Background"] = "ff000000";
+            flat["Popup Border"] = "ff000000";
+
+            flat["Text Component Background"] = "ff2c3033";
+            flat["Text Component Text"] = "ffffffff";
+
+            flat["Rotary Arc"] = "ffFFFF00";
+            flat["Rotary Arc Disabled"] = "ff848789";
+            flat["Rotary Arc Unselected"] = "ff4c4f52";
+            flat["Rotary Arc Unselected Disabled"] = "ff4c4f52";
+            flat["Rotary Hand"] = "ffffffff";
+            flat["Rotary Body"] = "ff262a2e";
+            flat["Rotary Body Border"] = "ff4c4f52";
+
+            flat["Linear Slider"] = "ff848789";
+            flat["Linear Slider Disabled"] = "ff848686";
+            flat["Linear Slider Unselected"] = "ff262a2e";
+            flat["Linear Slider Thumb"] = "ffffffff";
+            flat["Linear Slider Thumb Disabled"] = "ffffffff";
+
+            flat["Widget Center Line"] = "ffffffff";
+            flat["Widget Primary 1"] = "ffFFFF00";
+            flat["Widget Primary 2"] = "ffFFFF00";
+            flat["Widget Primary Disabled"] = "ff4c4f52";
+            flat["Widget Secondary 1"] = "669f88ff";
+            flat["Widget Secondary 2"] = "669f88ff";
+            flat["Widget Secondary Disabled"] = "22666666";
+            flat["Widget Accent 1"] = "19aa88ff";
+            flat["Widget Accent 2"] = "19aa88ff";
+            flat["Widget Background"] = "ff000000";
+
+            flat["Modulation Meter"] = "ff1de9b6";
+            flat["Modulation Meter Left"] = "ff1de952";
+            flat["Modulation Meter Right"] = "ff1dc2e9";
+            flat["Modulation Meter Control"] = "ff64ffda";
+            flat["Modulation Button Selected"] = "ff4c4f52";
+            flat["Modulation Button Dragging"] = "ffea1616";
+            flat["Modulation Button Unselected"] = "ff2c3033";
+
+            flat["Icon Selector Icon"] = "ff848789";
+
+            flat["Icon Button Off"] = "ff848789";
+            flat["Icon Button Off Hover"] = "ffEFF0F0";
+            flat["Icon Button Off Pressed"] = "ff848789";
+            flat["Icon Button On"] = "ffFFFF00";
+            flat["Icon Button On Hover"] = "ffbda3ff";
+            flat["Icon Button On Pressed"] = "ff906de9";
+
+            flat["UI Button"] = "ff848789";
+            flat["UI Button Text"] = "ff111111";
+            flat["UI Button Hover"] = "ff939699";
+            flat["UI Button Press"] = "ff606265";
+            flat["UI Action Button"] = "ffFFFF00";
+            flat["UI Action Button Hover"] = "ffba9fff";
+            flat["UI Action Button Press"] = "ff906de9";
+
+            flat["Text Editor Background"] = "ff2c3033";
+            flat["Text Editor Border"] = "ffffff";
+            flat["Text Editor Caret"] = "ffEFF0F0";
+            flat["Text Editor Selection"] = "1faaabab";
+
+            flat["Knob Shadow Width"] = 0.0f;
+            flat["Knob Shadow Offset"] = 0.0f;
+        }
+    }
 } // namespace
 
 bool Skin::shouldScaleValue(ValueId value_id) {
@@ -260,7 +389,7 @@ Colour Skin::getColor(int section, ColorId color_id) const {
   if (color_overrides_[section].count(color_id))
     return color_overrides_[section].at(color_id);
 
-  return Colours::black;
+  return getColor (color_id);
 }
 
 float Skin::getValue(int section, ValueId value_id) const {
@@ -333,9 +462,53 @@ void Skin::saveToFile(File destination) {
 }
 
 json Skin::updateJson(json data) {
-  int version = 0;
+    int version = data.value("version", 1);
 
-  return data;
+    if (version < 2) return data; // if using old default.electrosynthskin, ignore conversion
+
+    json flat;
+    addLegacyDefaults(flat);
+
+    if (data.count("shared")) {
+        for (auto& item : data["shared"].items())
+            flat[item.key()] = resolveSkinValue(data, data["shared"], item.value());
+    }
+
+    if (data.count("sections") && data["sections"].count("General")) {
+        json general = data["sections"]["General"];
+        for (auto& item : general.items())
+            flat[item.key()] = resolveSkinValue(data, general, item.value());
+    }
+
+    json overrides;
+
+    if (data.count("sections")) {
+        for (auto& section : data["sections"].items()) {
+            const std::string section_name = section.key();
+
+            if (section_name == "General")
+                continue;
+
+            json resolved_section;
+
+            for (auto& item : section.value().items()) {
+                const std::string key = item.key();
+
+                // skip helper-only fields that are not real Skin color/value names.
+                if (key == "accent" || key == "envAccent" || key == "lfoAccent")
+                    continue;
+
+                resolved_section[key] = resolveSkinValue(data, section.value(), item.value());
+            }
+
+            overrides[section_name] = resolved_section;
+        }
+    }
+
+    flat["overrides"] = overrides;
+    flat["synth_version"] = data.value("synth_version", 0);
+
+    return flat;
 }
 
 void Skin::jsonToState(json data) {

@@ -19,6 +19,7 @@
 MasterVoiceEnvelopeSection:: MasterVoiceEnvelopeSection(const juce::ValueTree& v, juce::UndoManager &um, OpenGlWrapper &open_gl,
                                                         SynthGuiData * data, std::unique_ptr<SynthSection>&& view) : SynthSection("MasterEnv"), mod_button(std::make_unique<ModulationButton>("mod_masterenv")), master_voice_envelope(std::move(view)) {
     setName("Master Voice Envelope");
+    setSkinOverride(Skin::kMasterEnv);
     setSidewaysHeading(false);
     header_body_ = std::make_shared<OpenGlQuad>(Shaders::kColorFragment, "master_voice_envelope_header");
     header_body_->setInterceptsMouseClicks(false, false);
@@ -32,6 +33,7 @@ MasterVoiceEnvelopeSection:: MasterVoiceEnvelopeSection(const juce::ValueTree& v
 
     master_voice_envelope->setName("VCA");
     setComponentID(master_voice_envelope->getName());
+    master_voice_envelope->setSkinOverride(Skin::kMasterEnv);
     addSubSection(master_voice_envelope.get());
     if (auto* parameters = dynamic_cast<electrosynth::ParametersView*>(master_voice_envelope.get()))
         parameters->setVerticallyCenterKnobs(true);

@@ -339,6 +339,7 @@ class SynthSection : public Component, public Slider::Listener,
     virtual void setSkinValues(const Skin& skin, bool top_level);
     void setSkinValues(std::map<Skin::ValueId, float> values) { value_lookup_ = std::move(values); }
     void setSkinOverride(Skin::SectionOverride skin_override) { skin_override_ = skin_override; }
+    void applySkinFromTopLevel();
     void addSlider(SynthSlider* slider, bool show = true, bool listen = false);
     std::vector<juce::Component*> all_sliders_v;
     void addButton(OpenGlToggleButton* button, bool show = true);

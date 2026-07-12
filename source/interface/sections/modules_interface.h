@@ -18,7 +18,6 @@ class ModulesContainer : public SynthSection {
     public:
         ModulesContainer(String name) : SynthSection(name) {
             setInterceptsMouseClicks(false,true);
-            setSidewaysHeading(false);
         }
     void resized() override {
             SynthSection::resized();
@@ -30,10 +29,9 @@ class ModulesContainer : public SynthSection {
 };
 
 class EffectsViewport : public juce::Viewport {
-public:
-
-    class Listener {
     public:
+    class Listener {
+        public:
         virtual ~Listener() { }
         virtual void effectsScrolled(int position) = 0;
         virtual void startScroll() = 0;
@@ -41,6 +39,7 @@ public:
     };
 
     void addListener(Listener* listener) { listeners_.push_back(listener); }
+
     void mouseWheelMove(const MouseEvent &e, const MouseWheelDetails &wheel) override {
         for (Listener* listener : listeners_)
             listener->startScroll();
@@ -61,7 +60,7 @@ public:
         else if (!vertical_viewport && position.getY() != 0)
             setViewPosition(position.getX(), 0);
 
-        if (!scrolled)
+        if (!scrolled) // send mouse wheel to parent, if this component doesn't accept scroll
             Component::mouseWheelMove(e, wheel);
 
         for (Listener* listener : listeners_)
@@ -75,22 +74,20 @@ public:
             else
                 listener->effectsScrolled(visible_area.getX());
         }
-
-
     }
 
-private:
-    std::vector<Listener*> listeners_;
+    private:
+        std::vector<Listener*> listeners_;
 };
-template<typename T>
-class ModulesInterface : public SynthSection,
-                         public juce::ScrollBar::Listener, EffectsViewport::Listener,
-                        public ModuleList<T>::Listener
 
-{
-public:
-    class Listener {
+
+template<typename T>
+class ModulesInterface : public SynthSection, public juce::ScrollBar::Listener, EffectsViewport::Listener,
+                        public ModuleList<T>::Listener {
+
     public:
+    class Listener {
+        public:
         virtual ~Listener() { }
         virtual void effectsMoved() = 0;
         virtual void added() =0;
@@ -99,7 +96,6 @@ public:
 //    T* createNewObject(const juce::ValueTree& v) override;
 //    void deleteObject (ModuleSection* at) override;
     // void reset() override;
-
 
     ModulesInterface(ModuleList<T> &);
     virtual ~ModulesInterface();

@@ -81,7 +81,7 @@ ModulationModuleSection::ModulationModuleSection(ModulationManager *modulation_m
     addAndMakeVisible(scroll_bar_.get());
     addOpenGlComponent(scroll_bar_->getGlComponent());
     scroll_bar_->addListener(this);
-    //setSkinOverride(Skin::kModulationSection);
+    setSkinOverride(Skin::kModulation);
     //Skin default_skin;
     //setSkinValues(default_skin,false);
     viewport_.setScrollBarPosition(false,true);
@@ -422,11 +422,14 @@ std::map<std::string, ModulationButton*> ModulationModuleSection::getAllModulati
 
 void ModulationModuleSection::moduleAdded(ModulatorBase *newModule) {
     auto module_section = std::make_unique<ModulationSection>( newModule->state, std::move((newModule->createEditor())), undo);
+    const bool is_lfo = module_section->getModulatorType().equalsIgnoreCase("lfo");
+    module_section->setAreaSkinOverride(is_lfo ? Skin::kLfo : Skin::kEnvelope);
 
     {
         juce::ScopedLock lock(open_gl_critical_section_);
         container_->addSubSection(module_section.get());
     }
+    module_section->applySkinFromTopLevel();
 
     module_section->setInterceptsMouseClicks(false,true);
     parentHierarchyChanged();
