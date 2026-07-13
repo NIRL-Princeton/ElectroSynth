@@ -9,6 +9,32 @@
 #include "modulation_manager.h"
 #include "synth_base.h"
 #include "EffectList.h"
+
+namespace {
+class FxAddButtonBackground final : public OpenGlImageComponent {
+public:
+    FxAddButtonBackground() : OpenGlImageComponent("effect_add_button_background") {
+        setInterceptsMouseClicks(false, false);
+    }
+
+    void resized() override {
+        redrawImage(true);
+    }
+
+    void paintToImage(juce::Graphics& g) override {
+        const auto bounds = getLocalBounds().toFloat().reduced(1.0f);
+        const auto base = findColour(Skin::kBorder, true);
+        g.setColour(findColour(Skin::kBackground, true).withAlpha(0.45f));
+        g.fillRoundedRectangle(bounds.translated(0.0f, 1.0f), 5.0f);
+
+        juce::ColourGradient gradient(base.brighter(0.08f), 0.0f, bounds.getY(),
+                                      base.darker(0.10f), 0.0f, bounds.getBottom(), false);
+        g.setGradientFill(gradient);
+        g.fillRoundedRectangle(bounds, 5.0f);
+    }
+};
+}
+
 EffectModuleSection::EffectModuleSection(ModulationManager *m, EffectList &module_list,const juce::ValueTree &v, juce::UndoManager& um) :
 ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRectangleFragment)), state(v), undo(um)
 {
@@ -21,8 +47,6 @@ ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRect
     scroll_bar_->addListener(this);
     viewport_.setScrollBarPosition(true, false); //use this to determine viewport scroll type in effectsviewport
     viewport_.setScrollBarsShown(false, false, true, false);
-    viewport_.addMouseListener(this, false);
-    container_->addMouseListener(this, false);
 
     addListener(m);
     for (auto obj : list) {
@@ -42,6 +66,26 @@ ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRect
     header_title_->setJustification(juce::Justification::centred);
     header_title_->setInterceptsMouseClicks(false, false);
     addOpenGlComponent(header_title_);
+
+    // FX routing state is not currently exposed. Keep the lane-header control
+    // visibly present but disabled rather than attaching it to sound-chain routing.
+    routing_combo_box_ = std::make_unique<OpenGLComboBox>();
+    routing_combo_box_->addItem("Master", 1);
+    routing_combo_box_->setSelectedId(1, juce::dontSendNotification);
+    routing_combo_box_->setInterceptsMouseClicks(false, false);
+    routing_combo_box_->setWantsKeyboardFocus(false);
+    addAndMakeVisible(routing_combo_box_.get());
+    addOpenGlComponent(routing_combo_box_->getImageComponent());
+
+    add_effect_button_background_ = std::make_shared<FxAddButtonBackground>();
+    addOpenGlComponent(add_effect_button_background_);
+
+    add_effect_button_ = std::make_unique<OpenGlShapeButton>("Add Effect");
+    addAndMakeVisible(add_effect_button_.get());
+    addOpenGlComponent(add_effect_button_->getGlComponent());
+    add_effect_button_->addListener(this);
+    add_effect_button_->addMouseListener(this, false);
+    add_effect_button_->setShape(Paths::plus(150));
 
     // Two coincident overlay passes mirror ModulationModuleSection::paintBackground(),
     // which paints the same 1.0 outline twice. They remain above the scrolling content.
@@ -134,14 +178,27 @@ PopupItems EffectModuleSection::createPopupMenu() {
     return options;
 }
 
-void EffectModuleSection::mouseDown(const juce::MouseEvent& e) {
-    if (e.mods.isPopupMenu()) {
-        PopupItems options = createPopupMenu();
-        showPopupSelector(this, getLocalPoint(e.eventComponent, e.getPosition()), options,
-                          [this](int selection) { handlePopupResult(selection); });
+void EffectModuleSection::buttonClicked(juce::Button* button) {
+    if (button == add_effect_button_.get()) {
+        hidePopupDisplay(true);
+        showPopupSelector(add_effect_button_.get(), add_effect_button_->getLocalBounds().getCentre(),
+                          createPopupMenu(), [this](int selection) { handlePopupResult(selection); });
+        return;
     }
 
-    juce::Component::mouseDown(e);
+    ModulesInterface<ProcessorBase>::buttonClicked(button);
+}
+
+void EffectModuleSection::mouseEnter(const juce::MouseEvent& event) {
+    if (event.eventComponent == add_effect_button_.get()) {
+        showPopupDisplay(add_effect_button_.get(), "Click to add effect",
+                         juce::BubbleComponent::left, true);
+    }
+}
+
+void EffectModuleSection::mouseExit(const juce::MouseEvent& event) {
+    if (event.eventComponent == add_effect_button_.get())
+        hidePopupDisplay(true);
 }
 
 
@@ -253,15 +310,6 @@ void EffectModuleSection::moduleAdded(ProcessorBase *newModule) {
         setEffectPositions();
     };
 
-    // FX module sections intercept clicks for drag-reorder, which also swallows
-    // right-clicks before they reach ModulesInterface::mouseDown. Route those to
-    // the same create-effect popup the lane background shows.
-    module_section->onPopupMenu = [this](const juce::MouseEvent& e) {
-        PopupItems options = createPopupMenu();
-        showPopupSelector(this, getLocalPoint(e.eventComponent, e.getPosition()), options,
-                          [=](int selection) { handlePopupResult(selection); });
-    };
-
     { juce::ScopedLock lock(open_gl_critical_section_);
         container_->addSubSection(module_section.get());
     }
@@ -309,8 +357,16 @@ void EffectModuleSection::moduleAdded(ProcessorBase *newModule) {
 void EffectModuleSection::resized() {
     //ModulesInterface::resized();
     static constexpr float kEffectOrderWidthPercent = 0.2f;
+    static constexpr int kHeaderSidePadding = 6;
+    static constexpr int kHeaderControlGap = 4;
+    static constexpr int kRoutingControlHeight = 14;
+    static constexpr int kAddButtonSize = 34;
+    static constexpr int kHeaderControlsHeight = kAddButtonSize;
 
     ScopedLock lock(open_gl_critical_section_);
+
+    const int title_width = static_cast<int>(getTitleWidth());
+    const int header_height = title_width + kHeaderControlsHeight;
 
     int order_width = getWidth() * kEffectOrderWidthPercent;
     //    effect_order_->setBounds(0, 0, order_width, getHeight());
@@ -325,9 +381,11 @@ void EffectModuleSection::resized() {
     if (isExpanded()) {
         viewport_.setVisible(true);
         container_->setVisible(true);
-        viewport_.setBounds(0,getTitleWidth(),getWidth(),getHeight()-getTitleWidth()-2);
+        viewport_.setBounds(0, header_height, getWidth(), std::max(0, getHeight() - header_height - 2));
         setEffectPositions();
-        scroll_bar_->setBounds(getWidth() - large_padding, getTitleWidth() + large_padding, large_padding - 2, getHeight() - getTitleWidth()-(large_padding + 2 * shadow_width));
+        scroll_bar_->setBounds(getWidth() - large_padding, header_height + large_padding,
+                               large_padding - 2,
+                               std::max(0, getHeight() - header_height - (large_padding + 2 * shadow_width)));
         scroll_bar_->setColor(ShaderColors::kEffectTextColor);
 
         // Clip every live child to the FX viewport while scrolling, matching
@@ -365,13 +423,30 @@ void EffectModuleSection::resized() {
     footer_body->setRounding(findValue(Skin::kBodyRounding));
     footer_body->setColor(findColour(Skin::kBody, true));
 
-    const int title_width = static_cast<int>(getTitleWidth());
-    header_body_->setBounds(0, 0, getWidth(), title_width);
+    header_body_->setBounds(0, 0, getWidth(), header_height);
     header_body_->setColor(findColour(Skin::kBodyHeading, true));
     header_title_->setBounds(0, 0, getWidth(), title_width);
     header_title_->setText(getName());
     header_title_->setTextSize(size_ratio_ * 14.0f);
     header_title_->setColor(findColour(Skin::kHeadingText, true));
+
+    const int controls_y = title_width;
+    const int controls_height = kHeaderControlsHeight;
+    const int available_width = std::max(0, getWidth() - 2 * kHeaderSidePadding);
+    const int button_size = std::min(kAddButtonSize, available_width);
+    const int gap = available_width > button_size ? kHeaderControlGap : 0;
+    const int combo_width = std::max(0, available_width - button_size - gap);
+    const int control_height = std::min(kRoutingControlHeight, controls_height);
+    const int control_y = controls_y + (controls_height - control_height) / 2;
+
+    routing_combo_box_->setBounds(kHeaderSidePadding, control_y, combo_width, control_height);
+    const int button_x = getWidth() - kHeaderSidePadding - button_size;
+    const int button_y = controls_y + (controls_height - button_size) / 2;
+    add_effect_button_->setBounds(button_x, button_y, button_size, button_size);
+    add_effect_button_background_->setBounds(add_effect_button_->getBounds().reduced(4));
+    add_effect_button_->setColour(Skin::kIconButtonOff, findColour(Skin::kIconButtonOff, true));
+    add_effect_button_->setColour(Skin::kIconButtonOffHover, findColour(Skin::kIconButtonOffHover, true));
+    add_effect_button_->setColour(Skin::kIconButtonOffPressed, findColour(Skin::kIconButtonOffPressed, true));
 
     const auto border_bounds = getLocalBounds();
     const auto border_color = findColour(Skin::kBorder, true);
