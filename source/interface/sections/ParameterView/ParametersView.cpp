@@ -774,6 +774,13 @@ namespace {
     constexpr int   kFxSideInset       = 1;       // side inset = border thickness (paintBorder draws 1px)
 }
 
+juce::Colour FxModuleTemplateView::getLabelColor(const juce::Component* control) const {
+    if (control == mix_knob_.get() || control == postgain_knob_.get())
+        return ShaderColors::kSoundModuleTextColor;
+
+    return ShaderColors::kEffectTextColor;
+}
+
 void FxModuleTemplateView::ensureLabels() {
     for (auto* slider : all_sliders_v) {
         if (slider_labels_.count(slider) != 0)
@@ -784,8 +791,8 @@ void FxModuleTemplateView::ensureLabels() {
         label->setJustification(juce::Justification::centred);
         auto* gl_slider = dynamic_cast<OpenGlSlider*>(slider);
         bool active = gl_slider == nullptr || gl_slider->isActive();
-        label->setColor(active ? ShaderColors::kEffectTextColor
-                               : ShaderColors::kEffectTextColor.withAlpha(0.3f));
+        const auto label_color = getLabelColor(slider);
+        label->setColor(active ? label_color : label_color.withAlpha(0.3f));
         label->setInterceptsMouseClicks(false, false);
         addOpenGlComponent(label);
         slider_labels_[slider] = label;
@@ -803,7 +810,7 @@ void FxModuleTemplateView::updateLabels() {
                               b.getWidth(), kFxLabelHeight);
         it->second->setText(slider->getName());
         it->second->setTextSize(getLabelFont().getHeight());
-        it->second->setColor(ShaderColors::kEffectTextColor);
+        it->second->setColor(getLabelColor(slider));
         it->second->setVisible(slider->isEnabled());
     }
 }

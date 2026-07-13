@@ -24,6 +24,7 @@ private:
 
     void ensureLabels();
     void updateLabels();
+    juce::Colour getLabelColor(const juce::Component* control) const;
 
     std::vector<std::unique_ptr<juce::Component>> comps;
     std::unique_ptr<SynthSlider> mix_knob_;

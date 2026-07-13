@@ -111,6 +111,7 @@ void EffectModuleSection::setEffectPositions() {
         // (FX-local: SoundModuleSection sizes its modules separately.)
         module_sections[i]->setBounds(0, y, getWidth(), module_sections[i]->height);
         module_sections[i]->height = module_sections[i]->getPreferredHeight();
+        module_sections[i]->setDrawBottomSeparator(i + 1 < module_sections.size());
         module_sections[i]->setBounds(0, y, getWidth(), module_sections[i]->height);
         start_y = y + module_sections[i]->height + padding;
     }
@@ -327,7 +328,7 @@ void EffectModuleSection::resized() {
         viewport_.setBounds(0,getTitleWidth(),getWidth(),getHeight()-getTitleWidth()-2);
         setEffectPositions();
         scroll_bar_->setBounds(getWidth() - large_padding, getTitleWidth() + large_padding, large_padding - 2, getHeight() - getTitleWidth()-(large_padding + 2 * shadow_width));
-        scroll_bar_->setColor(findColour(Skin::kLightenScreen, true));
+        scroll_bar_->setColor(ShaderColors::kEffectTextColor);
 
         // Clip every live child to the FX viewport while scrolling, matching
         // SoundModuleSection::resized(). Without this, scrolled FX child content is not
