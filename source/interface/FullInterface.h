@@ -10,6 +10,7 @@
 #include "header_section.h"
 #include "main_section.h"
 #include "synth_section.h"
+#include "look_and_feel/skin.h"
 #include "melatonin_inspector/melatonin_inspector.h"
 #include "popup_browser.h"
 #include "value_tree_debugger.h"
@@ -47,6 +48,7 @@ public :
     }
     void copySkinValues(const Skin& skin);
     void reloadSkin(const Skin& skin);
+    void applySkinToSubtree(SynthSection* section);
     void showAboutSection() override;
     void sendToDeviceRequested() override;
     void repaintChildBackground(SynthSection* child);
@@ -112,6 +114,7 @@ private :
 
     //juce::OpenGLContext open_gl_context_;
     std::unique_ptr<Shaders> shaders_;
+    Skin current_skin_;
 
     juce::Image background_image_;
     //juce::TextButton inspectButton { "Inspect the UI" };

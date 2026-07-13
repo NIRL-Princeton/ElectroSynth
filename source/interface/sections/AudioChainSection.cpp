@@ -280,6 +280,7 @@ void AudioChainSection::chainAdded(ModuleList<ProcessorBase> *module_list) {
         juce::ScopedLock lock(open_gl_critical_section_);
         container_->addSubSection(sound_interface.get());
     }
+    sound_interface->applySkinFromTopLevel();
     sound_interface->addListener(this);
     sound_module_sections.emplace_back(std::move(sound_interface));
 

@@ -31,6 +31,12 @@ juce::String ModulationSection::getModulatorType() const {
     return state.getProperty(IDs::type).toString();
 }
 
+void ModulationSection::setAreaSkinOverride(Skin::SectionOverride skin_override) {
+    setSkinOverride(skin_override);
+    if (_view != nullptr)
+        _view->setSkinOverride(skin_override);
+}
+
 void ModulationSection::paintBackground(juce::Graphics &g)
 {
         SynthSection::paintBackground(g);

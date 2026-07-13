@@ -27,15 +27,20 @@ class SynthSection;
 class Skin {
   public:
     enum SectionOverride {
-      kNone,
-      kLogo,
-      kHeader,
-      kOverlay,
-      kPopupBrowser,
-      kPresetBrowser,
-          kModulationDragDrop,
-          kModulationSection,
-      kNumSectionOverrides
+        kNone,
+        kGeneral,
+        kHeader,
+        kSoundModule,
+        kFx,
+        kModulation,
+        kEnvelope,
+        kLfo,
+        kMasterEnv,
+        kOverlay,
+        kPopupBrowser,
+        kPresetBrowser,
+        kModulationDragDrop,
+        kNumSectionOverrides
     };
 
     // defines sizing/geometry values
@@ -103,6 +108,12 @@ class Skin {
         kLabelConnection,
         kPowerButtonOn,
         kPowerButtonOff,
+
+        kSoundModuleAccent,
+        kFXAccent,
+        kEnvelopeAccent,
+        kLFOAccent,
+        kMasterEnvelopeAccent,
 
         kOverlayScreen,
         kLightenScreen,
@@ -228,4 +239,3 @@ class SkinDesigner : public juce::DocumentWindow {
   protected:
     std::unique_ptr<Component> container_;
 };
-

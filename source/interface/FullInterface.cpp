@@ -162,9 +162,17 @@ void FullInterface::paintBackground(juce::Graphics& g) {
 
 void FullInterface::copySkinValues(const Skin& skin) {
 //   ScopedLock open_gl_lock(open_gl_critical_section_);
+   current_skin_ = skin;
    skin.copyValuesToLookAndFeel(DefaultLookAndFeel::instance());
    skin.copyValuesToLookAndFeel(TextLookAndFeel::instance());
    setSkinValues(skin, true);
+}
+
+void FullInterface::applySkinToSubtree(SynthSection* section) {
+   if (section == nullptr)
+      return;
+
+   section->setSkinValues(current_skin_, false);
 }
 
 void FullInterface::reloadSkin(const Skin& skin) {

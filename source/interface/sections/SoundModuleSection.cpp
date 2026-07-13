@@ -15,10 +15,12 @@
 #include "synth_base.h"
 #include "synth_gui_interface.h"
 
-SoundModuleSection::SoundModuleSection(ModulationManager *m,
-                                       ModuleList<ProcessorBase> &module_list,const juce::ValueTree &v, juce::UndoManager& um) :
-ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRectangleFragment)), state(v), undo(um)
-{
+SoundModuleSection::SoundModuleSection(ModulationManager *m, ModuleList<ProcessorBase> &module_list,const juce::ValueTree &v,
+        juce::UndoManager& um) : ModulesInterface( module_list),
+        footer_body(new OpenGlQuad(Shaders::kRoundedRectangleFragment)), state(v), undo(um) {
+
+    setName("Sound Module");
+
     header_body_ = std::make_shared<OpenGlQuad>(Shaders::kColorFragment, "sound_module_header");
     header_body_->setInterceptsMouseClicks(false, false);
     addOpenGlComponent(header_body_, true);
@@ -29,22 +31,13 @@ ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRect
     header_title_->setInterceptsMouseClicks(false, false);
     addOpenGlComponent(header_title_);
 
-    scroll_bar_ = std::make_unique<OpenGlScrollBar>();
-    addAndMakeVisible(scroll_bar_.get());
-    addOpenGlComponent(scroll_bar_->getGlComponent());
-    scroll_bar_->addListener(this);
-
     addOpenGlComponent(footer_body);
 
-    setLookAndFeel(DefaultLookAndFeel::instance());
-    viewport_.setScrollBarPosition(false, false); //use this to determine viewport scroll type in effectsviewport
-    viewport_.setScrollBarsShown(false, false, false, false);
+    // setLookAndFeel(DefaultLookAndFeel::instance());
 
     addListener(m);
 
     for (auto obj : list) { SoundModuleSection::moduleAdded(obj); }
-    setSidewaysHeading(false);
-    setName("Sound Module");
 
     exit_button_ = std::make_unique<OpenGlShapeButton>("Exit");
     addAndMakeVisible(exit_button_.get());
@@ -52,12 +45,12 @@ ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRect
     exit_button_->addListener(this);
     exit_button_->setShape(Paths::exitX());
 
-    // Add modulator plus sign
+    // Add modulator plus sign background
     add_button_background_ = std::make_shared<OpenGlQuad>(Shaders::kRoundedRectangleFragment, "modulation_button_background_");
     add_button_background_->setInterceptsMouseClicks(false, false);
     add_button_background_->setRounding(5.0f);
     addOpenGlComponent (add_button_background_);
-
+    // Add modulator plus sign and add listener
     add_to_module_button_ = std::make_unique<OpenGlShapeButton>("Add To This Sound Module");
     addAndMakeVisible (add_to_module_button_.get());
     addOpenGlComponent (add_to_module_button_->getGlComponent());
@@ -69,6 +62,8 @@ ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRect
     routing_view_ = std::unique_ptr<RoutingView>(static_cast<RoutingView*>(baseEditor.release()));
     addSubSection(routing_view_.get());
     routing_view_->setAlwaysOnTop(true);
+
+    setSkinOverride (Skin::kSoundModule);
 }
 
 SoundModuleSection::~SoundModuleSection() {
@@ -98,24 +93,23 @@ int SoundModuleSection::getExpandedHeight() {
 }
 
 void SoundModuleSection::redoBackgroundImage() {
-    Colour background = findColour(Skin::kBackground, true);
-
     int height = std::max(container_->getHeight(), viewport_.getHeight());
     if (height == 0) height = getHeight();
     const int width = std::max(container_->getWidth(), getWidth());
     const int mult = juce::Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds())->scale;// getPixelMultiple();
+
     Image background_image = Image(Image::ARGB, width * mult, height * mult, true);
+    Colour background_color = findColour(Skin::kBackground, true);
 
     Graphics background_graphics(background_image);
     background_graphics.addTransform(AffineTransform::scale(mult));
-    background_graphics.fillAll(background);
-    if (isExpanded())
-        container_->paintBackground(background_graphics);
+    background_graphics.fillAll(background_color);
+    if (isExpanded()) container_->paintBackground(background_graphics);
     background_.setOwnImage(background_image);
 }
 
 void SoundModuleSection::handlePopupResult(int result) {
-    //std::vector<vital::ModulationConnection*> connections = getConnections();
+
     if (result == 1) {
         juce::ValueTree t(IDs::SOUNDMODULE);
         t.setProperty(IDs::type, "osc", nullptr);
@@ -165,20 +159,15 @@ void SoundModuleSection::handlePopupResult(int result) {
 void SoundModuleSection::setEffectPositions() {
     if (getWidth() <= 0 || getHeight() <= 0) return;
 
-    int padding = getPadding();
-    int large_padding = findValue(Skin::kLargePadding);
-    int shadow_width = getComponentShadowWidth();
+    const int padding = findValue(Skin::kPadding);
+    const int large_padding = findValue(Skin::kLargePadding);
 
-    int start_x = large_padding - shadow_width;
-    int effect_width = getWidth() - start_x - large_padding;
-    int knob_section_height = getKnobSectionHeight() + large_padding;
-    int widget_margin = findValue(Skin::kWidgetMargin);
-    int effect_height =  knob_section_height - widget_margin;
-    int y = 0;//+ getTitleWidth();
+    const int start_x = large_padding - getComponentShadowWidth();;
+    const int effect_width = getWidth() - start_x - large_padding;
+    int y = 0;
 
     juce::Point<int> position = viewport_.getViewPosition();
     // DBG("position viewport: x: " + juce::String(position.getX()) + "y: " + juce::String(position.getY()));
-    //DBG("shadwo width: " + String(shadow_width));
     int oscillator_index = 1;
     int string_index = 1;
     int filter_index = 1;
@@ -196,23 +185,22 @@ void SoundModuleSection::setEffectPositions() {
             section->setName("Soft Clip " + juce::String(sound_module_index_) + "." + juce::String(soft_clip_index++));
 
         const int section_height = section->refreshHeight(); // refresh height before positioning each module
-        section->setDrawBottomSeparator(index + 1 < module_sections.size());
+        section->setDrawBottomSeparator(index + 1 < module_sections.size()); // add line separating modules
         section->setBounds(start_x, y, effect_width, section_height);
-        y += (section_height +padding);
+        y += (section_height + padding);
     }
     container_->setBounds(0, 0, viewport_.getWidth(), y + padding);
     viewport_.setViewPosition(position);
 
     for (Listener *listener: listeners_)
         listener->effectsMoved();
-    //DBG("container Height " + String(container_->getHeight()));
-    //DBG("viewport Height " + String(viewport_.getWidth()));
-    // container_->setScrollWheelEnabled(container_->getHeight() <= viewport_.getHeight());
-    // setScrollBarRange();
     repaintBackground();
     height = getExpandedHeight();
     if (getWidth() > 0 && getHeight() != height)
         setSize(getWidth(), height);
+
+    //DBG("container Height " + String(container_->getHeight()));
+    //DBG("viewport Height " + String(viewport_.getWidth()));
 }
 
 PopupItems SoundModuleSection::createPopupMenu() {
@@ -239,7 +227,7 @@ void SoundModuleSection::paintBackground(juce::Graphics& g) {
     g.fillRoundedRectangle(getLocalBounds().toFloat(), findValue(Skin::kBodyRounding));
     paintBody(g);
 
-    static constexpr float kSoundModuleBorderWidth = 3.0f;
+    static constexpr float kSoundModuleBorderWidth = 23.0f;
     g.setColour(findColour(Skin::kBorder, true));
     int x = getLocalBounds().getX();
     int y = getLocalBounds().getY();
@@ -254,10 +242,12 @@ void SoundModuleSection::paintBackground(juce::Graphics& g) {
 
 void SoundModuleSection::moduleAdded(ProcessorBase *newModule) {
     auto module_section = std::make_unique<ModuleSection>(newModule->state,std::move (newModule->createEditor()), undo);
+    module_section->setAreaSkinOverride(Skin::kSoundModule);
     {
         juce::ScopedLock lock(open_gl_critical_section_);
         container_->addSubSection(module_section.get());
     }
+    module_section->applySkinFromTopLevel();
     module_section->setInterceptsMouseClicks(false, true);
     parentHierarchyChanged();
     module_section->refreshHeight();
@@ -280,14 +270,7 @@ void SoundModuleSection::resized() {
 
     const int width = getWidth();
     const int title_width = getTitleWidth();
-    //    effect_order_->setBounds(0, 0, order_width, getHeight());
-    //    effect_order_->setSizeRatio(size_ratio_);
-    int large_padding = findValue(Skin::kLargePadding);
-    int shadow_width = getComponentShadowWidth();
-    int viewport_x = 0 + large_padding - shadow_width;
-    int viewport_width = width - viewport_x - large_padding + 2 * shadow_width;
-    auto area = getLocalBounds();
-    auto header = area.removeFromTop(30);
+
     toggle_button_->setBounds(0,0,title_width,title_width);
 
     // set Add Sound Module button bounds
@@ -312,15 +295,8 @@ void SoundModuleSection::resized() {
         add_button_background_->setVisible(true);
         add_to_module_button_->setVisible(true);
 
-
-        viewport_.setBounds(0,title_width,width,getHeight()-(title_width*2)); //getHeight()-getTitleWidth() - (large_padding + 20 * shadow_width));
+        viewport_.setBounds(0,title_width,width,getHeight()-(title_width*2));
         setEffectPositions();
-        setScrollBarRange();
-        const int scroll_bar_height = std::max(0, static_cast<int>(getHeight() - title_width - (large_padding + 2 * shadow_width)));
-        scroll_bar_->setBounds(width - kScrollBarInset - kScrollBarWidth, title_width + large_padding,
-                               kScrollBarWidth, scroll_bar_height);
-        scroll_bar_->setColor(findColour(Skin::kWidgetPrimary1, true));
-        scroll_bar_->setVisible(container_->getHeight() > viewport_.getHeight());
         container_->setScissorComponent(&viewport_);
 
         for (auto component : container_->open_gl_components_)
@@ -348,7 +324,6 @@ void SoundModuleSection::resized() {
         add_to_module_button_->setVisible(false);
         viewport_.setBounds(0,0,0,0);
         container_->setBounds(0,0,0,0);
-        scroll_bar_->setVisible(false);
         height = getCollapsedHeight();
         if (getWidth() > 0 && getHeight() != height)
             setSize(getWidth(), height);
@@ -390,18 +365,11 @@ void SoundModuleSection::resized() {
     }
 }
 
-void SoundModuleSection::effectsScrolled(int position) {
-    setScrollBarRange();
-    if (scroll_bar_)
-        scroll_bar_->setCurrentRange(position, viewport_.getHeight(), juce::dontSendNotification);
 
-    for (Listener* listener : listeners_)
-        listener->effectsMoved();
-}
 
 void SoundModuleSection::removeModule(ProcessorBase *newModule) {
-    DBG(newModule->state.getProperty(IDs::uuid).toString());
-    DBG("prepartoremoeve");
+    DBG("Remove module: " + newModule->state.getProperty(IDs::uuid).toString());
+
     // decltype(module_sections)::iterator it;
     // {
     //     juce::ScopedLock(this->open_gl_critical_section_);
@@ -411,6 +379,7 @@ void SoundModuleSection::removeModule(ProcessorBase *newModule) {
     //                         });
     // }
     // leaving this here as its another way to accomplish this task
+
     auto it = [&]() {
         juce::ScopedLock lock(this->open_gl_critical_section_);
         return std::partition(module_sections.begin(), module_sections.end(),
@@ -434,15 +403,13 @@ void SoundModuleSection::removeModule(ProcessorBase *newModule) {
     for(auto listener : listeners_) {
         listener->removed();
     }
-
     redoBackgroundImage();
 }
 
 void SoundModuleSection::moduleListChanged() {
 }
 
-void SoundModuleSection::mouseEnter (const MouseEvent& event)
-{
+void SoundModuleSection::mouseEnter (const MouseEvent& event) {
     if (event.eventComponent == add_to_module_button_.get()) {
         showPopupDisplay(
             add_to_module_button_.get(),
@@ -452,8 +419,7 @@ void SoundModuleSection::mouseEnter (const MouseEvent& event)
     }
 }
 
-void SoundModuleSection::mouseExit (const MouseEvent& event)
-{
+void SoundModuleSection::mouseExit (const MouseEvent& event) {
     if (event.eventComponent == add_to_module_button_.get())
         hidePopupDisplay(true);
 }
@@ -461,8 +427,7 @@ void SoundModuleSection::mouseExit (const MouseEvent& event)
 void SoundModuleSection::buttonClicked(juce::Button *button) {
     ModulesInterface<ProcessorBase>::buttonClicked(button);
 
-    if (button == add_to_module_button_.get())
-    {
+    if (button == add_to_module_button_.get()) {
         hidePopupDisplay(true);
         showPopupSelector (add_to_module_button_.get(), add_to_module_button_.get()->getLocalBounds().getCentre(),
             createPopupMenu(), [this] (int selection) {handlePopupResult (selection);});
@@ -470,7 +435,6 @@ void SoundModuleSection::buttonClicked(juce::Button *button) {
 
     if (button == exit_button_.get()) {
         this->setVisible(false);
-        //DBG("state " state.getParent())
         undo.beginNewTransaction();
         state.getParent().removeChild(state,&undo);
     }
