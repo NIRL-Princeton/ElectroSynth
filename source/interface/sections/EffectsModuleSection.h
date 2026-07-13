@@ -31,6 +31,7 @@ public:
 
     void removeModule(ProcessorBase* newModule)   override;
     void moduleListChanged() ;
+    void moduleOrderChanged() override;
     void paintBackground(Graphics &g) override;
     void redoBackgroundImage() override;
     void parentHierarchyChanged() override { redoBackgroundImage(); SynthSection::parentHierarchyChanged(); }
@@ -47,17 +48,20 @@ public:
 
 
     juce::ValueTree state;
-    // void renderOpenGlComponents(OpenGlWrapper &open_gl, bool animate) override;
-    ModuleSection* currently_dragged_;
-    ModuleSection* currently_hovered_;
-    // void mouseDown(const juce::MouseEvent& e) override;
-
-    int last_dragged_index_;
-    int mouse_down_y_;
-    int dragged_starting_y_;
-    int height;
-    int reorderTargetIndex = -1; // keep track of where to insert on drop
-    int placeholderIndex = -1;   // -1 means no placeholder
-    int placeholderHeight = 0;
     juce::UndoManager& undo;
+
+private:
+    // Drag-reorder session. UI order previews live in module_sections; the ValueTree
+    // is updated exactly once on drop. DSP processing order is intentionally not
+    // updated yet (deferred) — it re-syncs to tree order on preset/state reload.
+    void beginDragSession(ModuleSection* dragged);
+    void updateDragSession(ModuleSection* dragged, juce::Rectangle<int> bounds);
+    void endDragSession(ModuleSection* dragged);
+    void clearDragSession();
+    int indexOfModuleSection(const ModuleSection* section) const;
+
+    ModuleSection* dragged_module_ = nullptr;
+    ModuleSection* drop_target_module_ = nullptr;
+    // Translucent FX-accent region marking where the dragged module will land.
+    std::shared_ptr<OpenGlQuad> insertion_region_;
 };

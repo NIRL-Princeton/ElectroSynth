@@ -27,6 +27,9 @@ public:
         virtual void moduleListChanged() = 0;
         virtual void moduleAdded(T* newModule) = 0;
         virtual void removeModule(T* moduleToRemove) = 0;
+        // Default no-op so existing listeners are unaffected; fired after the
+        // underlying ValueTree child order changes (e.g. drag-reorder, undo/redo).
+        virtual void moduleOrderChanged() {}
     };
 
 
@@ -41,6 +44,12 @@ public:
     //and doesn’t look in the base class template.
         this->parent.appendChild(child,undoManager);
     }
+
+    void moveChild (int currentIndex, int newIndex, UndoManager* undoManager)
+    {
+        this->parent.moveChild(currentIndex, newIndex, undoManager);
+    }
+
     void setValueTree(const ValueTree& v) {
        tracktion::engine::ValueTreeObjectList<T>::parent = v;
     }
@@ -51,7 +60,11 @@ public:
     T* createNewObject(const juce::ValueTree &) override;
     void newObjectAdded (T*) override;
     void objectRemoved (T*) override;
-    void objectOrderChanged() override              { }//resized(); }
+    void objectOrderChanged() override
+    {
+        for (auto listener : listeners_)
+            listener->moduleOrderChanged();
+    }
     void valueTreeParentChanged (juce::ValueTree&) override{};
 
     bool isSuitableType (const juce::ValueTree& v) const override
