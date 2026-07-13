@@ -7,6 +7,7 @@
 
 #include "ModuleSection.h"
 #include "SoundModuleSection.h"
+#include "ParameterView/FxModuleTemplateView.h"
 
 namespace {
     constexpr int kExitButtonSize = 25;
@@ -97,7 +98,15 @@ void ModuleSection::resized() {
     title_text_->setColor(findColour(Skin::kHeadingText, true));
 
     int exit_x = getLocalBounds().getRight() - kExitButtonRightOffset;
-    if (auto* sound_module = findParentComponentOfClass<SoundModuleSection>()) {
+    if (auto* fx_view = dynamic_cast<electrosynth::FxModuleTemplateView*>(_view.get())) {
+        // FX modules: align the delete button's right edge with the right edge of the
+        // PostGain knob's tick-arc box (last knob of the last row).
+        const int postgain_right = fx_view->getPostGainRightEdge();
+        if (postgain_right > 0)
+            exit_x = juce::jlimit(0, std::max(0, getWidth() - kExitButtonSize),
+                                  fx_view->getX() + postgain_right - kExitButtonSize);
+    }
+    else if (auto* sound_module = findParentComponentOfClass<SoundModuleSection>()) {
         const auto module_bounds_in_sound_module = sound_module->getLocalArea(this, getLocalBounds());
         const int sound_module_exit_x = sound_module->getWidth() - kExitButtonRightOffset;
         exit_x = juce::jlimit(0, std::max(0, getWidth() - kExitButtonSize),

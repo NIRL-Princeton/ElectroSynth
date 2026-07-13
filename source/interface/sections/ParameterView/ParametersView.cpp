@@ -723,6 +723,29 @@ FxModuleTemplateView::FxModuleTemplateView(chowdsp::PluginState& pluginState,
     addSlider(postgain_knob_.get(), true);
     postgain_knob_->parentHierarchyChanged();
 
+    // Filter modules get a placeholder type dropdown between the module title and the
+    // first control row. Same presentation-only pattern as the lane header's routing
+    // dropdown: one item, rejects clicks, no keyboard focus. The editor name is
+    // "<type><uuid>" (see FilterModuleProcessor::createEditor), so a "filt" prefix
+    // identifies the filter view.
+    if (name.startsWith("filt")) {
+        filter_type_combo_ = std::make_unique<OpenGLComboBox>();
+        filter_type_combo_->addItem("Lowpass", 1);
+        filter_type_combo_->setSelectedId(1, juce::dontSendNotification);
+        filter_type_combo_->setInterceptsMouseClicks(false, false);
+        filter_type_combo_->setWantsKeyboardFocus(false);
+        addAndMakeVisible(filter_type_combo_.get());
+        addOpenGlComponent(filter_type_combo_->getImageComponent());
+
+        // The combo's fill matches the module body; a live white border quad provides
+        // the visual separation (this view's paintBackground is never baked in FX).
+        filter_type_combo_border_ = std::make_shared<OpenGlQuad>(
+            Shaders::kRoundedRectangleBorderFragment, "filter_type_combo_border");
+        filter_type_combo_border_->setInterceptsMouseClicks(false, false);
+        filter_type_combo_border_->setColor(juce::Colours::white);
+        addOpenGlComponent(filter_type_combo_border_);
+    }
+
     setLookAndFeel(DefaultLookAndFeel::instance());
     setOpaque(false);
     ensureLabels();
@@ -742,6 +765,9 @@ namespace {
     constexpr int   kFxRowGap          = 16;      // breathing room between stacked rows
     constexpr int   kFxMinKnobCellWidth = 76;     // min horizontal cell per knob (drives knobs-per-row)
     constexpr int   kFxSideInset       = 1;       // side inset = border thickness (paintBorder draws 1px)
+    // Filter type dropdown: doubled top gap hosts the control; height matches the lane
+    // header's routing dropdown (kRoutingControlHeight in EffectsModuleSection).
+    constexpr int   kFxTypeComboHeight = 14;
 }
 
 juce::Colour FxModuleTemplateView::getLabelColor(const juce::Component* control) const {
@@ -789,10 +815,13 @@ void FxModuleTemplateView::updateLabels() {
 // the same way (visible controls, knobs-per-row from lane width) and size for exactly
 // that many rows plus padding. No fixed module height.
 int FxModuleTemplateView::getPreferredHeight() const {
+    // Filter modules double the title-to-first-label gap to host the type dropdown.
+    const int top_pad = filter_type_combo_ != nullptr ? 2 * kFxRowTopPad : kFxRowTopPad;
+
     const int n = (int) comps.size() + (mix_knob_ != nullptr ? 1 : 0)
                                      + (postgain_knob_ != nullptr ? 1 : 0);
     if (n <= 0)
-        return kFxRowTopPad + kFxRowBottomPad;
+        return top_pad + kFxRowBottomPad;
 
     const int knobPx = std::max(1, (int) std::ceil(
         kFxKnobScale * 2.0f * (findValue(Skin::kKnobArcSize)
@@ -802,7 +831,7 @@ int FxModuleTemplateView::getPreferredHeight() const {
     const int numRows = (n + perRow - 1) / perRow; // matches resized()'s grouping row count
     const int rowContentH = kFxLabelHeight + kFxLabelToArcGap + knobPx;
 
-    return kFxRowTopPad + numRows * rowContentH
+    return top_pad + numRows * rowContentH
          + (numRows - 1) * kFxRowGap + kFxRowBottomPad;
 }
 
@@ -854,10 +883,23 @@ void FxModuleTemplateView::resized() {
     }
 
     // 7. Position controls row by row, each row centered horizontally within the inset area.
+    // Filter modules double the top gap and center the placeholder type dropdown in it,
+    // sized/styled like the lane header's routing dropdown.
+    const int top_pad = filter_type_combo_ != nullptr ? 2 * kFxRowTopPad : kFxRowTopPad;
+    if (filter_type_combo_ != nullptr) {
+        const int combo_h = std::min(kFxTypeComboHeight, top_pad);
+        const int combo_w = std::max(60, w / 2);
+        filter_type_combo_->setBounds((w - combo_w) / 2, (top_pad - combo_h) / 2,
+                                      combo_w, combo_h);
+        filter_type_combo_border_->setBounds(filter_type_combo_->getBounds().expanded(1));
+        filter_type_combo_border_->setRounding(3.0f);
+        filter_type_combo_border_->setThickness(1.0f, true);
+    }
+
     const int rowContentH = kFxLabelHeight + kFxLabelToArcGap + knobPx;
     const int cellW = (w - 2 * kFxSideInset) / perRow;
     int idx = 0;
-    int y = kFxRowTopPad;
+    int y = top_pad;
     for (int cnt : rows) {
         const int startX = kFxSideInset + ((w - 2 * kFxSideInset) - cnt * cellW) / 2;
         const int arcTop = y + kFxLabelHeight + kFxLabelToArcGap;
@@ -902,6 +944,10 @@ void FxModuleTemplateView::paintBackground(juce::Graphics& g) {
     paintBorder(g);
     paintKnobShadows(g);
     paintChildrenBackgrounds(g);
+
+    // NOTE: this function is not invoked in the FX lane path — ModuleSection::
+    // paintBackground() is intentionally empty and never paints its child view, so the
+    // combo outline below is a live GL quad (filter_type_combo_border_), not baked here.
 
     // FX modulation boxes are hidden for now, but the layout still reserves their space
     // to preserve row spacing (see mod_boxes_ / kFxModBoxHeight in resized()). The old
