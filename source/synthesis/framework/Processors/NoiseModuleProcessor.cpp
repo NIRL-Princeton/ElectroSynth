@@ -7,6 +7,16 @@
 
 NoiseModuleProcessor::NoiseModuleProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree &v, LEAF *leaf,juce::UndoManager* um) :ProcessorStateBase(engine,leaf,v,um)
 {
+    // callbacks += {
+    //     state_.addParameterListener (*state_.params.peakBandwidth, chowdsp::ParameterListenerThread::AudioThread, [this] {
+    //         auto thePeakBandwidth = state_.params.peakBandwidth.get();
+    //         float val =  (float)thePeakBandwidth->getCurrentValue();
+    //         for (auto mod: state_.params.modules) {
+    //             tNoiseModule_setParameter(mod, NoisePeakBandwidth,val);
+    //             tNoiseModule_setParameter(mod, NoisePeakFreq, *mod->header.params[NoisePeakFreq]);
+    //         }
+    //     })
+    // };
 }
 
 void NoiseModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midi)
@@ -18,7 +28,6 @@ void NoiseModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     //    auto* samplesL = buffer.getReadPointer(0);
     for (int v = 0; v < engine->voiceHandler.numVoicesActive; v++) {
         if (!engine->voiceHandler.voiceIsSounding[v]) continue;
-        //tNoiseModule_setParameter(state_.params.modules[v], OscMidiPitch,engine->voiceHandler.voiceNote[v]/127.f );
         auto* L = buffer.getWritePointer(v*2);
         auto* R = buffer.getWritePointer(v*2+1);
         for (int i = 0; i < numSamples; i++)

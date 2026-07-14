@@ -90,7 +90,11 @@ struct NoiseParams : public LEAFParams<_tNoiseModule>
         0.5f,
         all_params[NosParams::NoisePeakBandwidth],
         [this] (float val) {
-            for (auto mod: modules) tNoiseModule_setParameter(mod,NoisePeakBandwidth,val);
+            for (auto mod: modules)
+            {
+                tNoiseModule_setParameter(mod,NoisePeakBandwidth,val);
+                tNoiseModule_setParameter(mod, NoisePeakFreq, *mod->header.params[NoisePeakFreq]);
+            }
         },
         &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal
