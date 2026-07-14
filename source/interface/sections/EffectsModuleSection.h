@@ -64,4 +64,8 @@ private:
     ModuleSection* drop_target_module_ = nullptr;
     // Translucent FX-accent region marking where the dragged module will land.
     std::shared_ptr<OpenGlQuad> insertion_region_;
+    // Drag-mode-only translucent FX-accent bands marking each boundary between
+    // adjacent non-dragged modules (boundaries touching the insertion gap are
+    // covered by insertion_region_ itself).
+    std::shared_ptr<OpenGlMultiQuad> drag_boundary_bands_;
 };

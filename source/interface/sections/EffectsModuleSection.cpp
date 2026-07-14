@@ -11,6 +11,11 @@
 #include "EffectList.h"
 
 namespace {
+// Drag-mode boundary bands between adjacent non-dragged modules: pool size and
+// band height (centered on the shared module edge, in logical units).
+constexpr int kMaxDragBoundaryBands = 16;
+constexpr int kDragBoundaryBandHeight = 8;
+
 class FxAddButtonBackground final : public OpenGlImageComponent {
 public:
     FxAddButtonBackground() : OpenGlImageComponent("effect_add_button_background") {
@@ -109,6 +114,19 @@ ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRect
     insertion_region_->setScissorComponent(&viewport_);
     container_->addOpenGlComponent(insertion_region_);
 
+    // Drag-mode boundary bands: one thin translucent FX-accent band per boundary
+    // between adjacent non-dragged modules. Same container GL layer as the
+    // insertion region, so they render above the dimmed modules' overlays but
+    // below the always-on-top dragged module.
+    drag_boundary_bands_ = std::make_shared<OpenGlMultiQuad>(kMaxDragBoundaryBands,
+                                                             Shaders::kColorFragment,
+                                                             "effect_drag_boundary_bands");
+    drag_boundary_bands_->setInterceptsMouseClicks(false, false);
+    drag_boundary_bands_->setAlpha(0.0f, true);
+    drag_boundary_bands_->setNumQuads(0);
+    drag_boundary_bands_->setScissorComponent(&viewport_);
+    container_->addOpenGlComponent(drag_boundary_bands_);
+
     toggle_button_->setVisible(false);
     setInterceptsMouseClicks(true,true);
 
@@ -159,6 +177,10 @@ void EffectModuleSection::setEffectPositions() {
     int padding = 0;
     int start_y = 0;
     juce::Rectangle<int> gap_bounds;
+    // Boundaries between two adjacent non-dragged modules; edges touching the
+    // insertion gap are excluded (the gap region itself marks those).
+    std::vector<int> boundary_ys;
+    bool previous_was_module = false;
 
     for (int i = 0; i < module_sections.size(); ++i) {
         ModuleSection* section = module_sections[i].get();
@@ -168,8 +190,13 @@ void EffectModuleSection::setEffectPositions() {
         if (section == dragged_module_) {
             gap_bounds = { 0, start_y, getWidth(), section->height };
             start_y += section->height + padding;
+            previous_was_module = false;
             continue;
         }
+
+        if (previous_was_module)
+            boundary_ys.push_back(start_y);
+        previous_was_module = true;
 
         // Size each FX module from its contained view's dynamic row layout instead of the
         // full viewport height. Set bounds once first so the FX view gets its width and can
@@ -192,6 +219,25 @@ void EffectModuleSection::setEffectPositions() {
             insertion_region_->setBounds(gap_bounds);  // container coordinates
         else
             insertion_region_->setAlpha(0.0f);
+    }
+
+    if (drag_boundary_bands_ != nullptr) {
+        const int num_bands = std::min((int)boundary_ys.size(), kMaxDragBoundaryBands);
+        if (dragged_module_ != nullptr && num_bands > 0 && start_y > 0) {
+            // The multi-quad spans the whole container; each band is placed in the
+            // quad's normalized GL space (y up, so the component top maps to +1).
+            drag_boundary_bands_->setBounds(0, 0, viewport_.getWidth(), start_y);
+            drag_boundary_bands_->setNumQuads(num_bands);
+            const float total_height = (float)start_y;
+            const float band_height_gl = 2.0f * kDragBoundaryBandHeight / total_height;
+            for (int i = 0; i < num_bands; ++i) {
+                const float band_bottom = boundary_ys[i] + kDragBoundaryBandHeight / 2.0f;
+                drag_boundary_bands_->setQuad(i, -1.0f, 1.0f - 2.0f * band_bottom / total_height,
+                                              2.0f, band_height_gl);
+            }
+        }
+        else
+            drag_boundary_bands_->setNumQuads(0);
     }
 }
 
@@ -483,6 +529,10 @@ void EffectModuleSection::beginDragSession(ModuleSection* dragged) {
     insertion_region_->setRounding(std::max(0.5f, findValue(Skin::kBodyRounding)));
     insertion_region_->setAlpha(0.18f);
 
+    // Boundary bands share the insertion region's accent and translucency.
+    drag_boundary_bands_->setColor(findColour(Skin::kFXAccent, true));
+    drag_boundary_bands_->setAlpha(0.18f);
+
     // Keep mouseDrag firing while the pointer rests near a viewport edge so
     // autoScroll continues without pointer movement.
     juce::Component::beginDragAutoRepeat(16);
@@ -598,6 +648,8 @@ void EffectModuleSection::clearDragSession() {
     dragged_module_ = nullptr;
     drop_target_module_ = nullptr;
     insertion_region_->setAlpha(0.0f);
+    drag_boundary_bands_->setAlpha(0.0f);
+    drag_boundary_bands_->setNumQuads(0);
     juce::Component::beginDragAutoRepeat(0);
 
     setEffectPositions();

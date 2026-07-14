@@ -136,6 +136,10 @@ void ModuleSection::setDragVisual(DragVisual visual) {
     body_fill_->setColor(findColour(Skin::kBody, true));
     body_fill_->setAlpha(visual == DragVisual::kDragged ? 1.0f : 0.0f);
 
+    // During a drag session the boundary/insertion accents replace the grey
+    // separator, so hide it rather than layering red over grey.
+    bottom_separator_->setVisible(draw_bottom_separator_ && visual == DragVisual::kNormal);
+
     if (visual == DragVisual::kDimmed) {
         // Same dim treatment as ModulationManager's mapping-mode overlay.
         tint_overlay_->setColor(juce::Colours::black);
