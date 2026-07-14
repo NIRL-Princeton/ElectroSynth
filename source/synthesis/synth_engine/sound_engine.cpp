@@ -53,7 +53,6 @@ namespace electrosynth
         {
             tSimplePoly_create (&leaf.mempool, &voiceHandler.voices[i]);
             tSimplePoly_init (&leaf, voiceHandler.voices[i], MAX_NUM_VOICES);
-            // voiceHandler.voices[i] = 0;
             voiceHandler.voiceNote[i] = 0;
             voiceHandler.voiceIsSounding[i] = false;
             voiceHandler.voicePrevBend[i] = 0.0f;
@@ -84,6 +83,7 @@ namespace electrosynth
 
     SoundEngine::~SoundEngine()
     {
+        // delete[] memory;
         //voice_handler_->prepareDestroy();
     }
 

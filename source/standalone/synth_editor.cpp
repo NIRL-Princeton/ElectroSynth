@@ -87,18 +87,24 @@ SynthEditor::SynthEditor(bool use_gui) : SynthGuiInterface(this, use_gui) {
   }
   // mainmenumodel on mac
 
+    #if JUCE_MAC || DOXYGEN
   menuModel = std::make_unique<MainMenuModel>(commandManager);
     jassert(menuModel != nullptr);
   juce::MenuBarModel::setMacMainMenu(menuModel.get());
+    #endif
 }
 
 SynthEditor::~SynthEditor() {
 #if PERFETTO
   MelatoninPerfetto::get().endSession();
 #endif
-  juce::PopupMenu::dismissAllActiveMenus();
+
+    juce::PopupMenu::dismissAllActiveMenus();
   shutdownAudio();
+
+    #if JUCE_MAC || DOXYGEN
   juce::MenuBarModel::setMacMainMenu(nullptr);
+    #endif
 }
 void SynthEditor::prepareToPlay(int buffer_size, double sample_rate) {
   //engine_->setSampleRate(sample_rate);

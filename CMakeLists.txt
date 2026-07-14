@@ -90,6 +90,8 @@ juce_add_plugin("${PROJECT_NAME}"
 add_library(SharedCode INTERFACE
         source/synthesis/framework/Processors/SoftClipModuleProcessor.cpp
         source/synthesis/framework/Processors/SoftClipModuleProcessor.h
+        source/synthesis/framework/Processors/NoiseModuleProcessor.cpp
+        source/synthesis/framework/Processors/NoiseModuleProcessor.h
 
 
 )
@@ -228,6 +230,13 @@ message("C++ Compiler ID: ${CMAKE_CXX_COMPILER_ID}")
 
 # Get the C++ compiler version
 message("C++ Compiler Version: ${CMAKE_CXX_COMPILER_VERSION}")
+
+set(CMAKE_CXX_STANDARD 17)
+
+# Removes optimizations ?
+#set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
+#set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0")
+
 #if(APPLE)
 #    set(DEBUG_ENTITLEMENTS "${CMAKE_SOURCE_DIR}/cmake/debug.entitlements")
 #    set(STANDALONE_TGT "${PROJECT_NAME}_Standalone")

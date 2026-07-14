@@ -147,6 +147,7 @@ namespace electrosynth {
 
      std::array<ModuleHeader*, MAX_NUM_VOICES>* getLeafProcessorFromUUID(int uuid);
       char memory[536870912]; //512 MB
+      //char* memory;
       LEAF leaf;
 
       struct VoiceHandler {

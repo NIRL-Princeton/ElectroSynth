@@ -12,6 +12,7 @@
 #include <juce_core/juce_core.h>
 #include "Modulators/EnvModuleProcessor.h"
 #include "Modulators/LFOModuleProcessor.h"
+#include "NoiseModuleProcessor.h"
 template<typename T>
 ModuleList<T>::ModuleList(SynthBase *synth,const ValueTree& v) : tracktion::engine::ValueTreeObjectList<T>(v),synth_(synth),state(v){
     if constexpr (std::is_same_v<T, ProcessorBase>)
@@ -21,6 +22,7 @@ ModuleList<T>::ModuleList(SynthBase *synth,const ValueTree& v) : tracktion::engi
         factory.template registerType<StringModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*, juce::UndoManager*>("string");
         factory.template registerType<SoftClipModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*, juce::UndoManager*>("softclip");
         factory.template registerType<DelayModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*, juce::UndoManager*>("delay");
+        factory.template registerType<NoiseModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*, juce::UndoManager*>("noise");
     }
     else if constexpr (std::is_same_v<T, ModulatorBase>)
     {
