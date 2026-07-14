@@ -56,9 +56,7 @@ SynthBase::SynthBase(AudioDeviceManager *deviceManager) : tree(ValueTree(IDs::EL
 
     engine_ = std::make_unique<electrosynth::SoundEngine>(um);
 
-
     mod_connections_.reserve(electrosynth::kMaxModulationConnections);
-
 
     keyboard_state_ = std::make_unique<MidiKeyboardState>();
     ValueTree v;
@@ -66,7 +64,6 @@ SynthBase::SynthBase(AudioDeviceManager *deviceManager) : tree(ValueTree(IDs::EL
 
     last_played_note_ = 0.0f;
     last_num_pressed_ = 0;
-
 
     Startup::doStartupChecks();
 
@@ -635,6 +632,11 @@ electrosynth::ModulationConnectionBank &SynthBase::getModulationBank() {
 
 //this function does not set if it is disconnecting or not. you must do that outside this function
 electrosynth::mapping_change SynthBase::createMappingChange(electrosynth::ModulationConnection *connection) {
+    electrosynth::mapping_change change {};
+    change.connection = connection;
+    if (connection == nullptr)
+        return change;
+
     //leaf::Processor* source = engine_->getLEAFProcessor(proc_string);
     std::stringstream ss(connection->source_name);
     std::string proc_string;
@@ -642,8 +644,6 @@ electrosynth::mapping_change SynthBase::createMappingChange(electrosynth::Modula
     auto [dest, index] = engine_->getParameterInfo(connection->destination_name);
     auto source = engine_->getLEAFProcessorModulator(proc_string);
     connection->sourceProc_ = source;
-    electrosynth::mapping_change change;
-    change.connection = connection;
     change.mapping = connection->mapping_;
     change.destination = connection->destination_name;
     change.dest_param_index = index;
@@ -676,31 +676,57 @@ std::vector<electrosynth::ModulationConnection *> SynthBase::getDestinationConne
 }
 
 electrosynth::ModulationConnection *
-SynthBase::getConnection(const std::string &source, const std::string &destination) {
+SynthBase::getConnection(const std::string &source, const std::string &destination, int destination_slot) {
     for (auto &connection: mod_connections_) {
-        if (connection->source_name == source && connection->destination_name == destination)
+        if (connection->source_name == source
+            && connection->destination_name == destination
+            && (destination_slot < 0 || connection->destination_slot == destination_slot))
             return connection;
     }
     return nullptr;
 }
 
-bool SynthBase::connectModulation(const std::string &source, const std::string &destination) {
-    electrosynth::ModulationConnection *connection = getConnection(source, destination);
+// does this source already have a connection to this destination?
+bool SynthBase::hasSourceDestinationConnection(const std::string &source, const std::string &destination) const
+{
+    for (auto* existing : mod_connections_)
+    {
+        if (existing->source_name == source && existing->destination_name == destination) return true;
+    }
+    return false;
+}
+
+bool SynthBase::connectModulation(const std::string &source, const std::string &destination, int destination_slot) {
+
+    electrosynth::ModulationConnection *connection = getConnection(source, destination, destination_slot);
     bool create = connection == nullptr;
-    if (create) {
-        connection = getModulationBank().createConnection(source, destination);
+    if (create && !hasSourceDestinationConnection (source, destination)) {
+        if (destination_slot >= 0) {
+            for (auto* existing : mod_connections_) {
+                if (existing->destination_name == destination
+                    && existing->destination_slot == destination_slot)
+                    return false;
+            }
+        }
+
+        connection = getModulationBank().createConnection(source, destination, destination_slot);
+        if (connection == nullptr)
+            return false;
         tree.appendChild(connection->state, nullptr);
     }
     if (connection)
         connectModulation(connection);
-    return create;
+    return create && connection != nullptr
+           && !connection->source_name.empty()
+           && !connection->destination_name.empty();
 }
 
 void SynthBase::connectModulation(electrosynth::ModulationConnection *connection) {
     electrosynth::mapping_change change = createMappingChange(connection);
     if (isInvalidConnection(change)) {
-        connection->destination_name = "";
-        connection->source_name = "";
+        if (connection->state.getParent().isValid())
+            connection->state.getParent().removeChild(connection->state, nullptr);
+        connection->clearConnection();
     } else if (mod_connections_.count(connection) == 0) {
         change.disconnecting = false;
         mod_connections_.push_back(connection);
@@ -710,14 +736,15 @@ void SynthBase::connectModulation(electrosynth::ModulationConnection *connection
     }
 }
 
-//TODO remove from vcaluetress
+
 void SynthBase::disconnectModulation(electrosynth::ModulationConnection *connection) {
     if (mod_connections_.count(connection) == 0)
         return;
 
     electrosynth::mapping_change change = createMappingChange(connection);
-    connection->source_name = "";
-    connection->destination_name = "";
+    if (connection->state.getParent().isValid())
+        connection->state.getParent().removeChild(connection->state, nullptr);
+    connection->clearConnection();
 
     mod_connections_.remove(connection);
     change.disconnecting = true;

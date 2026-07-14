@@ -9,8 +9,7 @@
 #include "modulation_manager.h"
 #include "synth_base.h"
 #include "EffectList.h"
-EffectModuleSection::EffectModuleSection(ModulationManager *m,
-                                     EffectList &module_list,const juce::ValueTree &v, juce::UndoManager& um) :
+EffectModuleSection::EffectModuleSection(ModulationManager *m, EffectList &module_list,const juce::ValueTree &v, juce::UndoManager& um) :
 ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRectangleFragment)), state(v), undo(um)
 {
     scroll_bar_ = std::make_unique<OpenGlScrollBar>();
@@ -28,10 +27,22 @@ ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRect
         EffectModuleSection::moduleAdded(obj);
     }
     setSidewaysHeading(false);
-    setName("section");
+    setName("FX");
+
+    header_body_ = std::make_shared<OpenGlQuad>(Shaders::kColorFragment, "effect_module_header");
+    header_body_->setInterceptsMouseClicks(false, false);
+    addOpenGlComponent(header_body_, true);
+
+    header_title_ = std::make_shared<PlainTextComponent>("effect_module_title", getName());
+    header_title_->setFontType(PlainTextComponent::kLight);
+    header_title_->setJustification(juce::Justification::centred);
+    header_title_->setInterceptsMouseClicks(false, false);
+    addOpenGlComponent(header_title_);
 
     toggle_button_->setVisible(false);
     setInterceptsMouseClicks(true,true);
+
+    setSkinOverride(Skin::kFx);
 }
 
 EffectModuleSection::~EffectModuleSection() {
@@ -79,6 +90,7 @@ void EffectModuleSection::setEffectPositions() {
             y += placeholderHeight;
         }
 
+        module_sections[i]->height = viewport_.getHeight();
         module_sections[i]->setBounds(0, y, getWidth(), module_sections[i]->height);
         start_y = y + module_sections[i]->height + padding;
     }
@@ -108,6 +120,8 @@ std::map<std::string, SynthSlider *> EffectModuleSection::getAllSliders() {
 
 void EffectModuleSection::moduleAdded(ProcessorBase *newModule) {
     auto module_section = std::make_unique<ModuleSection>(newModule->state,std::move (newModule->createEditor()), undo);
+    module_section->setAreaSkinOverride(Skin::kFx);
+    module_section->height = 300;
     module_section->onDragMove = [this](ModuleSection* dragged, juce::Rectangle<int> bounds) {
         int midY = bounds.getCentreY();
 
@@ -211,6 +225,7 @@ void EffectModuleSection::moduleAdded(ProcessorBase *newModule) {
     { juce::ScopedLock lock(open_gl_critical_section_);
         container_->addSubSection(module_section.get());
     }
+    module_section->applySkinFromTopLevel();
     module_section->setInterceptsMouseClicks(true, true);
     parentHierarchyChanged();
     //int height_to_add  = module_section->height;
@@ -269,23 +284,36 @@ void EffectModuleSection::resized() {
     auto header = area.removeFromTop(30);
     toggle_button_->setBounds(0,0,getTitleWidth(),getTitleWidth());
     if (isExpanded()) {
-        viewport_.setBounds(0,getTitleWidth(),getWidth(),getHeight()-getTitleWidth()*2); //getHeight()-getTitleWidth() - (large_padding + 20 * shadow_width));
+        viewport_.setVisible(true);
+        container_->setVisible(true);
+        viewport_.setBounds(0,getTitleWidth(),getWidth(),getHeight()-getTitleWidth()-2);
         setEffectPositions();
-        scroll_bar_->setBounds(getWidth() - large_padding + 1, getTitleWidth() + large_padding, large_padding - 2, getHeight() -getTitleWidth()-(large_padding + 2 * shadow_width));
+        scroll_bar_->setBounds(getWidth() - large_padding, getTitleWidth() + large_padding, large_padding - 2, getHeight() - getTitleWidth()-(large_padding + 2 * shadow_width));
         scroll_bar_->setColor(findColour(Skin::kLightenScreen, true));
 
 
     }
     else
     {
+        viewport_.setVisible(false);
+        container_->setVisible(false);
         viewport_.setBounds(0,0,0,0);
         container_->setBounds(0,0,0,0);
     }
 
     SynthSection::resized();
+    redoBackgroundImage();
     //ooter_body->setBounds(0,getHeight()-1, getWidth(), getTitleWidth());
     footer_body->setRounding(findValue(Skin::kBodyRounding));
     footer_body->setColor(findColour(Skin::kBody, true));
+
+    const int title_width = static_cast<int>(getTitleWidth());
+    header_body_->setBounds(0, 0, getWidth(), title_width);
+    header_body_->setColor(findColour(Skin::kBodyHeading, true));
+    header_title_->setBounds(0, 0, getWidth(), title_width);
+    header_title_->setText(getName());
+    header_title_->setTextSize(size_ratio_ * 14.0f);
+    header_title_->setColor(findColour(Skin::kHeadingText, true));
 }
 void EffectModuleSection::removeModule(ProcessorBase *newModule) {
     DBG(newModule->state.getProperty(IDs::uuid).toString());
@@ -424,39 +452,38 @@ void EffectModuleSection::moduleListChanged() {
 //         moveEffect(last_dragged_index_, next_index);
 //         last_dragged_index_ = next_index;
 //     }
-void EffectModuleSection::paintBackground(Graphics &g) {
+void EffectModuleSection::redoBackgroundImage() {
+    if (getWidth() <= 0 || getHeight() <= 0)
+        return;
 
-    g.setColour(Colours::purple);
-    // Colour background = findColour(Skin::kBackground, true);
-    // g.setColour(background);
-    // g.fillRect(getLocalBounds().withRight(getWidth() - findValue(Skin::kLargePadding) / 2));
-
-    g.fillRoundedRectangle(getLocalBounds().toFloat(), findValue(Skin::kBodyRounding));
-
-    int body_rounding = findValue(Skin::kBodyRounding);
-    g.setColour(Colours::red);
-    g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(0.5f), body_rounding, 1.0f);
-    // paintContainer(g);
-    paintBody(g);
-    paintHeadingText(g);
-
-    // paintChildrenBackgrounds(g);
-    paintBorder(g);
-    // paintChildBackground(g,container_.get());
     Colour background = findColour(Skin::kBackground, true);
-
-    int height = std::max(container_->getHeight(),static_cast<int> (viewport_.getHeight()));
+    int height = std::max(container_->getHeight(), static_cast<int>(viewport_.getHeight()));
     if (height == 0)
         height = getHeight();
     int width = std::max(container_->getWidth(), getWidth());
-    int mult = juce::Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds())->scale;// getPixelMultiple();
+    int mult = juce::Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds())->scale;
+
     Image background_image = Image(Image::ARGB, width * mult, height * mult, true);
 
     Graphics background_graphics(background_image);
     background_graphics.addTransform(AffineTransform::scale(mult));
     background_graphics.fillAll(background);
-    // container_->paintBackground(background_graphics);
+    if (isExpanded())
+        container_->paintBackground(background_graphics);
+    background_graphics.setColour(juce::Colours::aliceblue);
+    background_graphics.fillRect(juce::Rectangle<float>(0.0f, 0.0f, 1.0f, (float)height));
+    background_graphics.fillRect(juce::Rectangle<float>((float)width - 1.0f, 0.0f, 1.0f, (float)height));
     background_.setOwnImage(background_image);
-    // redoBackgroundImage();
+}
 
+void EffectModuleSection::paintBackground(Graphics &g) {
+    g.setColour(findColour(Skin::kBody, true));
+    g.fillRoundedRectangle(getLocalBounds().toFloat(), findValue(Skin::kBodyRounding));
+    g.setColour(findColour(Skin::kBorder, true));
+    g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(0.5f), findValue(Skin::kBodyRounding), 1.0f);
+
+    paintBody(g);
+    paintBorder(g);
+
+    redoBackgroundImage();
 }

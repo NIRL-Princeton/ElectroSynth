@@ -6,14 +6,18 @@
 #include "ModulationSection.h"
 #include "modulation_button.h"
 #include "modulation_manager.h"
-ModulationSection::ModulationSection( const juce::ValueTree &v, std::unique_ptr<SynthSection> editor, juce::UndoManager& um) : SynthSection(editor->getName()), state(v), _view(std::move(editor)),
-mod_button(new ModulationButton("mod")), undo(um)
+ModulationSection::ModulationSection( const juce::ValueTree &v, std::unique_ptr<SynthSection> editor, juce::UndoManager& um)
+                        : SynthSection(editor->getName()),
+                        state(v),
+                        _view(std::move(editor)),
+                        mod_button(new ModulationButton("mod")), undo(um) // this is the dragged connector
 {
     setComponentID(_view->getName());
-    addModulationButton(mod_button );
-    addAndMakeVisible(mod_button.get());
+    addModulationButton(mod_button, false);
     mod_button->setAlwaysOnTop(true);
     addSubSection(_view.get());
+    if (auto* parameters = dynamic_cast<electrosynth::ParametersView*>(_view.get()))
+        parameters->setVerticallyCenterKnobs(true);
     exit_button_ = std::make_shared<OpenGlShapeButton>("Exit");
     addAndMakeVisible(exit_button_.get());
     addOpenGlComponent(exit_button_->getGlComponent());
@@ -22,6 +26,16 @@ mod_button(new ModulationButton("mod")), undo(um)
 }
 
 ModulationSection::~ModulationSection() = default;
+
+juce::String ModulationSection::getModulatorType() const {
+    return state.getProperty(IDs::type).toString();
+}
+
+void ModulationSection::setAreaSkinOverride(Skin::SectionOverride skin_override) {
+    setSkinOverride(skin_override);
+    if (_view != nullptr)
+        _view->setSkinOverride(skin_override);
+}
 
 void ModulationSection::paintBackground(juce::Graphics &g)
 {
@@ -39,16 +53,16 @@ void ModulationSection::resized()
     Rectangle<int> knobs_area = getDividedAreaBuffered(bounds, 2, 1, widget_margin);
     Rectangle<int> settings_area = getDividedAreaUnbuffered(bounds, 4, 0, widget_margin);
     _view->setBounds(getLocalBounds());
-    mod_button->setBounds(_view->getRight() - 40, getY(),40,40);
-    exit_button_->setBounds(0,0, 50,50);
+    if (mod_button->getParentComponent() == this)
+        mod_button->setBounds(_view->getRight() - 40, getY(),40,40);
+    exit_button_->setBounds(0,0, 30,30);
 
     int knob_y2 =0;
     SynthSection::resized();
 }
 
 
-void ModulationSection::addModButtonListener(ModulationManager* manager)
-{
+void ModulationSection::addModButtonListener(ModulationManager* manager) {
     mod_button->addListener(manager);
 }
 

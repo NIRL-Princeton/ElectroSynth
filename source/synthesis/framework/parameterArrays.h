@@ -15,7 +15,8 @@
 //     ModuleTypeVCAModule,
 //
 // } ModuleType;
-const std::array<std::vector<std::string>, 7> paramsAllArray =
+// Keep this array in exactly the same order as ModuleType in defs.h.
+const std::array<std::vector<std::string>, 8> paramsAllArray =
 {
     {
         // oscillator
@@ -47,14 +48,23 @@ const std::array<std::vector<std::string>, 7> paramsAllArray =
             ""},
 
         // envelope
-        {"eventWatch"},
+        {
+            "eventWatch", // EnvEventWatchFlag
+            "attack",     // EnvAttack
+            "decay",      // EnvDecay
+            "sustain",    // EnvSustain
+            "release",    // EnvRelease
+            "leak",       // EnvLeak
+            "shape",      // EnvShape
+            "velocity"    // EnvVelocitySense
+        },
 
         // filter
         {
             "eventWatch", // FiltEventWatchFlag
             "midiPitch", // FiltMidiPitch
             "cutoff", // FiltCutoff
-            "gain", // FiltGain
+            "amp", // FiltGain
             "resonance", // FiltResonance
             "keyfollow", // FiltKeyfollow
             "filterType", // FiltType
@@ -63,6 +73,24 @@ const std::array<std::vector<std::string>, 7> paramsAllArray =
         },
 
         // string
+        {
+            "eventWatch",    // StringEventWatchFlag
+            "oversample",    // StringOversample
+            "freq",          // StringFreq
+            "waveLength",    // StringWaveLength
+            "dampFreq",      // StringDampFreq
+            "decay",         // StringDecay
+            "targetLevel",   // StringTargetLevel
+            "levelSmooth",   // StringLevelSmooth
+            "levelStrength", // StringLevelStrength
+            "pickupPoint",   // StringPickupPoint
+            "levelMode",     // StringLevelMode
+            "rippleGain",    // StringRippleGain
+            "rippleDelay",   // StringRippleDelay
+            "pluckPosition"  // StringPluckPosition
+        },
+
+        // VCA
         {},
 
         // softclip

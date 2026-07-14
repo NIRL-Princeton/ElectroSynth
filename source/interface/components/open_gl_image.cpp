@@ -25,18 +25,19 @@ namespace {
    constexpr int kNumTriangleIndices = 6;
 } // namespace
 
-OpenGlImage::OpenGlImage() : dirty_(true), image_(nullptr), image_width_(0), image_height_(0),
+OpenGlImage::OpenGlImage() : dirty_(true), texture_loaded_(false), image_(nullptr), image_width_(0), image_height_(0),
                             additive_(false), use_alpha_(false), scissor_(false) {
-   position_vertices_ = std::make_unique<float[]>(kNumPositions);
-   float position_vertices[kNumPositions] = {
+
+    position_vertices_ = std::make_unique<float[]>(kNumPositions);
+    float position_vertices[kNumPositions] = {
        0.0f, 1.0f, 0.0f, 1.0f,
        0.0f, -1.0f, 0.0f, 0.0f,
        0.1f, -1.0f, 1.0f, 0.0f,
        0.1f, 1.0f, 1.0f, 1.0f
-   };
-   memcpy(position_vertices_.get(), position_vertices, kNumPositions * sizeof(float));
+    };
+    memcpy(position_vertices_.get(), position_vertices, kNumPositions * sizeof(float));
 
-   position_triangles_ = std::make_unique<int[]>(kNumTriangleIndices);
+    position_triangles_ = std::make_unique<int[]>(kNumTriangleIndices);
    int position_triangles[kNumTriangleIndices] = {
        0, 1, 2,
        2, 3, 0
@@ -45,14 +46,12 @@ OpenGlImage::OpenGlImage() : dirty_(true), image_(nullptr), image_width_(0), ima
 }
 
 OpenGlImage::~OpenGlImage() {
-
 }
 
 
 void OpenGlImage::init(OpenGlWrapper& open_gl) {
 
    open_gl.context.extensions.glGenBuffers(1, &vertex_buffer_);
-
    open_gl.context.extensions.glBindBuffer(juce::gl::GL_ARRAY_BUFFER, vertex_buffer_);
 
    GLsizeiptr vert_size = static_cast<GLsizeiptr>(static_cast<size_t>(kNumPositions * sizeof(float)));
@@ -60,7 +59,6 @@ void OpenGlImage::init(OpenGlWrapper& open_gl) {
        position_vertices_.get(), juce::gl::GL_STATIC_DRAW);
 
    open_gl.context.extensions.glGenBuffers(1, &triangle_buffer_);
-
    open_gl.context.extensions.glBindBuffer(juce::gl::GL_ELEMENT_ARRAY_BUFFER, triangle_buffer_);
 
    GLsizeiptr tri_size = static_cast<GLsizeiptr>(static_cast<size_t>(kNumTriangleIndices * sizeof(float)));
@@ -68,21 +66,26 @@ void OpenGlImage::init(OpenGlWrapper& open_gl) {
        position_triangles_.get(), juce::gl::GL_STATIC_DRAW);
 
    image_shader_ = open_gl.shaders->getShaderProgram(Shaders::kImageVertex, Shaders::kTintedImageFragment);
-
    image_shader_->use();
 
    image_color_ = OpenGlComponent::getUniform(open_gl, *image_shader_, "color");
    image_position_ = OpenGlComponent::getAttribute(open_gl, *image_shader_, "position");
    texture_coordinates_ = OpenGlComponent::getAttribute(open_gl, *image_shader_, "tex_coord_in");
-
 }
 
 void OpenGlImage::drawImage(OpenGlWrapper& open_gl) {
-   mutex_.lock();
-   if (image_) {
-       texture_.loadImage(*image_);
-       image_ = nullptr;
-   }
+    mutex_.lock();
+
+    if (image_) {
+        texture_.loadImage(*image_);
+        image_ = nullptr;
+        texture_loaded_ = true;
+    }
+
+    if (!texture_loaded_) {
+        mutex_.unlock();
+        return;
+    }
    mutex_.unlock();
 
    juce::gl::glEnable(juce::gl::GL_BLEND);
@@ -105,14 +108,15 @@ void OpenGlImage::drawImage(OpenGlWrapper& open_gl) {
    GLsizeiptr vert_size = static_cast<GLsizeiptr>(static_cast<size_t>(kNumPositions * sizeof(float)));
 
    mutex_.lock();
-   if (dirty_)
+   if (dirty_) {
        open_gl.context.extensions.glBufferData(juce::gl::GL_ARRAY_BUFFER, vert_size, position_vertices_.get(), juce::gl::GL_STATIC_DRAW);
+   }
    dirty_ = false;
 
    open_gl.context.extensions.glBindBuffer(juce::gl::GL_ELEMENT_ARRAY_BUFFER, triangle_buffer_);
+    open_gl.context.extensions.glActiveTexture(juce::gl::GL_TEXTURE0);
 
    texture_.bind();
-   open_gl.context.extensions.glActiveTexture(juce::gl::GL_TEXTURE0);
    mutex_.unlock();
 
    image_shader_->use();
@@ -140,7 +144,9 @@ void OpenGlImage::drawImage(OpenGlWrapper& open_gl) {
 }
 
 void OpenGlImage::destroy(juce::OpenGLContext& open_gl) {
-   texture_.release();
+    texture_.release();
+    texture_loaded_ = false;
+    image_ = nullptr;
 
    image_shader_ = nullptr;
    image_color_ = nullptr;
@@ -149,4 +155,7 @@ void OpenGlImage::destroy(juce::OpenGLContext& open_gl) {
 
    open_gl.extensions.glDeleteBuffers(1, &vertex_buffer_);
    open_gl.extensions.glDeleteBuffers(1, &triangle_buffer_);
+
+    vertex_buffer_ = 0;
+    triangle_buffer_ = 0;
 }

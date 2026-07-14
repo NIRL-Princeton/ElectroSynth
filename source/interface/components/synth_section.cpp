@@ -26,11 +26,11 @@
 SynthSection::SynthSection(const String& name) : Component(name), parent_(nullptr), activator_(nullptr),
                                                  preset_selector_(nullptr), preset_selector_half_width_(false),
                                                  skin_override_(Skin::kNone), size_ratio_(1.0f),
-                                                 active_(true), sideways_heading_(true), background_(nullptr) , scissor_component_(nullptr){
-
-  setWantsKeyboardFocus(true);
-
+                                                 active_(true), sideways_heading_(true), background_(nullptr) , scissor_component_(nullptr)
+{
+    setWantsKeyboardFocus(true);
 }
+
 
 SynthSection::~SynthSection() =default;
 
@@ -93,9 +93,18 @@ void SynthSection::paintHeadingText(Graphics& g) {
     return;
   }
 
+  const String title = TRANS(getName());
+  Font font = Fonts::instance()->proportional_light().withPointHeight(size_ratio_ * 18.0f);
+  Rectangle<int> title_bounds = getTitleBounds();
+  int padding = static_cast<int>(std::round(findValue(Skin::kPadding) * 2.0f));
+  int heading_width = static_cast<int>(std::ceil(font.getStringWidthFloat(title))) + 2 * padding;
+  Rectangle<int> background_bounds = title_bounds.withSizeKeepingCentre(title_bounds.getWidth(), title_bounds.getHeight());
+
+  g.setColour(findColour(Skin::kBodyHeading, true));
+  g.fillRoundedRectangle(background_bounds.toFloat(), findValue(Skin::kBodyRounding));
   g.setColour(findColour(Skin::kHeadingText, true));
-  g.setFont(Fonts::instance()->proportional_light().withPointHeight(size_ratio_ * 14.0f));
-  g.drawText(TRANS(getName()), getTitleBounds(), Justification::centred, false);
+  g.setFont(font);
+  g.drawText(title, title_bounds, Justification::centred, false);
 }
 
 void SynthSection::paintBackground(Graphics& g) {
@@ -117,6 +126,11 @@ void SynthSection::setSkinValues(const Skin& skin, bool top_level) {
     open_gl_component->setSkinValues(skin);
 }
 
+void SynthSection::applySkinFromTopLevel() {
+  if (auto* full_interface = findParentComponentOfClass<FullInterface>())
+    full_interface->applySkinToSubtree(this);
+}
+
 void SynthSection::repaintBackground() {
   if (!isShowing())
     return;
@@ -127,28 +141,8 @@ void SynthSection::repaintBackground() {
 }
 
 
-
-
-
-
-
 void SynthSection::paintContainer(Graphics& g) {
   paintBody(g);
-
-  g.saveState();
-  if (sideways_heading_) {
-    int title_width = findValue(Skin::kTitleWidth);
-    g.reduceClipRegion(0, 0, title_width, getHeight());
-    g.setColour(findColour(Skin::kBodyHeading, true));
-    g.fillRoundedRectangle(0, 0, title_width * 2, getHeight(), findValue(Skin::kBodyRounding));
-  }
-  else {
-    g.reduceClipRegion(0, 0, getWidth(), getTitleWidth());
-    g.setColour(findColour(Skin::kBodyHeading, true));
-    g.fillRoundedRectangle(0, 0, getWidth(), getHeight(), findValue(Skin::kBodyRounding));
-  }
-
-  g.restoreState();
 }
 
 void SynthSection::paintBody(Graphics& g, Rectangle<int> bounds) {
@@ -158,7 +152,6 @@ void SynthSection::paintBody(Graphics& g, Rectangle<int> bounds) {
 
 void SynthSection::paintBorder(Graphics& g, Rectangle<int> bounds) {
   int body_rounding = findValue(Skin::kBodyRounding);
-  g.setColour(juce::Colours::aliceblue);//findColour(Skin::kBorder, true));
   g.drawRoundedRectangle(bounds.toFloat().reduced(0.5f), body_rounding, 1.0f);
 }
 
@@ -412,6 +405,8 @@ void SynthSection::destroyOpenGlComponent(OpenGlComponent const& open_gl_compone
     {
         return *p == open_gl_component;
     });
+    if (new_logical_end == open_gl_components_.end())
+        return;
 //    //calls destroy function
 //    new_logical_end->get()->destroy(open_gl);
 //
@@ -499,32 +494,33 @@ void SynthSection::removeSliders(std::map<std::string,SynthSlider*> toRemove) {
   }
 }
 void SynthSection::addSubSection(SynthSection* sub_section, bool show) {
-  sub_section->setParent(this);
+    sub_section->setParent(this);
 
-  if (show)
-    addAndMakeVisible(sub_section);
+    if (show)
+        addAndMakeVisible(sub_section);
 
-  sub_sections_.push_back(sub_section);
+    sub_sections_.push_back(sub_section);
 
-  std::map<std::string, SynthSlider*> sub_sliders = sub_section->getAllSliders();
-  all_sliders_.insert(sub_sliders.begin(), sub_sliders.end());
+    std::map<std::string, SynthSlider*> sub_sliders = sub_section->getAllSliders();
+    all_sliders_.insert(sub_sliders.begin(), sub_sliders.end());
 
-  std::map<std::string, ToggleButton*> sub_buttons = sub_section->getAllButtons();
-  all_buttons_.insert(sub_buttons.begin(), sub_buttons.end());
+    std::map<std::string, ToggleButton*> sub_buttons = sub_section->getAllButtons();
+    all_buttons_.insert(sub_buttons.begin(), sub_buttons.end());
 
-  std::map<std::string, ModulationButton*> sub_mod_buttons = sub_section->getAllModulationButtons();
-  all_modulation_buttons_.insert(sub_mod_buttons.begin(), sub_mod_buttons.end());
+    std::map<std::string, ModulationButton*> sub_mod_buttons = sub_section->getAllModulationButtons();
+    all_modulation_buttons_.insert(sub_mod_buttons.begin(), sub_mod_buttons.end());
 }
 
 void SynthSection::removeSubSection(SynthSection* section) {
-  this->removeSliders( section->getAllSliders());
-  for (auto [key,mod] : section->modulation_buttons_) {
-    this->all_modulation_buttons_.erase(key);
-  }
-  auto location = std::find(sub_sections_.begin(), sub_sections_.end(), section);
-  if (location != sub_sections_.end())
-    sub_sections_.erase(location);
+    this->removeSliders( section->getAllSliders());
 
+    for (auto [key,mod] : section->all_modulation_buttons_) {
+        this->all_modulation_buttons_.erase(key);
+    }
+
+    auto location = std::find(sub_sections_.begin(), sub_sections_.end(), section);
+    if (location != sub_sections_.end())
+        sub_sections_.erase(location);
 }
 
 void SynthSection::setScrollWheelEnabled(bool enabled) {
@@ -639,7 +635,7 @@ void SynthSection::placeKnobsInArea(Rectangle<int> area, std::vector<std::unique
   float component_width = (area.getWidth() - (knobs.size() + 1) * widget_margin) / (1.0f * knobs.size());
  //beign lazy and moving sliders
 
-  int y = 0;//area.getY()/2;
+  int y = area.getY()/2;
   int height = area.getHeight() - widget_margin;
   //y += height;
   float x = area.getX() + widget_margin;
@@ -650,6 +646,43 @@ void SynthSection::placeKnobsInArea(Rectangle<int> area, std::vector<std::unique
       knob->setBounds(left, y, right - left, height);
     x += component_width + widget_margin;
   }
+}
+
+void SynthSection::placeKnobsInAreaRows(Rectangle<int> area, std::vector<std::unique_ptr<Component>>& knobs, int knobsPerRow) {
+    const int widget_margin = findValue(Skin::kWidgetMargin);
+    if (knobs.empty() || knobsPerRow <= 0) return;
+
+    int num_rows = std::ceil(knobs.size() / static_cast<float>(knobsPerRow));
+    if (num_rows != 1)
+        knobsPerRow = std::ceil(knobs.size() / 2);
+
+    int row_height = area.getHeight() / num_rows;
+
+    for (int row = 0; row <num_rows; row++)
+    {
+        int first = row * knobsPerRow;
+        int last = std::min<int>(first + knobsPerRow, knobs.size());
+        int count = last - first;
+        if (count <= 0)
+            continue;
+
+        Rectangle<int> row_area(area.getX(), area.getY() + row*row_height, area.getWidth(), row_height);
+        float component_width = (row_area.getWidth() - (count + 1) * widget_margin) / static_cast<float>(count);
+        float x = row_area.getX() + widget_margin;
+        int y = row_area.getY();
+        int height = row_area.getHeight() - widget_margin;
+
+        for (int i = first; i < last; i++)
+        {
+            int left = std::round(x);
+            int right = std::round(x + component_width);
+
+            if (knobs[i])
+                knobs[i]->setBounds(left, y, right - left, height);
+
+            x += component_width + widget_margin;
+        }
+    }
 }
 
 void SynthSection::lockCriticalSection() {
@@ -668,13 +701,9 @@ float SynthSection::getTitleWidth() {
   return findValue(Skin::kTitleWidth);
 }
 
-
-
 float SynthSection::getSliderWidth() {
   return findValue(Skin::kSliderWidth);
 }
-
-
 
 //float SynthSection::getSliderOverlapWithSpace() {
 //  return getSliderOverlap() - (int)getWidgetMargin();
@@ -683,7 +712,6 @@ float SynthSection::getSliderWidth() {
 float SynthSection::getTextComponentHeight() {
   return findValue(Skin::kTextComponentHeight);
 }
-
 
 float SynthSection::getPadding() {
   return findValue(Skin::kPadding);
@@ -769,7 +797,7 @@ Font SynthSection::getLabelFont() {
 }
 
 void SynthSection::setLabelFont(Graphics& g) {
-  g.setColour(findColour(Skin::kBodyText, true));
+  // g.setColour(findColour(Skin::kBodyText, true));
   g.setFont(getLabelFont());
 }
 
@@ -813,8 +841,7 @@ void SynthSection::drawLabel(Graphics& g, String text, Rectangle<int> component_
   if (component_bounds.getWidth() <= 0 || component_bounds.getHeight() <= 0)
     return;
 
-  drawLabelBackground(g, component_bounds, text_component);
-  g.setColour(findColour(Skin::kBodyText, true));
+  // g.setColour(findColour(Skin::kBodyText, true));
   Rectangle<int> background_bounds = getLabelBackgroundBounds(component_bounds, text_component);
   g.drawText(text, component_bounds.getX(), background_bounds.getY(),
                    component_bounds.getWidth(), background_bounds.getHeight(), Justification::centred, false);
@@ -845,9 +872,9 @@ void SynthSection::animate(bool animate) {
 }
 void SynthSection::showPopupDisplay(Component* source, const std::string& text,
     BubbleComponent::BubblePlacement placement, bool primary) {
-  FullInterface* parent = findParentComponentOfClass<FullInterface>();
-  if (parent)
-    parent->popupDisplay(source, text, placement, primary);
+    FullInterface* parent = findParentComponentOfClass<FullInterface>();
+    if (parent)
+        parent->popupDisplay(source, text, placement, primary);
 }
 
 void SynthSection::hidePopupDisplay(bool primary) {
@@ -874,5 +901,3 @@ void SynthSection::showPopupSelector(Component* source, juce::Point<int> positio
 ////  if (all_buttons_.count(name))
 ////    all_buttons_[name]->setToggleState(value, notification);
 //}
-
-

@@ -97,7 +97,8 @@ namespace electrosynth
         }
 
     }
-    ModulationConnection* ModulationConnectionBank::createConnection (const std::string& from, const std::string& to)
+    ModulationConnection* ModulationConnectionBank::createConnection(
+        const std::string& from, const std::string& to, int destination_slot)
     {
         int index = 1;
         for (auto& connection : all_connections_)
@@ -105,7 +106,7 @@ namespace electrosynth
             std::string invalid_connection = "modulation_" + std::to_string (index++) + "_amount";
             if (to != invalid_connection && isConnectionAvailable (connection.get()))
             {
-                connection->resetConnection (from, to);
+                connection->resetConnection(from, to, destination_slot);
 
 
                 connection->mapping_ = createMapping(to);

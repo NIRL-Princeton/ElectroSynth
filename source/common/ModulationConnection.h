@@ -13,16 +13,30 @@
 namespace electrosynth {
 struct MappingWrapper;
     struct ModulationConnection {
-        ModulationConnection(const std::string& from, const std::string& to, LEAF& leaf,  int index)
-            : source_name(from), destination_name(to),state(IDs::MODULATION),leaf_(leaf)
+        ModulationConnection(const std::string& from, const std::string& to, LEAF& leaf, int index)
+            : source_name(from),
+              destination_name(to),
+              state(IDs::MODULATION),
+              index_in_all_mods(index),
+              index_in_mapping(-1),
+              destination_slot(-1),
+              uuid(getNextUuid(&leaf)),
+              bipolar_(false),
+              bypass_(false),
+              stereo_(false),
+              defaultBipolar(false),
+              leaf_(leaf),
+              sourceProc_(nullptr),
+              scalingValue_(0.0f),
+              bipolarOffset(nullptr),
+              mapping_(nullptr)
         {
-            uuid = getNextUuid(&leaf);
-            index_in_all_mods = index;
         }
         ~ModulationConnection()
         {
             //count--;
         }
+
         static bool isModulationSourceDefaultBipolar(const std::string& source);
         void setSource(int uuid_from)
         {
@@ -42,34 +56,51 @@ struct MappingWrapper;
         {
             state.setProperty(IDs::isBipolar, isBipolar, nullptr);
         }
-        void resetConnection(const std::string& from, const std::string& to) {
+        void resetConnection(const std::string& from, const std::string& to, int slot) {
             source_name = from;
             destination_name = to;
+            destination_slot = slot;
+            state.setProperty(IDs::src, juce::String(from), nullptr);
+            state.setProperty(IDs::dest, juce::String(to), nullptr);
+            state.setProperty(IDs::destIdx, slot, nullptr);
+        }
+        void clearConnection() {
+            source_name.clear();
+            destination_name.clear();
+            destination_slot = -1;
+            state.removeProperty(IDs::src, nullptr);
+            state.removeProperty(IDs::dest, nullptr);
+            state.removeProperty(IDs::destIdx, nullptr);
+        }
+
+        float getScaledAmountForMapping(float val) const
+        {
+            return isBipolar() ? val * 0.5f : val;
+        }
+
+        void updateEffectiveScalingValue() // audio mapping and process mapping reads scalingValue_ to adjust modulation effect
+        {
+            scalingValue_.store(bypass_ ? 0.0f : baseScalingValue_.load());
         }
 
         float getCurrentBaseValue()
         {
-            // if(scalingValue_ != nullptr)
-            // {
-            //     return scalingValue_->load();
-            // }
-            // return 0.5f;
-            return scalingValue_;
-        }
-        void setScalingValue(float val)
-        {
-            // if(scalingValue_ != nullptr)
-            // {
-                if (isBipolar())
-                    scalingValue_.store(val *0.5f);
-                else
-                    scalingValue_.store(val);
-            // }
-            //DBG(juce::String(val));
+            return baseScalingValue_.load();
         }
 
-        void setBypass(bool bypass) {}
-        void setStereo(bool stereo) {}
+
+        void setScalingValue(float val)
+        {
+            baseScalingValue_.store(getScaledAmountForMapping (val));
+            updateEffectiveScalingValue();
+        }
+
+        void setBypass(bool bypass)
+        {
+            bypass_ = bypass;
+            updateEffectiveScalingValue();
+        }
+        void setStereo(bool stereo) { stereo_ = stereo; }
         bool isBipolar() const { return bipolar_; }
         bool isBypass() const {return bypass_; }
         bool isStereo() const {return stereo_; }
@@ -97,6 +128,7 @@ struct MappingWrapper;
         juce::ValueTree state;
         int index_in_all_mods;
         int index_in_mapping;
+        int destination_slot;
         int uuid;
         bool bipolar_;
         bool bypass_;
@@ -105,7 +137,8 @@ struct MappingWrapper;
         LEAF &leaf_;
         std::array<ModuleHeader*, MAX_NUM_VOICES>* sourceProc_;
 
-        std::atomic<float> scalingValue_;
+        std::atomic<float> baseScalingValue_ { 0.0f }; // UI/user amount
+        std::atomic<float> scalingValue_; // DSP effective amount
         std::atomic<float>* bipolarOffset;
 
         MappingWrapper* mapping_;
@@ -138,7 +171,7 @@ struct MappingWrapper;
     public:
         ModulationConnectionBank(LEAF &leaf);
         ~ModulationConnectionBank();
-        ModulationConnection* createConnection(const std::string& from, const std::string& to);
+        ModulationConnection* createConnection(const std::string& from, const std::string& to, int destination_slot);
         MappingWrapper* createMapping( const std::string& to);
         ModulationConnection* atIndex(int index) { return all_connections_[index].get(); }
         size_t numConnections() { return all_connections_.size(); }

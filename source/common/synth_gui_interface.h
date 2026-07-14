@@ -86,7 +86,7 @@ class SynthGuiInterface :  public juce::ApplicationCommandTarget {
     void tryEnqueueProcessorInitQueue(juce::FixedSizeFunction<48, void()> callback);
     void addProcessor(std::unique_ptr<ProcessorBase> processor, int voice_index);
     void addModulationSource(std::unique_ptr<ModulatorBase> modSource, int voice_index);
-    void connectModulation(std::string source, std::string destination);
+    bool connectModulation(std::string source, std::string destination, int destination_slot = -1);
     void disconnectModulation(std::string source, std::string destination);
     void disconnectModulation(electrosynth::ModulationConnection* connection);
     void notifyModulationsChanged();
@@ -111,4 +111,3 @@ class SynthGuiInterface :  public juce::ApplicationCommandTarget {
   
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SynthGuiInterface)
 };
-

@@ -44,6 +44,10 @@ class OpenGlSliderQuad : public OpenGlQuad {
 
 class OpenGlSlider : public juce::Slider {
   public:
+    void setHorizontalTrackPadding(float paddingPixels) {
+        horizontal_track_padding_ = paddingPixels;
+    }
+
     static constexpr float kRotaryAngle = 0.8f * electrosynth::kPi;
 
     OpenGlSlider(juce::String name) : juce::Slider(name), parent_(nullptr), modulation_knob_(false), modulation_amount_(0.0f),
@@ -57,6 +61,7 @@ class OpenGlSlider : public juce::Slider {
       image_component_->paintEntireComponent(false);
       image_component_->setComponent(this);
       image_component_->setScissor(true);
+      image_component_->setInterceptsMouseClicks(false, false);
 
       slider_quad_->setActive(false);
       image_component_->setActive(false);
@@ -195,7 +200,7 @@ class OpenGlSlider : public juce::Slider {
     }
 
     int getLinearSliderWidth();
-    void setSliderDisplayValues();
+    virtual void setSliderDisplayValues();
     void redoImage(bool skip_image = false);
     void setColors();
 
@@ -209,11 +214,16 @@ class OpenGlSlider : public juce::Slider {
     void setDrawWhenNotVisible(bool draw) { slider_quad_->setDrawWhenNotVisible(draw); }
 
     SynthSection* getSectionParent() { return parent_; }
+
 void setScissorComponent(juce::Component *scissor_component) { slider_quad_->setScissorComponent(scissor_component); }
+
 protected:
     SynthSection* parent_;
     float knob_size_scale_;
   private:
+
+    float horizontal_track_padding_ = 0.0f;
+
     juce::Colour thumb_color_;
     juce::Colour selected_color_;
     juce::Colour unselected_color_;
@@ -393,8 +403,24 @@ class SynthSlider : public OpenGlSlider, public juce::TextEditor::Listener {
     void setKnobSizeScale(float scale) { knob_size_scale_ = scale; }
     float getKnobSizeScale() const override { return knob_size_scale_; }
     void useSuffix(bool use) { use_suffix_ = use; }
-    void setExtraModulationTarget(juce::Component* component) { extra_modulation_target_ = component; }
-    juce::Component* getExtraModulationTarget() { return extra_modulation_target_; }
+    static constexpr int kNumModulationSlots = 3;
+
+    void setExtraModulationTarget(juce::Component* component) {
+      setExtraModulationTarget(0, component);
+    }
+    void setExtraModulationTarget(int slot, juce::Component* component) {
+      if (juce::isPositiveAndBelow(slot, kNumModulationSlots))
+        extra_modulation_targets_[slot] = component;
+    }
+    juce::Component* getExtraModulationTarget() { return getExtraModulationTarget(0); }
+    juce::Component* getExtraModulationTarget(int slot) {
+      if (juce::isPositiveAndBelow(slot, kNumModulationSlots))
+        return extra_modulation_targets_[slot];
+      return nullptr;
+    }
+    const std::array<juce::Component*, kNumModulationSlots>& getExtraModulationTargets() const {
+      return extra_modulation_targets_;
+    }
     void setModulationBarRight(bool right) { modulation_bar_right_ = right; }
     bool isModulationBarRight() { return modulation_bar_right_; }
 
@@ -461,15 +487,12 @@ class SynthSlider : public OpenGlSlider, public juce::TextEditor::Listener {
     juce::Point<int> last_modulation_edit_position_;
     juce::Point<int> mouse_down_position_;
 
-
     float display_multiply_;
     float display_exponential_base_;
 
-
-
     const std::string* string_lookup_;
 
-    juce::Component* extra_modulation_target_;
+    std::array<juce::Component*, kNumModulationSlots> extra_modulation_targets_ {};
     SynthGuiInterface* synth_interface_;
     std::unique_ptr<OpenGlTextEditor> text_entry_;
 
@@ -477,4 +500,3 @@ class SynthSlider : public OpenGlSlider, public juce::TextEditor::Listener {
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SynthSlider)
 };
-

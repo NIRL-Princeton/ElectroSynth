@@ -14,6 +14,11 @@
  * along with vital.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// open_gl_multi_quad.cpp draws many quads using one vertex buffer, one index buffer, and a selected fragment shader.
+// Each quad stores position, dimensions, texture-style coordinates, and extra shader values. This class also manages common shader
+// uniforms like color, alt_color, mod_color, background_color, thumb_color, thickness, rounding, max_arc, etc.
+
+
 #include "open_gl_multi_quad.h"
 
 #include "look_and_feel/shaders.h"
@@ -21,7 +26,8 @@
 OpenGlMultiQuad::OpenGlMultiQuad(int max_quads, Shaders::FragmentShader shader, juce::String name) : OpenGlComponent(name),
                                                                                                target_component_(nullptr), fragment_shader_(shader),
                                                                                                max_quads_(max_quads), num_quads_(max_quads), draw_when_not_visible_(false),
-                                                                                               active_(true), dirty_(false), max_arc_(2.0f), thumb_amount_(0.5f), start_pos_(0.0f),
+                                                                                               active_(true), dirty_(false), initialization_failed_(false),
+                                                                                               max_arc_(2.0f), thumb_amount_(0.5f), start_pos_(0.0f),
                                                                                                current_alpha_mult_(1.0f), alpha_mult_(1.0f), additive_blending_(false),
                                                                                                current_thickness_(1.0f), thickness_(1.0f), rounding_(5.0f), shader_(nullptr)
 {
@@ -48,12 +54,13 @@ OpenGlMultiQuad::OpenGlMultiQuad(int max_quads, Shaders::FragmentShader shader, 
 }
 
 OpenGlMultiQuad::~OpenGlMultiQuad() {}
-bool OpenGlMultiQuad::isInit()
-{
+
+bool OpenGlMultiQuad::isInit() {
   return shader_ != nullptr;
 }
-void OpenGlMultiQuad::init(OpenGlWrapper &open_gl)
-{
+
+void OpenGlMultiQuad::init(OpenGlWrapper &open_gl) {
+
   open_gl.context.extensions.glGenBuffers(1, &vertex_buffer_);
   open_gl.context.extensions.glBindBuffer(juce::gl::GL_ARRAY_BUFFER, vertex_buffer_);
 
@@ -67,6 +74,12 @@ void OpenGlMultiQuad::init(OpenGlWrapper &open_gl)
   open_gl.context.extensions.glBufferData(juce::gl::GL_ELEMENT_ARRAY_BUFFER, bar_size, indices_.get(), juce::gl::GL_STATIC_DRAW);
 
   shader_ = open_gl.shaders->getShaderProgram(Shaders::kPassthroughVertex, fragment_shader_);
+  if (shader_ == nullptr) {
+    initialization_failed_ = true;
+    DBG("OpenGlMultiQuad initialization skipped because its shader program is unavailable.");
+    return;
+  }
+
   shader_->use();
   color_uniform_ = getUniform(open_gl, *shader_, "color");
   alt_color_uniform_ = getUniform(open_gl, *shader_, "alt_color");
@@ -83,6 +96,12 @@ void OpenGlMultiQuad::init(OpenGlWrapper &open_gl)
   thumb_amount_uniform_ = getUniform(open_gl, *shader_, "thumb_amount");
   start_pos_uniform_ = getUniform(open_gl, *shader_, "start_pos");
   alpha_mult_uniform_ = getUniform(open_gl, *shader_, "alpha_mult");
+
+  if (position_ == nullptr) {
+    initialization_failed_ = true;
+    shader_ = nullptr;
+    DBG("OpenGlMultiQuad initialization failed: required 'position' attribute is missing.");
+  }
 }
 
 void OpenGlMultiQuad::destroy(juce::OpenGLContext& open_gl)
@@ -95,6 +114,7 @@ void OpenGlMultiQuad::destroy(juce::OpenGLContext& open_gl)
   color_uniform_ = nullptr;
   alt_color_uniform_ = nullptr;
   mod_color_uniform_ = nullptr;
+  background_color_uniform_ = nullptr;
   thumb_color_uniform_ = nullptr;
   thickness_uniform_ = nullptr;
   rounding_uniform_ = nullptr;
@@ -107,6 +127,7 @@ void OpenGlMultiQuad::destroy(juce::OpenGLContext& open_gl)
 
   vertex_buffer_ = 0;
   indices_buffer_ = 0;
+  initialization_failed_ = false;
 }
 
 void OpenGlMultiQuad::render(OpenGlWrapper &open_gl, bool animate)
@@ -122,8 +143,14 @@ void OpenGlMultiQuad::render(OpenGlWrapper &open_gl, bool animate)
   if (current_alpha_mult_ == 0.0f && alpha_mult_ == 0.0f)
     return;
 
-  if (shader_ == nullptr)
+  if (initialization_failed_)
+    return;
+
+  if (shader_ == nullptr) {
     init(open_gl);
+    if (shader_ == nullptr)
+      return;
+  }
 
   juce::gl::glEnable(juce::gl::GL_BLEND);
   juce::gl::glEnable(juce::gl::GL_SCISSOR_TEST);
@@ -159,8 +186,10 @@ void OpenGlMultiQuad::render(OpenGlWrapper &open_gl, bool animate)
   else
     alpha_color_mult = current_alpha_mult_;
 
-  color_uniform_->set(color_.getFloatRed(), color_.getFloatGreen(),
-                      color_.getFloatBlue(), alpha_color_mult * color_.getFloatAlpha());
+  if (color_uniform_) {
+    color_uniform_->set(color_.getFloatRed(), color_.getFloatGreen(),
+                        color_.getFloatBlue(), alpha_color_mult * color_.getFloatAlpha());
+  }
 
   if (alt_color_uniform_)
   {
@@ -294,4 +323,3 @@ void OpenGlScrollQuad::render(OpenGlWrapper &open_gl, bool animate)
       setQuadHorizontal(0, -1.0f + 2.0f * start_ratio , 2.0f * (end_ratio - start_ratio));
     OpenGlQuad::render(open_gl, animate);
   }
-

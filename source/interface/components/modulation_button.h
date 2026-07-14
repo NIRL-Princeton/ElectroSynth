@@ -55,7 +55,7 @@ class ModulationButton : public PlainShapeComponent {
         virtual void modulationDisconnected(electrosynth::ModulationConnection* connection, bool last) { }
         virtual void modulationSelected(ModulationButton* source) { }
         virtual void modulationLostFocus(ModulationButton* source) { }
-        virtual void startModulationMap(ModulationButton* source, const MouseEvent& e) { }
+        virtual void startDestinationMap(ModulationButton* source, const MouseEvent& e) { }
         virtual void modulationDragged(const MouseEvent& e) { }
         virtual void modulationWheelMoved(const MouseEvent& e, const MouseWheelDetails& wheel) { }
         virtual void endModulationMap() { }
@@ -89,6 +89,8 @@ class ModulationButton : public PlainShapeComponent {
 
     void setForceEnableModulationSource();
     bool hasAnyModulation();
+    void setSourceColor(juce::Colour color);
+    juce::Colour getSourceColor() const { return source_color_; }
     void setFontSize(float size) { font_size_ = size; }
     Rectangle<int> getModulationAmountBounds(int index, int total);
     Rectangle<int> getModulationAreaBounds();
@@ -96,6 +98,9 @@ class ModulationButton : public PlainShapeComponent {
     void setConnectRight(bool connect) { connect_right_ = connect; repaint(); }
     void setDrawBorder(bool border) { draw_border_ = border; repaint(); }
     void overrideText(String text) { text_override_ = std::move(text); repaint(); }
+    void setDisplayLabel(juce::String label) { display_label_ = std::move(label); }
+    juce::String getDisplayLabel() const { return display_label_; }
+    juce::String display_label_;
 
   private:
     void disconnectModulation(electrosynth::ModulationConnection* connection);
@@ -113,9 +118,10 @@ class ModulationButton : public PlainShapeComponent {
     float font_size_;
 
     Colour drag_drop_color_;
+    Colour source_color_;
+    Colour background_color_;
     bool show_drag_drop_;
     float drag_drop_alpha_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ModulationButton)
 };
-

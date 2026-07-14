@@ -36,7 +36,9 @@ SynthGuiInterface::~SynthGuiInterface() { }
 void SynthGuiInterface::updateFullGui() { }
 void SynthGuiInterface::updateGuiControl(const std::string& name, float value) { }
 float SynthGuiInterface::getControlValue(const std::string& name) { return 0.0f; }
-void SynthGuiInterface::connectModulation(std::string source, std::string destination) { }
+bool SynthGuiInterface::connectModulation(std::string source, std::string destination, int destination_slot) {
+    return false;
+}
 void SynthGuiInterface::connectModulation(electrosynth::ModulationConnection* connection) { }
 void SynthGuiInterface::setModulationValues(const std::string& source, const std::string& destination,
                                             float amount, bool bipolar, bool stereo, bool bypass) { }
@@ -230,13 +232,14 @@ void SynthGuiInterface::addModulationSource (std::unique_ptr<ModulatorBase> modS
 {
     synth_->addModulationSource(std::move(modSource),voice_index);
 }
-void SynthGuiInterface::connectModulation(std::string source, std::string destination)
+bool SynthGuiInterface::connectModulation(std::string source, std::string destination, int destination_slot)
 {
-    bool created = synth_->connectModulation(source, destination);
+    bool created = synth_->connectModulation(source, destination, destination_slot);
 //    if (created)
 //        return;
         //initModulationValues(source, destination);
     notifyModulationsChanged();
+    return created;
 }
 
 void SynthGuiInterface::disconnectModulation(std::string source, std::string destination) {

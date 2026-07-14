@@ -64,7 +64,7 @@ namespace {
 
 PopupDisplay::PopupDisplay() : SynthSection("Popup Display"), text_(new PlainTextComponent("Popup Text", "")),
                                body_(new OpenGlQuad(Shaders::kRoundedRectangleFragment)),
-                               border_(new OpenGlQuad(Shaders::kRoundedRectangleFragment))
+                               border_(new OpenGlQuad(Shaders::kRoundedRectangleBorderFragment))
 {
     addOpenGlComponent(body_);
     addOpenGlComponent(border_);
@@ -116,8 +116,13 @@ void PopupDisplay::setContent(const std::string& text, juce::Rectangle<int> boun
     else if (placement == juce::BubbleComponent::right)
         setBounds(bounds.getRight(), middle_y - height / 2, width, height);
 
+    body_->setColor(findColour(Skin::kBody, true));
+    border_->setColor(findColour(Skin::kBorder, true));
+    text_->setColor(findColour(Skin::kBodyText, true));
+
     text_->setText(text);
     text_->setTextSize(height * 0.5f);
+    DBG("PopupDisplay shown, body = " << findColour(Skin::kBody, true).toDisplayString(true));
 }
 
 PopupList::PopupList() : SynthSection("Popup List"),
