@@ -15,6 +15,8 @@ namespace electrosynth {
 
         SynthSlider& getDestinationSlider() const { return destination_slider_; }
         int getSlotIndex() const { return slot_index_; }
+        juce::Colour getAuxSourceColor() const;
+        juce::String getAuxSourceLabel() const;
 	        void setSourceName(juce::String source_name);
 	        void setSourceDisplayLabel(juce::String display_label);
 	        void setModulationAmount(float amount);

@@ -347,9 +347,7 @@ class SynthSection : public Component, public Slider::Listener,
     void removeSliders(std::map<std::string,SynthSlider*> toRemove);
     std::map<std::string, SynthSlider*> all_sliders_;
     std::vector<std::shared_ptr<OpenGlComponent>> open_gl_components_;
-    void setScissorComponent(juce::Component *scissor_component) {
-        scissor_component_ = scissor_component;
-    }
+    void setScissorComponent(juce::Component *scissor_component);
     std::vector<SynthSection*> sub_sections_;
 
 protected:

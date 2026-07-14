@@ -300,27 +300,23 @@ void ModulesInterface<T>::renderOpenGlComponents(OpenGlWrapper& open_gl, bool an
 
     OpenGlComponent::setViewPort(&viewport_, open_gl);
 
-    float image_width = background_.getImageWidth(); //electrosynth::utils::nextPowerOfTwo(background_.getImageWidth());
-    float image_height =background_.getImageHeight(); // electrosynth::utils::nextPowerOfTwo(background_.getImageHeight());
-    int mult = juce::Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds())->scale;// getPixelMultiple();
-    float width_ratio = image_width / (container_->getWidth() * mult);
-    float height_ratio = image_height / (viewport_.getHeight() * mult);
-   // DBG(viewport_.getViewPositionY());
-    float y_offset =(2.0f * viewport_.getViewPositionY()) /viewport_.getHeight();
+    // Reference dims match how redoBackgroundImage bakes the image (max(container, view)).
+    // Using them as denominators avoids divide-by-zero when the container is empty/
+    // collapsed, which produced NaN quad geometry that drew the background image
+    // (including its baked side borders) far outside the panel. background_ (with
+    // borders) is still always drawn, so borders are preserved.
+    const int ref_width  = std::max(std::max(container_->getWidth(), getWidth()), 1);
+    const int ref_view_h = std::max(static_cast<int>(viewport_.getHeight()), 1);
 
-    // --- Debug output ---
-    // DBG("image_width: " + juce::String(image_width));
-    // DBG("image_height: " + juce::String(image_height));
-    // DBG("mult (scale factor): " + juce::String(mult));
-    // DBG("container width: " + juce::String(container_->getWidth()));
-    // DBG("viewport height: " + juce::String(viewport_.getHeight()));
-    // DBG("width_ratio: " + juce::String(width_ratio));
-    // DBG("height_ratio: " + juce::String(height_ratio));
-    // DBG("viewport Y offset: " + juce::String(viewport_.getViewPositionY()));
-    // DBG("computed y_offset: " + juce::String(y_offset));
-    //
-    background_.setTopLeft(-1.0f, 1.0f+ y_offset);
-    background_.setTopRight(-1.0f + 2.0f * width_ratio,  1.0f+y_offset);
+    float image_width  = background_.getImageWidth();
+    float image_height = background_.getImageHeight();
+    int mult = juce::Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds())->scale;
+    float width_ratio  = image_width  / (ref_width  * mult);
+    float height_ratio = image_height / (ref_view_h * mult);
+    float y_offset = (2.0f * viewport_.getViewPositionY()) / ref_view_h;
+
+    background_.setTopLeft(-1.0f, 1.0f + y_offset);
+    background_.setTopRight(-1.0f + 2.0f * width_ratio, 1.0f + y_offset);
     background_.setBottomLeft(-1.0f, 1.0f - 2.0f * height_ratio + y_offset);
     background_.setBottomRight(-1.0f + 2.0f * width_ratio, 1.0f - 2.0f * height_ratio + y_offset);
     background_.setColor(Colours::white);

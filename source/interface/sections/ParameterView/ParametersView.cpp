@@ -16,6 +16,38 @@
 namespace electrosynth {
 
     namespace {
+        juce::Colour getModulationSlotSourceColor(const juce::String& source_name) {
+            if (source_name.startsWithIgnoreCase("env"))
+                return ShaderColors::kEnvelopeTextColor;
+            if (source_name.startsWithIgnoreCase("lfo"))
+                return ShaderColors::kLfoTextColor;
+            if (source_name.startsWithIgnoreCase("vca")
+                || source_name.containsIgnoreCase("master"))
+                return ShaderColors::kMasterEnvelopeTextColor;
+            return ShaderColors::kSoundModuleTextColor;
+        }
+
+        juce::String getModulationSlotSourceLabel(const juce::String& source_name, const juce::String& display_label) {
+            if (display_label.isNotEmpty())
+                return display_label;
+
+            juce::String prefix;
+            if (source_name.startsWithIgnoreCase("env")) prefix = "Env ";
+            else if (source_name.startsWithIgnoreCase("lfo")) prefix = "Lfo ";
+            else if (source_name.startsWithIgnoreCase("vca") || source_name.containsIgnoreCase("master"))
+                prefix = "Master ";
+            else
+                return source_name;
+
+            juce::String digits;
+            for (auto character : source_name) {
+                if (juce::CharacterFunctions::isDigit(character))
+                    digits += character;
+            }
+
+            return prefix + (digits.isNotEmpty() ? digits : "");
+        }
+
         juce::Rectangle<float> getAuxSlotBounds(juce::Rectangle<float> slot_bounds) {
             auto aux_bounds = slot_bounds.reduced(2.0f, 2.0f);
             aux_bounds.setTop(slot_bounds.getCentreY());
@@ -87,33 +119,13 @@ namespace electrosynth {
         }
     }
 
-    juce::Colour ModulationSlotComponent::getSourceColor() const {
-        if (source_name_.startsWithIgnoreCase("env"))
-            return findColour(Skin::kEnvelopeAccent);
-        if (source_name_.startsWithIgnoreCase("lfo"))
-            return findColour(Skin::kLFOAccent);
-        if (source_name_.startsWithIgnoreCase("vca") || source_name_.containsIgnoreCase("master"))
-            return findColour(Skin::kMasterEnvelopeAccent);
-        return ShaderColors::kSoundModuleTextColor;
-    }
+juce::Colour ModulationSlotComponent::getSourceColor() const {
+    return getModulationSlotSourceColor(source_name_);
+}
 
-    juce::String ModulationSlotComponent::getSourceLabel() const { // for marking connections in the boxes underneath knobs
-        if (display_label_.isNotEmpty()) return display_label_;
-
-        juce::String prefix;
-        if (source_name_.startsWithIgnoreCase("env")) prefix = "Env ";
-        else if (source_name_.startsWithIgnoreCase("lfo")) prefix = "Lfo ";
-        else if (source_name_.startsWithIgnoreCase("vca") || source_name_.containsIgnoreCase("master")) prefix = "Master ";
-        else return source_name_;
-
-        juce::String digits;
-        for (auto character : source_name_) {
-            if (juce::CharacterFunctions::isDigit(character))
-                digits += character;
-        }
-
-        return prefix + (digits.isNotEmpty() ? digits : "");
-    }
+juce::String ModulationSlotComponent::getSourceLabel() const { // for marking connections in the boxes underneath knobs
+    return getModulationSlotSourceLabel(source_name_, display_label_);
+}
 
     void ModulationSlotComponent::setAuxSource(juce::String source_name, juce::String display_label) {
         if (aux_source_name_ == source_name && aux_display_label_ == display_label)
@@ -128,6 +140,13 @@ namespace electrosynth {
         }
     }
 
+    juce::Colour ModulationSlotComponent::getAuxSourceColor() const {
+        return getModulationSlotSourceColor(aux_source_name_);
+    }
+
+    juce::String ModulationSlotComponent::getAuxSourceLabel() const {
+        return getModulationSlotSourceLabel(aux_source_name_, aux_display_label_);
+    }
 
 // Rotary slider that suppresses the value bubble popup on drag/hover.
 class NoPopupSynthSlider : public SynthSlider {
@@ -382,7 +401,18 @@ public:
     }
 
     juce::Colour ParametersView::getSliderLabelColor() const {
-        return findColour(Skin::kBodyText, true);
+        if (getName().startsWithIgnoreCase("env"))
+            return ShaderColors::kEnvelopeTextColor;
+        if (getName().startsWithIgnoreCase("lfo"))
+            return ShaderColors::kLfoTextColor;
+        if (getName().equalsIgnoreCase("VCA")
+            || getName().containsIgnoreCase("master"))
+            return ShaderColors::kMasterEnvelopeTextColor;
+        // Filter shares its label red with the FX panel in both lanes.
+        if (getName().startsWithIgnoreCase("filt"))
+            return ShaderColors::kEffectTextColor;
+
+        return ShaderColors::kSoundModuleTextColor;
     }
 
     void ParametersView::paint(juce::Graphics &g) {
@@ -628,7 +658,7 @@ public:
 	                    ? getBypassAdjustedColor(slot->getSourceColor(), slot->isBypass())
 	                    : empty_border_color;
                 const bool has_aux = slot->hasAuxSource();
-                const auto aux_color = has_aux ? slot->getSourceColor() : empty_border_color;
+                const auto aux_color = has_aux ? slot->getAuxSourceColor() : empty_border_color;
                 const float amount = juce::jlimit(-1.0f, 1.0f, (slot->getModulationAmount()));
                 const auto slot_bounds = slot->getBounds();
 
@@ -669,7 +699,7 @@ public:
 	                }
 
 	                if (visuals.aux_label) {
-	                    visuals.aux_label->setText(has_aux ? slot->getSourceLabel() : "");
+	                    visuals.aux_label->setText(has_aux ? slot->getAuxSourceLabel() : "");
 	                    visuals.aux_label->setTextSize(std::max(7.0f, slot_bounds.getHeight() * 0.28f));
 	                    visuals.aux_label->setColor(aux_color);
 	                    visuals.aux_label->setVisible(occupied && has_aux);
@@ -706,16 +736,9 @@ FxModuleTemplateView::FxModuleTemplateView(chowdsp::PluginState& pluginState,
         },
         [](auto&) {});
 
-    for (int i = (int)comps.size(); i < kMaxEffectSlots; ++i) {
-        auto ph = std::make_unique<NoPopupSynthSlider>("Param " + juce::String(i + 1));
-        ph->setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
-        ph->setScrollWheelEnabled(false);
-        ph->setEnabled(false);
-        addSlider(ph.get(), true);
-        ph->parentHierarchyChanged();
-        placeholders_.push_back(std::move(ph));
-    }
-
+    // Mix / PostGain are intended visible FX controls. NOTE: they are currently
+    // UI-only (no chowdsp parameter attachment) and are NOT wired to DSP yet.
+    // No greyed-out placeholder knobs are created for empty slots.
     mix_knob_ = std::make_unique<NoPopupSynthSlider>("Mix");
     mix_knob_->setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
     mix_knob_->setScrollWheelEnabled(false);
@@ -731,70 +754,177 @@ FxModuleTemplateView::FxModuleTemplateView(chowdsp::PluginState& pluginState,
     postgain_knob_->parentHierarchyChanged();
 
     setLookAndFeel(DefaultLookAndFeel::instance());
-    setOpaque(true);
+    setOpaque(false);
+    ensureLabels();
 }
 
 FxModuleTemplateView::~FxModuleTemplateView() = default;
 
-void FxModuleTemplateView::resized() {
-    const int labelH = 12;
-    const int labelGap = 14;
-    const int vPad = labelH + labelGap + 6;
-    const int rowH = (getHeight() - vPad - 4) / 5;
-    const int knobH = rowH / 2;
-    const int spacedRowH = knobH * 54 / 25;
-    const int modH = 16;   // 14 * 1.15
-    const int modGap = 9;
-    const int w = getWidth();
-    int y = vPad - 3;
-
-    auto setSlotBounds = [&](int slotIdx, juce::Rectangle<int> b, int modIdx) {
-        if (slotIdx < (int)comps.size())
-            comps[slotIdx]->setBounds(b);
-        else if (slotIdx - (int)comps.size() < (int)placeholders_.size())
-            placeholders_[slotIdx - (int)comps.size()]->setBounds(b);
-        int bw = b.getWidth() * 23 / 20;
-        int bx = b.getX() - (bw - b.getWidth()) / 2;
-        mod_boxes_[modIdx] = { bx, b.getBottom() + modGap, bw, modH };
-    };
-
-    // Row 1: slot 0
-    { int kw = w * 3 / 10; setSlotBounds(0, { (w - kw) / 2, y, kw, knobH }, 0); y += spacedRowH; }
-
-    // Row 2: slots 1 & 2
-    { int colW = w / 2; int kw = colW / 2;
-      setSlotBounds(1, { (colW - kw) / 2,       y, kw, knobH }, 1);
-      setSlotBounds(2, { colW + (colW - kw) / 2, y, kw, knobH }, 2);
-      y += spacedRowH; }
-
-    // Row 3: slots 3 & 4
-    { int colW = w / 2; int kw = colW / 2;
-      setSlotBounds(3, { (colW - kw) / 2,       y, kw, knobH }, 3);
-      setSlotBounds(4, { colW + (colW - kw) / 2, y, kw, knobH }, 4);
-      y += spacedRowH; }
-
-    // Row 4: Mix
-    { int kw = w * 27 / 100; juce::Rectangle<int> b { (w - kw) / 2, y, kw, knobH };
-      mix_knob_->setBounds(b);
-      { int bw = b.getWidth() * 23 / 20; mod_boxes_[5] = { b.getX() - (bw - b.getWidth()) / 2, b.getBottom() + modGap, bw, modH }; }
-      y += spacedRowH; }
-
-    // Row 5: PostGain
-    { int kw = w * 27 / 100; juce::Rectangle<int> b { (w - kw) / 2, y, kw, knobH };
-      postgain_knob_->setBounds(b);
-      { int bw = b.getWidth() * 23 / 20; mod_boxes_[6] = { b.getX() - (bw - b.getWidth()) / 2, b.getBottom() + modGap, bw, modH }; } }
-
-    SynthSection::resized();
+// FX-local layout constants. These shrink the FX knob/tick-arc footprint and tune
+// vertical spacing for the narrow FX panel ONLY. They do not touch global skin
+// values or shared SynthSlider rendering constants.
+namespace {
+    constexpr float kFxKnobScale       = 0.7225f; // 0.85 * 0.85 — FX knob/tick-arc footprint
+    constexpr int   kFxLabelHeight     = 18;      // tall enough to avoid clipping descenders
+    constexpr int   kFxLabelToArcGap   = 2;       // label bottom -> top of tick arc
+    constexpr int   kFxRowTopPad       = 10;      // padding above the first row
+    constexpr int   kFxRowBottomPad    = 2;       // padding below the last row
+    constexpr int   kFxRowGap          = 16;      // breathing room between stacked rows
+    constexpr int   kFxMinKnobCellWidth = 76;     // min horizontal cell per knob (drives knobs-per-row)
+    constexpr int   kFxSideInset       = 1;       // side inset = border thickness (paintBorder draws 1px)
 }
 
-static void drawModulationBox(juce::Graphics& g, juce::Rectangle<int> bounds, juce::Colour col) {
-    auto r = bounds.toFloat();
-    g.setColour(col);
-    g.drawRect(r, 1.0f);
-    float x1 = r.getX() + r.getWidth() / 3.0f;
-    float x2 = r.getX() + r.getWidth() * 2.0f / 3.0f;
-    g.drawLine(x1, r.getY(), x1, r.getBottom(), 1.0f);
-    g.drawLine(x2, r.getY(), x2, r.getBottom(), 1.0f);
+juce::Colour FxModuleTemplateView::getLabelColor(const juce::Component* control) const {
+    if (control == mix_knob_.get() || control == postgain_knob_.get())
+        return ShaderColors::kSoundModuleTextColor;
+
+    return ShaderColors::kEffectTextColor;
+}
+
+void FxModuleTemplateView::ensureLabels() {
+    for (auto* slider : all_sliders_v) {
+        if (slider_labels_.count(slider) != 0)
+            continue;
+
+        auto label = std::make_shared<PlainTextComponent>(slider->getName() + "_label", slider->getName());
+        label->setFontType(PlainTextComponent::kRegular);
+        label->setJustification(juce::Justification::centred);
+        auto* gl_slider = dynamic_cast<OpenGlSlider*>(slider);
+        bool active = gl_slider == nullptr || gl_slider->isActive();
+        const auto label_color = getLabelColor(slider);
+        label->setColor(active ? label_color : label_color.withAlpha(0.3f));
+        label->setInterceptsMouseClicks(false, false);
+        addOpenGlComponent(label);
+        slider_labels_[slider] = label;
+    }
+}
+
+void FxModuleTemplateView::updateLabels() {
+    for (auto* slider : all_sliders_v) {
+        auto it = slider_labels_.find(slider);
+        if (it == slider_labels_.end())
+            continue;
+
+        const auto b = slider->getBounds();
+        it->second->setBounds(b.getX(), b.getY() - kFxLabelHeight - kFxLabelToArcGap,
+                              b.getWidth(), kFxLabelHeight);
+        it->second->setText(slider->getName());
+        it->second->setTextSize(getLabelFont().getHeight());
+        it->second->setColor(getLabelColor(slider));
+        it->second->setVisible(slider->isEnabled());
+    }
+}
+
+// FX-only preferred height, mirroring resized()'s dynamic layout: derive the row count
+// the same way (visible controls, knobs-per-row from lane width) and size for exactly
+// that many rows plus padding. No fixed module height.
+int FxModuleTemplateView::getPreferredHeight() const {
+    const int n = (int) comps.size() + (mix_knob_ != nullptr ? 1 : 0)
+                                     + (postgain_knob_ != nullptr ? 1 : 0);
+    if (n <= 0)
+        return kFxRowTopPad + kFxRowBottomPad;
+
+    const int knobPx = std::max(1, (int) std::ceil(
+        kFxKnobScale * 2.0f * (findValue(Skin::kKnobArcSize)
+                               + findValue(Skin::kKnobArcThickness))));
+
+    const int perRow  = std::max(1, std::min(getWidth() / kFxMinKnobCellWidth, n));
+    const int numRows = (n + perRow - 1) / perRow; // matches resized()'s grouping row count
+    const int rowContentH = kFxLabelHeight + kFxLabelToArcGap + knobPx;
+
+    return kFxRowTopPad + numRows * rowContentH
+         + (numRows - 1) * kFxRowGap + kFxRowBottomPad;
+}
+
+void FxModuleTemplateView::resized() {
+    // 1. Lane width.
+    const int w = getWidth();
+
+    // 2. Shrink the FX knob/tick-arc footprint locally (raster + GL rotary). Does NOT
+    // change global skin values or shared SynthSlider constants.
+    for (auto* slider : all_sliders_v)
+        if (auto* ss = dynamic_cast<SynthSlider*>(slider))
+            ss->setKnobSizeScale(kFxKnobScale);
+
+    // 3. Rendered knob box, matched to the FX-scaled arc.
+    const int knobPx = std::max(1, (int) std::ceil(
+        kFxKnobScale * 2.0f * (findValue(Skin::kKnobArcSize)
+                               + findValue(Skin::kKnobArcThickness))));
+
+    // 4. Visible controls in order: real params, then Mix, then PostGain. No placeholders.
+    std::vector<juce::Component*> controls;
+    controls.reserve(comps.size() + 2);
+    for (auto& c : comps)
+        controls.push_back(c.get());
+    if (mix_knob_ != nullptr)
+        controls.push_back(mix_knob_.get());
+    if (postgain_knob_ != nullptr)
+        controls.push_back(postgain_knob_.get());
+
+    // 5. Knobs per row = as many as fit the lane width, clamped to [1, n].
+    const int n = (int) controls.size();
+    if (n == 0) {
+        SynthSection::resized();
+        return;
+    }
+    // perRow ignores the side inset; the inset only trims the row area used for centering.
+    const int perRow = std::max(1, std::min(w / kFxMinKnobCellWidth, n));
+
+    // 6. Row sizes. remainder becomes a smaller FIRST row so every later row (incl. the
+    // final Mix/PostGain row) is full; single-per-row when only one fits.
+    std::vector<int> rows;
+    if (perRow <= 1) {
+        rows.assign(n, 1);
+    } else {
+        const int leftover = n % perRow;
+        if (leftover != 0)
+            rows.push_back(leftover);
+        for (int placed = leftover; placed < n; placed += perRow)
+            rows.push_back(perRow);
+    }
+
+    // 7. Position controls row by row, each row centered horizontally within the inset area.
+    const int rowContentH = kFxLabelHeight + kFxLabelToArcGap + knobPx;
+    const int cellW = (w - 2 * kFxSideInset) / perRow;
+    int idx = 0;
+    int y = kFxRowTopPad;
+    for (int cnt : rows) {
+        const int startX = kFxSideInset + ((w - 2 * kFxSideInset) - cnt * cellW) / 2;
+        const int arcTop = y + kFxLabelHeight + kFxLabelToArcGap;
+        for (int c = 0; c < cnt && idx < n; ++c, ++idx) {
+            const int centreX = startX + c * cellW + cellW / 2;
+            controls[idx]->setBounds(centreX - knobPx / 2, arcTop, knobPx, knobPx);
+        }
+        y += rowContentH + kFxRowGap;
+    }
+
+    // 8. Redo slider images + labels.
+    for (auto* slider : all_sliders_v)
+        if (auto* synth_slider = dynamic_cast<SynthSlider*>(slider))
+            synth_slider->redoImage();
+    updateLabels();
+
+    // 9. Base resize.
+    SynthSection::resized();
+
+    // 10. Existing note, kept once.
+    // NOTE: Do NOT call repaintBackground() here.
+    //
+    // repaintBackground() walks up to FullInterface and stamps this view's
+    // paintBackground() (all 7 modulation boxes) into the *global* window
+    // background image. Unlike the working non-scrolled sections, an FX view
+    // lives inside the EffectModuleSection scroll viewport: its absolute bounds
+    // extend past the visible viewport and shift on scroll/reflow, and the
+    // global image is neither viewport-clipped nor cleared at the view's old
+    // position. That is what made the rectangular mod boxes escape the FX panel
+    // while scrolling and linger after a module was removed.
+    //
+    // The FX panel's visible background comes solely from the scroll-aware,
+    // viewport-scissored image baked in EffectModuleSection::redoBackgroundImage(),
+    // which the owning EffectModuleSection::resized() always rebakes after it
+    // lays out the FX views. So the scroll background stays correct without the
+    // harmful global stamp. This is FX-local: other sections still repaint
+    // normally because they are not inside a scrolling viewport.
 }
 
 void FxModuleTemplateView::paintBackground(juce::Graphics& g) {
@@ -803,30 +933,11 @@ void FxModuleTemplateView::paintBackground(juce::Graphics& g) {
     paintKnobShadows(g);
     paintChildrenBackgrounds(g);
 
-    // Dim placeholder knob face area with a dark overlay
-    g.setColour(juce::Colours::black.withAlpha(0.35f));
-    for (auto& ph : placeholders_)
-        g.fillRect(ph->getBounds());
+    // FX modulation boxes are hidden for now, but the layout still reserves their space
+    // to preserve row spacing (see mod_boxes_ / kFxModBoxHeight in resized()). The old
+    // drawModulationBox() rendering pass is intentionally omitted so no boxes are drawn.
 
-    const int labelH = 12;
-    g.setFont(Fonts::instance()->proportional_regular().withPointHeight(9.0f));
-    g.setColour(ShaderColors::kEffectTextColor);
-
-    for (auto slider : all_sliders_v) {
-        if (!slider->isEnabled()) continue;
-        auto b = slider->getBounds();
-        int labelY = b.getY() - labelH - 11;
-        g.drawText(slider->getName(), b.getX(), labelY, b.getWidth(), labelH, juce::Justification::centred, false);
-    }
-
-    // Modulation boxes — muted color for placeholder slots (indices comps.size()..kMaxEffectSlots-1)
-    // boxes that go under knobs to indicate routing
-    const juce::Colour activeBoxCol = juce::Colour::fromRGB(54, 78, 79);
-    const juce::Colour inactiveBoxCol = juce::Colour::fromRGB(54, 78, 79).withAlpha(0.5f);
-    for (int i = 0; i < (int)mod_boxes_.size(); ++i) {
-        bool isPlaceholder = (i >= (int)comps.size() && i < kMaxEffectSlots);
-        drawModulationBox(g, mod_boxes_[i], isPlaceholder ? inactiveBoxCol : activeBoxCol);
-    }
+    // Slider labels render as OpenGL PlainTextComponents (see ensureLabels/updateLabels).
 }
 
 }//naemspace bitlkavier

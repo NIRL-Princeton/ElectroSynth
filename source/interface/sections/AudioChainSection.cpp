@@ -49,7 +49,6 @@ AudioChainSection::AudioChainSection(ChainList<ProcessorBase> &chains, Modulatio
         chains_.appendChild(default_chain, nullptr);
     }
 
-    setSkinOverride(Skin::kSoundModule);
 }
 
 AudioChainSection::~AudioChainSection() {

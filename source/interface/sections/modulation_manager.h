@@ -297,7 +297,10 @@ class ModulationManager : public SynthSection,
     }
     void removed() override
     {
-        componentAdded();
+        // Defer + coalesce the modulation rebuild instead of running it inline. Calling
+        // componentAdded() synchronously from inside EffectModuleSection::removeModule's
+        // listener->removed() path re-enters the GL dispatch mid-removal and crashes.
+        scheduleComponentUpdate();
     }
     void effectsMoved() override
     {
@@ -324,6 +327,7 @@ class ModulationManager : public SynthSection,
     void showModulationAmountOverlay(ModulationAmountKnob* slider);
     void hideModulationAmountOverlay();
     void componentAdded();
+    void scheduleComponentUpdate();
 
     CriticalSection open_gl_critical_section_;
     juce::ValueTree state_;
@@ -371,7 +375,6 @@ class ModulationManager : public SynthSection,
     std::map<int, int> aux_connections_from_to_;
     std::map<int, int> aux_connections_to_from_;
     std::unique_ptr<ModulationAmountKnob> modulation_icon_[electrosynth::kMaxModulationConnections];
-    std::unique_ptr<ModulationAmountKnob> selected_modulation_sliders_[electrosynth::kMaxModulationConnections];
 
     void drawMappingMode(OpenGlWrapper& open_gl);
     bool isMappingMode() const;

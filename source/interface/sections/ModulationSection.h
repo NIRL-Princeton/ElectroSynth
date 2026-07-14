@@ -31,7 +31,7 @@ public:
     juce::ValueTree state;
     void addModButtonListener(ModulationManager*);
     void buttonClicked(juce::Button* clicked_button) override;
-    
+
     ModulationButton* getModulationButton() const { return mod_button.get(); }
     std::shared_ptr<ModulationButton> getModulationButtonPtr() const { return mod_button; }
 
