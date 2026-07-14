@@ -16,7 +16,7 @@
 //
 // } ModuleType;
 // Keep this array in exactly the same order as ModuleType in defs.h.
-const std::array<std::vector<std::string>, 9> paramsAllArray =
+const std::array<std::vector<std::string>, 10> paramsAllArray =
 {
     {
         // oscillator
@@ -120,7 +120,13 @@ const std::array<std::vector<std::string>, 9> paramsAllArray =
             "peakAmt",
             "peakFreq",
             "peakBandwidth"
-        }
+        },
+
+        // simpleNoise
+        {
+            "eventWatch",
+            "gain"
+        },
     }
 
 };

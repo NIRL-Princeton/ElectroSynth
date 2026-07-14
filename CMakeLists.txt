@@ -92,6 +92,8 @@ add_library(SharedCode INTERFACE
         source/synthesis/framework/Processors/SoftClipModuleProcessor.h
         source/synthesis/framework/Processors/NoiseModuleProcessor.cpp
         source/synthesis/framework/Processors/NoiseModuleProcessor.h
+        source/synthesis/framework/Modulators/SimpleNoiseModuleProcessor.cpp
+        source/synthesis/framework/Modulators/SimpleNoiseModuleProcessor.h
 
 
 )
