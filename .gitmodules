@@ -8,11 +8,11 @@
 	update = merge
 [submodule "third_party/leaf_modules"]
 	path = third_party/leaf_modules
-	url = git@github.com:davispolito/MappingandProcessors.git
+	url = git@github.com:NIRL-Princeton/MappingandProcessors.git
 	update = merge
 [submodule "third_party/chowdsp_utils"]
 	path = third_party/chowdsp_utils
-	url = git@github.com:davispolito/chowdsp_utilsLEAF.git
+	url = git@github.com:NIRL-Princeton/chowdsp_utilsLEAF.git
 	update = merge
 [submodule "modules/melatonin_audio_sparklines"]
 	path = modules/melatonin_audio_sparklines
