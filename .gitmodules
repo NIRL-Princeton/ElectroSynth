@@ -12,7 +12,7 @@
 	update = merge
 [submodule "third_party/chowdsp_utils"]
 	path = third_party/chowdsp_utils
-	url = git@github.com:NIRL-Princeton/chowdsp_utilsLEAF.git
+	url = git@github.com:NIRL-Princeton/chowdsp_utilsPrinceton.git
 	update = merge
 [submodule "modules/melatonin_audio_sparklines"]
 	path = modules/melatonin_audio_sparklines
