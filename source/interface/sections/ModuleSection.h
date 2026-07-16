@@ -17,38 +17,39 @@ public:
     static constexpr int kHeaderHeight = 36;
     static constexpr int kContentBottomPadding = 36;
 
+    // Drag-reorder visual states, driven by the owning lane. The wrapper only renders
+    // them; policy (which module is in which state) lives with the owner.
+    enum class DragVisual {
+        kNormal,
+        kDragged,
+        kDropTarget,
+        kDimmed
+    };
+
     ModuleSection(const juce::ValueTree &, std::unique_ptr<SynthSection> editor, juce::UndoManager& um);
 
     virtual ~ModuleSection();
     int getPreferredHeight() const override;
     int refreshHeight();
-    void repaintModuleBackground()
-    {
-        background_->lock();
-        background_image_ = juce::Image(juce::Image::RGB, getWidth(),getHeight(), true);
-        juce::Graphics g(background_image_);
-        // if (prep_view.get() != nullptr)
-            paintChildBackground(g, this);
-        background_->updateBackgroundImage(background_image_);
-        background_->unlock();
-    }
+    void setAreaSkinOverride(Skin::SectionOverride skin_override);
+    void setDragVisual(DragVisual visual);
+    void setDragAccentColor(Skin::ColorId color_id) { drag_accent_color_id_ = color_id; }
+
     void renderOpenGlComponents(OpenGlWrapper &open_gl, bool animate) override {
-        //background_->render(open_gl);
         SynthSection::renderOpenGlComponents(open_gl,animate);
     }
-    void paintBackground(Graphics& g) override;
-//    void setParametersViewEditor(electrosynth::ParametersViewEditor&&);
-    // void paintBackgroundShadow(Graphics& g) override { if (isActive()) paintTabShadow(g); }
+
     void resized() override;
+
+    void paintBackground(Graphics& g) override;
+
     void setDrawBottomSeparator(bool should_draw) {
         draw_bottom_separator_ = should_draw;
         if (bottom_separator_ != nullptr)
             bottom_separator_->setVisible(should_draw);
     }
 
-    void mouseDown(const juce::MouseEvent& e) override
-    {
-        DBG("mousedown");
+    void mouseDown(const juce::MouseEvent& e) override {
         // Right-clicks belong to the owning lane's create menu, not drag-reorder.
         if (e.mods.isPopupMenu()) {
             if (onPopupMenu) onPopupMenu(e);
@@ -60,20 +61,17 @@ public:
     }
 
     void mouseDrag(const juce::MouseEvent& e) override {
+        if (e.mods.isPopupMenu())
+            return;
         int deltaY = e.getEventRelativeTo(getParentComponent()).position.getY() - dragStartY;
         setTopLeftPosition(originalBounds.getX(), originalBounds.getY() + deltaY);
 
-        DBG("b4drag");
         isDragging = true;
         if (onDragMove) onDragMove(this, getBounds());
-        DBG("afterdrag");
     }
 
     void mouseUp(const juce::MouseEvent&) override {
-        DBG("mousseup");
-        // if(
-        if (isDragging == true&&onDragEnd) onDragEnd(this, getBounds());
-        DBG("afterup");
+        if (isDragging && onDragEnd) onDragEnd(this, getBounds());
         isDragging = false;
     }
 
@@ -101,11 +99,14 @@ public:
     bool hover_;
     int height = 100;
 
-    void setAreaSkinOverride(Skin::SectionOverride skin_override);
-
 private:
     bool isDragging = false;
     bool draw_bottom_separator_ = false;
+    DragVisual drag_visual_ = DragVisual::kNormal;
+    Skin::ColorId drag_accent_color_id_ = Skin::kWidgetPrimary1;
+    std::shared_ptr<OpenGlQuad> body_fill_;
+    std::shared_ptr<OpenGlQuad> tint_overlay_;
+    std::shared_ptr<OpenGlQuad> highlight_border_;
     juce::Image background_image_;
     std::unique_ptr<SynthSection> _view;
     std::vector<Listener*> listeners_;

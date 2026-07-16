@@ -11,6 +11,11 @@
 #include "EffectList.h"
 
 namespace {
+// Drag-mode boundary bands between adjacent non-dragged modules: pool size and
+// band height (centered on the shared module edge, in logical units).
+constexpr int kMaxDragBoundaryBands = 16;
+constexpr int kDragBoundaryBandHeight = 8;
+
 class FxAddButtonBackground final : public OpenGlImageComponent {
 public:
     FxAddButtonBackground() : OpenGlImageComponent("effect_add_button_background") {
@@ -99,6 +104,29 @@ ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRect
     addOpenGlComponent(border_overlay_);
     addOpenGlComponent(border_overlay_second_pass_);
 
+    // Drop-location preview: a translucent FX-accent region filling the gap where the
+    // dragged module will land. Owned by the container so it renders above the baked
+    // scroll image and non-dragged modules, but below the always-on-top dragged module.
+    insertion_region_ = std::make_shared<OpenGlQuad>(Shaders::kRoundedRectangleFragment,
+                                                     "effect_insertion_region");
+    insertion_region_->setInterceptsMouseClicks(false, false);
+    insertion_region_->setAlpha(0.0f, true);
+    insertion_region_->setScissorComponent(&viewport_);
+    container_->addOpenGlComponent(insertion_region_);
+
+    // Drag-mode boundary bands: one thin translucent FX-accent band per boundary
+    // between adjacent non-dragged modules. Same container GL layer as the
+    // insertion region, so they render above the dimmed modules' overlays but
+    // below the always-on-top dragged module.
+    drag_boundary_bands_ = std::make_shared<OpenGlMultiQuad>(kMaxDragBoundaryBands,
+                                                             Shaders::kColorFragment,
+                                                             "effect_drag_boundary_bands");
+    drag_boundary_bands_->setInterceptsMouseClicks(false, false);
+    drag_boundary_bands_->setAlpha(0.0f, true);
+    drag_boundary_bands_->setNumQuads(0);
+    drag_boundary_bands_->setScissorComponent(&viewport_);
+    container_->addOpenGlComponent(drag_boundary_bands_);
+
     toggle_button_->setVisible(false);
     setInterceptsMouseClicks(true,true);
 
@@ -140,36 +168,77 @@ void EffectModuleSection::setEffectPositions() {
     if (getWidth() <= 0 || getHeight() <= 0)
         return;
 
+    // Capture the scroll position before any layout: moving/resizing the container
+    // makes the viewport recompute its stored position, so reading it afterwards
+    // (the old "preserve scroll" pattern) returned an already-clobbered value.
+    const auto view_position = viewport_.getViewPosition();
+
     // No vertical gap between stacked FX modules (FX-local; SoundModuleSection unaffected).
     int padding = 0;
     int start_y = 0;
+    juce::Rectangle<int> gap_bounds;
+    // Boundaries between two adjacent non-dragged modules; edges touching the
+    // insertion gap are excluded (the gap region itself marks those).
+    std::vector<int> boundary_ys;
+    bool previous_was_module = false;
 
     for (int i = 0; i < module_sections.size(); ++i) {
-        // If placeholder is before this section, shift this section down
-        int y = start_y;
-        if ( i == placeholderIndex) {
-            y += placeholderHeight;
+        ModuleSection* section = module_sections[i].get();
+
+        // During a drag the dragged module floats at its pointer-driven position;
+        // its slot in the stack stays open as the insertion gap.
+        if (section == dragged_module_) {
+            gap_bounds = { 0, start_y, getWidth(), section->height };
+            start_y += section->height + padding;
+            previous_was_module = false;
+            continue;
         }
+
+        if (previous_was_module)
+            boundary_ys.push_back(start_y);
+        previous_was_module = true;
 
         // Size each FX module from its contained view's dynamic row layout instead of the
         // full viewport height. Set bounds once first so the FX view gets its width and can
         // compute a width-dependent row count, then read the preferred height and apply it.
         // (FX-local: SoundModuleSection sizes its modules separately.)
-        module_sections[i]->setBounds(0, y, getWidth(), module_sections[i]->height);
-        module_sections[i]->height = module_sections[i]->getPreferredHeight();
-        module_sections[i]->setDrawBottomSeparator(i + 1 < module_sections.size());
-        module_sections[i]->setBounds(0, y, getWidth(), module_sections[i]->height);
-        start_y = y + module_sections[i]->height + padding;
+        section->setBounds(0, start_y, getWidth(), section->height);
+        section->height = section->getPreferredHeight();
+        section->setDrawBottomSeparator(i + 1 < module_sections.size());
+        section->setBounds(0, start_y, getWidth(), section->height);
+        start_y += section->height + padding;
     }
 
-    // Update container height to include placeholder
-    int totalHeight = start_y;
-    if (placeholderIndex >= 0) {
-        totalHeight += placeholderHeight + padding;
+    // setSize (not setBounds): the container's origin belongs to the viewport's scroll
+    // logic; any explicit origin here was immediately overwritten by setViewPosition.
+    container_->setSize(viewport_.getWidth(), start_y);
+    viewport_.setViewPosition(view_position);
+
+    if (insertion_region_ != nullptr) {
+        if (dragged_module_ != nullptr && !gap_bounds.isEmpty())
+            insertion_region_->setBounds(gap_bounds);  // container coordinates
+        else
+            insertion_region_->setAlpha(0.0f);
     }
 
-    container_->setBounds(0, getTitleWidth(), viewport_.getWidth(), totalHeight);
-    viewport_.setViewPosition(viewport_.getViewPosition());  // preserve scroll
+    if (drag_boundary_bands_ != nullptr) {
+        const int num_bands = std::min((int)boundary_ys.size(), kMaxDragBoundaryBands);
+        if (dragged_module_ != nullptr && num_bands > 0 && start_y > 0) {
+            // The multi-quad spans the whole container; each band is placed in the
+            // quad's normalized GL space (y up, so the component top maps to +1).
+            drag_boundary_bands_->setBounds(0, 0, viewport_.getWidth(), start_y);
+            drag_boundary_bands_->setNumQuads(num_bands);
+            const float total_height = (float)start_y;
+            const float band_height_gl = 2.0f * kDragBoundaryBandHeight / total_height;
+            for (int i = 0; i < num_bands; ++i) {
+                const float band_bottom = boundary_ys[i] + kDragBoundaryBandHeight / 2.0f;
+                drag_boundary_bands_->setQuad(i, -1.0f, 1.0f - 2.0f * band_bottom / total_height,
+                                              2.0f, band_height_gl);
+            }
+        }
+        else
+            drag_boundary_bands_->setNumQuads(0);
+    }
 }
 
 
@@ -211,106 +280,13 @@ std::map<std::string, SynthSlider *> EffectModuleSection::getAllSliders() {
 void EffectModuleSection::moduleAdded(ProcessorBase *newModule) {
     auto module_section = std::make_unique<ModuleSection>(newModule->state,std::move (newModule->createEditor()), undo);
     module_section->setAreaSkinOverride(Skin::kFx);
+    module_section->setDragAccentColor(Skin::kFXAccent);
     module_section->height = 300;
     module_section->onDragMove = [this](ModuleSection* dragged, juce::Rectangle<int> bounds) {
-        int midY = bounds.getCentreY();
-
-        int targetIndex = 0;
-        int currModuleSection;
-        for (int i = 0; i < (int)module_sections.size(); ++i) {
-            if (module_sections[i].get() ==  dragged) {
-                currModuleSection = 0;
-                break;
-            }
-            // targetIndex = i + 1;
-        }
-        for (int i = 0; i < (int)module_sections.size(); ++i) {
-            if (midY < module_sections[i]->getBounds().getCentreY()) {
-                targetIndex = i;
-                break;
-            }
-            targetIndex = i + 1;
-        }
-
-
-        placeholderHeight = dragged->height;
-        reorderTargetIndex = targetIndex;
-        // // Update layout to show gap
-        if(placeholderIndex!= targetIndex) {
-            placeholderIndex = targetIndex;
-            auto it = std::find_if(module_sections.begin(), module_sections.end(),
-                              [dragged](auto& p) { return p.get() == dragged; });
-
-            if (it != module_sections.end()) {
-                auto target_it = module_sections.begin() + reorderTargetIndex;
-
-                if (it < target_it) std::rotate(it, it + 1, target_it);
-                else std::rotate(target_it, it, it + 1);
-
-                dragged->setAlwaysOnTop(false);
-            }
-
-            // Clear temporary placeholder
-            // placeholderIndex = -1;
-            placeholderHeight = dragged->height;
-
-            // Finalize positions
-            // setEffectPositions();
-            if (getWidth() <= 0 || getHeight() <= 0)
-                return;
-
-            // No vertical gap between stacked FX modules (see setEffectPositions).
-            int padding = 0;
-            int start_y = 0;
-
-            for (int i = 0; i < module_sections.size(); ++i) {
-                // If placeholder is before this section, shift this section down
-                int y = start_y;
-                if ( i == placeholderIndex) {
-                    start_y += placeholderHeight;
-                    continue;
-                }
-
-                module_sections[i]->setBounds(0, y, getWidth(), module_sections[i]->height);
-                start_y = y + module_sections[i]->height + padding;
-            }
-
-            // Update container height to include placeholder
-            int totalHeight = start_y;
-            if (placeholderIndex >= 0) {
-                totalHeight += placeholderHeight + padding;
-            }
-
-            container_->setBounds(0, getTitleWidth(), viewport_.getWidth(), totalHeight);
-            viewport_.setViewPosition(viewport_.getViewPosition());  // preserve scroll
-            // setEffectPositions();
-        }
-
-
-        dragged->setAlwaysOnTop(true);
-        reorderTargetIndex = targetIndex;
+        updateDragSession(dragged, bounds);
     };
-
-
     module_section->onDragEnd = [this](ModuleSection* dragged, juce::Rectangle<int>) {
-        auto it = std::find_if(module_sections.begin(), module_sections.end(),
-                               [dragged](auto& p) { return p.get() == dragged; });
-
-        if (it != module_sections.end()) {
-            auto target_it = module_sections.begin() + reorderTargetIndex;
-
-            if (it < target_it) std::rotate(it, it + 1, target_it);
-            else std::rotate(target_it, it, it + 1);
-
-            dragged->setAlwaysOnTop(false);
-        }
-
-        // Clear temporary placeholder
-        reorderTargetIndex = -1;
-        placeholderHeight = 0;
-
-        // Finalize positions
-        setEffectPositions();
+        endDragSession(dragged);
     };
 
     { juce::ScopedLock lock(open_gl_critical_section_);
@@ -390,7 +366,10 @@ void EffectModuleSection::resized() {
         scroll_bar_->setBounds(getWidth() - large_padding, header_height + large_padding,
                                large_padding - 2,
                                std::max(0, getHeight() - header_height - (large_padding + 2 * shadow_width)));
-        scroll_bar_->setColor(ShaderColors::kEffectTextColor);
+        // Match the shared audio-chain scrollbar instead of using the FX accent.
+        // The look-and-feel stores the global skin values, so this remains theme-aware
+        // without resolving through this section's red Skin::kFx override.
+        scroll_bar_->setColor(getLookAndFeel().findColour(Skin::kWidgetPrimary1));
 
         // Clip every live child to the FX viewport while scrolling, matching
         // SoundModuleSection::resized(). Without this, scrolled FX child content is not
@@ -482,6 +461,11 @@ void EffectModuleSection::removeModule(ProcessorBase *newModule) {
 
     ModuleSection* section = it->get();
 
+    // A removal mid-drag (undo/redo or external state change) must not leave stale
+    // drag visuals or a dangling dragged-module pointer.
+    if (dragged_module_ != nullptr)
+        clearDragSession();
+
     // Make invisible before any rebake: paintChildrenBackgrounds skips invisible
     // children, so the removed module is excluded from the scroll background.
     section->setVisible(false);
@@ -519,6 +503,170 @@ void EffectModuleSection::removeModule(ProcessorBase *newModule) {
 }
 
 void EffectModuleSection::moduleListChanged() {
+}
+
+int EffectModuleSection::indexOfModuleSection(const ModuleSection* section) const {
+    for (int i = 0; i < (int)module_sections.size(); ++i) {
+        if (module_sections[i].get() == section)
+            return i;
+    }
+    return -1;
+}
+
+void EffectModuleSection::beginDragSession(ModuleSection* dragged) {
+    dragged_module_ = dragged;
+    drop_target_module_ = nullptr;
+    dragged->setAlwaysOnTop(true);
+    // Keep the dragged module out of the baked scroll image: its live GL content and
+    // ModuleSection body-fill quad represent it while it floats.
+    container_->setBakeExcludedChild(dragged);
+
+    for (auto& section : module_sections)
+        section->setDragVisual(section.get() == dragged ? ModuleSection::DragVisual::kDragged
+                                                        : ModuleSection::DragVisual::kDimmed);
+
+    insertion_region_->setColor(findColour(Skin::kFXAccent, true));
+    insertion_region_->setRounding(std::max(0.5f, findValue(Skin::kBodyRounding)));
+    insertion_region_->setAlpha(0.18f);
+
+    // Boundary bands share the insertion region's accent and translucency.
+    drag_boundary_bands_->setColor(findColour(Skin::kFXAccent, true));
+    drag_boundary_bands_->setAlpha(0.18f);
+
+    // Keep mouseDrag firing while the pointer rests near a viewport edge so
+    // autoScroll continues without pointer movement.
+    juce::Component::beginDragAutoRepeat(16);
+
+    setEffectPositions();
+    redoBackgroundImage();
+}
+
+void EffectModuleSection::updateDragSession(ModuleSection* dragged, juce::Rectangle<int> bounds) {
+    if (dragged_module_ == nullptr)
+        beginDragSession(dragged);
+    if (dragged != dragged_module_)
+        return;
+
+    // Scroll when the pointer nears the top/bottom of the viewport. All reorder
+    // geometry below is container-relative, so scrolling needs no compensation.
+    // A generous activation border suits these tall modules; autoScroll also keeps
+    // scrolling while the pointer is past the viewport edge (e.g. over the footer).
+    const auto mouse_in_viewport = viewport_.getMouseXYRelative();
+    viewport_.autoScroll(mouse_in_viewport.x, mouse_in_viewport.y, 40, 8);
+
+    int index = indexOfModuleSection(dragged);
+    if (index < 0)
+        return;
+
+    // Edge-crossing reorder: the dragged module pushes neighbors out of the way.
+    // Layout is refreshed after each swap so the next comparison uses live bounds.
+    // The margin adds hysteresis: for similar-height modules the swap-down and
+    // swap-back thresholds otherwise land on the same pixel and 1px of jitter
+    // (e.g. scroll rounding) makes neighbors flutter between slots.
+    static constexpr int kSwapHysteresis = 8;
+    bool moved = false;
+    while (index + 1 < (int)module_sections.size()
+           && bounds.getBottom() > module_sections[index + 1]->getBounds().getCentreY() + kSwapHysteresis) {
+        std::swap(module_sections[index], module_sections[index + 1]);
+        ++index;
+        moved = true;
+        setEffectPositions();
+    }
+    while (index > 0
+           && bounds.getY() < module_sections[index - 1]->getBounds().getCentreY() - kSwapHysteresis) {
+        std::swap(module_sections[index], module_sections[index - 1]);
+        --index;
+        moved = true;
+        setEffectPositions();
+    }
+    if (moved)
+        redoBackgroundImage();
+
+    // The neighbor currently being overlapped (the next module to be displaced)
+    // gets the subtle drop-target accent.
+    ModuleSection* target = nullptr;
+    if (index + 1 < (int)module_sections.size()
+        && bounds.getBottom() > module_sections[index + 1]->getBounds().getY())
+        target = module_sections[index + 1].get();
+    else if (index > 0
+             && bounds.getY() < module_sections[index - 1]->getBounds().getBottom())
+        target = module_sections[index - 1].get();
+
+    if (target != drop_target_module_) {
+        if (drop_target_module_ != nullptr)
+            drop_target_module_->setDragVisual(ModuleSection::DragVisual::kDimmed);
+        if (target != nullptr)
+            target->setDragVisual(ModuleSection::DragVisual::kDropTarget);
+        drop_target_module_ = target;
+    }
+}
+
+void EffectModuleSection::endDragSession(ModuleSection* dragged) {
+    if (dragged != dragged_module_) {
+        clearDragSession();
+        return;
+    }
+
+    const int ui_index = indexOfModuleSection(dragged);
+    clearDragSession();
+
+    // Persist the previewed order: exactly one ValueTree move per drop, through the
+    // undo manager. The resulting moduleOrderChanged() callback re-syncs
+    // module_sections to tree order (a no-op sort here, but it also serves undo/redo).
+    // NOTE: DSP processing order is intentionally not updated yet (deferred); the
+    // audible chain follows tree order again after preset/state reload.
+    juce::ValueTree parent_tree = dragged->state.getParent();
+    const int tree_index = parent_tree.indexOf(dragged->state);
+    if (ui_index < 0 || tree_index < 0)
+        return;
+
+    // Map the desired UI slot to a raw child index in the parent tree. Anchoring on
+    // the following module's state keeps this correct even if the tree ever holds
+    // non-module children.
+    int new_tree_index;
+    if (ui_index + 1 < (int)module_sections.size()) {
+        const int next_raw = parent_tree.indexOf(module_sections[ui_index + 1]->state);
+        if (next_raw < 0)
+            return;
+        new_tree_index = tree_index < next_raw ? next_raw - 1 : next_raw;
+    }
+    else
+        new_tree_index = parent_tree.getNumChildren() - 1;
+
+    if (new_tree_index != tree_index) {
+        undo.beginNewTransaction();
+        list.moveChild(tree_index, new_tree_index, &undo);
+    }
+}
+
+void EffectModuleSection::clearDragSession() {
+    for (auto& section : module_sections)
+        section->setDragVisual(ModuleSection::DragVisual::kNormal);
+    if (dragged_module_ != nullptr)
+        dragged_module_->setAlwaysOnTop(false);
+    container_->setBakeExcludedChild(nullptr);
+    dragged_module_ = nullptr;
+    drop_target_module_ = nullptr;
+    insertion_region_->setAlpha(0.0f);
+    drag_boundary_bands_->setAlpha(0.0f);
+    drag_boundary_bands_->setNumQuads(0);
+    juce::Component::beginDragAutoRepeat(0);
+
+    setEffectPositions();
+    redoBackgroundImage();
+}
+
+void EffectModuleSection::moduleOrderChanged() {
+    {
+        juce::ScopedLock lock(open_gl_critical_section_);
+        std::stable_sort(module_sections.begin(), module_sections.end(),
+                         [](const auto& a, const auto& b) {
+                             juce::ValueTree parent = a->state.getParent();
+                             return parent.indexOf(a->state) < parent.indexOf(b->state);
+                         });
+    }
+    setEffectPositions();
+    redoBackgroundImage();
 }
 // void EffectModuleSection::renderOpenGlComponents(OpenGlWrapper &open_gl, bool animate) {
 //     ScopedLock lock(open_gl_critical_section_);

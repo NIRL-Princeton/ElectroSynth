@@ -22,10 +22,26 @@ class ModulesContainer : public SynthSection {
     void resized() override {
             SynthSection::resized();
         }
+
+    // A live-dragged module is excluded from the baked scroll image: its CPU-painted
+    // body/shadows would otherwise be stamped at a stale position while its live GL
+    // content moves with the pointer.
+    void setBakeExcludedChild(SynthSection* child) { bake_excluded_child_ = child; }
+
     void paintBackground(Graphics& g) override {
-            paintChildrenShadows(g);
-            paintChildrenBackgrounds(g);
+            for (auto& sub_section : sub_sections_) {
+                if (sub_section->isVisible() && sub_section != bake_excluded_child_)
+                    paintChildShadow(g, sub_section);
+            }
+            for (auto& sub_section : sub_sections_) {
+                if (sub_section->isVisible() && sub_section != bake_excluded_child_)
+                    paintChildBackground(g, sub_section);
+            }
+            paintOpenGlChildrenBackgrounds(g);
         }
+
+    private:
+        SynthSection* bake_excluded_child_ = nullptr;
 };
 
 class EffectsViewport : public juce::Viewport {
