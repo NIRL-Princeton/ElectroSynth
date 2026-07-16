@@ -4,7 +4,7 @@
 
 #include "SimpleNoiseModuleProcessor.h"
 #include "sound_engine.h"
-#include  "LFOModule.h"
+
 SimpNoiseModuleProcessor::SimpNoiseModuleProcessor(electrosynth::SoundEngine* engine,juce::ValueTree& vt, LEAF* leaf,juce::UndoManager *um)
     :ModulatorStateBase(engine,leaf,vt ,um)
 {
