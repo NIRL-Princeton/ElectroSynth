@@ -26,25 +26,20 @@ juce::String electrosynth::utils::harmonicValToString(float harmonic)
         return juce::String(round(harmonic));
 }
 OscillatorModuleProcessor::OscillatorModuleProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree &v, LEAF *leaf,juce::UndoManager* um) :ProcessorStateBase(engine,leaf,v,um)
-
-
 {
-
-    callbacks += {
-        state_.addParameterListener (*state_.params.oscType, chowdsp::ParameterListenerThread::AudioThread, [this] {
-            auto theType = state_.params.oscType.get();
-            float val =  (float)theType->getIndex() / (float)OscTypes::OscNumTypes;
-            for (auto mod: state_.params.modules) {
-                tOscModule_setParameter(mod, OscType,val);
-                tOscModule_setParameter(mod, OscShapeParam, *mod->header.params[OscShapeParam]);
-
-            //also need to update the shape since the new oscillator type will default to its initial shape instead
-            }
-
-
-
-        })
-    };
+    // callbacks += {
+    //     state_.addParameterListener (*state_.params.oscType, chowdsp::ParameterListenerThread::AudioThread, [this] {
+    //         auto theType = state_.params.oscType.get();
+    //         //float val =  (float)theType->getIndex() / (float)OscTypes::OscNumTypes;
+    //         float val = theType->getCurrentValue();
+    //         for (auto mod: state_.params.modules) {
+    //             tOscModule_setParameter(mod, OscType,val);
+    //             tOscModule_setParameter(mod, OscShapeParam, *mod->header.params[OscShapeParam]);
+    //
+    //         //also need to update the shape since the new oscillator type will default to its initial shape instead
+    //         }
+    //     })
+    // };
 
    //tOscModule_init(static_cast<void*>(module), {0, 0}, id, leaf)
     //tOscModule_processorInit(state_.params.module, &processor);
