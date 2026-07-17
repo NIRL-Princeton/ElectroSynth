@@ -56,18 +56,9 @@ AudioChainSection::~AudioChainSection() {
 }
 
 void AudioChainSection::paintBackground(juce::Graphics &g) {
-    {
-        static constexpr float kAudioChainBorderWidth = 20.0f;
-
-        g.setColour(findColour(Skin::kBody, true));
-        g.fillRoundedRectangle(getLocalBounds().toFloat(), findValue(Skin::kBodyRounding));
-        g.setColour(findColour(Skin::kBorder, true));
-
-        g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(kAudioChainBorderWidth * 0.5f),
-                               findValue(Skin::kBodyRounding), kAudioChainBorderWidth);
-
-        redoBackgroundImage();
-    }
+    paintBody(g);
+    paintBorder(g);
+    redoBackgroundImage();
 }
 
 void AudioChainSection::redoBackgroundImage() {
@@ -85,9 +76,9 @@ void AudioChainSection::redoBackgroundImage() {
 }
 
 void AudioChainSection::resized() {
-    static constexpr float kEffectOrderWidthPercent = 0.2f;
-    static constexpr int kScrollBarInset = 5;
-    static constexpr int kScrollBarWidth = 7;
+
+    static constexpr int kScrollBarInset = 2;
+    static constexpr int kScrollBarWidth = 5;
     ScopedLock lock(open_gl_critical_section_);
 
     int large_padding = findValue(Skin::kLargePadding);
@@ -97,7 +88,7 @@ void AudioChainSection::resized() {
 
     setEffectPositions();
     const int scroll_bar_height = std::max(0, static_cast<int>(getHeight() - getTitleWidth() - (large_padding + 2 * shadow_width)));
-    scroll_bar_->setBounds(getWidth() - kScrollBarInset - kScrollBarWidth, getTitleWidth() + large_padding, kScrollBarWidth, scroll_bar_height);
+    scroll_bar_->setBounds((kScrollBarInset + kScrollBarWidth/2), getTitleWidth() + large_padding, kScrollBarWidth, scroll_bar_height);
     scroll_bar_->setColor(findColour(Skin::kWidgetPrimary1, true));
     scroll_bar_->setVisible(container_->getHeight() > viewport_.getHeight());
 
@@ -182,9 +173,7 @@ void AudioChainSection::setEffectPositions() {
 
     int padding = getPadding();
     int large_padding = findValue(Skin::kLargePadding);
-    int shadow_width = getComponentShadowWidth();
-    int start_x = large_padding - shadow_width;
-    int effect_width = getWidth() - start_x - large_padding;
+    int effect_width = getWidth();
     int knob_section_height = getKnobSectionHeight();
     int widget_margin = findValue(Skin::kWidgetMargin);
     int effect_height =  knob_section_height + getTitleWidth()*4 - widget_margin;

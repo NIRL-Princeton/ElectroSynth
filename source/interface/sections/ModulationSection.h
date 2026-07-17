@@ -29,7 +29,7 @@ public:
     //void setAllValues(vital::control_map& controls) override;
     //void setFilterActive(bool active);
     juce::ValueTree state;
-    void addModButtonListener(ModulationManager*);
+    void addModButtonListener(ModulationManager*) const;
     void buttonClicked(juce::Button* clicked_button) override;
 
     ModulationButton* getModulationButton() const { return mod_button.get(); }

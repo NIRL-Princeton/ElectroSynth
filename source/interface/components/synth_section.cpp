@@ -117,7 +117,6 @@ void SynthSection::paintHeadingText(Graphics& g) {
 void SynthSection::paintBackground(Graphics& g) {
   paintContainer(g);
   paintHeadingText(g);
-
   paintKnobShadows(g);
   paintChildrenBackgrounds(g);
   paintBorder(g);
@@ -158,8 +157,9 @@ void SynthSection::paintBody(Graphics& g, Rectangle<int> bounds) {
 }
 
 void SynthSection::paintBorder(Graphics& g, Rectangle<int> bounds) {
-  int body_rounding = findValue(Skin::kBodyRounding);
-  g.drawRoundedRectangle(bounds.toFloat().reduced(0.5f), body_rounding, 1.0f);
+    int body_rounding = findValue(Skin::kBodyRounding);
+    g.setColour(findColour(Skin::kBodyText, true));
+    g.drawRoundedRectangle(bounds.toFloat().reduced(0.5f), body_rounding, 1.0f);
 }
 
 void SynthSection::paintBody(Graphics& g) {

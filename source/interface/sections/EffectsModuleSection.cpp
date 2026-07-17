@@ -361,7 +361,7 @@ void EffectModuleSection::resized() {
     if (isExpanded()) {
         viewport_.setVisible(true);
         container_->setVisible(true);
-        viewport_.setBounds(0, header_height, getWidth(), std::max(0, getHeight() - header_height - 2));
+        viewport_.setBounds(0,getTitleWidth(),getWidth(),getHeight()-getTitleWidth()-2);
         setEffectPositions();
         scroll_bar_->setBounds(getWidth() - large_padding, header_height + large_padding,
                                large_padding - 2,
@@ -773,16 +773,16 @@ void EffectModuleSection::redoBackgroundImage() {
     background_graphics.fillAll(background);
     if (isExpanded())
         container_->paintBackground(background_graphics);
+    background_graphics.setColour(juce::Colours::aliceblue);
+    background_graphics.fillRect(juce::Rectangle<float>(0.0f, 0.0f, 1.0f, (float)height));
+    background_graphics.fillRect(juce::Rectangle<float>((float)width - 1.0f, 0.0f, 1.0f, (float)height));
     background_.setOwnImage(background_image);
 }
 
 void EffectModuleSection::paintBackground(Graphics &g) {
-    g.setColour(findColour(Skin::kBody, true));
-    g.fillRoundedRectangle(getLocalBounds().toFloat(), findValue(Skin::kBodyRounding));
-    g.setColour(findColour(Skin::kBorder, true));
-    g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(0.5f), findValue(Skin::kBodyRounding), 1.0f);
 
     paintBody(g);
 
+    paintBorder(g);
     redoBackgroundImage();
 }

@@ -16,55 +16,6 @@
 #include "EffectList.h"
 #include "modulation_manager.h"
 #include "FullInterface.h"
-MasterVoiceEnvelopeSection:: MasterVoiceEnvelopeSection(const juce::ValueTree& v, juce::UndoManager &um, OpenGlWrapper &open_gl,
-                                                        SynthGuiData * data, std::unique_ptr<SynthSection>&& view) : SynthSection("MasterEnv"), mod_button(std::make_unique<ModulationButton>("mod_masterenv")), master_voice_envelope(std::move(view)) {
-    setName("Master Voice Envelope");
-    setSkinOverride(Skin::kMasterEnv);
-    setSidewaysHeading(false);
-    header_body_ = std::make_shared<OpenGlQuad>(Shaders::kColorFragment, "master_voice_envelope_header");
-    header_body_->setInterceptsMouseClicks(false, false);
-    addOpenGlComponent(header_body_, true);
-
-    header_title_ = std::make_shared<PlainTextComponent>("master_voice_envelope_title", getName());
-    header_title_->setFontType(PlainTextComponent::kLight);
-    header_title_->setJustification(juce::Justification::centred);
-    header_title_->setInterceptsMouseClicks(false, false);
-    addOpenGlComponent(header_title_);
-
-    master_voice_envelope->setName("VCA");
-    setComponentID(master_voice_envelope->getName());
-    master_voice_envelope->setSkinOverride(Skin::kMasterEnv);
-    addSubSection(master_voice_envelope.get());
-    if (auto* parameters = dynamic_cast<electrosynth::ParametersView*>(master_voice_envelope.get()))
-        parameters->setVerticallyCenterKnobs(true);
-    addModulationButton(mod_button);
-    addAndMakeVisible(mod_button.get());
-    mod_button->setAlwaysOnTop(true);
-}
-
-void MasterVoiceEnvelopeSection::resized() {
-    const int title_width = static_cast<int>(getTitleWidth());
-    const int content_height =
-        std::max(0, getHeight() - title_width - ModulationModuleSection::kTabStripHeight);
-    master_voice_envelope->setBounds(0, title_width, getWidth(), content_height);
-    mod_button->setBounds(0, title_width, 40, 40);
-    SynthSection::resized();
-
-    header_body_->setBounds(0, 0, getWidth(), title_width);
-    header_body_->setColor(findColour(Skin::kBodyHeading, true));
-    header_title_->setBounds(0, 0, getWidth(), title_width);
-    header_title_->setText(getName());
-    header_title_->setTextSize(size_ratio_ * 14.0f);
-    header_title_->setColor(findColour(Skin::kHeadingText, true));
-}
-
-void MasterVoiceEnvelopeSection::paintBackground(Graphics &g) {
-    paintContainer(g);
-    paintKnobShadows(g);
-    paintChildrenBackgrounds(g);
-    g.setColour(findColour(Skin::kBorder, true));
-    paintBorder(g);
-}
 
 MainSection::MainSection(const juce::ValueTree& v, juce::UndoManager &um, OpenGlWrapper & open_gl,
     SynthGuiData* data, ModulationManager* modulation_manager) : SynthSection("main_section"), v(v), um(um) {
@@ -83,8 +34,9 @@ MainSection::MainSection(const juce::ValueTree& v, juce::UndoManager &um, OpenGl
     addSubSection(effects_section_2.get());
 
     master_voice_envelope_section = std::make_unique<MasterVoiceEnvelopeSection>(v, um, open_gl, data,std::move(data->synth->getEngine()->MasterVoiceEnvelopeProcessor->createEditor()));
-    addSubSection(master_voice_envelope_section.get());
     master_voice_envelope_section->mod_button->addListener(modulation_manager);
+    modulation_interface->setVCAModulationSection(master_voice_envelope_section.get(),
+                                                      master_voice_envelope_section->mod_button);
 
     modulation_interface->onExpandChanged = [this]{resized();};
     //addAndMakeVisible(constructionPort);
@@ -101,33 +53,35 @@ MainSection::MainSection(const juce::ValueTree& v, juce::UndoManager &um, OpenGl
 
 void MainSection::paintBackground(juce::Graphics& g) {
     paintBody(g);
-    // paintChildBackground(g,master_voice_envelope_section.get());
     paintChildrenBackgrounds(g);
-    // paintKnobShadows(g);
 }
 
 void MainSection::resized() {
 
-    int height = getHeight();
-    int width = getWidth();
-    int padding = getPadding()*size_ratio_;
-
-
+    const int height = getHeight();
+    const int width = getWidth();
+    const int padding = static_cast<int>(getPadding() * size_ratio_);
     const int bottom_row_height = static_cast<int>(size_ratio_ * 200);
-    const int bottom_row_y = height - bottom_row_height;
-    const int master_envelope_width = bottom_row_height + 265;
-    const int master_envelope_x = width - master_envelope_width ;
-    const int top_section_height = std::max(0, bottom_row_y - padding);
+    const int content_x = padding;
+    const int content_y = padding;
+    const int content_width = std::max(0, width - 2 * padding);
+    const int content_height = std::max(0, height - 2 * padding);
+    const int modulation_y = height - padding - bottom_row_height;
+    const int top_left_height = std::max(0, modulation_y - content_y - padding);
 
-    int sound_interface_width = 2*width/3- padding*2;
-    int all_effects_width = getWidth() - sound_interface_width;
-    sound_interface->setBounds(padding, padding, sound_interface_width, top_section_height);
-    effects_section_0->setBounds(sound_interface->getRight() + padding, padding, (all_effects_width-3*padding)/3, top_section_height);
-    effects_section_1->setBounds(effects_section_0->getRight() + padding, padding, (all_effects_width-3*padding)/3, top_section_height);
-    effects_section_2->setBounds(effects_section_1->getRight() + padding, padding, (all_effects_width-3*padding)/3, top_section_height);
+    const int left_column_width = std::max(0, (content_width * 2 - padding) / 3);
+    const int fx_x = content_x + left_column_width + padding;
+    const int fx_total_width = std::max(0, content_width - left_column_width - padding);
+    const int fx_width = std::max(0, (fx_total_width - 2 * padding) / 3);
 
-    modulation_interface->setBounds(padding, bottom_row_y, master_envelope_x - 4 * padding, bottom_row_height);
-    master_voice_envelope_section->setBounds(master_envelope_x, bottom_row_y, master_envelope_width - 2 * padding, bottom_row_height);
+    sound_interface->setBounds(content_x, content_y, left_column_width, top_left_height);
+    modulation_interface->setBounds(content_x, modulation_y, left_column_width, bottom_row_height);
+
+    effects_section_0->setBounds(fx_x, content_y, fx_width, content_height);
+    effects_section_1->setBounds(effects_section_0->getRight() + padding, content_y, fx_width, content_height);
+    effects_section_2->setBounds(effects_section_1->getRight() + padding, content_y,
+                                 std::max(0, content_x + content_width - effects_section_1->getRight() - padding),
+                                 content_height);
 
 }
 

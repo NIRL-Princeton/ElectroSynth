@@ -81,19 +81,12 @@ ModulationModuleSection::ModulationModuleSection(ModulationManager *modulation_m
     addAndMakeVisible(scroll_bar_.get());
     addOpenGlComponent(scroll_bar_->getGlComponent());
     scroll_bar_->addListener(this);
+
     setSkinOverride(Skin::kModulation);
-    //Skin default_skin;
-    //setSkinValues(default_skin,false);
     viewport_.setScrollBarPosition(false,true);
     viewport_.setScrollBarsShown(false, false, false, true);
 
     addListener(modulation_manager);
-
-    if (list.state.getNumChildren() == 0) {
-        juce::ValueTree default_envelope(IDs::MODULATOR);
-        default_envelope.setProperty(IDs::type, "env", nullptr);
-        list.appendChild(default_envelope, nullptr);
-    }
 
     //setInterceptsMouseClicks(false, true);
 }
@@ -102,9 +95,28 @@ ModulationModuleSection::~ModulationModuleSection() {
     module_sections.clear();
 }
 
+int ModulationModuleSection::getVisibleTabCount() const {
+    return static_cast<int>(module_sections.size()) + (hasVCATab() ? 1 : 0);
+}
+
+void ModulationModuleSection::setVCAModulationSection(SynthSection* section, std::shared_ptr<ModulationButton> mod_button) {
+    master_env_section_ = section;
+    master_env_button_ = std::move(mod_button);
+
+    if (master_env_section_ != nullptr) {
+        container_->addSubSection(master_env_section_);
+        if (master_env_button_ != nullptr)
+            addOpenGlComponent(std::static_pointer_cast<OpenGlImageComponent>(master_env_button_));
+        master_env_section_->setVisible(true);
+        selected_tab_ = kDefaultTab;
+    }
+
+    updateTabs();
+    resized();
+}
+
 void ModulationModuleSection::resized() {
 
-    static constexpr float kEffectOrderWidthPercent = 0.2f;
     static constexpr int kAddButtonSize = 34;
     static constexpr int kAddButtonGap = 6;
 
@@ -147,7 +159,7 @@ void ModulationModuleSection::resized() {
             kSelectedTabSideExtension + 2);
     }
 
-    const int tabCount = static_cast<int>(module_sections.size());
+    const int tabCount = getVisibleTabCount();
     if (tabCount < kMaxTabs) {
         const int lastTabIndex = std::max(0, tabCount - 1);
         const auto lastTabBounds = tabCount > 0 ? tab_buttons_[lastTabIndex]->getBounds()
@@ -192,14 +204,7 @@ void ModulationModuleSection::resized() {
 }
 
 void ModulationModuleSection::paintBackground(juce::Graphics& g) {
-    g.setColour(findColour(Skin::kBody, true));
-    g.fillRoundedRectangle(getLocalBounds().toFloat(), findValue(Skin::kBodyRounding));
     paintBody(g);
-
-    g.setColour(findColour(Skin::kBorder, true));
-    g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(0.5f), findValue(Skin::kBodyRounding), 1.0f);
-    paintBorder(g);
-
     redoBackgroundImage();
 }
 
@@ -244,7 +249,15 @@ void ModulationModuleSection::setEffectPositions() {
 
     const int effect_height = viewport_.getHeight();
 
-    if (!module_sections.empty()) selected_tab_ = juce::jlimit(0, static_cast<int>(module_sections.size()) - 1, selected_tab_);
+    if (selected_tab_ != kDefaultTab || !hasVCATab())
+        selected_tab_ = juce::jlimit(0, std::max(0, static_cast<int>(module_sections.size()) - 1), selected_tab_);
+
+    if (master_env_section_ != nullptr) {
+        const bool selected = selected_tab_ == kDefaultTab;
+        master_env_section_->setVisible(selected);
+        if (selected)
+            master_env_section_->setBounds(0, 0, viewport_.getWidth(), effect_height);
+    }
 
     for (int i = 0; i < static_cast<int>(module_sections.size()); ++i) {
         const bool selected = (i == selected_tab_);
@@ -272,8 +285,8 @@ void ModulationModuleSection::buttonClicked(juce::Button* button) {
 
 
     for (int i = 0; i < kMaxTabs; ++i) {
-        if (button == tab_buttons_[i].get() && i < static_cast<int>(module_sections.size())) {
-            selected_tab_ = i;
+        if (button == tab_buttons_[i].get() && i < getVisibleTabCount()) {
+            selected_tab_ = hasVCATab() ? i - 1 : i;
             setEffectPositions();
             updateTabs();
             return;
@@ -287,7 +300,7 @@ void ModulationModuleSection::updateTabs() {
     int lfo_number = 0;
 
     for (int i = 0; i < kMaxTabs; ++i) {
-        const bool occupied = i < static_cast<int>(module_sections.size());
+        const bool occupied = i < getVisibleTabCount();
         tab_buttons_[i]->setVisible(occupied);
         if (!occupied) {
             tab_borders_[i]->setVisible(false);
@@ -298,14 +311,20 @@ void ModulationModuleSection::updateTabs() {
             continue;
         }
 
-        const bool is_envelope = module_sections[i]->getModulatorType().equalsIgnoreCase("env");
-        const bool selected = i == selected_tab_;
-        const auto accent = is_envelope
-                                ? ShaderColors::kEnvelopeTextColor
-                                : ShaderColors::kLfoTextColor;
-        const int number = is_envelope ? ++env_number : ++lfo_number;
-        const auto label = (is_envelope ? "Env " : "LFO ") + juce::String(number);
-        tab_buttons_[i]->setText("  " + label);
+        // add master env
+        const bool is_default_tab = hasVCATab() && i == 0;
+        const int module_index = hasVCATab() ? i - 1 : i;
+        const bool is_envelope = !is_default_tab && module_sections[module_index]->getModulatorType().equalsIgnoreCase("env");
+        const bool selected = is_default_tab ? selected_tab_ == kDefaultTab : module_index == selected_tab_;
+        auto color = (Skin::kEnvelopeAccent);
+        const auto accent = is_default_tab
+                                ? ShaderColors::kMasterEnvelopeTextColor
+                                : (is_envelope ? ShaderColors::kEnvelopeTextColor : ShaderColors::kLfoTextColor);
+
+        const int number = is_default_tab ? 0 : (is_envelope ? ++env_number : ++lfo_number);
+        const auto label = is_default_tab ? juce::String("Master Env")
+                                          : (is_envelope ? "Env " : "LFO ") + juce::String(number);
+        tab_buttons_[i]->setText("   " + label);
         tab_buttons_[i]->setToggleState(selected, juce::dontSendNotification);
         tab_buttons_[i]->setColour(Skin::kBody, findColour(Skin::kBody, true));
         tab_buttons_[i]->setColour(Skin::kTextComponentBackground, selected ? juce::Colours::transparentBlack : juce::Colours::black);
@@ -317,7 +336,13 @@ void ModulationModuleSection::updateTabs() {
         tab_buttons_[i]->setColour(Skin::kIconButtonOffHover, accent.brighter(0.15f));
         tab_buttons_[i]->getGlComponent()->setColors();
 
-        if (auto* mod_button = module_sections[i]->getModulationButton()) {
+        ModulationButton* mod_button = nullptr;
+        if (is_default_tab)
+            mod_button = master_env_button_.get();
+        else
+            mod_button = module_sections[module_index]->getModulationButton();
+
+        if (mod_button != nullptr) {
             static constexpr int kModButtonSize = 25;
             static constexpr int kTextLeftPadding = 12;
             static constexpr int kTextIconGap = 35;
@@ -331,10 +356,8 @@ void ModulationModuleSection::updateTabs() {
                                    : tab_bounds.getX();
             mod_button->setSourceColor(accent);
             mod_button->setVisible(occupied);
-            mod_button->setBounds(icon_x,
-                                  tab_bounds.getCentreY() - kModButtonSize / 2,
-                                  kModButtonSize,
-                                  kModButtonSize);
+            mod_button->setBounds(icon_x, tab_bounds.getCentreY() - kModButtonSize / 2,
+                                  kModButtonSize, kModButtonSize);
             mod_button->toFront(false);
             mod_button->setDisplayLabel(label);
         }
@@ -403,10 +426,11 @@ void ModulationModuleSection::renderOpenGlComponents(OpenGlWrapper& open_gl, boo
 }
 
 void ModulationModuleSection::redoBackgroundImage() {
+
     Colour background = findColour(Skin::kBackground, true);
 
     int width = std::max(container_->getWidth(), getWidth());
-    auto mult = juce::Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds())->scale;// getPixelMultiple();
+    auto mult = juce::Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds())->scale;
     Image background_image = Image(Image::ARGB, width * mult,  container_->getHeight() * mult, true);
 
     Graphics background_graphics(background_image);
@@ -429,8 +453,8 @@ void ModulationModuleSection::moduleAdded(ModulatorBase *newModule) {
         juce::ScopedLock lock(open_gl_critical_section_);
         container_->addSubSection(module_section.get());
     }
-    module_section->applySkinFromTopLevel();
 
+    module_section->applySkinFromTopLevel();
     module_section->setInterceptsMouseClicks(false,true);
     parentHierarchyChanged();
     module_sections.emplace_back(std::move(module_section));
@@ -440,6 +464,7 @@ void ModulationModuleSection::moduleAdded(ModulatorBase *newModule) {
     addOpenGlComponent(std::static_pointer_cast<OpenGlImageComponent>(mod_button));
     selected_tab_ = static_cast<int>(module_sections.size()) - 1;
     updateTabs();
+
     for(auto listener : listeners_) {
         listener->added();
     }
@@ -501,7 +526,13 @@ void ModulationModuleSection::removeModule(ModulatorBase *newModule) {
         }
 
         module_sections.erase(it);
-        selected_tab_ = juce::jlimit(0, std::max(0, static_cast<int>(module_sections.size()) - 1), selected_tab_);
+        if (selected_tab_ != kDefaultTab || !hasVCATab()) {
+            if (module_sections.empty() && hasVCATab())
+                selected_tab_ = kDefaultTab;
+            else
+                selected_tab_ = juce::jlimit(0, std::max(0, static_cast<int>(module_sections.size()) - 1), selected_tab_);
+        }
+        setEffectPositions();
         updateTabs();
 
         for(auto listener : listeners_)

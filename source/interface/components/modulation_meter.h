@@ -19,6 +19,7 @@
 #include <juce_gui_basics/juce_gui_basics.h>
 #include "common.h"
 #include "open_gl_multi_quad.h"
+#include "ModulationConnection.h"
 class OpenGlMultiQuad;
 class SynthSlider;
 namespace vital {
@@ -33,6 +34,9 @@ class ModulationMeter : public juce::Component {
 
     void resized() override;
     void setActive(bool active);
+
+    void setStaticModulationAmount(float amount, bool bipolar);
+    void clearStaticModulationAmount();
 
     void updateDrawing(bool use_poly);
     void setModulationAmountQuad(OpenGlQuad& quad, float amount, bool bipolar);
@@ -68,5 +72,8 @@ class ModulationMeter : public juce::Component {
 
     float left_, right_, top_, bottom_;
 
+    bool has_static_modulation_amount_ = false;
+    float static_modulation_amount_ = 0.0f;
+    bool static_modulation_bipolar_ = false;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ModulationMeter)
 };

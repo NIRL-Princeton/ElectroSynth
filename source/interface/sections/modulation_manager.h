@@ -39,6 +39,7 @@ namespace electrosynth{
     struct ModulationConnection;
     class ModulationConnectionBank;
 }
+
 class ModulationAmountKnob : public SynthSlider {
   public:
     enum MenuOptions {
@@ -62,14 +63,13 @@ class ModulationAmountKnob : public SynthSlider {
     void mouseDown(const juce::MouseEvent& e) override;
     void mouseUp(const juce::MouseEvent& e) override;
     void mouseExit(const juce::MouseEvent& e) override;
-    void paint(juce::Graphics& g) override;
     void handleModulationMenuCallback(int result);
 
     void makeVisible(bool visible);
     void hideImmediately();
 
     void setCurrentModulator(bool current);
-    void setDestinationComponent(juce::Component* component, const std::string& name);
+
     void setSource(const std::string& name);
     juce::String getSourceLabel() const;
     juce::Colour getSourceColor() const;
@@ -80,22 +80,18 @@ class ModulationAmountKnob : public SynthSlider {
       return color;
     }
 
-    virtual juce::Colour getUnselectedColor() const override {
+    juce::Colour getUnselectedColor() const override {
       return withBypassSaturation(SynthSlider::getUnselectedColor());
     }
 
-    virtual juce::Colour getSelectedColor() const override {
+    juce::Colour getSelectedColor() const override {
       return withBypassSaturation(SynthSlider::getSelectedColor());
     }
 
-    virtual juce::Colour getThumbColor() const override {
+    juce::Colour getThumbColor() const override {
       return withBypassSaturation(SynthSlider::getThumbColor());
     }
-	    void valueChanged() override {
-	        //DBG("valuechanged");
-	        SynthSlider::valueChanged();
-	        repaint();
-	    }
+
 
     void setBypass(bool bypass) {
         bypass_ = bypass;
@@ -151,7 +147,6 @@ class ModulationAmountKnob : public SynthSlider {
     bool bipolar_;
     bool draw_background_;
 
-    ValueTree state;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ModulationAmountKnob)
 };
 
@@ -344,6 +339,7 @@ class ModulationManager : public SynthSection,
     OpenGlQuad drag_quad_;
     PlainShapeComponent drag_icon_;
     std::shared_ptr<ModulationExpansionBox> modulation_expansion_box_;
+
     OpenGlQuad current_modulator_quad_;
     OpenGlQuad editing_rotary_amount_quad_;
     OpenGlQuad editing_linear_amount_quad_;
@@ -351,6 +347,15 @@ class ModulationManager : public SynthSection,
     std::map<juce::Viewport*, std::unique_ptr<OpenGlMultiQuad>> linear_destinations_;
     std::map<juce::Viewport*, std::shared_ptr<OpenGlMultiQuad>> rotary_meters_;
     std::map<juce::Viewport*, std::unique_ptr<OpenGlMultiQuad>> linear_meters_;
+    struct StaticModulationArc {
+        electrosynth::ModulationConnection* connection = nullptr;
+        ModulationMeter* meter = nullptr;
+        std::unique_ptr<OpenGlQuad> quad;
+        int ring_index = 0;
+        juce::Colour color = juce::Colours::white;
+    };
+    std::vector<StaticModulationArc> static_modulation_arcs_;
+
     juce::Point<int> mouse_drag_start_;
     juce::Point<int> mouse_drag_position_;
     bool modifying_;

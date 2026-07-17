@@ -149,6 +149,10 @@
              "Icon Button On": "{section.accent}",
              "Power Button On": "{section.accent}",
              "Widget Primary 1": "{section.accent}",
+             "Modulation Meter": "{section.accent}",
+             "Modulation Meter Left": "{section.accent}",
+             "Modulation Meter Right": "{section.accent}",
+             "Modulation Meter Control": "{section.accent}",
              "Body Rounding" : 2.0
         },
 
@@ -158,15 +162,23 @@
             "Rotary Arc": "{section.accent}",
             "Icon Button On": "{section.accent}",
             "Power Button On": "{section.accent}",
-            "Widget Primary 1": "{section.accent}"
+            "Widget Primary 1": "{section.accent}",
+            "Modulation Meter": "{section.accent}",
+            "Modulation Meter Left": "{section.accent}",
+            "Modulation Meter Right": "{section.accent}",
+            "Modulation Meter Control": "{section.accent}"
         },
 
         "Modulation": {
-            "accent": "{palette.accentEnv}",
+            "accent": "{palette.textPrimary}",
             "envAccent": "{palette.accentEnv}",
             "lfoAccent": "{palette.accentLfo}",
-            "Body Text": "{section.accent}",
-            "Widget Primary 1": "{section.accent}"
+            "Body Text": "{palette.textPrimary}",
+            "Widget Primary 1": "{section.accent}",
+            "Modulation Meter": "{section.accent}",
+            "Modulation Meter Left": "{section.accent}",
+            "Modulation Meter Right": "{section.accent}",
+            "Modulation Meter Control": "{section.accent}"
         },
 
         "Envelope": {
@@ -175,7 +187,11 @@
             "Rotary Arc": "{section.accent}",
             "Icon Button On": "{section.accent}",
             "Power Button On": "{section.accent}",
-            "Widget Primary 1": "{section.accent}"
+            "Widget Primary 1": "{section.accent}",
+            "Modulation Meter": "{section.accent}",
+            "Modulation Meter Left": "{section.accent}",
+            "Modulation Meter Right": "{section.accent}",
+            "Modulation Meter Control": "{section.accent}"
         },
 
         "LFO": {
@@ -184,7 +200,11 @@
             "Rotary Arc": "{section.accent}",
             "Icon Button On": "{section.accent}",
             "Power Button On": "{section.accent}",
-            "Widget Primary 1": "{section.accent}"
+            "Widget Primary 1": "{section.accent}",
+            "Modulation Meter": "{section.accent}",
+            "Modulation Meter Left": "{section.accent}",
+            "Modulation Meter Right": "{section.accent}",
+            "Modulation Meter Control": "{section.accent}"
         },
 
         "Master Env": {
@@ -192,7 +212,11 @@
             "Body Text": "{section.accent}",
             "Rotary Arc": "{section.accent}",
             "Icon Button On": "{section.accent}",
-            "Widget Primary 1": "{section.accent}"
+            "Widget Primary 1": "{section.accent}",
+            "Modulation Meter": "{section.accent}",
+            "Modulation Meter Left": "{section.accent}",
+            "Modulation Meter Right": "{section.accent}",
+            "Modulation Meter Control": "{section.accent}"
         },
 
         "Modulation Drag Drop": {

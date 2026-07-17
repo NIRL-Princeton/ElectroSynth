@@ -167,12 +167,11 @@ void SoundModuleSection::setEffectPositions() {
     const int padding = findValue(Skin::kPadding);
     const int large_padding = findValue(Skin::kLargePadding);
 
-    const int start_x = large_padding - getComponentShadowWidth();;
-    const int effect_width = getWidth() - start_x - large_padding;
+    const int start_x = large_padding;
+    const int effect_width = getWidth() - 2 * large_padding;
     int y = 0;
 
-    juce::Point<int> position = viewport_.getViewPosition();
-    // DBG("position viewport: x: " + juce::String(position.getX()) + "y: " + juce::String(position.getY()));
+    const juce::Point<int> position = viewport_.getViewPosition();
     int oscillator_index = 1;
     int string_index = 1;
     int filter_index = 1;
@@ -236,14 +235,16 @@ void SoundModuleSection::paintBackground(juce::Graphics& g) {
     g.fillRoundedRectangle(getLocalBounds().toFloat(), findValue(Skin::kBodyRounding));
     paintBody(g);
 
+    /*
     static constexpr float kSoundModuleBorderWidth = 23.0f;
-    g.setColour(findColour(Skin::kBorder, true));
+    g.setColour(findColour(Skin::kBodyText, true));
     int x = getLocalBounds().getX();
     int y = getLocalBounds().getY();
     int width = getLocalBounds().getWidth();
     int height = std::max<float>(getLocalBounds().getHeight(), 0.f);
     auto border_bounds = Rectangle<float>(x, y, width, height).reduced(kSoundModuleBorderWidth * 0.5f);
-    g.drawRoundedRectangle(border_bounds, findValue(Skin::kBodyRounding), kSoundModuleBorderWidth);
+    g.drawRoundedRectangle(border_bounds, findValue(Skin::kBodyRounding), 20.0);
+    */
 
     paintBorder(g);
     redoBackgroundImage();
@@ -269,12 +270,8 @@ void SoundModuleSection::moduleAdded(ProcessorBase *newModule) {
 
 }
 void SoundModuleSection::resized() {
-    //ModulesInterface::resized();
-    static constexpr float kEffectOrderWidthPercent = 0.4f;
-    static constexpr int kScrollBarInset = 5;
-    static constexpr int kScrollBarWidth = 5;
-    static constexpr int kAddButtonSize = 34;
 
+    static constexpr int kAddButtonSize = 34;
     ScopedLock lock(open_gl_critical_section_);
 
     const int width = getWidth();
