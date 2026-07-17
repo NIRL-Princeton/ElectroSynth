@@ -655,6 +655,7 @@ namespace electrosynth
                     // tMappingAdd(&change.mapping->mapping_[v], &change._source[v], &change._dest[v],
                     //            change.dest_param_index, sourceIndex, &leaf, &change.connection->scalingValue_);
                 }
+                change.mapping->addConnection(change.connection);
                 //TODO : fix bipolaroffset like mapping_
                 //change.connection->bipolarOffset = &change.mapping->mapping_.bipolarOffset[sourceIndex];
                 return;
@@ -690,6 +691,7 @@ namespace electrosynth
         }
 
         mappings.push_back (change.mapping);
+        change.mapping->addConnection(change.connection);
         DBG ("added new modulatino");
     }
 
@@ -716,11 +718,7 @@ namespace electrosynth
                 }
 
                 change.connection->scalingValue_ = 0.0f;
-                //erase-remove idiom reorders array
-                modulation->all_connections_.erase (
-                    std::remove (modulation->all_connections_.begin(), modulation->all_connections_.end(), change.connection), modulation->all_connections_.end());
-                //use reordered array to update the now out of order mapping
-                modulation->reorderMapping();
+                modulation->removeConnection(change.connection);
 
                 if (modulation->mapping_[0].numUsedSources == 0)
                 {
