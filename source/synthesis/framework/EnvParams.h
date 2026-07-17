@@ -10,10 +10,10 @@ struct EnvParams : public LEAFParams<_tEnvModule >
 {
     EnvParams() : chowdsp::ParamHolder("ENV")
     {
-        add(decayParam,
+        add(attackParam,
+            decayParam,
             sustainParam,
             releaseParam,
-            attackParam,
             attackPowerParam,
             holdParam,
             delayParam,
@@ -21,20 +21,20 @@ struct EnvParams : public LEAFParams<_tEnvModule >
             releasePowerParam);
     }
 
-    // Delay param
-    chowdsp::TimeMsParameter::Ptr delayParam {
-        juce::ParameterID { "delay", 100 },
-        "Delay",
-        chowdsp::ParamUtils::createNormalisableRange (0.0f, 1000.0f, 500.0f),
-        0.0f
-    };
-
     // Attack param
     chowdsp::TimeMsParameter::Ptr attackParam {
         juce::ParameterID { "attack", 100 },
         "Attack",
         chowdsp::ParamUtils::createNormalisableRange (0.0f, 10000.0f, 500.0f),
         1.0f
+    };
+
+    // Delay param
+    chowdsp::TimeMsParameter::Ptr delayParam {
+        juce::ParameterID { "delay", 100 },
+        "Delay",
+        chowdsp::ParamUtils::createNormalisableRange (0.0f, 1000.0f, 500.0f),
+        0.0f
     };
 
     // Attack Power param
