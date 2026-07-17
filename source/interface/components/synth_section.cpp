@@ -104,7 +104,7 @@ void SynthSection::paintHeadingText(Graphics& g) {
   Font font = Fonts::instance()->proportional_light().withPointHeight(size_ratio_ * 18.0f);
   Rectangle<int> title_bounds = getTitleBounds();
   int padding = static_cast<int>(std::round(findValue(Skin::kPadding) * 2.0f));
-  int heading_width = static_cast<int>(std::ceil(font.getStringWidthFloat(title))) + 2 * padding;
+  int heading_width = static_cast<int>(std::ceil(juce::GlyphArrangement::getStringWidth(font, title))) + 2 * padding;
   Rectangle<int> background_bounds = title_bounds.withSizeKeepingCentre(title_bounds.getWidth(), title_bounds.getHeight());
 
   g.setColour(findColour(Skin::kBodyHeading, true));

@@ -323,7 +323,7 @@ void ModulationModuleSection::updateTabs() {
             static constexpr int kTextIconGap = 35;
 
             const auto tab_bounds = tab_buttons_[i]->getBounds();
-            const int text_width = getLabelFont().getStringWidth(label);
+            const int text_width = juce::GlyphArrangement::getStringWidth(getLabelFont(), label);
             const int max_icon_x = tab_bounds.getRight() - kModButtonSize;
             const int wanted_icon_x = tab_bounds.getX() + kTextLeftPadding + text_width + kTextIconGap;
             const int icon_x = max_icon_x >= tab_bounds.getX()
