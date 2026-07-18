@@ -17,9 +17,10 @@
 #include "modulation_manager.h"
 #include "FullInterface.h"
 
-AudioChainSection::AudioChainSection(ChainList<ProcessorBase> &chains, ModulationManager *m, juce::UndoManager& um) : SynthSection("chains"),
-    chains_(chains), modulation_manager_(m), undo(um) {
+AudioChainSection::AudioChainSection(ChainList<ProcessorBase> &chains, ModulationManager *m, juce::UndoManager& um) :
+    SynthSection("chains"), chains_(chains), modulation_manager_(m), undo(um) {
 
+    setSkinOverride(Skin::kSoundModule);
     container_ = std::make_unique<ModulesListContainer>("container");
 
     addAndMakeVisible(viewport_);
@@ -48,7 +49,6 @@ AudioChainSection::AudioChainSection(ChainList<ProcessorBase> &chains, Modulatio
         default_chain.appendChild(oscillator, nullptr);
         chains_.appendChild(default_chain, nullptr);
     }
-
 }
 
 AudioChainSection::~AudioChainSection() {
@@ -77,7 +77,7 @@ void AudioChainSection::redoBackgroundImage() {
 
 void AudioChainSection::resized() {
 
-    static constexpr int kScrollBarInset = 2;
+    static constexpr int kScrollBarInset = 0;
     static constexpr int kScrollBarWidth = 5;
     ScopedLock lock(open_gl_critical_section_);
 
@@ -180,8 +180,7 @@ void AudioChainSection::setEffectPositions() {
     int y = 0;
 
     juce::Point<int> position = viewport_.getViewPosition();
-    // DBG("position viewport: x: " + juce::String(position.getX()) + "y: " + juce::String(position.getY()));
-    //DBG("shadwo width: " + String(shadow_width));
+
 
     int sound_module_index = 1;
     for (auto &section: sound_module_sections) {

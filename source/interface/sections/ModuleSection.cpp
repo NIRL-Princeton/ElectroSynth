@@ -97,6 +97,8 @@ void ModuleSection::resized() {
     title_text_->setTextSize(static_cast<float>(kHeaderHeight) * 0.4f);
     title_text_->setColor(findColour(Skin::kHeadingText, true));
 
+
+
     int exit_x = getLocalBounds().getRight() - kExitButtonRightOffset;
     if (auto* fx_view = dynamic_cast<electrosynth::FxModuleTemplateView*>(_view.get())) {
         // FX modules: align the delete button's right edge with the right edge of the
@@ -115,8 +117,8 @@ void ModuleSection::resized() {
     exit_button_->setBounds(exit_x, (kHeaderHeight - kExitButtonSize) / 2, kExitButtonSize, kExitButtonSize);
 
     bottom_separator_->setBounds(0, std::max(0, getHeight() - 1), getWidth(), 2);
-    bottom_separator_->setColor(findColour(Skin::kBodyHeading, true));
-    bottom_separator_->setVisible(draw_bottom_separator_);
+    bottom_separator_->setColor(findColour(Skin::kWidgetAccent1, true));
+    bottom_separator_->setVisible(true); // setVisible(draw_bottom_separator_);
 
     body_fill_->setBounds(getLocalBounds());
     body_fill_->setRounding(findValue(Skin::kBodyRounding));
@@ -138,7 +140,7 @@ void ModuleSection::setDragVisual(DragVisual visual) {
 
     // During a drag session the boundary/insertion accents replace the grey
     // separator, so hide it rather than layering red over grey.
-    bottom_separator_->setVisible(draw_bottom_separator_ && visual == DragVisual::kNormal);
+   bottom_separator_->setVisible(draw_bottom_separator_ && visual == DragVisual::kNormal);
 
     if (visual == DragVisual::kDimmed) {
         // Same dim treatment as ModulationManager's mapping-mode overlay.
@@ -178,8 +180,7 @@ void ModuleSection::buttonClicked(juce::Button *button) {
 
 void ModuleSection::paintBackground(juce::Graphics &g) {
     //paintContainer(g);
-    // g.setColour(findColour(Skin::kBorder, true));
-    //paintBorder(g);
+    paintBorder(g);
     //paintKnobShadows(g);
     // paintChildrenBackgrounds(g);
 }

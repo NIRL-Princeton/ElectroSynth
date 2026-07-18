@@ -131,14 +131,14 @@ void ModulationModuleSection::resized() {
         const int left = i * tab_width;
         const int right = (i + 1) * tab_width;
         const juce::Rectangle<int> outline_bounds(
-            left + 4, tab_strip_y + 4, std::max(0, right - left - 8), kTabStripHeight - 8);
+            left, tab_strip_y + 4, std::max(0, right - left - 8), kTabStripHeight - 8);
         tab_borders_[i]->setBounds(outline_bounds);
 
         // Shift the text two pixels right without moving the outline.
         tab_buttons_[i]->setBounds(outline_bounds.getX() + 4, outline_bounds.getY(),
                                    std::max(0, outline_bounds.getWidth() - 4), outline_bounds.getHeight());
 
-        static constexpr int kSelectedTabLineThickness = 2;
+        static constexpr int kSelectedTabLineThickness = 1;
         static constexpr int kSelectedTabSideExtension = 4;
         selected_tab_bottoms_[i]->setBounds(
             outline_bounds.getX(), outline_bounds.getBottom() - kSelectedTabLineThickness,
@@ -322,7 +322,7 @@ void ModulationModuleSection::updateTabs() {
                                 : (is_envelope ? ShaderColors::kEnvelopeTextColor : ShaderColors::kLfoTextColor);
 
         const int number = is_default_tab ? 0 : (is_envelope ? ++env_number : ++lfo_number);
-        const auto label = is_default_tab ? juce::String("Master Env")
+        const auto label = is_default_tab ? juce::String("Master")
                                           : (is_envelope ? "Env " : "LFO ") + juce::String(number);
         tab_buttons_[i]->setText("   " + label);
         tab_buttons_[i]->setToggleState(selected, juce::dontSendNotification);

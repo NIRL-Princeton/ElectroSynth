@@ -69,7 +69,7 @@ void MainSection::resized() {
     const int modulation_y = height - padding - bottom_row_height;
     const int top_left_height = std::max(0, modulation_y - content_y - padding);
 
-    const int left_column_width = std::max(0, (content_width * 2 - padding) / 3);
+    const int left_column_width = std::max(0, (content_width - 2 * padding) / 2 - 100);
     const int fx_x = content_x + left_column_width + padding;
     const int fx_total_width = std::max(0, content_width - left_column_width - padding);
     const int fx_width = std::max(0, (fx_total_width - 2 * padding) / 3);

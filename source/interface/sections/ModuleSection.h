@@ -101,7 +101,7 @@ public:
 
 private:
     bool isDragging = false;
-    bool draw_bottom_separator_ = false;
+    bool draw_bottom_separator_ = true;
     DragVisual drag_visual_ = DragVisual::kNormal;
     Skin::ColorId drag_accent_color_id_ = Skin::kWidgetPrimary1;
     std::shared_ptr<OpenGlQuad> body_fill_;

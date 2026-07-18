@@ -20,6 +20,7 @@ SoundModuleSection::SoundModuleSection(ModulationManager *m, ModuleList<Processo
         footer_body(new OpenGlQuad(Shaders::kRoundedRectangleFragment)), state(v), undo(um) {
 
     setName("Sound Module");
+    setSkinOverride (Skin::kSoundModule);
 
     header_body_ = std::make_shared<OpenGlQuad>(Shaders::kColorFragment, "sound_module_header");
     header_body_->setInterceptsMouseClicks(false, false);
@@ -62,8 +63,6 @@ SoundModuleSection::SoundModuleSection(ModulationManager *m, ModuleList<Processo
     routing_view_ = std::unique_ptr<RoutingView>(static_cast<RoutingView*>(baseEditor.release()));
     addSubSection(routing_view_.get());
     routing_view_->setAlwaysOnTop(true);
-
-    setSkinOverride (Skin::kSoundModule);
 }
 
 SoundModuleSection::~SoundModuleSection() {
@@ -192,7 +191,7 @@ void SoundModuleSection::setEffectPositions() {
             section->setName("Noise " + juce::String(sound_module_index_) + "." + juce::String(noise_index++));
 
         const int section_height = section->refreshHeight(); // refresh height before positioning each module
-        section->setDrawBottomSeparator(index + 1 < module_sections.size()); // add line separating modules
+        section->setDrawBottomSeparator(true);  //setDrawBottomSeparator(index + 1 < module_sections.size()); // add line separating modules
         section->setBounds(start_x, y, effect_width, section_height);
         y += (section_height + padding);
     }
@@ -205,9 +204,6 @@ void SoundModuleSection::setEffectPositions() {
     height = getExpandedHeight();
     if (getWidth() > 0 && getHeight() != height)
         setSize(getWidth(), height);
-
-    //DBG("container Height " + String(container_->getHeight()));
-    //DBG("viewport Height " + String(viewport_.getWidth()));
 }
 
 PopupItems SoundModuleSection::createPopupMenu() {
@@ -231,21 +227,6 @@ std::map<std::string, SynthSlider *> SoundModuleSection::getAllSliders() {
 }
 
 void SoundModuleSection::paintBackground(juce::Graphics& g) {
-    g.setColour(findColour(Skin::kBody, true));
-    g.fillRoundedRectangle(getLocalBounds().toFloat(), findValue(Skin::kBodyRounding));
-    paintBody(g);
-
-    /*
-    static constexpr float kSoundModuleBorderWidth = 23.0f;
-    g.setColour(findColour(Skin::kBodyText, true));
-    int x = getLocalBounds().getX();
-    int y = getLocalBounds().getY();
-    int width = getLocalBounds().getWidth();
-    int height = std::max<float>(getLocalBounds().getHeight(), 0.f);
-    auto border_bounds = Rectangle<float>(x, y, width, height).reduced(kSoundModuleBorderWidth * 0.5f);
-    g.drawRoundedRectangle(border_bounds, findValue(Skin::kBodyRounding), 20.0);
-    */
-
     paintBorder(g);
     redoBackgroundImage();
 }
@@ -291,8 +272,6 @@ void SoundModuleSection::resized() {
     add_to_module_button_->setColour(Skin::kIconButtonOffHover,findColour(Skin::kIconButtonOffHover, true));
     add_to_module_button_->setColour(Skin::kIconButtonOffPressed,findColour(Skin::kIconButtonOffPressed, true));
 
-
-
     if (isExpanded()) {
 
         viewport_.setVisible(true);
@@ -322,8 +301,7 @@ void SoundModuleSection::resized() {
             }
         }
     }
-    else
-    {
+    else {
         viewport_.setVisible(false);
         container_->setVisible(false);
         add_button_background_->setVisible(false);
@@ -360,14 +338,11 @@ void SoundModuleSection::resized() {
 
 
     if (routing_view_ != nullptr) {
-        static constexpr int kRoutingRightPadding = 25;
-        static constexpr int kRoutingMaxWidth = 400;
-        static constexpr float kRoutingWidthRatio = 0.35f;
 
-        const int routing_width = std::min(kRoutingMaxWidth, static_cast<int>(getWidth() * kRoutingWidthRatio));
-        const int routing_x = std::max(title_width, exit_x - kRoutingRightPadding - routing_width);
+        const auto local = getLocalBounds();
         routing_view_->setVisible(!module_sections.empty());
-        routing_view_->setBounds(routing_x, 0, std::max(0, routing_width), title_width);
+        routing_view_->setBounds(local.getX(), local.getY(), local.getWidth(), title_width);
+
     }
 }
 
