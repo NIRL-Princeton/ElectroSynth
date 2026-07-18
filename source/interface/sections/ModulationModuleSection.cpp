@@ -235,6 +235,20 @@ void ModulationModuleSection::handlePopupResult(int result) {
         undo.beginNewTransaction();
         list.appendChild(t,&undo);
     }
+    else if (result == 3 )
+    {
+        juce::ValueTree t(IDs::MODULATOR);
+        t.setProperty(IDs::type, "simpNos", nullptr);
+        undo.beginNewTransaction();
+        list.appendChild(t,&undo);
+    }
+    else if (result == 4 )
+    {
+        juce::ValueTree t(IDs::MODULATOR);
+        t.setProperty(IDs::type, "perlNos", nullptr);
+        undo.beginNewTransaction();
+        list.appendChild(t,&undo);
+    }
 
 }
 
@@ -357,6 +371,8 @@ PopupItems ModulationModuleSection::createPopupMenu() {
     PopupItems options;
     options.addItem(1, "add Env" );
     options.addItem(2, "add LFO" );
+    options.addItem(3, "add White Noise");
+    options.addItem(4, "add Perlin Noise");
 
     return options;
 }
