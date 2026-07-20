@@ -626,12 +626,12 @@ namespace electrosynth
 
     void SoundEngine::connectMapping (const electrosynth::mapping_change& change)
     {
-        //check for mapping alread exists
+        //check for mapping already exists
         for (auto modulation : mappings)
         {
             if (change.mapping == modulation)
             {
-                DBG ("adding modualtion:" + juce::String (change.source) + " to " + juce::String (modulation->dest_));
+                DBG ("adding modulation:" + juce::String (change.source) + " to " + juce::String (modulation->dest_));
                 int sourceIndex = 0;
                 auto it = std::find (change.mapping->all_connections_.begin(), change.mapping->all_connections_.end(), change.connection);
                 if (it != change.mapping->all_connections_.end())
@@ -692,7 +692,7 @@ namespace electrosynth
 
         mappings.push_back (change.mapping);
         change.mapping->addConnection(change.connection);
-        DBG ("added new modulatino");
+        DBG ("added new modulation");
     }
 
     //returns true if the mapping should be completely removd from process mappings
