@@ -15,10 +15,10 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
 {
     EnvParamHolder(LEAF* leaf) : LEAFParams<_tEnvModule>(leaf)
     {
-        add(decayParam,
+        add(attackParam,
+            decayParam,
             sustainParam,
             releaseParam,
-            attackParam,
             leakParam,
             shapeParam
 
@@ -62,10 +62,6 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
             }
     };
 
-
-
-
-
     // Decay param
     chowdsp::TimeMsParameter::Ptr decayParam {
         juce::ParameterID { "decay", 100 },
@@ -77,7 +73,6 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
             for (auto mod: modules)tEnvModule_setParameter(mod,EnvDecay,val);
         }
     };
-
 
     // Sustain param
     chowdsp::FloatParameter::Ptr sustainParam {
