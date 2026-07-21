@@ -240,6 +240,20 @@ void ModulationModuleSection::handlePopupResult(int result) {
         undo.beginNewTransaction();
         list.appendChild(t,&undo);
     }
+    else if (result == 3 )
+    {
+        juce::ValueTree t(IDs::MODULATOR);
+        t.setProperty(IDs::type, "simpNos", nullptr);
+        undo.beginNewTransaction();
+        list.appendChild(t,&undo);
+    }
+    else if (result == 4 )
+    {
+        juce::ValueTree t(IDs::MODULATOR);
+        t.setProperty(IDs::type, "perlNos", nullptr);
+        undo.beginNewTransaction();
+        list.appendChild(t,&undo);
+    }
 
 }
 
@@ -348,7 +362,7 @@ void ModulationModuleSection::updateTabs() {
             static constexpr int kTextIconGap = 35;
 
             const auto tab_bounds = tab_buttons_[i]->getBounds();
-            const int text_width = getLabelFont().getStringWidth(label);
+            const int text_width = juce::GlyphArrangement::getStringWidth(getLabelFont(), label);
             const int max_icon_x = tab_bounds.getRight() - kModButtonSize;
             const int wanted_icon_x = tab_bounds.getX() + kTextLeftPadding + text_width + kTextIconGap;
             const int icon_x = max_icon_x >= tab_bounds.getX()
@@ -380,6 +394,8 @@ PopupItems ModulationModuleSection::createPopupMenu() {
     PopupItems options;
     options.addItem(1, "add Env" );
     options.addItem(2, "add LFO" );
+    options.addItem(3, "add White Noise");
+    options.addItem(4, "add Perlin Noise");
 
     return options;
 }

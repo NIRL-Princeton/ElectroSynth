@@ -102,7 +102,7 @@ void PopupDisplay::setContent(const std::string& text, juce::Rectangle<int> boun
     juce::Font font = Fonts::instance()->proportional_light().withPointHeight(height * 0.5f * mult);
     int padding = height / 4;
     int buffer = padding * 2 + 2;
-    int width = (font.getStringWidth(text) /juce::Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds())->scale) + buffer;
+    int width = (juce::GlyphArrangement::getStringWidth(font, text) /juce::Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds())->scale) + buffer;
 
     int middle_x = bounds.getX() + bounds.getWidth() / 2;
     int middle_y = bounds.getY() + bounds.getHeight() / 2;
@@ -185,7 +185,7 @@ int PopupList::getBrowseWidth() {
     int max_width = kMinWidth * size_ratio_;
     int buffer = getTextPadding() * 2 + 2;
     for (int i = 0; i < selections_.size(); ++i)
-        max_width = std::max(max_width, (int)(font.getStringWidth(selections_.items[i].name) / juce::Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds())->scale + buffer));
+        max_width = std::max(max_width, (int)(juce::GlyphArrangement::getStringWidth(font, selections_.items[i].name) / juce::Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds())->scale + buffer));
 
     return max_width;
 }

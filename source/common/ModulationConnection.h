@@ -45,7 +45,7 @@ struct MappingWrapper;
 
         void setDestination(int uuid_to)
         {
-            state.setProperty(IDs::src, uuid_to, nullptr);
+            state.setProperty(IDs::dest, uuid_to, nullptr);
         }
 
         void setModulationAmount(float amt)
@@ -108,6 +108,7 @@ struct MappingWrapper;
         {
             defaultBipolar = val;
             setBipolar(val);
+            return defaultBipolar;
         }
         void setBipolar(bool bipolar) {
             bipolar_ = bipolar;
@@ -150,6 +151,10 @@ struct MappingWrapper;
         std::vector<ModulationConnection*> all_connections_;
         std::string dest_;
 
+        int indexOfConnection(const ModulationConnection* connection) const;
+        void addConnection(ModulationConnection* connection);
+        bool removeConnection(ModulationConnection* connection);
+        bool moveConnection(ModulationConnection* connection, int new_index);
 
         void reorderMapping();
     };

@@ -13,6 +13,8 @@
 #include "Modulators/EnvModuleProcessor.h"
 #include "Modulators/LFOModuleProcessor.h"
 #include "NoiseModuleProcessor.h"
+#include "Modulators/SimpleNoiseModuleProcessor.h"
+#include "Modulators/PerlinNoiseModuleProcessor.h"
 #include "AudioNode.h"
 
 
@@ -32,6 +34,9 @@ ModuleList<T>::ModuleList(SynthBase *synth,const ValueTree& v) : tracktion::engi
 
         factory.template registerType<EnvModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*,juce::UndoManager*>("env");
         factory.template registerType<LFOModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*, juce::UndoManager*>("lfo");
+        factory.template registerType<SimpNoiseModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*, juce::UndoManager*>("simpNos");
+        factory.template registerType<PerlNoiseModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*, juce::UndoManager*>("perlNos");
+
     }
     tracktion::engine::ValueTreeObjectList<T>::rebuildObjects();
     for (auto obj: tracktion::engine::ValueTreeObjectList<T>::objects) {

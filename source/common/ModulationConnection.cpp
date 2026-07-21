@@ -3,6 +3,7 @@
 //
 #include "common.h"
 #include "ModulationConnection.h"
+#include <algorithm>
 namespace electrosynth
 {
     namespace
@@ -35,37 +36,93 @@ namespace electrosynth
     }
     void MappingWrapper::reorderMapping()
     {
-        DBG("reoprde");
+        const int previous_num_used = mapping_[0].numUsedSources;
         int i =0;
         for (auto* connection : all_connections_)
         {
+            if (connection == nullptr || connection->sourceProc_ == nullptr)
+                continue;
 
-
-            //need to swap all things
-            //need to ensure we move the value over but also don't lose our previous values
-            //this is not the best way to do this. should definitely update
-            float scaleCurr = connection->scalingValue_;
-            float bipolarOffset = *connection->bipolarOffset;
+            const float scaleCurr = connection->scalingValue_.load();
+            const float bipolarOffset = connection->bipolarOffset != nullptr ? connection->bipolarOffset->load() : 0.0f;
             for ( int v = 0; v < MAX_NUM_VOICES; v++) {
                 mapping_[v].inUUIDS[i] = connection->uuid;
                 mapping_[v].scalingValues[i] = &connection->scalingValue_;
-
-                connection->bipolarOffset = &mapping_[i].bipolarOffset[i];
                 mapping_[v].inSources[i] = &connection->sourceProc_->at(v)->outputs[0];
             }
-            connection->scalingValue_ = scaleCurr;
-            *connection->bipolarOffset = bipolarOffset;
+
+            connection->bipolarOffset = &mapping_[0].bipolarOffset[i];
+
+            connection->scalingValue_.store(scaleCurr);
+            connection->bipolarOffset->store(bipolarOffset);
             connection->index_in_mapping = i;
-
-
             i++;
         }
-        jassert(mapping_[0].numUsedSources != i);
-        for (int v = 0; v < MAX_NUM_VOICES; v++) {
+
+        for (int v = 0; v < MAX_NUM_VOICES; ++v) {
+            for (int slot = i; slot < previous_num_used; ++slot) {
+                mapping_[v].inUUIDS[slot] = 0;
+                mapping_[v].inSources[slot] = nullptr;
+                mapping_[v].scalingValues[slot] = nullptr;
+                mapping_[v].bipolarOffset[slot] = 0.0f;
+            }
             mapping_[v].numUsedSources = i;
         }
+
+        jassert(mapping_[0].numUsedSources == i);
         //mapping_.numUsedSources = i;
 
+    }
+
+    int MappingWrapper::indexOfConnection(const ModulationConnection* connection) const
+    {
+        auto it = std::find(all_connections_.begin(), all_connections_.end(), connection);
+        if (it == all_connections_.end())
+            return -1;
+        return static_cast<int>(std::distance(all_connections_.begin(), it));
+    }
+
+    void MappingWrapper::addConnection(ModulationConnection* connection)
+    {
+        if (connection == nullptr)
+            return;
+
+        if (indexOfConnection(connection) >= 0)
+            return;
+
+        all_connections_.push_back(connection);
+        reorderMapping();
+    }
+
+    bool MappingWrapper::removeConnection(ModulationConnection* connection)
+    {
+        auto it = std::remove(all_connections_.begin(), all_connections_.end(), connection);
+        if (it == all_connections_.end())
+            return false;
+
+        all_connections_.erase(it, all_connections_.end());
+        reorderMapping();
+        return true;
+    }
+
+    bool MappingWrapper::moveConnection(ModulationConnection* connection, int new_index)
+    {
+        if (connection == nullptr)
+            return false;
+
+        auto current_index = indexOfConnection(connection);
+        if (current_index < 0)
+            return false;
+
+        new_index = juce::jlimit(0, static_cast<int>(all_connections_.size()) - 1, new_index);
+        if (new_index == current_index)
+            return true;
+
+        auto moved = all_connections_[current_index];
+        all_connections_.erase(all_connections_.begin() + current_index);
+        all_connections_.insert(all_connections_.begin() + new_index, moved);
+        reorderMapping();
+        return true;
     }
 
 
