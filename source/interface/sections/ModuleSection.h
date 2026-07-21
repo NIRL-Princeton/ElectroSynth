@@ -121,7 +121,8 @@ private:
     std::vector<Listener*> listeners_;
     juce::UndoManager& undo;
     electrosynth::audio::NodeDescriptor audioNodeDescriptor_;
-    std::unique_ptr<AudioPortComponent> output_port_;
+    std::shared_ptr<AudioPortComponent> output_port_;
+    std::shared_ptr<AudioPortComponent> input_port_;
 };
 
 #endif //ELECTROSYNTH_MODULESECTION_H

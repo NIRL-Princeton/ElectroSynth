@@ -88,7 +88,7 @@ int SoundModuleSection::getExpandedHeight() {
         content_height += section->refreshHeight() + padding;
     int empty_content_height = module_sections.empty() ? kEmptyContentHeight : 0;
 
-    return content_height + header_height + empty_content_height + padding;
+    return content_height + 2 * header_height + empty_content_height + padding;
 }
 
 void SoundModuleSection::redoBackgroundImage() {
@@ -264,7 +264,7 @@ void SoundModuleSection::resized() {
     // set Add Sound Module button bounds
     const int footer_y = getHeight() - title_width;
     const int button_x = (width - kAddButtonSize) / 2;
-    const int button_y = footer_y - (title_width - kAddButtonSize / 2);
+    const int button_y = footer_y - (title_width * 2.5 - kAddButtonSize);
 
     add_to_module_button_->setBounds( button_x, button_y, kAddButtonSize, kAddButtonSize);
     add_button_background_->setBounds(add_to_module_button_->getBounds().reduced(5));

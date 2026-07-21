@@ -66,19 +66,29 @@ ModuleSection::ModuleSection(const juce::ValueTree &v, electrosynth::audio::Node
     addOpenGlComponent(highlight_border_);
 
     if (audioNodeDescriptor_.hasOutput) { // if this module supports outputs...
-        electrosynth::audio::AudioPortAddress address {
+        electrosynth::audio::AudioPortAddress address { // give it an output audio port address
             getAudioNodeId(),
             audioNodeDescriptor_.outputPortId,
             electrosynth::audio::PortDirection::Output,
             audioNodeDescriptor_.domain
         };
-
-        output_port_ = std::make_unique<AudioPortComponent>(
+        output_port_ = std::make_shared<AudioPortComponent>( // make an output arrow belonging to this output port
             "audio_output",
             std::move(address));
-
-        addAndMakeVisible(output_port_.get());
         addOpenGlComponent(output_port_);
+    }
+
+    if (audioNodeDescriptor_.hasInput) { // if this module supports inputs...
+        electrosynth::audio::AudioPortAddress address { // give it an output audio port address
+            getAudioNodeId(),
+            audioNodeDescriptor_.inputPortId,
+            electrosynth::audio::PortDirection::Input,
+            audioNodeDescriptor_.domain
+        };
+        input_port_ = std::make_shared<AudioPortComponent>( // make an output arrow belonging to this output port
+            "audio_input",
+            std::move(address));
+        addOpenGlComponent(input_port_);
     }
 
 }
@@ -105,6 +115,7 @@ int ModuleSection::refreshHeight() {
 void ModuleSection::resized() {
     static constexpr int kAudioPortPanelWidth = 34;
     static constexpr int kAudioPortSize = 24;
+    static constexpr int kAudioPortY = 5;
 
     auto local = getLocalBounds();
     local.removeFromTop(kHeaderHeight);
@@ -136,8 +147,16 @@ void ModuleSection::resized() {
     exit_button_->setBounds(exit_x, (kHeaderHeight - kExitButtonSize) / 2, kExitButtonSize, kExitButtonSize);
 
     if (output_port_) {
-        output_port_->setBounds(getWidth() - kAudioPortPanelWidth, (getHeight() - kAudioPortSize) / 2,
+        output_port_->setBounds(getWidth() - kAudioPortPanelWidth, getHeight() - kAudioPortSize - kAudioPortY,
             kAudioPortSize, kAudioPortSize);
+        output_port_->setColor(findColour(Skin::kWidgetPrimary1, true));
+        output_port_->resized();
+    }
+    if (input_port_) {
+        input_port_->setBounds(kAudioPortPanelWidth, getHeight() - kAudioPortSize - kAudioPortY,
+            kAudioPortSize, kAudioPortSize);
+        input_port_->setColor(findColour(Skin::kWidgetPrimary1, true));
+        input_port_->resized();
     }
 
     bottom_separator_->setBounds(0, std::max(0, getHeight() - 1), getWidth(), 2);

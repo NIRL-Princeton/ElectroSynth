@@ -17,9 +17,7 @@ public:
         : PlainShapeComponent(std::move(name)), address_(std::move(address)) {
 
         using electrosynth::audio::PortDirection;
-        setShape(address_.direction == PortDirection::Input ? Paths::leftArrow() : Paths::rightArrow());
-        setSkinOverride(Skin::kModulationDragDrop);  // make a new skin override?
-        setColor(juce::Colours::white);
+        setShape(Paths::rightArrow());
         setActive(true);
         setUseAlpha(true);
         setInterceptsMouseClicks(true, false);
@@ -27,6 +25,11 @@ public:
 
     const electrosynth::audio::AudioPortAddress& getAddress() const noexcept {
         return address_;
+    }
+
+    void resized() override {
+        PlainShapeComponent::resized();
+        redrawImage(true);
     }
 
 private:
