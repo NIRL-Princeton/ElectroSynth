@@ -145,7 +145,7 @@ namespace electrosynth {
         ProcessorBase* getProcessorFromUUID(int uuid);
         ModulatorBase* getModulatorFromUUID(int uuid);
 
-     std::array<ModuleHeader*, MAX_NUM_VOICES>* getLeafProcessorFromUUID(int uuid);
+      std::array<ModuleHeader*, MAX_NUM_VOICES>* getLeafProcessorFromUUID(int uuid);
       char memory[536870912]; //512 MB
       //char* memory;
       LEAF leaf;
