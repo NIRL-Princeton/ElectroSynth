@@ -18,7 +18,7 @@ namespace electrosynth {
     namespace {
         juce::Rectangle<float> getAuxSlotBounds(juce::Rectangle<float> slot_bounds) {
             auto aux_bounds = slot_bounds.reduced(2.0f, 2.0f);
-            aux_bounds.setTop(slot_bounds.getCentreY());
+            aux_bounds.setTop(slot_bounds.getBottom());
             return aux_bounds;
         }
 

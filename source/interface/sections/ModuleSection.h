@@ -11,6 +11,7 @@
 #include "open_gl_background.h"
 #include "open_gl_image_component.h"
 #include "ProcessorBase.h"
+#include "audio_port_component.h"
 
 class ModuleSection : public SynthSection {
 public:
@@ -26,7 +27,7 @@ public:
         kDimmed
     };
 
-    ModuleSection(const juce::ValueTree &, std::unique_ptr<SynthSection> editor, juce::UndoManager& um);
+    ModuleSection(const juce::ValueTree &, electrosynth::audio::NodeDescriptor, std::unique_ptr<SynthSection> editor, juce::UndoManager& um);
 
     virtual ~ModuleSection();
     int getPreferredHeight() const override;
@@ -99,6 +100,14 @@ public:
     bool hover_;
     int height = 100;
 
+    const electrosynth::audio::NodeDescriptor getAudioNodeDescriptor() const noexcept {
+        return audioNodeDescriptor_;
+    }
+    juce::String getAudioNodeId() const {
+        return state.getProperty(IDs::audioNodeId).toString();
+    }
+
+
 private:
     bool isDragging = false;
     bool draw_bottom_separator_ = true;
@@ -111,6 +120,8 @@ private:
     std::unique_ptr<SynthSection> _view;
     std::vector<Listener*> listeners_;
     juce::UndoManager& undo;
+    electrosynth::audio::NodeDescriptor audioNodeDescriptor_;
+    std::unique_ptr<AudioPortComponent> output_port_;
 };
 
 #endif //ELECTROSYNTH_MODULESECTION_H

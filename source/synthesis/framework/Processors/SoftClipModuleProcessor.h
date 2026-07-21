@@ -87,6 +87,10 @@ class SoftClipModuleProcessor : public ProcessorStateBase<PluginStateImpl_<SoftC
 public:
     SoftClipModuleProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree&, LEAF* leaf,juce::UndoManager*);
 
+    electrosynth::audio::NodeDescriptor getAudioNodeDescriptor() const noexcept override {
+        return electrosynth::audio::makeProcessorDescriptor();
+    }
+
 
     void getNextAudioBlock (const juce::AudioSourceChannelInfo &bufferToFill) override {}
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;

@@ -14,8 +14,8 @@ namespace {
     constexpr int kExitButtonRightOffset = 50;
 }
 
-ModuleSection::ModuleSection(const juce::ValueTree &v, std::unique_ptr<SynthSection> editor, juce::UndoManager& um)
-    : SynthSection(editor->getName()), state(v), _view(std::move(editor)), undo(um) {
+ModuleSection::ModuleSection(const juce::ValueTree &v, electrosynth::audio::NodeDescriptor node_descriptor, std::unique_ptr<SynthSection> editor, juce::UndoManager& um)
+    : SynthSection(editor->getName()), audioNodeDescriptor_ (std::move(node_descriptor)),state(v), _view(std::move(editor)), undo(um) {
 
     // The module's body fill is normally baked into the owning lane's scroll image and
     // does not follow a live-moving wrapper. While dragged, this quad supplies an opaque
@@ -64,6 +64,23 @@ ModuleSection::ModuleSection(const juce::ValueTree &v, std::unique_ptr<SynthSect
     highlight_border_->setInterceptsMouseClicks(false, false);
     highlight_border_->setAlpha(0.0f, true);
     addOpenGlComponent(highlight_border_);
+
+    if (audioNodeDescriptor_.hasOutput) { // if this module supports outputs...
+        electrosynth::audio::AudioPortAddress address {
+            getAudioNodeId(),
+            audioNodeDescriptor_.outputPortId,
+            electrosynth::audio::PortDirection::Output,
+            audioNodeDescriptor_.domain
+        };
+
+        output_port_ = std::make_unique<AudioPortComponent>(
+            "audio_output",
+            std::move(address));
+
+        addAndMakeVisible(output_port_.get());
+        addOpenGlComponent(output_port_);
+    }
+
 }
 
 ModuleSection::~ModuleSection() = default;
@@ -86,6 +103,9 @@ int ModuleSection::refreshHeight() {
 }
 
 void ModuleSection::resized() {
+    static constexpr int kAudioPortPanelWidth = 34;
+    static constexpr int kAudioPortSize = 24;
+
     auto local = getLocalBounds();
     local.removeFromTop(kHeaderHeight);
     local.removeFromBottom(kContentBottomPadding);
@@ -96,7 +116,6 @@ void ModuleSection::resized() {
     title_text_->setText(getName());
     title_text_->setTextSize(static_cast<float>(kHeaderHeight) * 0.4f);
     title_text_->setColor(findColour(Skin::kHeadingText, true));
-
 
 
     int exit_x = getLocalBounds().getRight() - kExitButtonRightOffset;
@@ -115,6 +134,11 @@ void ModuleSection::resized() {
                               sound_module_exit_x - module_bounds_in_sound_module.getX());
     }
     exit_button_->setBounds(exit_x, (kHeaderHeight - kExitButtonSize) / 2, kExitButtonSize, kExitButtonSize);
+
+    if (output_port_) {
+        output_port_->setBounds(getWidth() - kAudioPortPanelWidth, (getHeight() - kAudioPortSize) / 2,
+            kAudioPortSize, kAudioPortSize);
+    }
 
     bottom_separator_->setBounds(0, std::max(0, getHeight() - 1), getWidth(), 2);
     bottom_separator_->setColor(findColour(Skin::kWidgetAccent1, true));

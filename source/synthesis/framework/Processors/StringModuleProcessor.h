@@ -190,8 +190,11 @@ class StringModuleProcessor : public ProcessorStateBase<PluginStateImpl_<StringP
 {
 public:
     StringModuleProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree& _state, LEAF* leaf,juce::UndoManager* um)
-        : ProcessorStateBase(engine,leaf,_state,um)
-    {
+        : ProcessorStateBase(engine,leaf,_state,um) {
+    }
+
+    electrosynth::audio::NodeDescriptor getAudioNodeDescriptor() const noexcept override {
+        return electrosynth::audio::makeGeneratorDescriptor();
     }
 
     void processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midi) override;

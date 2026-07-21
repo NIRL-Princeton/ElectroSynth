@@ -445,7 +445,7 @@ std::map<std::string, ModulationButton*> ModulationModuleSection::getAllModulati
 }
 
 void ModulationModuleSection::moduleAdded(ModulatorBase *newModule) {
-    auto module_section = std::make_unique<ModulationSection>( newModule->state, std::move((newModule->createEditor())), undo);
+    auto module_section = std::make_unique<ModulationSection>( newModule->state,std::move((newModule->createEditor())), undo);
     const bool is_lfo = module_section->getModulatorType().equalsIgnoreCase("lfo");
     module_section->setAreaSkinOverride(is_lfo ? Skin::kLfo : Skin::kEnvelope);
 

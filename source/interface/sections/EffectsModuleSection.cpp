@@ -155,12 +155,6 @@ void EffectModuleSection::handlePopupResult(int result) {
         undo.beginNewTransaction();
         list.appendChild(t, &undo);
     }
-    // } else if (result == 3) {
-    //     juce::ValueTree t(IDs::EffectMODULE);
-    //     t.setProperty(IDs::type, "string", nullptr);
-    //     list.appendChild(t, nullptr);
-    // }
-
 }
 
 
@@ -278,7 +272,8 @@ std::map<std::string, SynthSlider *> EffectModuleSection::getAllSliders() {
 }
 
 void EffectModuleSection::moduleAdded(ProcessorBase *newModule) {
-    auto module_section = std::make_unique<ModuleSection>(newModule->state,std::move (newModule->createEditor()), undo);
+    auto module_section = std::make_unique<ModuleSection>(newModule->state, newModule->getAudioNodeDescriptor(),
+        std::move (newModule->createEditor()), undo);
     module_section->setAreaSkinOverride(Skin::kFx);
     module_section->setDragAccentColor(Skin::kFXAccent);
     module_section->height = 300;

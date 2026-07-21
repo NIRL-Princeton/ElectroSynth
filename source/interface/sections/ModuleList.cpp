@@ -13,6 +13,9 @@
 #include "Modulators/EnvModuleProcessor.h"
 #include "Modulators/LFOModuleProcessor.h"
 #include "NoiseModuleProcessor.h"
+#include "AudioNode.h"
+
+
 template<typename T>
 ModuleList<T>::ModuleList(SynthBase *synth,const ValueTree& v) : tracktion::engine::ValueTreeObjectList<T>(v),synth_(synth),state(v){
     if constexpr (std::is_same_v<T, ProcessorBase>)
@@ -98,6 +101,20 @@ T* ModuleList<T>::createNewObject(const juce::ValueTree& v) {
 }
 template<typename T>
 void ModuleList<T>::newObjectAdded(T* processor) {
+    if constexpr (std::is_same_v<T, ProcessorBase>)
+    {
+        const auto descriptor = processor->getAudioNodeDescriptor();
+
+        DBG("Processor: " + processor->name);
+        DBG("  input: " + juce::String(descriptor.hasInput ? "yes" : "no"));
+        DBG("  output: " + juce::String(descriptor.hasOutput ? "yes" : "no"));
+    }
+    else if constexpr (std::is_same_v<T, ModulatorBase>)
+    {
+        DBG("Modulation source: " + processor->name);
+        DBG("  audio node: no");
+    }
+
     for (auto listener: listeners_) {
         listener->moduleAdded(processor);
     }
@@ -118,9 +135,12 @@ void ModuleList<T>::valueTreePropertyChanged(juce::ValueTree &v, const juce::Ide
                 if (obj->state.isValid() && xml != nullptr) {
                     auto uuid = obj->state.getProperty(IDs::uuid).toString();
                     auto type = obj->state.getProperty(IDs::type).toString();
+                    auto audio_node_id = obj->state.getProperty(IDs::audioNodeId).toString();
                     obj->state.copyPropertiesFrom(juce::ValueTree::fromXml(*xml),nullptr);
                     obj->state.setProperty(IDs::type, type,nullptr);
                     obj->state.setProperty(IDs::uuid, uuid,nullptr);
+                    if constexpr (std::is_same_v<T, ProcessorBase>)
+                        obj->state.setProperty(IDs::audioNodeId, audio_node_id, nullptr);
                     //  state.addChild(juce::ValueTree::fromXml(*xml),0,nullptr);
                 }
             }

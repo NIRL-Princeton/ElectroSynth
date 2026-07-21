@@ -115,27 +115,21 @@ namespace electrosynth {
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ParametersView)
     };
     /** Clone of juce::GenericAudioProcessorEditor. */
-    class ParametersViewEditor : public juce::AudioProcessorEditor
-    {
+    class ParametersViewEditor : public juce::AudioProcessorEditor { // redundant
     public:
         template <typename PluginType>
         explicit ParametersViewEditor (PluginType& plugin, String name)
-            : ParametersViewEditor (plugin, plugin.getState(), plugin.getState().params,name )
-        {
+            : ParametersViewEditor (plugin, plugin.getState(), plugin.getState().params,name ) {
         }
 
         ParametersViewEditor (juce::AudioProcessor& proc, chowdsp::PluginState& pluginState, chowdsp::ParamHolder& params,String name)
-            : juce::AudioProcessorEditor (proc),
-              view (pluginState, params,name)
-        {
-//            setResizable (true, false);
-//            setSize (view.getWidth(), view.getHeight());
-
+            : juce::AudioProcessorEditor (proc), view (pluginState, params,name) {
+            //setResizable (true, false);
+            //setSize (view.getWidth(), view.getHeight());
             //addAndMakeVisible (view);
         }
 
-        void resized() override
-        {
+        void resized() override {
             //view.setBounds (getLocalBounds());
         }
 

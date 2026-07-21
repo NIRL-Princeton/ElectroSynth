@@ -232,7 +232,8 @@ void SoundModuleSection::paintBackground(juce::Graphics& g) {
 }
 
 void SoundModuleSection::moduleAdded(ProcessorBase *newModule) {
-    auto module_section = std::make_unique<ModuleSection>(newModule->state,std::move (newModule->createEditor()), undo);
+    auto module_section = std::make_unique<ModuleSection>(newModule->state, newModule->getAudioNodeDescriptor(),
+    std::move (newModule->createEditor()), undo);
     module_section->setAreaSkinOverride(Skin::kSoundModule);
     {
         juce::ScopedLock lock(open_gl_critical_section_);

@@ -93,6 +93,7 @@ add_library(SharedCode INTERFACE
         source/common/AudioNode.h
         source/synthesis/framework/Processors/NoiseModuleProcessor.cpp
         source/synthesis/framework/Processors/NoiseModuleProcessor.h
+        source/interface/components/audio_port_component.h
 
 
 )
