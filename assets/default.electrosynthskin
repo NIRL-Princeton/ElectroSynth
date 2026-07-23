@@ -15,6 +15,7 @@
         "accentEnv" : "ff00bee6",
         "accentLfo" : "ff64d214",
         "accentMasterEnv": "ffff9123",
+        "accentNoise" : "ffeeeeee",
 
         "Transparent Black" : "0",
         "Near Black" : "ff111111",
@@ -37,7 +38,6 @@
         "Pale Silver Gray" : "ffd3d6d6",
         "Bright Red" : "ffea1616",
         "Hot Pink" : "ffff1744",
-        "Off White" : "ffeeeeee",
         "White No Alpha" : "ffffff",
         "White" : "ffffffff",
 
@@ -109,6 +109,8 @@
         "Wavetable Horizontal Angle": -0.23999999463558197,
         "Wavetable Vertical Angle": 1.2200000286102295,
         "Wavetable Y Offset": 0.05000000074505806,
+
+        "Add Button Size" : 34.0,
 
         "Widget Fill Boost": 1.600000023841858,
         "Widget Fill Center": 0.0,
@@ -221,6 +223,18 @@
             "Modulation Meter Right": "{section.accent}",
             "Modulation Meter Control": "{section.accent}"
         },
+
+        "Noise": {
+                    "accent": "{palette.accentNoise}",
+                    "Body Text": "{section.accent}",
+                    "Rotary Arc": "{section.accent}",
+                    "Icon Button On": "{section.accent}",
+                    "Widget Primary 1": "{section.accent}",
+                    "Modulation Meter": "{section.accent}",
+                    "Modulation Meter Left": "{section.accent}",
+                    "Modulation Meter Right": "{section.accent}",
+                    "Modulation Meter Control": "{section.accent}"
+                },
 
         "Modulation Drag Drop": {
           "Lighten Screen": "{palette.Translucent Teal Green Overlay}",

@@ -13,6 +13,36 @@
 
 namespace electrosynth {
     class SoundEngine;
+
+    juce::String getModulationSourceLabel(const juce::String& source_name) {
+        juce::String prefix;
+        if (source_name.startsWithIgnoreCase("env"))
+            prefix = "Env ";
+        else if (source_name.startsWithIgnoreCase("lfo"))
+            prefix = "LFO ";
+        else if (source_name.startsWithIgnoreCase("vca") || source_name.containsIgnoreCase("master"))
+            prefix = "Master ";
+        else
+            return prefix = "Noise ";
+
+        juce::String digits;
+        for (auto character : source_name) {
+            if (juce::CharacterFunctions::isDigit(character))
+                digits += character;
+        }
+
+        return prefix + (digits.isNotEmpty() ? digits : "#");
+    }
+
+    juce::Colour getModulationSourceColor(const juce::String& source_name) {
+        if (source_name.startsWithIgnoreCase("env"))
+            return ShaderColors::kEnvelopeTextColor;
+        if (source_name.startsWithIgnoreCase("lfo"))
+            return ShaderColors::kLfoTextColor;
+        if (source_name.startsWithIgnoreCase("vca") || source_name.containsIgnoreCase("master"))
+            return ShaderColors::kMasterEnvelopeTextColor;
+        return ShaderColors::kNoise;
+    }
 }
 
 ModulationModuleSection::ModulationModuleSection(ModulationManager *modulation_manager, ModuleList<ModulatorBase>& module_list,
@@ -329,15 +359,16 @@ void ModulationModuleSection::updateTabs() {
         const bool is_default_tab = hasVCATab() && i == 0;
         const int module_index = hasVCATab() ? i - 1 : i;
         const bool is_envelope = !is_default_tab && module_sections[module_index]->getModulatorType().equalsIgnoreCase("env");
+        const bool is_lfo = !is_default_tab && module_sections[module_index]->getModulatorType().equalsIgnoreCase("lfo");
         const bool selected = is_default_tab ? selected_tab_ == kDefaultTab : module_index == selected_tab_;
         auto color = (Skin::kEnvelopeAccent);
         const auto accent = is_default_tab
                                 ? ShaderColors::kMasterEnvelopeTextColor
-                                : (is_envelope ? ShaderColors::kEnvelopeTextColor : ShaderColors::kLfoTextColor);
+                                : (is_envelope ? ShaderColors::kEnvelopeTextColor : (is_lfo ? ShaderColors::kLfoTextColor : ShaderColors::kNoise));
 
         const int number = is_default_tab ? 0 : (is_envelope ? ++env_number : ++lfo_number);
         const auto label = is_default_tab ? juce::String("Master")
-                                          : (is_envelope ? "Env " : "LFO ") + juce::String(number);
+                                          : (is_envelope ? juce::String("Env ") : (is_lfo ? juce::String("LFO") : juce::String("Noise") )) + juce::String(number);
         tab_buttons_[i]->setText("   " + label);
         tab_buttons_[i]->setToggleState(selected, juce::dontSendNotification);
         tab_buttons_[i]->setColour(Skin::kBody, findColour(Skin::kBody, true));
@@ -462,8 +493,13 @@ std::map<std::string, ModulationButton*> ModulationModuleSection::getAllModulati
 
 void ModulationModuleSection::moduleAdded(ModulatorBase *newModule) {
     auto module_section = std::make_unique<ModulationSection>( newModule->state,std::move((newModule->createEditor())), undo);
-    const bool is_lfo = module_section->getModulatorType().equalsIgnoreCase("lfo");
-    module_section->setAreaSkinOverride(is_lfo ? Skin::kLfo : Skin::kEnvelope);
+
+    const auto modulator_type = module_section->getModulatorType();
+    Skin::SectionOverride skin_override = Skin::kNoise;
+    if (modulator_type.equalsIgnoreCase("env")) skin_override = Skin::kEnvelope;
+    else if (modulator_type.equalsIgnoreCase("lfo")) skin_override = Skin::kLfo;
+
+    module_section->setAreaSkinOverride(skin_override);
 
     {
         juce::ScopedLock lock(open_gl_critical_section_);

@@ -87,10 +87,17 @@ void MainSection::resized() {
 
 
 std::map<std::string, SynthSlider*> MainSection::getAllSliders() {
-    std::map<std::string, SynthSlider*> result = sound_interface->getAllSliders();
 
-    const auto& extraSliders = master_voice_envelope_section->getAllSliders();
-    result.insert(extraSliders.begin(), extraSliders.end());
+    std::map<std::string, SynthSlider*> result = sound_interface->getAllSliders();
+    const auto& masterSliders = master_voice_envelope_section->getAllSliders();
+    const auto& fx_1 = effects_section_0->getAllSliders();
+    const auto& fx_2 = effects_section_1->getAllSliders();
+    const auto& fx_3 = effects_section_2->getAllSliders();
+
+    result.insert(masterSliders.begin(), masterSliders.end());
+    result.insert(fx_1.begin(), fx_1.end());
+    result.insert(fx_2.begin(), fx_2.end());
+    result.insert(fx_3.begin(), fx_3.end());
 
     return result;
 }

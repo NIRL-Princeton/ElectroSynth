@@ -252,8 +252,7 @@ void SoundModuleSection::moduleAdded(ProcessorBase *newModule) {
 
 }
 void SoundModuleSection::resized() {
-
-    static constexpr int kAddButtonSize = 34;
+    static auto button_size = findValue(Skin::kAddButtonSize);
     ScopedLock lock(open_gl_critical_section_);
 
     const int width = getWidth();
@@ -263,10 +262,10 @@ void SoundModuleSection::resized() {
 
     // set Add Sound Module button bounds
     const int footer_y = getHeight() - title_width;
-    const int button_x = (width - kAddButtonSize) / 2;
-    const int button_y = footer_y - (title_width * 2.5 - kAddButtonSize);
+    const int button_x = (width - button_size) / 2;
+    const int button_y = footer_y - (title_width * 2.5 - button_size);
 
-    add_to_module_button_->setBounds( button_x, button_y, kAddButtonSize, kAddButtonSize);
+    add_to_module_button_->setBounds( button_x, button_y, button_size, button_size);
     add_button_background_->setBounds(add_to_module_button_->getBounds().reduced(5));
     add_button_background_->setColor(findColour(Skin::kBorder, true));
     add_to_module_button_->setColour(Skin::kIconButtonOff,findColour(Skin::kIconButtonOff, true));

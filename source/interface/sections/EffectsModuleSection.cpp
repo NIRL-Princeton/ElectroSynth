@@ -16,9 +16,9 @@ namespace {
 constexpr int kMaxDragBoundaryBands = 16;
 constexpr int kDragBoundaryBandHeight = 8;
 
-class FxAddButtonBackground final : public OpenGlImageComponent {
+class AddButtonBackground final : public OpenGlImageComponent {
 public:
-    FxAddButtonBackground() : OpenGlImageComponent("effect_add_button_background") {
+    AddButtonBackground() : OpenGlImageComponent("effect_add_button_background") {
         setInterceptsMouseClicks(false, false);
     }
 
@@ -27,6 +27,7 @@ public:
     }
 
     void paintToImage(juce::Graphics& g) override {
+
         const auto bounds = getLocalBounds().toFloat().reduced(1.0f);
         const auto base = findColour(Skin::kBorder, true);
         g.setColour(findColour(Skin::kBackground, true).withAlpha(0.45f));
@@ -36,6 +37,7 @@ public:
                                       base.darker(0.10f), 0.0f, bounds.getBottom(), false);
         g.setGradientFill(gradient);
         g.fillRoundedRectangle(bounds, 5.0f);
+
     }
 };
 }
@@ -82,7 +84,7 @@ ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRect
     addAndMakeVisible(routing_combo_box_.get());
     addOpenGlComponent(routing_combo_box_->getImageComponent());
 
-    add_effect_button_background_ = std::make_shared<FxAddButtonBackground>();
+    add_effect_button_background_ = std::make_shared<AddButtonBackground>();
     addOpenGlComponent(add_effect_button_background_);
 
     add_effect_button_ = std::make_unique<OpenGlShapeButton>("Add Effect");
@@ -335,8 +337,9 @@ void EffectModuleSection::resized() {
     static constexpr int kHeaderSidePadding = 6;
     static constexpr int kHeaderControlGap = 4;
     static constexpr int kRoutingControlHeight = 14;
-    static constexpr int kAddButtonSize = 34;
-    static constexpr int kHeaderControlsHeight = kAddButtonSize;
+
+    static auto button_size = static_cast<int>(findValue(Skin::kAddButtonSize));
+    static int kHeaderControlsHeight = button_size;
 
     ScopedLock lock(open_gl_critical_section_);
 
@@ -411,7 +414,6 @@ void EffectModuleSection::resized() {
     const int controls_y = title_width;
     const int controls_height = kHeaderControlsHeight;
     const int available_width = std::max(0, getWidth() - 2 * kHeaderSidePadding);
-    const int button_size = std::min(kAddButtonSize, available_width);
     const int gap = available_width > button_size ? kHeaderControlGap : 0;
     const int combo_width = std::max(0, available_width - button_size - gap);
     const int control_height = std::min(kRoutingControlHeight, controls_height);

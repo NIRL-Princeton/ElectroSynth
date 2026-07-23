@@ -98,6 +98,8 @@ add_library(SharedCode INTERFACE
         source/synthesis/framework/Modulators/PerlinNoiseModuleProcessor.cpp
         source/synthesis/framework/Modulators/PerlinNoiseModuleProcessor.h
         source/interface/components/audio_port_component.h
+        source/interface/components/modulation_slots.h
+        source/interface/components/modulation_slots.cpp
 
 
 )

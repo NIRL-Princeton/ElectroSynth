@@ -3,6 +3,7 @@
 #include "synth_section.h"
 #include "synth_slider.h"
 #include "open_gl_combobox.h"
+#include "modulation_slots.h"
 
 namespace electrosynth {
 
@@ -32,6 +33,7 @@ private:
     static constexpr int kMaxEffectSlots = 5;
 
     void ensureLabels();
+    void ensureModulationSlots(SynthSlider& slider);
     void updateLabels();
     juce::Colour getLabelColor(const juce::Component* control) const;
 
@@ -48,6 +50,7 @@ private:
     std::shared_ptr<OpenGlQuad> filter_type_combo_border_;
 
     std::map<juce::Component*, std::shared_ptr<PlainTextComponent>> slider_labels_;
+    std::map<SynthSlider*, std::unique_ptr<ModulationSlots>> modulation_slot_strips_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FxModuleTemplateView)
 };

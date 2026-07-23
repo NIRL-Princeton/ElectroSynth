@@ -102,9 +102,7 @@ void ModuleSection::setAreaSkinOverride(Skin::SectionOverride skin_override) {
 }
 
 int ModuleSection::getPreferredHeight() const {
-    return (_view != nullptr ? _view->getPreferredHeight() : 0)
-           + kHeaderHeight
-           + kContentBottomPadding;
+    return (_view != nullptr ? _view->getPreferredHeight() : 0) + kHeaderHeight; // + kContentBottomPadding;
 }
 
 int ModuleSection::refreshHeight() {

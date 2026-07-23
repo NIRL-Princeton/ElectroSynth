@@ -34,6 +34,7 @@ namespace ShaderColors {
   inline const juce::Colour kLfoTextColor = juce::Colour{0xff64d214};
   inline const juce::Colour kSoundModuleTextColor = juce::Colour{0xffffff00};
   inline const juce::Colour kMasterEnvelopeTextColor = juce::Colour{0xffff9123};
+    inline const juce::Colour kNoise = juce::Colour{0xffeeeeee };
   inline const juce::Colour kEffectTextColor = juce::Colour{0xffff5252};
 }
 

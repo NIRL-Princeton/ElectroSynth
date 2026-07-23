@@ -521,8 +521,8 @@ namespace electrosynth
         //    voice_handler_->sostenutoOffRange(sample, from_channel, to_channel);
     }
 
-    std::array<ModuleHeader*, MAX_NUM_VOICES>* SoundEngine::getLEAFProcessor (const std::string& proc_string)
-    {
+    std::array<ModuleHeader*, MAX_NUM_VOICES>* SoundEngine::getLEAFProcessor (const std::string& proc_string) {
+        /*
         // Use find_if to search the outermost vector
         auto outerIt = std::find_if (processors.begin(), processors.end(), [&] (const auto& innerVec) {
             // Use find_if on the inner vector to look for the processor with the target name
@@ -543,8 +543,26 @@ namespace electrosynth
             // Here you can cast the processor to leaf::Processor* if needed
             return (innerIt->get()->procArray);
         }
-        if (proc_string == "VCA"
-            || (MasterVoiceEnvelopeProcessor != nullptr
+        */
+
+        auto findProcessor = [&proc_string](auto& lanes) -> ProcessorBase* {
+            for (auto& lane : lanes) {
+                for (auto& processor : lane) {
+                    if (processor != nullptr && processor->name == juce::String(proc_string)) {
+                        return processor.get();
+                    }
+                }
+            }
+            return nullptr;
+        };
+
+        if (auto* processor = findProcessor(processors))
+            return processor->procArray;
+
+        if (auto* effect = findProcessor(effects))
+            return effect->procArray;
+
+        if (proc_string == "VCA" || (MasterVoiceEnvelopeProcessor != nullptr
                 && MasterVoiceEnvelopeProcessor->name == juce::String (proc_string)))
             return MasterVoiceEnvelopeProcessor->procArray;
 

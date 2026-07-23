@@ -50,7 +50,7 @@ namespace {
     else if (source_name.startsWithIgnoreCase("vca") || source_name.containsIgnoreCase("master"))
       prefix = "Env ";
     else
-      return source_name;
+      return prefix = "Noise ";
 
     juce::String digits;
     for (auto character : source_name) {
@@ -68,7 +68,7 @@ namespace {
       return ShaderColors::kLfoTextColor;
     if (source_name.startsWithIgnoreCase("vca") || source_name.containsIgnoreCase("master"))
       return ShaderColors::kMasterEnvelopeTextColor;
-    return ShaderColors::kSoundModuleTextColor;
+    return ShaderColors::kNoise;
   }
 }
 
@@ -245,7 +245,6 @@ ModulationAmountKnob::ModulationAmountKnob(juce::String name, int index, const V
   hovering_ = false;
   current_modulator_ = false;
   setRange(-1.f,1.f,0.f);
-
 }
 
 void ModulationAmountKnob::mouseDown(const juce::MouseEvent& e) {
@@ -1149,6 +1148,7 @@ void ModulationManager::makeAuxilaryModulationConnection(ModulationAmountKnob* h
 void ModulationManager::modulationDraggedToComponent(juce::Component* component, bool bipolar) {
     if (component == nullptr || current_modulator_ == nullptr)
         return;
+
     std::string destination_name = component->getComponentID().toStdString();
     auto destination_iter = destination_lookup_.find(destination_name);
     if (destination_iter == destination_lookup_.end() || destination_iter->second == nullptr)
