@@ -9,6 +9,7 @@
 #include "ParameterView/ParametersView.h"
 #include "Identifiers.h"
 #include "ProcessorBase.h"
+#include "leaf-midi.h"
 namespace electrosynth{
     namespace utils
     {
@@ -280,6 +281,8 @@ public:
     }
    // juce::AudioProcessorEditor* createEditor() override {return new electrosynth::ParametersViewEditor{*this,vstate.getProperty(IDs::type).toString() + vstate.getProperty(IDs::uuid).toString()};};
     chowdsp::ScopedCallbackList callbacks;
+
+    tStack activeModules;
 
 };
 
