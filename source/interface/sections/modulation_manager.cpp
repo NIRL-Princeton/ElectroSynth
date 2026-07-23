@@ -1037,8 +1037,7 @@ int ModulationManager::findSlotForNewConnection(SynthSlider* slider) const {
     return -1;
 }
 
-bool ModulationManager::isModulationSlotOccupied(
-    const std::string& destination, int destination_slot) const {
+bool ModulationManager::isModulationSlotOccupied(const std::string& destination, int destination_slot) const {
   if (destination_slot < 0)
     return false;
 

@@ -100,6 +100,7 @@ add_library(SharedCode INTERFACE
         source/interface/components/audio_port_component.h
         source/interface/components/modulation_slots.h
         source/interface/components/modulation_slots.cpp
+        source/interface/components/audio_port_component.cpp
 
 
 )

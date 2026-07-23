@@ -13,27 +13,36 @@
 class AudioPortComponent : public PlainShapeComponent {
 
 public:
-    AudioPortComponent(juce::String name, electrosynth::audio::AudioPortAddress address)
-        : PlainShapeComponent(std::move(name)), address_(std::move(address)) {
+    class Listener {
+    public:
+        virtual ~Listener() = default;
+        virtual void audioPortDragStarted(AudioPortComponent*, const juce::MouseEvent&) {}
+        virtual void audioPortDragged(AudioPortComponent*, const juce::MouseEvent&) {}
+        virtual void audioPortDragEnded(AudioPortComponent*, const juce::MouseEvent&) {}
+    };
 
-        using electrosynth::audio::PortDirection;
-        setShape(Paths::rightArrow());
-        setActive(true);
-        setUseAlpha(true);
-        setInterceptsMouseClicks(true, false);
-    }
+    AudioPortComponent(juce::String name, electrosynth::audio::AudioPortAddress address);
 
     const electrosynth::audio::AudioPortAddress& getAddress() const noexcept {
         return address_;
     }
+
+    void addListener(Listener* listener) { listeners_.add(listener); }
+    void removeListener(Listener* listener) { listeners_.remove(listener); }
 
     void resized() override {
         PlainShapeComponent::resized();
         redrawImage(true);
     }
 
+    void mouseDown(const juce::MouseEvent& event) override;
+    void mouseEnter(const juce::MouseEvent& event) override;
+    void mouseExit(const juce::MouseEvent& event) override;
+    void mouseDrag(const juce::MouseEvent& event) override;
+    void mouseUp(const juce::MouseEvent& event) override;
+
 private:
     electrosynth::audio::AudioPortAddress address_;
+    juce::ListenerList<Listener> listeners_;
+    void setArrowScale(float scale);
 };
-
-

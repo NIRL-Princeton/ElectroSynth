@@ -6,8 +6,7 @@
 #include <algorithm>
 namespace electrosynth
 {
-    namespace
-    {
+    namespace {
         const std::string kModulationSourceDelimiter = "_";
         const std::set<std::string> kBipolarModulationSourcePrefixes = {
             "lfo",
@@ -16,8 +15,7 @@ namespace electrosynth
             "audio"
         };
 
-        force_inline bool isConnectionAvailable (ModulationConnection* connection)
-        {
+        force_inline bool isConnectionAvailable (ModulationConnection* connection) {
             return connection->source_name.empty() && connection->destination_name.empty();
         }
     }
@@ -28,6 +26,7 @@ namespace electrosynth
     //    }
 
     //    ModulationConnection::~ModulationConnection() { }
+
     bool ModulationConnection::isModulationSourceDefaultBipolar(const std::string& source) {
         //std::size_t pos = source.find(kModulationSourceDelimiter);
         std::size_t pos = source.find_first_of("0123456789");
