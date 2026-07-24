@@ -5,7 +5,7 @@
 #include "EnvModuleProcessor.h"
 
 #include "sound_engine.h"
-#include "leaf-midi.h"
+//#include "leaf-midi.h"
 #include "EnvModule.h"
 EnvModuleProcessor::EnvModuleProcessor(electrosynth::SoundEngine* engine,juce::ValueTree& vt, LEAF* leaf, juce::UndoManager *um)
     :ModulatorStateBase(engine,leaf,vt , um)
@@ -19,7 +19,8 @@ juce::AudioBuffer<float>* EnvModuleProcessor::processMasterEnvelope() {
             temp_voice_buffer.setSample(i*2,0, state_.params.modules[i]->header.outputs[0]);
             temp_voice_buffer.setSample(i*2+1,0, state_.params.modules[i]->header.outputs[0]);
             if (state_.params.modules[i]->theEnv.whichStage == env_idle) {
-                tSimplePoly_deactivateVoice(engine->voiceHandler.voices[0],i);
+                tSimplePoly_deactivateVoice(engine->voiceHandler.voices,i);
+                //tSimplePoly_deactivateVoice(engine->voiceHandler.voices[0],i);
                 engine->voiceHandler.voiceIsSounding[i] = false;
             }
         }
