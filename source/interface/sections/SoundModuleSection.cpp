@@ -14,9 +14,10 @@
 #include "modulation_manager.h"
 #include "synth_base.h"
 #include "synth_gui_interface.h"
+#include "audio_routing_manager.h"
 
-SoundModuleSection::SoundModuleSection(ModulationManager *m, ModuleList<ProcessorBase> &module_list,const juce::ValueTree &v,
-        juce::UndoManager& um) : ModulesInterface( module_list),
+SoundModuleSection::SoundModuleSection(ModulationManager *m, AudioRoutingManager* arm, ModuleList<ProcessorBase> &module_list,const juce::ValueTree &v,
+        juce::UndoManager& um) : audio_routing_manager_(arm), ModulesInterface( module_list),
         footer_body(new OpenGlQuad(Shaders::kRoundedRectangleFragment)), state(v), undo(um) {
 
     setName("Sound Module");
@@ -166,8 +167,8 @@ void SoundModuleSection::setEffectPositions() {
     const int padding = findValue(Skin::kPadding);
     const int large_padding = findValue(Skin::kLargePadding);
 
-    const int start_x = large_padding;
-    const int effect_width = getWidth() - 2 * large_padding;
+    const int start_x = padding;
+    const int effect_width = getWidth() - 2 * padding;
     int y = 0;
 
     const juce::Point<int> position = viewport_.getViewPosition();
@@ -233,7 +234,7 @@ void SoundModuleSection::paintBackground(juce::Graphics& g) {
 
 void SoundModuleSection::moduleAdded(ProcessorBase *newModule) {
     auto module_section = std::make_unique<ModuleSection>(newModule->state, newModule->getAudioNodeDescriptor(),
-    std::move (newModule->createEditor()), undo);
+    std::move (newModule->createEditor()), undo, audio_routing_manager_);
     module_section->setAreaSkinOverride(Skin::kSoundModule);
     {
         juce::ScopedLock lock(open_gl_critical_section_);

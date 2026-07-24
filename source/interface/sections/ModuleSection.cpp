@@ -14,8 +14,9 @@ namespace {
     constexpr int kExitButtonRightOffset = 50;
 }
 
-ModuleSection::ModuleSection(const juce::ValueTree &v, electrosynth::audio::NodeDescriptor node_descriptor, std::unique_ptr<SynthSection> editor, juce::UndoManager& um)
-    : SynthSection(editor->getName()), audioNodeDescriptor_ (std::move(node_descriptor)),state(v), _view(std::move(editor)), undo(um) {
+ModuleSection::ModuleSection(const juce::ValueTree &v, electrosynth::audio::NodeDescriptor node_descriptor, std::unique_ptr<SynthSection> editor,
+    juce::UndoManager& um, AudioRoutingManager* arm) : SynthSection(editor->getName()), audioNodeDescriptor_ (std::move(node_descriptor)),
+    state(v), _view(std::move(editor)), undo(um), audio_routing_manager_ (arm) {
 
     // The module's body fill is normally baked into the owning lane's scroll image and
     // does not follow a live-moving wrapper. While dragged, this quad supplies an opaque
@@ -91,9 +92,19 @@ ModuleSection::ModuleSection(const juce::ValueTree &v, electrosynth::audio::Node
         addOpenGlComponent(input_port_);
     }
 
+    if (audio_routing_manager_ != nullptr) {
+        if (output_port_ != nullptr) audio_routing_manager_->registerPort(*output_port_);
+        if (input_port_ != nullptr) audio_routing_manager_->registerPort(*input_port_);
+    }
 }
 
-ModuleSection::~ModuleSection() = default;
+ModuleSection::~ModuleSection() {
+    if (audio_routing_manager_ != nullptr && output_port_ != nullptr)
+    {
+        audio_routing_manager_->unregisterPort(*output_port_);
+        audio_routing_manager_->unregisterPort(*input_port_);
+    }
+}
 
 void ModuleSection::setAreaSkinOverride(Skin::SectionOverride skin_override) {
     setSkinOverride(skin_override);
@@ -102,7 +113,7 @@ void ModuleSection::setAreaSkinOverride(Skin::SectionOverride skin_override) {
 }
 
 int ModuleSection::getPreferredHeight() const {
-    return (_view != nullptr ? _view->getPreferredHeight() : 0) + kHeaderHeight; // + kContentBottomPadding;
+    return (_view != nullptr ? _view->getPreferredHeight() : 0) + kHeaderHeight;
 }
 
 int ModuleSection::refreshHeight() {

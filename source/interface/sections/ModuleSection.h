@@ -12,6 +12,7 @@
 #include "open_gl_image_component.h"
 #include "ProcessorBase.h"
 #include "audio_port_component.h"
+#include "audio_routing_manager.h"
 
 class ModuleSection : public SynthSection {
 public:
@@ -27,7 +28,9 @@ public:
         kDimmed
     };
 
-    ModuleSection(const juce::ValueTree &, electrosynth::audio::NodeDescriptor, std::unique_ptr<SynthSection> editor, juce::UndoManager& um);
+    ModuleSection(const juce::ValueTree &, electrosynth::audio::NodeDescriptor,
+                  std::unique_ptr<SynthSection> editor, juce::UndoManager& um,
+                  AudioRoutingManager* audio_routing_manager = nullptr);
 
     virtual ~ModuleSection();
     int getPreferredHeight() const override;
@@ -120,6 +123,7 @@ private:
     std::unique_ptr<SynthSection> _view;
     std::vector<Listener*> listeners_;
     juce::UndoManager& undo;
+    AudioRoutingManager* audio_routing_manager_ = nullptr;
     electrosynth::audio::NodeDescriptor audioNodeDescriptor_;
     std::shared_ptr<AudioPortComponent> output_port_;
     std::shared_ptr<AudioPortComponent> input_port_;

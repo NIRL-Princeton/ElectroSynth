@@ -5,15 +5,16 @@
 #pragma once
 #include "modules_interface.h"
 #include "open_gl_combobox.h"
+#include "ModuleList.h"
 class ModuleSection;
 class ProcessorBase;
 class ModulationManager;
-#include "ModuleList.h"
 class EffectList;
-class EffectModuleSection : public ModulesInterface<ProcessorBase>
-{
+class AudioRoutingManager;
+
+class EffectModuleSection : public ModulesInterface<ProcessorBase> {
 public:
-    explicit EffectModuleSection( ModulationManager* m, EffectList &,const juce::ValueTree &, juce::UndoManager& um);
+    explicit EffectModuleSection( ModulationManager* m, AudioRoutingManager* ,EffectList &,const juce::ValueTree &, juce::UndoManager& um);
     virtual ~EffectModuleSection();
 
     void setEffectPositions() override;
@@ -49,6 +50,7 @@ public:
 
     juce::ValueTree state;
     juce::UndoManager& undo;
+    AudioRoutingManager* audio_routing_manager_ = nullptr;
 
 private:
     // Drag-reorder session. UI order previews live in module_sections; the ValueTree

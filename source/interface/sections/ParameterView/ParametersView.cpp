@@ -21,8 +21,8 @@ public:
     using SynthSlider::SynthSlider;
     bool shouldShowPopup() override { return false; }
     // Hide both arc segments; thumb indicator (kRotaryHand) still renders.
-    juce::Colour getSelectedColor()   const override { return juce::Colours::transparentBlack; }
-    juce::Colour getUnselectedColor() const override { return juce::Colours::transparentBlack; }
+    //juce::Colour getSelectedColor()   const override { return juce::Colours::transparentBlack; }
+    //juce::Colour getUnselectedColor() const override { return juce::Colours::transparentBlack; }
     // Halve indicator and suppress hover-boost by pre-dividing when dragging.
     // redoImage() multiplies kKnobArcThickness by 1.4 on hover; dividing here cancels that.
     float findValue(Skin::ValueId value_id) const override {
@@ -404,35 +404,31 @@ public:
 // ============================================================
 // FxModuleTemplateView
 // ============================================================
-FxModuleTemplateView::FxModuleTemplateView(chowdsp::PluginState& pluginState,
-                                           chowdsp::ParamHolder& params,
-                                           juce::String name)
-    : SynthSection(name)
-{
-    setComponentID(name);
-    setInterceptsMouseClicks(false, true);
+FxModuleTemplateView::FxModuleTemplateView(chowdsp::PluginState& pluginState, chowdsp::ParamHolder& params, juce::String name)
+    : SynthSection(name) {
 
-    params.doForAllParameterContainers(
-        [this, &pluginState](auto& paramVec) {
+        setComponentID(name);
+        setInterceptsMouseClicks(false, true);
+
+        params.doForAllParameterContainers([this, &pluginState](auto& paramVec) {
             for (auto& param : paramVec) {
                 if ((int)comps.size() < kMaxEffectSlots)
                     comps.push_back(parameters_view_detail::createParameterComp(pluginState, param, *this));
             }
-        },
-        [](auto&) {});
+        }, [](auto&) {});
 
     // Mix / PostGain are intended visible FX controls. NOTE: they are currently
     // UI-only (no chowdsp parameter attachment) and are NOT wired to DSP yet.
     // No greyed-out placeholder knobs are created for empty slots.
     mix_knob_ = std::make_unique<NoPopupSynthSlider>("Mix");
-    mix_knob_->setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
+    mix_knob_->setSliderStyle(juce::Slider::LinearBar);
     mix_knob_->setScrollWheelEnabled(false);
     mix_knob_->setKnobSizeScale(1.0f);
     addSlider(mix_knob_.get(), true);
     mix_knob_->parentHierarchyChanged();
 
     postgain_knob_ = std::make_unique<NoPopupSynthSlider>("PostGain");
-    postgain_knob_->setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
+    postgain_knob_->setSliderStyle(juce::Slider::LinearBar);
     postgain_knob_->setScrollWheelEnabled(false);
     postgain_knob_->setKnobSizeScale(1.0f);
     addSlider(postgain_knob_.get(), true);
@@ -477,7 +473,7 @@ namespace {
     constexpr int   kFxLabelToArcGap   = 2;       // label bottom -> top of tick arc
     constexpr int   kFxRowTopPad       = 10;      // padding above the first row
     constexpr int   kFxRowBottomPad    = 2;       // padding below the last row
-    constexpr int   kFxRowGap          = 16;      // breathing room between stacked rows
+    constexpr int   kFxRowGap          = 10;      // breathing room between stacked rows
     constexpr int   kFxMinKnobCellWidth = 76;     // min horizontal cell per knob (drives knobs-per-row)
     constexpr int   kFxSideInset       = 1;       // side inset = border thickness (paintBorder draws 1px)
     constexpr int   kFxModulationBoxGap = 4;
@@ -488,9 +484,6 @@ namespace {
 }
 
 juce::Colour FxModuleTemplateView::getLabelColor(const juce::Component* control) const {
-    if (control == mix_knob_.get() || control == postgain_knob_.get())
-        return ShaderColors::kSoundModuleTextColor;
-
     return ShaderColors::kEffectTextColor;
 }
 
@@ -548,28 +541,24 @@ void FxModuleTemplateView::updateLabels() {
 int FxModuleTemplateView::getPreferredHeight() const {
     // Filter modules double the title-to-first-label gap to host the type dropdown.
     const int top_pad = filter_type_combo_ != nullptr ? 2 * kFxRowTopPad : kFxRowTopPad;
+    constexpr int footerTopGap = 20;
+    constexpr int footerHeight = 2 * 20 + 6;
 
-    const int n = (int) comps.size() + (mix_knob_ != nullptr ? 1 : 0)
-                                     + (postgain_knob_ != nullptr ? 1 : 0);
+    const int n = static_cast<int> (comps.size());
     if (n <= 0)
         return top_pad + kFxRowBottomPad;
 
-    const int knobPx = std::max(1, (int) std::ceil(
-        kFxKnobScale * 2.0f * (findValue(Skin::kKnobArcSize)
-                               + findValue(Skin::kKnobArcThickness))));
+    const int knobPx = std::max(1, (int) std::ceil(kFxKnobScale * 2.0f * (findValue(Skin::kKnobArcSize) + findValue(Skin::kKnobArcThickness))));
 
     const int perRow  = std::max(1, std::min(getWidth() / kFxMinKnobCellWidth, n));
     const int numRows = (n + perRow - 1) / perRow; // matches resized()'s grouping row count
-    const int rowContentH = kFxLabelHeight + kFxLabelToArcGap + knobPx
-                            + kFxModulationBoxGap + ModulationSlots::kHeight;
+    const int rowContentH = kFxLabelHeight + kFxLabelToArcGap + knobPx + kFxModulationBoxGap + ModulationSlots::kHeight;
 
-    return top_pad + numRows * rowContentH
-         + (numRows - 1) * kFxRowGap + kFxRowBottomPad;
+    return top_pad + numRows * rowContentH + (numRows - 1) * kFxRowGap + kFxRowBottomPad + footerHeight + footerTopGap;
 }
 
 void FxModuleTemplateView::resized() {
-    // 1. Lane width.
-    const int w = getWidth();
+    const int w = getWidth(); // lane width
 
     // 2. Shrink the FX knob/tick-arc footprint locally (raster + GL rotary). Does NOT
     // change global skin values or shared SynthSlider constants.
@@ -582,18 +571,14 @@ void FxModuleTemplateView::resized() {
         kFxKnobScale * 2.0f * (findValue(Skin::kKnobArcSize)
                                + findValue(Skin::kKnobArcThickness))));
 
-    // 4. Visible controls in order: real params, then Mix, then PostGain. No placeholders.
+    // 4. Visible controls in order: real params, then Mix
     std::vector<juce::Component*> controls;
     controls.reserve(comps.size() + 2);
     for (auto& c : comps)
         controls.push_back(c.get());
-    if (mix_knob_ != nullptr)
-        controls.push_back(mix_knob_.get());
-    if (postgain_knob_ != nullptr)
-        controls.push_back(postgain_knob_.get());
 
     // 5. Knobs per row = as many as fit the lane width, clamped to [1, n].
-    const int n = (int) controls.size();
+    const int n = static_cast<int> (controls.size());
     if (n == 0) {
         SynthSection::resized();
         return;
@@ -628,8 +613,7 @@ void FxModuleTemplateView::resized() {
         filter_type_combo_border_->setThickness(1.0f, true);
     }
 
-    const int rowContentH = kFxLabelHeight + kFxLabelToArcGap + knobPx
-                            + kFxModulationBoxGap + ModulationSlots::kHeight;
+    const int rowContentH = kFxLabelHeight + kFxLabelToArcGap + knobPx + kFxModulationBoxGap + ModulationSlots::kHeight;
     const int cellW = (w - 2 * kFxSideInset) / perRow;
     int idx = 0;
     int y = top_pad;
@@ -643,6 +627,27 @@ void FxModuleTemplateView::resized() {
         y += rowContentH + kFxRowGap;
     }
 
+    updateLabels();
+    constexpr int arrow_height = 30;
+    constexpr int sliderHeight = 20;
+    constexpr int sideInset = 20;
+    const int footerHeight = 2 * sliderHeight + kFxRowGap + arrow_height;
+    const int footerY = getPreferredHeight() - footerHeight;
+
+    auto layoutLinearSlider = [&] (SynthSlider& slider, int y) {
+        auto row = juce::Rectangle<int>(sideInset, y, getWidth() - 2 * sideInset, sliderHeight);
+        auto labelBounds = row.removeFromLeft(60);
+        slider.setBounds(row);
+        slider.redoImage();
+
+        if (auto label = slider_labels_.find(&slider);
+            label != slider_labels_.end())
+            label->second->setBounds(labelBounds);
+    };
+
+    layoutLinearSlider(*mix_knob_, footerY);
+    layoutLinearSlider(*postgain_knob_, footerY + sliderHeight + kFxRowGap);
+
     // 8. Redo slider images + labels.
     for (auto* slider : all_sliders_v)
         if (auto* synth_slider = dynamic_cast<SynthSlider*>(slider)) {
@@ -655,29 +660,8 @@ void FxModuleTemplateView::resized() {
                                          box_width, ModulationSlots::kHeight);
             }
         }
-    updateLabels();
 
-    // 9. Base resize.
     SynthSection::resized();
-
-    // 10. Existing note, kept once.
-    // NOTE: Do NOT call repaintBackground() here.
-    //
-    // repaintBackground() walks up to FullInterface and stamps this view's
-    // paintBackground() (all 7 modulation boxes) into the *global* window
-    // background image. Unlike the working non-scrolled sections, an FX view
-    // lives inside the EffectModuleSection scroll viewport: its absolute bounds
-    // extend past the visible viewport and shift on scroll/reflow, and the
-    // global image is neither viewport-clipped nor cleared at the view's old
-    // position. That is what made the rectangular mod boxes escape the FX panel
-    // while scrolling and linger after a module was removed.
-    //
-    // The FX panel's visible background comes solely from the scroll-aware,
-    // viewport-scissored image baked in EffectModuleSection::redoBackgroundImage(),
-    // which the owning EffectModuleSection::resized() always rebakes after it
-    // lays out the FX views. So the scroll background stays correct without the
-    // harmful global stamp. This is FX-local: other sections still repaint
-    // normally because they are not inside a scrolling viewport.
 }
 
 void FxModuleTemplateView::paintBackground(juce::Graphics& g) {

@@ -3,12 +3,14 @@
 //
 
 #include "EffectsModuleSection.h"
+
+#include "EffectList.h"
 #include "ModuleSection.h"
-#include "synth_gui_interface.h"
 #include "Processors/ProcessorBase.h"
+#include "about_section.h"
 #include "modulation_manager.h"
 #include "synth_base.h"
-#include "EffectList.h"
+#include "synth_gui_interface.h"
 
 namespace {
 // Drag-mode boundary bands between adjacent non-dragged modules: pool size and
@@ -42,13 +44,14 @@ public:
 };
 }
 
-EffectModuleSection::EffectModuleSection(ModulationManager *m, EffectList &module_list,const juce::ValueTree &v, juce::UndoManager& um) :
-ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRectangleFragment)), state(v), undo(um)
+EffectModuleSection::EffectModuleSection(ModulationManager *m, AudioRoutingManager* arm, EffectList &module_list,const juce::ValueTree &v, juce::UndoManager& um) :
+audio_routing_manager_(arm), ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRectangleFragment)), state(v), undo(um)
 {
     scroll_bar_ = std::make_unique<OpenGlScrollBar>();
     addAndMakeVisible(scroll_bar_.get());
     addOpenGlComponent(scroll_bar_->getGlComponent());
-    addOpenGlComponent(footer_body);
+
+    container_->addOpenGlComponent(footer_body);
 
     setLookAndFeel(DefaultLookAndFeel::instance());
     scroll_bar_->addListener(this);
@@ -85,11 +88,11 @@ ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRect
     addOpenGlComponent(routing_combo_box_->getImageComponent());
 
     add_effect_button_background_ = std::make_shared<AddButtonBackground>();
-    addOpenGlComponent(add_effect_button_background_);
+    container_->addOpenGlComponent(add_effect_button_background_);
 
     add_effect_button_ = std::make_unique<OpenGlShapeButton>("Add Effect");
-    addAndMakeVisible(add_effect_button_.get());
-    addOpenGlComponent(add_effect_button_->getGlComponent());
+    container_->addAndMakeVisible(add_effect_button_.get());
+    container_->addOpenGlComponent(add_effect_button_->getGlComponent());
     add_effect_button_->addListener(this);
     add_effect_button_->addMouseListener(this, false);
     add_effect_button_->setShape(Paths::plus(150));
@@ -170,45 +173,50 @@ void EffectModuleSection::setEffectPositions() {
     const auto view_position = viewport_.getViewPosition();
 
     // No vertical gap between stacked FX modules (FX-local; SoundModuleSection unaffected).
-    int padding = 0;
-    int start_y = 0;
+    int padding = findValue(Skin::kPadding);
+    int initial_x = padding;
+    int initial_y = 0;
+    int effect_width = getWidth() - 2 * padding;
     juce::Rectangle<int> gap_bounds;
     // Boundaries between two adjacent non-dragged modules; edges touching the
     // insertion gap are excluded (the gap region itself marks those).
     std::vector<int> boundary_ys;
     bool previous_was_module = false;
 
+    int delay_index = 1;
+    int filt_index = 1;
     for (int i = 0; i < module_sections.size(); ++i) {
         ModuleSection* section = module_sections[i].get();
+        const auto type = section->state.getProperty(IDs::type).toString();
+        if (type == "delay")
+            section->setName("Delay " + juce::String(delay_index++));
+        else if (type == "filt")
+            section->setName("Filter " + juce::String(filt_index++));
+
 
         // During a drag the dragged module floats at its pointer-driven position;
         // its slot in the stack stays open as the insertion gap.
         if (section == dragged_module_) {
-            gap_bounds = { 0, start_y, getWidth(), section->height };
-            start_y += section->height + padding;
+            gap_bounds = { initial_x, initial_y, effect_width, section->height };
+            initial_y += section->height + padding;
             previous_was_module = false;
             continue;
         }
-
         if (previous_was_module)
-            boundary_ys.push_back(start_y);
+            boundary_ys.push_back(initial_y);
+
         previous_was_module = true;
 
         // Size each FX module from its contained view's dynamic row layout instead of the
         // full viewport height. Set bounds once first so the FX view gets its width and can
         // compute a width-dependent row count, then read the preferred height and apply it.
         // (FX-local: SoundModuleSection sizes its modules separately.)
-        section->setBounds(0, start_y, getWidth(), section->height);
+        section->setBounds(initial_x, initial_y, effect_width, section->height);
         section->height = section->getPreferredHeight();
         section->setDrawBottomSeparator(i + 1 < module_sections.size());
-        section->setBounds(0, start_y, getWidth(), section->height);
-        start_y += section->height + padding;
+        section->setBounds(initial_x, initial_y, effect_width, section->height);
+        initial_y += section->height + padding;
     }
-
-    // setSize (not setBounds): the container's origin belongs to the viewport's scroll
-    // logic; any explicit origin here was immediately overwritten by setViewPosition.
-    container_->setSize(viewport_.getWidth(), start_y);
-    viewport_.setViewPosition(view_position);
 
     if (insertion_region_ != nullptr) {
         if (dragged_module_ != nullptr && !gap_bounds.isEmpty())
@@ -219,12 +227,12 @@ void EffectModuleSection::setEffectPositions() {
 
     if (drag_boundary_bands_ != nullptr) {
         const int num_bands = std::min((int)boundary_ys.size(), kMaxDragBoundaryBands);
-        if (dragged_module_ != nullptr && num_bands > 0 && start_y > 0) {
+        if (dragged_module_ != nullptr && num_bands > 0 && initial_y > 0) {
             // The multi-quad spans the whole container; each band is placed in the
             // quad's normalized GL space (y up, so the component top maps to +1).
-            drag_boundary_bands_->setBounds(0, 0, viewport_.getWidth(), start_y);
+            drag_boundary_bands_->setBounds(0, 0, viewport_.getWidth(), initial_y);
             drag_boundary_bands_->setNumQuads(num_bands);
-            const float total_height = (float)start_y;
+            const float total_height = (float)initial_y;
             const float band_height_gl = 2.0f * kDragBoundaryBandHeight / total_height;
             for (int i = 0; i < num_bands; ++i) {
                 const float band_bottom = boundary_ys[i] + kDragBoundaryBandHeight / 2.0f;
@@ -235,6 +243,19 @@ void EffectModuleSection::setEffectPositions() {
         else
             drag_boundary_bands_->setNumQuads(0);
     }
+
+    const int button_width = static_cast<int>(findValue(Skin::kAddButtonSize));
+    const int button_x = viewport_.getWidth() / 2 - button_width / 2;
+    const int button_y = initial_y + 10;
+    const int footer_padding = 35;
+    const int container_height = button_y + button_width + footer_padding;
+
+    container_->setSize(viewport_.getWidth(), container_height);
+
+    footer_body->setBounds(0, button_y, viewport_.getWidth(), findValue(Skin::kLargePadding));
+    add_effect_button_->setBounds(button_x, button_y, button_width, button_width);
+    add_effect_button_background_->setBounds(add_effect_button_->getBounds().reduced(4));
+    viewport_.setViewPosition(view_position);
 }
 
 
@@ -275,7 +296,7 @@ std::map<std::string, SynthSlider *> EffectModuleSection::getAllSliders() {
 
 void EffectModuleSection::moduleAdded(ProcessorBase *newModule) {
     auto module_section = std::make_unique<ModuleSection>(newModule->state, newModule->getAudioNodeDescriptor(),
-        std::move (newModule->createEditor()), undo);
+        std::move (newModule->createEditor()), undo, audio_routing_manager_);
     module_section->setAreaSkinOverride(Skin::kFx);
     module_section->setDragAccentColor(Skin::kFXAccent);
     module_section->height = 300;
@@ -344,7 +365,6 @@ void EffectModuleSection::resized() {
     ScopedLock lock(open_gl_critical_section_);
 
     const int title_width = static_cast<int>(getTitleWidth());
-    const int header_height = title_width + kHeaderControlsHeight;
 
     int order_width = getWidth() * kEffectOrderWidthPercent;
     //    effect_order_->setBounds(0, 0, order_width, getHeight());
@@ -356,14 +376,14 @@ void EffectModuleSection::resized() {
     auto area = getLocalBounds();
     auto header = area.removeFromTop(30);
     toggle_button_->setBounds(0,0,getTitleWidth(),getTitleWidth());
+
     if (isExpanded()) {
         viewport_.setVisible(true);
         container_->setVisible(true);
         viewport_.setBounds(0,getTitleWidth(),getWidth(),getHeight()-getTitleWidth()-2);
         setEffectPositions();
-        scroll_bar_->setBounds(getWidth() - large_padding, header_height + large_padding,
-                               large_padding - 2,
-                               std::max(0, getHeight() - header_height - (large_padding + 2 * shadow_width)));
+        // scroll_bar_->setBounds(getWidth() - large_padding, title_width + large_padding, large_padding - 2, std::max(0, getHeight() - title_width - (large_padding + 2 * shadow_width)));
+
         // Match the shared audio-chain scrollbar instead of using the FX accent.
         // The look-and-feel stores the global skin values, so this remains theme-aware
         // without resolving through this section's red Skin::kFx override.
@@ -400,16 +420,19 @@ void EffectModuleSection::resized() {
 
     SynthSection::resized();
     redoBackgroundImage();
-    //ooter_body->setBounds(0,getHeight()-1, getWidth(), getTitleWidth());
+    //footer_body->setBounds(0,getHeight()-1, getWidth(), getTitleWidth());
     footer_body->setRounding(findValue(Skin::kBodyRounding));
     footer_body->setColor(findColour(Skin::kBody, true));
 
-    header_body_->setBounds(0, 0, getWidth(), header_height);
+    header_body_->setBounds(0, 0, getWidth(), title_width);
+    auto header_bounds = header_body_->getBounds();
     header_body_->setColor(findColour(Skin::kBodyHeading, true));
-    header_title_->setBounds(0, 0, getWidth(), title_width);
+
+    header_title_->setBounds(header_bounds);
     header_title_->setText(getName());
     header_title_->setTextSize(size_ratio_ * 14.0f);
     header_title_->setColor(findColour(Skin::kHeadingText, true));
+
 
     const int controls_y = title_width;
     const int controls_height = kHeaderControlsHeight;
@@ -419,10 +442,8 @@ void EffectModuleSection::resized() {
     const int control_height = std::min(kRoutingControlHeight, controls_height);
     const int control_y = controls_y + (controls_height - control_height) / 2;
 
-    routing_combo_box_->setBounds(kHeaderSidePadding, control_y, combo_width, control_height);
-    const int button_x = getWidth() - kHeaderSidePadding - button_size;
-    const int button_y = controls_y + (controls_height - button_size) / 2;
-    add_effect_button_->setBounds(button_x, button_y, button_size, button_size);
+    // routing_combo_box_->setBounds(kHeaderSidePadding, control_y, combo_width, control_height);
+
     add_effect_button_background_->setBounds(add_effect_button_->getBounds().reduced(4));
     add_effect_button_->setColour(Skin::kIconButtonOff, findColour(Skin::kIconButtonOff, true));
     add_effect_button_->setColour(Skin::kIconButtonOffHover, findColour(Skin::kIconButtonOffHover, true));
@@ -777,9 +798,7 @@ void EffectModuleSection::redoBackgroundImage() {
 }
 
 void EffectModuleSection::paintBackground(Graphics &g) {
-
     paintBody(g);
-
     paintBorder(g);
     redoBackgroundImage();
 }
