@@ -25,6 +25,10 @@ juce::String electrosynth::utils::harmonicValToString(float harmonic)
     else
         return juce::String(round(harmonic));
 }
+
+
+
+
 OscillatorModuleProcessor::OscillatorModuleProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree &v, LEAF *leaf,juce::UndoManager* um) :ProcessorStateBase(engine,leaf,v,um)
 
 
@@ -45,6 +49,10 @@ OscillatorModuleProcessor::OscillatorModuleProcessor(electrosynth::SoundEngine* 
 
    //tOscModule_init(static_cast<void*>(module), {0, 0}, id, leaf)
     //tOscModule_processorInit(state_.params.module, &processor);
+    tStack_create(&leaf->mempool, (tStack**)&activeModules);
+    tStack_init(leaf, &activeModules);
+    tStack_setCapacity(&activeModules, MAX_NUM_VOICES);
+
 }
 
 void OscillatorModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midi)
@@ -53,9 +61,15 @@ void OscillatorModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     int numSamples = buffer.getNumSamples();
     //buffer.clear();
 
+    float glideOrigin = state_.params.modules[tStack_first(engine->voiceHandler.voiceOrder)]->pitchSmoother.curr;
+
     //    auto* samplesL = buffer.getReadPointer(0);
     for (int v = 0; v < engine->voiceHandler.numVoicesActive; v++) {
-        if (!engine->voiceHandler.voiceIsSounding[v]) continue;
+        if (!engine->voiceHandler.voiceIsSounding[v])
+        {
+            tOscModule_setGlideOrigin(state_.params.modules[v], glideOrigin);
+            continue;
+        }
         tOscModule_setParameter(state_.params.modules[v], OscMidiPitch,engine->voiceHandler.voiceNote[v]/127.f );
         auto* L = buffer.getWritePointer(v*2);
         auto* R = buffer.getWritePointer(v*2+1);

@@ -44,6 +44,7 @@ public:
     void setScrollBarRange() override;
     void buttonClicked(juce::Button* button) override;
     std::map<std::string, ModulationButton*> getAllModulationButtons() override;
+    void setVCAModulationSection(SynthSection* section, std::shared_ptr<ModulationButton> mod_button);
 
      ModulationManager* modulation_manager;
      std::shared_ptr<OpenGlQuad> header_body_;
@@ -64,7 +65,12 @@ public:
     juce::UndoManager& undo;
 private:
     void updateTabs();
-    int selected_tab_ = 0;
+    static constexpr int kDefaultTab = -1;
+    int getVisibleTabCount() const;
+    bool hasVCATab() const { return master_env_section_ != nullptr; }
+    int selected_tab_ = kDefaultTab;
+    SynthSection* master_env_section_ = nullptr;
+    std::shared_ptr<ModulationButton> master_env_button_;
 };
 
 #endif //ELECTROSYNTH_ModulationMODULESECTION_H

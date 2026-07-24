@@ -9,6 +9,7 @@ EffectList::EffectList(SynthBase *synth, const ValueTree &v, int _lane) : Module
 }
 
 void EffectList::deleteObject(ProcessorBase *base) {
+    
     synth_->removeEffect(base, lane);
     for (auto listener : listeners_)
         listener->removeModule(base);

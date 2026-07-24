@@ -40,19 +40,37 @@ namespace electrosynth
                                                        last_sample_rate_ (-1),
                                                        modulation_bank_ ((leaf))
     {
+        // LEAF_init (&leaf, 44100.0f, memory, 536870912, []() { return (float) rand() / RAND_MAX; });
+        // //processors.push_back(std::make_shared<OscillatorModuleProcessor> (&leaf));
+        // //SoundEngine::init();
+        // LEAF_setErrorCallback(&leaf, LEAF_errorCallback);
+        // tSimplePoly_create (&leaf.mempool, &voiceHandler.voices[0]);
+        // tSimplePoly_init (&leaf, voiceHandler.voices[0], MAX_NUM_VOICES);
+        // voiceHandler.numVoicesActive = MAX_NUM_VOICES;
+        // tSimplePoly_setNumVoices (voiceHandler.voices[0], (uint8_t) voiceHandler.numVoicesActive);
+        // voiceHandler.voiceNote[0] = 0;
+        // for (uint8_t i = 1; i < MAX_NUM_VOICES; i++)
+        // {
+        //     tSimplePoly_create (&leaf.mempool, &voiceHandler.voices[i]);
+        //     tSimplePoly_init (&leaf, voiceHandler.voices[i], MAX_NUM_VOICES);
+        //     voiceHandler.voiceNote[i] = 0;
+        //     voiceHandler.voiceIsSounding[i] = false;
+        //     voiceHandler.voicePrevBend[i] = 0.0f;
+        // }
         LEAF_init (&leaf, 44100.0f, memory, 536870912, []() { return (float) rand() / RAND_MAX; });
         //processors.push_back(std::make_shared<OscillatorModuleProcessor> (&leaf));
         //SoundEngine::init();
         LEAF_setErrorCallback(&leaf, LEAF_errorCallback);
-        tSimplePoly_create (&leaf.mempool, &voiceHandler.voices[0]);
-        tSimplePoly_init (&leaf, voiceHandler.voices[0], MAX_NUM_VOICES);
+        tSimplePoly_create (&leaf.mempool, &voiceHandler.voices);
+        tSimplePoly_init (&leaf, voiceHandler.voices, MAX_NUM_VOICES);
         voiceHandler.numVoicesActive = MAX_NUM_VOICES;
-        tSimplePoly_setNumVoices (voiceHandler.voices[0], (uint8_t) voiceHandler.numVoicesActive);
-        voiceHandler.voiceNote[0] = 0;
+        tSimplePoly_setNumVoices (voiceHandler.voices, (uint8_t) voiceHandler.numVoicesActive);
+
+        tStack_create (&leaf.mempool, &voiceHandler.voiceOrder);
+        tStack_init (&leaf, voiceHandler.voiceOrder);
+        tStack_setCapacity (voiceHandler.voiceOrder, MAX_NUM_VOICES);
         for (uint8_t i = 1; i < MAX_NUM_VOICES; i++)
         {
-            tSimplePoly_create (&leaf.mempool, &voiceHandler.voices[i]);
-            tSimplePoly_init (&leaf, voiceHandler.voices[i], MAX_NUM_VOICES);
             voiceHandler.voiceNote[i] = 0;
             voiceHandler.voiceIsSounding[i] = false;
             voiceHandler.voicePrevBend[i] = 0.0f;
@@ -162,13 +180,13 @@ namespace electrosynth
         {
             for (int v = 0; v < voiceHandler.numVoicesActive; ++v)
             {
-                float tempNote = (float) tSimplePoly_getPitch (voiceHandler.voices[v * mpe], (uint8_t) (v * impe));
+                float tempNote = (float) tSimplePoly_getPitch (voiceHandler.voices, (uint8_t) (v * impe));
 
                 //added this check because if there is no active voice "getPitch" returns -1
                 if (tempNote >= 0.0f)
                 {
                     //freeze pitch bend data on voices where a note off has happened and we are in the release phase
-                    if (tSimplePoly_isOn (voiceHandler.voices[v * mpe], (uint8_t) (v * impe)))
+                    if (tSimplePoly_isOn (voiceHandler.voices, (uint8_t) (v * impe)))
                     {
                         //tempNote += pitchBend;
                         // voicePrevBend[v] = pitchBend;
@@ -262,8 +280,14 @@ namespace electrosynth
                         // audio_buffer.addSample(0, i, temp_voice_buffer.getSample(v*2, 0));
                         // audio_buffer.addSample(1, i, temp_voice_buffer.getSample(v*2+1, 0));
                         temp_voice_buffer.setSample (
-                            v * 2, 0, amp_vals->getSample (v * 2, 0) * temp_voice_buffer.getSample (v * 2, 0));
-                        temp_voice_buffer.setSample (v * 2 + 1, 0, amp_vals->getSample (v * 2 + 1, 0) * temp_voice_buffer.getSample (v * 2 + 1, 0));
+                            v * 2,
+                            0,
+                            amp_vals->getSample (v * 2, 0) * temp_voice_buffer.getSample (v * 2, 0)
+                            );
+                        temp_voice_buffer.setSample (
+                            v * 2 + 1,
+                            0,
+                            amp_vals->getSample (v * 2 + 1, 0) * temp_voice_buffer.getSample (v * 2 + 1, 0));
                     }
                     //writes out to fx_buffers
                     chainPostGain[chainIndex]->processBlock (temp_voice_buffer, empty);
@@ -350,7 +374,7 @@ namespace electrosynth
             kChannelPressure = 0xd0,
             kPitchWheel = 0xe0,
         };
-        DBG ("noteon entered");
+        //DBG ("noteon entered");
         int i = voiceHandler.mpeMode ? channel : 0;
         if (i < 0)
             return;
@@ -358,7 +382,11 @@ namespace electrosynth
             noteOff (note, velocity, sample, channel);
         else
         {
-            int v = tSimplePoly_noteOn (voiceHandler.voices[i], note, velocity * 127.f);
+            int v = tSimplePoly_noteOn (voiceHandler.voices, note, velocity * 127.f);
+            tStack_add(voiceHandler.voiceOrder, v);
+
+            //DBG ("note on: " + String(tStack_get(voiceHandler.voiceOrder, 0)) + String(tStack_get(voiceHandler.voiceOrder, 1)) + String(tStack_get(voiceHandler.voiceOrder, 2)) + String(tStack_get(voiceHandler.voiceOrder, 3)) + String(tStack_get(voiceHandler.voiceOrder, 4)) + String(tStack_get(voiceHandler.voiceOrder, 5)) + String(tStack_get(voiceHandler.voiceOrder, 6)) + String(tStack_get(voiceHandler.voiceOrder, 7)));
+
             if (!voiceHandler.mpeMode)
                 i = v;
             // DBG("note on" + String(i) + " " + String(v));
@@ -388,28 +416,39 @@ namespace electrosynth
     void SoundEngine::noteOff (int note, float velocity, int sample, int channel)
     {
         //    voice_handler_->noteOff(note, lift, sample, channel);
-        DBG ("noteoff entered");
+        //DBG ("noteoff entered");
         int i = voiceHandler.mpeMode ? channel : 0;
 
         if (i < 0)
             return;
 
-        int v = tSimplePoly_markPendingNoteOff (voiceHandler.voices[i], note);
+        int v = tSimplePoly_markPendingNoteOff (voiceHandler.voices, note);
+        //tStack_remove(voiceHandler.voiceOrder, v);
 
         //If stack_IsNOTEmpty
-        if ((v != -1) && (tStack_getSize (tSimplePoly_getStack (voiceHandler.voices[i])) >= voiceHandler.numVoicesActive))
+        if ((v != -1) && (tStack_getSize (tSimplePoly_getStack (voiceHandler.voices)) >= voiceHandler.numVoicesActive))
         {
-            if (tSimplePoly_getVoices (voiceHandler.voices[0])[v][0] == -2)
+            if (tSimplePoly_getVoices (voiceHandler.voices)[v][0] == -2)
             {
-                tSimplePoly_deactivateVoice (voiceHandler.voices[0], v);
+                tSimplePoly_deactivateVoice (voiceHandler.voices, v);
                 voiceHandler.voiceIsSounding[v] = true;
+                tStack_remove(voiceHandler.voiceOrder, v);
+                //DBG ("off: " + String(tStack_get(voiceHandler.voiceOrder, 0)) + String(tStack_get(voiceHandler.voiceOrder, 1)) + String(tStack_get(voiceHandler.voiceOrder, 2)) + String(tStack_get(voiceHandler.voiceOrder, 3)) + String(tStack_get(voiceHandler.voiceOrder, 4)) + String(tStack_get(voiceHandler.voiceOrder, 5)) + String(tStack_get(voiceHandler.voiceOrder, 6)) + String(tStack_get(voiceHandler.voiceOrder, 7)));
+
+
             }
-            DBG ("noteoff stacknot empty" + String (i) + " " + String (v));
+            //DBG ("noteoff stacknot empty" + String (i) + " " + String (v));
+            //tStack_remove(voiceHandler.voiceOrder, v);
+            //DBG ("off: " + String(tStack_get(voiceHandler.voiceOrder, 0)) + String(tStack_get(voiceHandler.voiceOrder, 1)) + String(tStack_get(voiceHandler.voiceOrder, 2)) + String(tStack_get(voiceHandler.voiceOrder, 3)) + String(tStack_get(voiceHandler.voiceOrder, 4)) + String(tStack_get(voiceHandler.voiceOrder, 5)) + String(tStack_get(voiceHandler.voiceOrder, 6)) + String(tStack_get(voiceHandler.voiceOrder, 7)));
             return;
         }
         if (!voiceHandler.mpeMode)
             i = v; //not sure if this is right -JS
-        DBG ("noteoff" + String (i) + " " + String (v));
+        //DBG ("noteoff" + String (i) + " " + String (v));
+        //DBG ("noteoff " + String(v));
+        //tStack_remove(voiceHandler.voiceOrder, v);
+        //DBG ("off: " + String(tStack_get(voiceHandler.voiceOrder, 0)) + String(tStack_get(voiceHandler.voiceOrder, 1)) + String(tStack_get(voiceHandler.voiceOrder, 2)) + String(tStack_get(voiceHandler.voiceOrder, 3)) + String(tStack_get(voiceHandler.voiceOrder, 4)) + String(tStack_get(voiceHandler.voiceOrder, 5)) + String(tStack_get(voiceHandler.voiceOrder, 6)) + String(tStack_get(voiceHandler.voiceOrder, 7)));
+
 
         if (v >= 0)
         {
@@ -521,8 +560,8 @@ namespace electrosynth
         //    voice_handler_->sostenutoOffRange(sample, from_channel, to_channel);
     }
 
-    std::array<ModuleHeader*, MAX_NUM_VOICES>* SoundEngine::getLEAFProcessor (const std::string& proc_string)
-    {
+    std::array<ModuleHeader*, MAX_NUM_VOICES>* SoundEngine::getLEAFProcessor (const std::string& proc_string) {
+        /*
         // Use find_if to search the outermost vector
         auto outerIt = std::find_if (processors.begin(), processors.end(), [&] (const auto& innerVec) {
             // Use find_if on the inner vector to look for the processor with the target name
@@ -543,8 +582,26 @@ namespace electrosynth
             // Here you can cast the processor to leaf::Processor* if needed
             return (innerIt->get()->procArray);
         }
-        if (proc_string == "VCA"
-            || (MasterVoiceEnvelopeProcessor != nullptr
+        */
+
+        auto findProcessor = [&proc_string](auto& lanes) -> ProcessorBase* {
+            for (auto& lane : lanes) {
+                for (auto& processor : lane) {
+                    if (processor != nullptr && processor->name == juce::String(proc_string)) {
+                        return processor.get();
+                    }
+                }
+            }
+            return nullptr;
+        };
+
+        if (auto* processor = findProcessor(processors))
+            return processor->procArray;
+
+        if (auto* effect = findProcessor(effects))
+            return effect->procArray;
+
+        if (proc_string == "VCA" || (MasterVoiceEnvelopeProcessor != nullptr
                 && MasterVoiceEnvelopeProcessor->name == juce::String (proc_string)))
             return MasterVoiceEnvelopeProcessor->procArray;
 

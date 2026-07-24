@@ -156,14 +156,16 @@ void SynthBase::setMpeEnabled(bool enabled) {
     midi_manager_->setMpeEnabled(enabled);
 }
 void SynthBase::removeEffect(ProcessorBase *processor, int lane) {
-    if (engine_ == nullptr) return;
+    if (engine_ == nullptr || processor == nullptr) return;
+
     if (lane < 0 || lane >= static_cast<int>(engine_->effects.size()))
         return; // invalid lane index
 
+    disconnectModulationsForDestinationProcessor(processor->name.toStdString()); // disconnect modulation connections from this FX
+
     auto& effectLane = engine_->effects[lane];
     auto it = std::find_if(effectLane.begin(), effectLane.end(),
-                               [processor](const auto& ptr)
-                               {
+                               [processor](const auto& ptr){
                                    return ptr.get() == processor;
                                });
         if (it != effectLane.end()) {
@@ -675,8 +677,8 @@ std::vector<electrosynth::ModulationConnection *> SynthBase::getDestinationConne
     return connections;
 }
 
-electrosynth::ModulationConnection *
-SynthBase::getConnection(const std::string &source, const std::string &destination, int destination_slot) {
+electrosynth::ModulationConnection *SynthBase::getConnection(const std::string &source,
+    const std::string &destination, int destination_slot) {
     for (auto &connection: mod_connections_) {
         if (connection->source_name == source
             && connection->destination_name == destination
@@ -755,6 +757,25 @@ void SynthBase::disconnectModulation(const std::string &source, const std::strin
     electrosynth::ModulationConnection *connection = getConnection(source, destination);
     if (connection)
         disconnectModulation(connection);
+}
+
+// if a filter is deleted, disconnect all modulation connections it is the source of
+void SynthBase::disconnectModulationsForDestinationProcessor(const std::string& processor_name) {
+    const std::string dest_prefix = processor_name + "_";
+    std::vector<electrosynth::ModulationConnection*> connections_to_remove;
+
+    for (auto* connection : mod_connections_) {
+        if (connection == nullptr) continue;
+        const auto destination = connection->destination_name;
+
+        if (destination.size() >= dest_prefix.size() && destination.starts_with(dest_prefix)) {
+            connections_to_remove.push_back(connection);
+        }
+    }
+
+    for (auto* connection : connections_to_remove) {
+        disconnectModulation(connection);
+    }
 }
 
 

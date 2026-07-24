@@ -141,6 +141,7 @@ void FullInterface::paintBackground(juce::Graphics& g) {
    g.fillAll(findColour(Skin::kBackground, true));
    paintChildrenShadows(g);
 
+
    int padding = getPadding();
    int bar_width = 6 * padding;
    //g.setColour(header_->findColour(Skin::kBody, true));

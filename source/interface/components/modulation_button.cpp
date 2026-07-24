@@ -17,13 +17,12 @@
 #include "modulation_button.h"
 #include "paths.h"
 #include "juce_gui_basics/juce_gui_basics.h"
-#include "default_look_and_feel.h"
 #include "synth_gui_interface.h"
-#include "fonts.h"
 #include "skin.h"
 #include "synth_base.h"
 //#include "modulation_matrix.h"
 #include "synth_section.h"
+
 ModulationButton:: ModulationButton(String name) : PlainShapeComponent(std::move(name)), parent_(nullptr),
                                                   mouse_state_(kNone), selected_(false), connect_right_(false),
                                                   draw_border_(false), active_modulation_(false), font_size_(12.0f),

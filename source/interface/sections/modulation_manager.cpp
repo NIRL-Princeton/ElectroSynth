@@ -29,9 +29,10 @@
 #include "synth_gui_interface.h"
 #include <cmath>
 #include <juce_gui_basics/juce_gui_basics.h>
+
 namespace {
-    constexpr float kDefaultModulationRatio = 0.25f; // default to 25% modulation upon making a new connection
-    constexpr float kModSmoothDecay = 0.25f; // smoothing speed for modulation value animation/readout updates
+    constexpr float kDefaultModulationRatio = 0.0f; // default to 25% modulation upon making a new connection
+    constexpr float kModSmoothDecay = 0.5f; // smoothing speed for modulation value animation/readout updates
 
     // recursively checks if a component and all its parents are visible before showing modulation on knobs
     bool allVisible(juce::Component* component) {
@@ -49,7 +50,7 @@ namespace {
     else if (source_name.startsWithIgnoreCase("vca") || source_name.containsIgnoreCase("master"))
       prefix = "Env ";
     else
-      return source_name;
+      return prefix = "Noise ";
 
     juce::String digits;
     for (auto character : source_name) {
@@ -67,7 +68,7 @@ namespace {
       return ShaderColors::kLfoTextColor;
     if (source_name.startsWithIgnoreCase("vca") || source_name.containsIgnoreCase("master"))
       return ShaderColors::kMasterEnvelopeTextColor;
-    return ShaderColors::kSoundModuleTextColor;
+    return ShaderColors::kNoise;
   }
 }
 
@@ -166,6 +167,7 @@ class ModulationDestination : public juce::Component {
     }
 
     juce::Rectangle<float> getFillBounds() {
+
         static constexpr float kBufferPercent = 0.4f;
         float width = getWidth();
         float height = getHeight();
@@ -186,8 +188,7 @@ class ModulationDestination : public juce::Component {
             float glow_height = height * SynthSlider::kLinearWidthPercent;
             y -= 2.0f * glow_height * kBufferPercent;
             glow_height += 4.0f * kBufferPercent * glow_height;
-
-        return juce::Rectangle<float>(margin_, y, width - 2 * margin_, glow_height);
+            return juce::Rectangle<float>(margin_, y, width - 2 * margin_, glow_height);
       }
 
       float x = width * 0.5f * (1.0f - SynthSlider::kLinearWidthPercent);
@@ -195,6 +196,7 @@ class ModulationDestination : public juce::Component {
       x -= 2.0f * glow_width * kBufferPercent;
       glow_width += 4.0f * kBufferPercent * glow_width;
       return juce::Rectangle<float>(x, margin_, glow_width, height - 2 * margin_);
+
     }
 
     void setRectangle(bool rectangle) { rectangle_ = rectangle; }
@@ -226,7 +228,7 @@ class ModulationDestination : public juce::Component {
 
 // creates the UI knob that controls how much modulation is applied to another slider
 ModulationAmountKnob::ModulationAmountKnob(juce::String name, int index, const ValueTree &v) : SynthSlider(name),
-                                                                     color_component_(nullptr), index_(index), state(v) {
+                                                                     color_component_(nullptr), index_(index) {
   setModulationKnob(); // set the knob-type as a modulation knob
   bypass_ = false;
   stereo_ = false;
@@ -243,7 +245,6 @@ ModulationAmountKnob::ModulationAmountKnob(juce::String name, int index, const V
   hovering_ = false;
   current_modulator_ = false;
   setRange(-1.f,1.f,0.f);
-
 }
 
 void ModulationAmountKnob::mouseDown(const juce::MouseEvent& e) {
@@ -389,12 +390,6 @@ void ModulationAmountKnob::setCurrentModulator(bool current) {
     current_modulator_ = current;
 }
 
-void ModulationAmountKnob::setDestinationComponent(juce::Component* component, const std::string& name) {
-//  setPopupPrefix(electrosynth::juce::Parameters::getDisplayName(name) + ": ");
-    if (color_component_)
-        setColour(Skin::kRotaryArc, color_component_->findColour(Skin::kRotaryArc, true));
-}
-
 void ModulationAmountKnob::setSource(const std::string& name) {
     source_name_ = name;
     const auto color = getSourceColor();
@@ -404,7 +399,6 @@ void ModulationAmountKnob::setSource(const std::string& name) {
     setColour(Skin::kModulationMeterControl, color);
     setPopupPrefix(getSourceLabel() + ": ");
     redoImage();
-    repaint();
 }
 
 juce::String ModulationAmountKnob::getSourceLabel() const {
@@ -415,30 +409,6 @@ juce::Colour ModulationAmountKnob::getSourceColor() const {
   return getModulationSourceColor(source_name_);
 }
 
-void ModulationAmountKnob::paint(juce::Graphics& g) {
-  const auto bounds = getLocalBounds().toFloat();
-  const auto source_color = getSourceColor();
-    const auto color = bypass_ ? source_color.withSaturation(0.0f) : source_color;
-
-  g.setColour(juce::Colours::black.withAlpha(0.70f));
-  g.fillRect(bounds.reduced(1.0f));
-
-  g.setColour(color);
-  g.drawRect(bounds.reduced(0.5f), 1.0f);
-
-  const float meter_thickness = std::max(2.0f, bounds.getHeight() * 0.12f);
-  const float meter_width = std::max(0.0f, bounds.getWidth() * std::abs(static_cast<float>(getValue())) - 2.0f);
-  g.setColour(color.withAlpha(0.35f));
-  g.fillRect(bounds.getX() + 1.0f,
-             bounds.getBottom() - meter_thickness - 1.0f,
-             meter_width,
-             meter_thickness);
-
-  g.setColour(color);
-  g.setFont(juce::Font(std::max(9.0f, bounds.getHeight() * 0.45f), juce::Font::bold));
-  g.drawFittedText(getSourceLabel(), getLocalBounds().reduced(2, 1),
-                   juce::Justification::centred, 1);
-}
 
 ModulationManager::ModulationManager(ValueTree &tree, SynthBase* base) :
         SynthSection("modulation_manager"), drag_quad_(Shaders::kRingFragment), drag_icon_("modulation_drag_icon"),
@@ -545,6 +515,7 @@ ModulationManager::~ModulationManager() { }
 
 void ModulationManager::resized() {
   float meter_thickness = findValue(Skin::kKnobModMeterArcThickness);
+
   juce::Colour meter_center_color = findColour(Skin::kModulationMeter, true);
   juce::Colour meter_left_color = findColour(Skin::kModulationMeterLeft, true);
   juce::Colour meter_right_color = findColour(Skin::kModulationMeterRight, true);
@@ -555,6 +526,7 @@ void ModulationManager::resized() {
   editing_linear_amount_quad_.setColor(meter_center_color);
   editing_linear_amount_quad_.setAltColor(meter_center_color);
   editing_linear_amount_quad_.setModColor(meter_center_color);
+
 
   for (auto& rotary_meter_group : rotary_meters_) {
     rotary_meter_group.second->setThickness(meter_thickness);
@@ -569,6 +541,8 @@ void ModulationManager::resized() {
     linear_meter_group.second->setAltColor(meter_right_color);
   }
 
+
+
   modulation_destinations_->setBounds(getLocalBounds());
  // modulation_source_meters_->setBounds(getLocalBounds());
 
@@ -580,8 +554,8 @@ void ModulationManager::resized() {
   drag_quad_.setThumbColor(meter_control);
   drag_quad_.setAltColor(findColour(Skin::kWidgetBackground, true));
 
-  modulation_expansion_box_->setColor(findColour(Skin::kBody, true));
 
+    modulation_expansion_box_->setColor(findColour(Skin::kBody, true));
     // set destination map colors
   juce::Colour lighten_screen = findColour(Skin::kLightenScreen, true);
   float rounding = parent_->findValue(Skin::kLabelBackgroundRounding);
@@ -840,8 +814,7 @@ void ModulationManager::componentAdded()
             }
 
 
-        for (auto& rotary_meters : num_rotary_meters)
-        {
+        for (auto& rotary_meters : num_rotary_meters) {
             //DBG ("num rotary" + String (rotary_meters.second));
             rotary_destinations_[rotary_meters.first] = std::make_unique<OpenGlMultiQuad> (rotary_meters.second,
                 Shaders::kRingFragment); //kCircleFragment
@@ -854,6 +827,8 @@ void ModulationManager::componentAdded()
                 Shaders::kRotaryModulationFragment);
             rotary_meters_[rotary_meters.first]->setTargetComponent (this);
             rotary_meters_[rotary_meters.first]->setScissorComponent (rotary_meters.first);
+            rotary_meters_[rotary_meters.first]->setAlpha (1.0f, true);
+            rotary_meters_[rotary_meters.first]->setVisible(true);
         }
         for (auto& linear_meters : num_linear_meters)
         {
@@ -870,23 +845,17 @@ void ModulationManager::componentAdded()
             linear_meters_[linear_meters.first]->setTargetComponent (this);
             linear_meters_[linear_meters.first]->setScissorComponent (linear_meters.first);
         }
-        for (auto& slider : slider_model_lookup_)
-        {
-            std::string name = slider.first;
+        for (auto& slider : slider_model_lookup_) {
+            const std::string name = slider.first;
 
-            const bool has_slots = std::any_of(
-                slider.second->getExtraModulationTargets().begin(),
-                slider.second->getExtraModulationTargets().end(),
-                [] (const auto* target) { return target != nullptr; });
-
-            const bool rotary = slider.second->isRotary() && !slider.second->isTextOrCurve(); // && !has_slots;
+            const bool rotary = slider.second->isRotary() && !slider.second->isTextOrCurve();
             const bool linear = !rotary;
             Viewport* viewport = slider.second->findParentComponentOfClass<Viewport>();
 
             if (rotary) {
                 int index = num_rotary_meters[viewport] - 1;
                 num_rotary_meters[viewport] = index;
-                createModulationMeter (slider.second, rotary_meters_[viewport].get(), index);
+                createModulationMeter(slider.second, rotary_meters_[viewport].get(), index);
             }
             else if (linear) {
                 int index = num_linear_meters[viewport] - 1;
@@ -1016,41 +985,6 @@ void ModulationManager::setDestinationQuadBounds(ModulationDestination* destinat
   juce::Viewport* viewport =
       destination->getDestinationSlider()->findParentComponentOfClass<juce::Viewport>();
 
-/*
-if (destination->hasExtraModulationTarget()) {
-    const auto& targets = destination->getDestinationSlider()->getExtraModulationTargets();
-    const std::string destination_name = destination->getComponentID().toStdString();
-
-    for (int slot = 0; slot < SynthSlider::kNumModulationSlots; ++slot) {
-      const int quad_index = destination->getIndex() + slot;
-      auto* target = targets[slot];
-
-      if (target == nullptr
-          || !target->isShowing()
-          || isModulationSlotOccupied(destination_name, slot)) {
-        linear_destinations_[viewport]->setQuad(quad_index, -2.0f, -2.0f, 0.0f, 0.0f);
-        continue;
-      }
-
-      const juce::Point<int> top_left = getLocalPoint(target, juce::Point<int>());
-      const juce::Rectangle<float> draw_bounds(
-          static_cast<float>(top_left.x),
-          static_cast<float>(top_left.y),
-          static_cast<float>(target->getWidth()),
-          static_cast<float>(target->getHeight()));
-
-      const float x = 2.0f * draw_bounds.getX() / getWidth() - 1.0f;
-      const float y = 1.0f - 2.0f * draw_bounds.getBottom() / getHeight();
-      const float width = 2.0f * draw_bounds.getWidth() / getWidth();
-      const float height = 2.0f * draw_bounds.getHeight() / getHeight();
-      linear_destinations_[viewport]->setQuad(quad_index, x, y, width, height);
-    }
-
-    return;
-  }
-
- */
-
   juce::Point<float> top_left = destination->getBounds().getTopLeft().toFloat();
   juce::Rectangle<float> draw_bounds = destination->getLocalBounds().toFloat() + top_left;
   draw_bounds = destination->getFillBounds() + top_left;
@@ -1103,8 +1037,7 @@ int ModulationManager::findSlotForNewConnection(SynthSlider* slider) const {
     return -1;
 }
 
-bool ModulationManager::isModulationSlotOccupied(
-    const std::string& destination, int destination_slot) const {
+bool ModulationManager::isModulationSlotOccupied(const std::string& destination, int destination_slot) const {
   if (destination_slot < 0)
     return false;
 
@@ -1214,6 +1147,7 @@ void ModulationManager::makeAuxilaryModulationConnection(ModulationAmountKnob* h
 void ModulationManager::modulationDraggedToComponent(juce::Component* component, bool bipolar) {
     if (component == nullptr || current_modulator_ == nullptr)
         return;
+
     std::string destination_name = component->getComponentID().toStdString();
     auto destination_iter = destination_lookup_.find(destination_name);
     if (destination_iter == destination_lookup_.end() || destination_iter->second == nullptr)
@@ -1583,39 +1517,59 @@ void ModulationManager::renderOpenGlComponents(OpenGlWrapper& open_gl, bool anim
 }
 
 void ModulationManager::renderMeters(OpenGlWrapper& open_gl, bool animate) {
-  if (!animate)
-    return;
-  ScopedLock lock (open_gl_critical_section_);
-  int num_voices = 1;
+    if (!animate)
+        return;
+
+    ScopedLock lock (open_gl_critical_section_);
+    int num_voices = 1;
 //  if (num_voices_readout_)
 //    num_voices = std::max<float>(0.0f, num_voices_readout_->value()[0]);
-  SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
-  for (auto& meter : meter_lookup_) {
-    SynthSlider* slider = slider_model_lookup_[meter.first];
-    bool show = slider != nullptr && meter.second->isModulated() && allVisible(slider) && slider->isShowing();
-    meter.second->setActive(show);
-    if (show) {
-      if (parent) {
-        float range = slider->getMaximum() - slider->getMinimum();
-        float display_value = slider->getValue();
-        for (auto* connection : parent->getSynth()->getDestinationConnections(meter.first)) {
-          if (connection != nullptr && !connection->isBypass())
-            display_value += connection->getCurrentBaseValue() * range;
+
+    SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
+
+
+    for (auto& meter : meter_lookup_) {
+        SynthSlider* slider = slider_model_lookup_[meter.first];
+        juce::Colour color = slider->findColour(Skin::kRotaryArc);
+        auto* viewport = slider->findParentComponentOfClass<juce::Viewport>();
+        auto meter_group = rotary_meters_.find(viewport);
+
+       if (meter_group != rotary_meters_.end() && meter_group->second != nullptr){
+           meter_group->second->setColor(color);
+           meter_group->second->setAltColor(color);
+           meter_group->second->setModColor(color);
+       }
+
+        bool show = slider != nullptr && meter.second->isModulated() && allVisible(slider) && slider->isShowing();
+        meter.second->setActive(show);
+
+        if (show) {
+            if (parent) {
+                meter.second->clearStaticModulationAmount();
+                float range = slider->getMaximum() - slider->getMinimum();
+                float display_value = slider->getValue();
+
+                for (auto* connection : parent->getSynth()->getDestinationConnections(meter.first)) {
+                    if (connection != nullptr && !connection->isBypass()) {
+                        display_value += connection->getCurrentBaseValue() * range;
+                        float amount = connection->getCurrentBaseValue();
+                        if (connection->isBipolar())
+                            amount *= 2.0f;
+                        meter.second->setStaticModulationAmount(amount, connection->isBipolar());
+                    }
+                }
+                meter.second->setCurrentValue(display_value);
+            }
+            meter.second->updateDrawing(num_voices);
         }
-
-        meter.second->setCurrentValue(display_value);
-      }
-
-      meter.second->updateDrawing(num_voices);
     }
-  }
 
-  OpenGlComponent::setViewPort(this, open_gl);
-  for (auto& rotary_meter_group : rotary_meters_)
-    rotary_meter_group.second->render(open_gl, animate);
+    OpenGlComponent::setViewPort(this, open_gl);
+    for (auto& rotary_meter_group : rotary_meters_)
+        rotary_meter_group.second->render(open_gl, animate);
 
-  for (auto& linear_meter_group : linear_meters_)
-    linear_meter_group.second->render(open_gl, animate);
+    for (auto& linear_meter_group : linear_meters_)
+        linear_meter_group.second->render(open_gl, animate);
 }
 
 void ModulationManager::renderSourceMeters(OpenGlWrapper& open_gl, int index) {
@@ -1703,7 +1657,7 @@ void ModulationManager::destroyOpenGlComponents(juce::OpenGLContext& open_gl) {
 
 void ModulationManager::showModulationAmountOverlay(ModulationAmountKnob* slider) {
   electrosynth::ModulationConnection* connection = getConnection(slider->index());
-  if (connection == nullptr || meter_lookup_.count(connection->destination_name) == 0)
+  if (connection == nullptr || !meter_lookup_.contains (connection->destination_name))
     return;
 
   ModulationMeter* meter = meter_lookup_[connection->destination_name].get();
@@ -1711,23 +1665,24 @@ void ModulationManager::showModulationAmountOverlay(ModulationAmountKnob* slider
     return;
 
   if (meter->isRotary()) {
-    editing_rotary_amount_quad_.setTargetComponent(meter);
-    editing_rotary_amount_quad_.setAdditive(false);
-    meter->setAmountQuadVertices(editing_rotary_amount_quad_);
-    meter->setModulationAmountQuad(editing_rotary_amount_quad_, slider->getValue(), slider->isBipolar());
+      editing_rotary_amount_quad_.setTargetComponent(meter);
+      editing_rotary_amount_quad_.setAdditive(false);
+      meter->setAmountQuadVertices(editing_rotary_amount_quad_);
+      meter->setModulationAmountQuad(editing_rotary_amount_quad_, slider->getValue(), slider->isBipolar());
 
-    editing_rotary_amount_quad_.setThickness(2.0f);
-    editing_rotary_amount_quad_.setAlpha(1.0f);
-    editing_rotary_amount_quad_.setActive(true);
+      editing_rotary_amount_quad_.setThickness(2.0f);
+      editing_rotary_amount_quad_.setAlpha(1.0f);
+      editing_rotary_amount_quad_.setActive(true);
   }
-  else {
-    editing_linear_amount_quad_.setTargetComponent(meter);
-    editing_linear_amount_quad_.setAdditive(false);
-    meter->setAmountQuadVertices(editing_linear_amount_quad_);
-    meter->setModulationAmountQuad(editing_linear_amount_quad_, slider->getValue(), slider->isBipolar());
 
-    editing_linear_amount_quad_.setAlpha(1.0f);
-    editing_linear_amount_quad_.setActive(true);
+  else {
+      editing_linear_amount_quad_.setTargetComponent(meter);
+      editing_linear_amount_quad_.setAdditive(false);
+      meter->setAmountQuadVertices(editing_linear_amount_quad_);
+      meter->setModulationAmountQuad(editing_linear_amount_quad_, slider->getValue(), slider->isBipolar());
+
+      editing_linear_amount_quad_.setAlpha(1.0f);
+      editing_linear_amount_quad_.setActive(true);
   }
 }
 
@@ -1784,7 +1739,7 @@ void ModulationManager::modulationsChanged(const std::string& destination) {
   if (parent == nullptr)
     return;
 
-  if (meter_lookup_.count(destination) == 0)
+  if (!meter_lookup_.contains (destination))
     return;
   
   int num_modulations = parent->getSynth()->getNumModulations(destination);
@@ -1945,6 +1900,10 @@ bool ModulationManager::connectModulation(
     modifying_ = true;
     const bool connected = parent->connectModulation(source, destination, destination_slot);
     modifying_ = false;
+
+    if (connected)
+        modulationsChanged(destination);
+
     return connected;
 }
 

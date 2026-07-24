@@ -184,6 +184,8 @@ public:
 
     void disconnectModulation(const std::string &source, const std::string &destination);
 
+    void disconnectModulationsForDestinationProcessor(const std::string& processor_name);
+
     void processMappingChanges();
 
     int getNumModulations(const std::string &destination);
