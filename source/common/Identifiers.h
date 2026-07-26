@@ -40,7 +40,6 @@ namespace IDs
     DECLARE_ID (CONNECTION)
     DECLARE_ID (src)
     DECLARE_ID (dest)
-    DECLARE_ID (destType)
     DECLARE_ID (srcIdx)
     DECLARE_ID (destIdx)
     DECLARE_ID(isIn)

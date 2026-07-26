@@ -689,7 +689,6 @@ namespace electrosynth
                     tMappingAdd_ (&change.mapping->mapping_[v],
                         &change._source->at (v)->outputs[0],
                         change._source->at (v)->uniqueID,
-                        DestinationType::Parameter, // MM: 1 for audio
                         val,
                         change._dest->at (v)->uniqueID,
                         change._dest->at (v)->setterFunctions[change.dest_param_index],
@@ -724,7 +723,6 @@ namespace electrosynth
             tMappingAdd_ (&change.mapping->mapping_[v],
                 &change._source->at (v)->outputs[0],
                 change._source->at (v)->uniqueID,
-                DestinationType::Parameter, // MM: change for audio
                 val,
                 change._dest->at (v)->uniqueID,
                 change._dest->at (v)->setterFunctions[change.dest_param_index],

@@ -1149,6 +1149,7 @@ void ModulationManager::modulationDraggedToComponent(juce::Component* component,
         return;
 
     std::string destination_name = component->getComponentID().toStdString();
+    DBG("destination_name: " + destination_name);
     auto destination_iter = destination_lookup_.find(destination_name);
     if (destination_iter == destination_lookup_.end() || destination_iter->second == nullptr)
         return;

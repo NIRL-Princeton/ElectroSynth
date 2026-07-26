@@ -146,7 +146,6 @@ namespace electrosynth {
         ModulationConnection* connection;
         std::string destination;
         std::string source;
-        DestinationType destType;
         int dest_param_index;
         int source_param_uuid;
         std::array<ModuleHeader*, MAX_NUM_VOICES>*_source;
