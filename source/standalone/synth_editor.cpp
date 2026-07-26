@@ -124,7 +124,6 @@ void SynthEditor::getNextAudioBlock(const AudioSourceChannelInfo& buffer) {
   processKeyboardEvents(midi_messages, num_samples);
 
   double sample_time = 1.0 / getSampleRate();
-
     processMidi(midi_messages, 0, 0+num_samples);
     processAudio(buffer.buffer, electrosynth::kNumChannels, num_samples, 0);
 

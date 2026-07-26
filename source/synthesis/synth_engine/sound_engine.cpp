@@ -242,7 +242,12 @@ namespace electrosynth
             {
                 juce::ScopedLock sl (myCoolLock);
                 auto amp_vals = MasterVoiceEnvelopeProcessor->processMasterEnvelope();
+                // Updates modulation mappings
+                // Could we just route audio to module inputs here too? Don't really see why not...
+                // ^^ this would be non-rework temp fix...
                 processMappings();
+
+                // Process modulations
                 for (auto& modulator_chain : modSources)
                 {
                     for (auto& modulator : modulator_chain)
@@ -252,6 +257,7 @@ namespace electrosynth
                     }
                 }
 
+                // Process source "chains" for all (12) voices summed to temp_voice_buffer and scale by master envelope output (amp_vals)
                 int chainIndex = -1;
                 for (auto& proc_chain : processors)
                 {
@@ -263,22 +269,9 @@ namespace electrosynth
                         if (proc != nullptr)
                             proc->processBlock (temp_voice_buffer, empty);
                     }
-                    // //at end of given processor chain
-                    // for ( int v = 0; v < voiceHandler.numVoicesActive; ++v) {
-                    //         // audio_buffer.addSample(0, i, temp_voice_buffer.getSample(v*2, 0));
-                    //         // audio_buffer.addSample(1, i, temp_voice_buffer.getSample(v*2+1, 0));
-                    //     // if (amp_vals->getSample(v*2,0) > 0.f) {
-                    //     //     DBG(amp_vals->getSample(v*2,0));
-                    //     //     DBG(temp_voice_buffer.getSample(v*2,0));
-                    //     // }
-                    //         audio_buffer.addSample(0, i, amp_vals->getSample(v*2, 0) * temp_voice_buffer.getSample(v*2, 0));
-                    //        audio_buffer.addSample(1, i, amp_vals->getSample(v*2+1, 0) * temp_voice_buffer.getSample(v*2+1, 0));
-                    // }
 
                     for (int v = 0; v < voiceHandler.numVoicesActive; ++v)
                     {
-                        // audio_buffer.addSample(0, i, temp_voice_buffer.getSample(v*2, 0));
-                        // audio_buffer.addSample(1, i, temp_voice_buffer.getSample(v*2+1, 0));
                         temp_voice_buffer.setSample (
                             v * 2,
                             0,
@@ -289,9 +282,9 @@ namespace electrosynth
                             0,
                             amp_vals->getSample (v * 2 + 1, 0) * temp_voice_buffer.getSample (v * 2 + 1, 0));
                     }
-                    //writes out to fx_buffers
-                    chainPostGain[chainIndex]->processBlock (temp_voice_buffer, empty);
 
+                    // Copy processed (12) voices to X (number of chains) chainPostGains
+                    chainPostGain[chainIndex]->processBlock (temp_voice_buffer, empty);
 
                     temp_voice_buffer.clear();
                 }
@@ -303,6 +296,7 @@ namespace electrosynth
                 audio_buffer.addSample (0, i, temp_fx_buffers[0].getSample (v * 2, 0));
                 audio_buffer.addSample (1, i, temp_fx_buffers[0].getSample (v * 2 + 1, 0));
             }
+
             for (auto& fx_lane : effects)
             {
                 for (auto& fx : fx_lane)
@@ -321,14 +315,7 @@ namespace electrosynth
             {
                 fx.clear();
             }
-            // melatonin::printSparklin   e (*amp_vals.get,true);
         }
-        // melatonin::printSparkline(audio_buffer, true);
-
-        if (getNumActiveVoices() == 0)
-        {
-        }
-        //   bufferDebugger->capture("main out", audio_buffer.getReadPointer(0), audio_buffer.getNumSamples(), -20.f, 20.f);
     }
 
     void SoundEngine::process (juce::AudioSampleBuffer& audio_buffer, juce::MidiBuffer& midi_buffer)
@@ -702,9 +689,11 @@ namespace electrosynth
                     tMappingAdd_ (&change.mapping->mapping_[v],
                         &change._source->at (v)->outputs[0],
                         change._source->at (v)->uniqueID,
+                        DestinationType::Parameter, // MM: 1 for audio
                         val,
                         change._dest->at (v)->uniqueID,
                         change._dest->at (v)->setterFunctions[change.dest_param_index],
+
                         change.dest_param_index,
                         change._dest->at (v),
                         &leaf,
@@ -735,6 +724,7 @@ namespace electrosynth
             tMappingAdd_ (&change.mapping->mapping_[v],
                 &change._source->at (v)->outputs[0],
                 change._source->at (v)->uniqueID,
+                DestinationType::Parameter, // MM: change for audio
                 val,
                 change._dest->at (v)->uniqueID,
                 change._dest->at (v)->setterFunctions[change.dest_param_index],

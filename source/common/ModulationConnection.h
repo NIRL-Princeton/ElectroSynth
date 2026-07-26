@@ -10,6 +10,7 @@
 #include "processors/mapping.h"
 #include "ModulationWrapper.h"
 #include "leaf.h"
+
 namespace electrosynth {
     struct MappingWrapper;
 
@@ -137,19 +138,20 @@ namespace electrosynth {
 
         void reorderMapping();
     };
-        typedef struct mapping_change
-        {
-            bool disconnecting;
-            MappingWrapper* mapping;
-            ModulationConnection* connection;
-            std::string destination;
-            std::string source;
-            int dest_param_index;
-            int source_param_uuid;
-            std::array<ModuleHeader*, MAX_NUM_VOICES>*_source;
-            std::array<ModuleHeader*, MAX_NUM_VOICES>*_dest;
-        }  mapping_change;
 
+    typedef struct mapping_change
+    {
+        bool disconnecting;
+        MappingWrapper* mapping;
+        ModulationConnection* connection;
+        std::string destination;
+        std::string source;
+        DestinationType destType;
+        int dest_param_index;
+        int source_param_uuid;
+        std::array<ModuleHeader*, MAX_NUM_VOICES>*_source;
+        std::array<ModuleHeader*, MAX_NUM_VOICES>*_dest;
+    }  mapping_change;
 
     class ModulationConnectionBank {
     public:
