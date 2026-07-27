@@ -75,6 +75,7 @@ ModuleSection::ModuleSection(const juce::ValueTree &v, electrosynth::audio::Node
         output_port_ = std::make_shared<AudioPortComponent>( // make an output arrow belonging to this output port
             "audio_output",
             std::move(address));
+        //output_port_->addListener (this);
         addOpenGlComponent(output_port_);
     }
 
@@ -88,6 +89,7 @@ ModuleSection::ModuleSection(const juce::ValueTree &v, electrosynth::audio::Node
         input_port_ = std::make_shared<AudioPortComponent>( // make an output arrow belonging to this output port
             "audio_input",
             std::move(address));
+        //input_port_->addListener (this);
         addOpenGlComponent(input_port_);
     }
 
