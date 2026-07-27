@@ -18,124 +18,135 @@
 // Keep this array in exactly the same order as ModuleType in defs.h.
 const std::array<std::vector<std::string>, 11> paramsAllArray =
 {
+{
+    // oscillator
     {
-        // oscillator
-        {
-            "eventWatch",
-            "midiPitch", // OscMidiPitch
+        "eventWatch",
+        "audioIn",
+        "midiPitch", // OscMidiPitch
 
-            "harmonic", // OscHarmonic
-            "pitch", // OscPitchOffset
-            "pitchfine", // OscPitchFine
-            "freqoffset", // OscFreqOffset
-            "shape", // OscShapeParam
-            "amp", // OscAmpParam
-            "glide", // OscGlide
-            "harmonicStepped", // OscStepped
-            "", // OscSyncMode (undefined / not modulatable )
-            "", // OscSyncIn (undefined / not modulaatblae )
-            "oscType", // OscType
-            "" // OscNumParams (typically represents the count, no corresponding parameter)
-        },
+        "harmonic", // OscHarmonic
+        "pitch", // OscPitchOffset
+        "pitchfine", // OscPitchFine
+        "freqoffset", // OscFreqOffset
+        "shape", // OscShapeParam
+        "amp", // OscAmpParam
+        "glide", // OscGlide
+        "harmonicStepped", // OscSteppedHarmonic
+        "pitchStepped", // OscSteppedPitch
+        "", // OscSyncMode (undefined / not modulatable )
+        "", // OscSyncIn (undefined / not modulaatblae )
+        "oscType", // OscType
+        "" // OscNumParams (typically represents the count, no corresponding parameter)
+    },
 
-        // lfo
-        {
-            "eventWatch",
-            "rate",
-            "shape",
-            "phase",
-            "",
-            ""},
+    // lfo
+    {
+        "eventWatch",
+        "audioIn",
+        "rate",
+        "shape",
+        "phase",
+        "",
+        ""},
 
-        // envelope
-        {
-            "eventWatch", // EnvEventWatchFlag
-            "attack",     // EnvAttack
-            "decay",      // EnvDecay
-            "sustain",    // EnvSustain
-            "release",    // EnvRelease
-            "leak",       // EnvLeak
-            "shape",      // EnvShape
-            "velocity"    // EnvVelocitySense
-        },
+    // envelope
+    {
+        "eventWatch", // EnvEventWatchFlag
+        "audioIn",
+        "attack",     // EnvAttack
+        "decay",      // EnvDecay
+        "sustain",    // EnvSustain
+        "release",    // EnvRelease
+        "leak",       // EnvLeak
+        "shape",      // EnvShape
+        "velocity"    // EnvVelocitySense
+    },
 
-        // filter
-        {
-            "eventWatch", // FiltEventWatchFlag
-            "midiPitch", // FiltMidiPitch
-            "cutoff", // FiltCutoff
-            "amp", // FiltGain
-            "resonance", // FiltResonance
-            "keyfollow", // FiltKeyfollow
-            "filterType", // FiltType
-            "audioInput", // FiltAudioInput
-            "" // FiltNumParams (placeholder)
-        },
+    // filter
+    {
+        "eventWatch", // FiltEventWatchFlag
+        "audioIn",
+        "midiPitch", // FiltMidiPitch
+        "cutoff", // FiltCutoff
+        "amp", // FiltGain
+        "resonance", // FiltResonance
+        "keyfollow", // FiltKeyfollow
+        "filterType", // FiltType
+        "audioInput", // FiltAudioInput
+        "" // FiltNumParams (placeholder)
+    },
 
-        // string
-        {
-            "eventWatch",    // StringEventWatchFlag
-            "oversample",    // StringOversample
-            "freq",          // StringFreq
-            "waveLength",    // StringWaveLength
-            "dampFreq",      // StringDampFreq
-            "decay",         // StringDecay
-            "targetLevel",   // StringTargetLevel
-            "levelSmooth",   // StringLevelSmooth
-            "levelStrength", // StringLevelStrength
-            "pickupPoint",   // StringPickupPoint
-            "levelMode",     // StringLevelMode
-            "rippleGain",    // StringRippleGain
-            "rippleDelay",   // StringRippleDelay
-            "pluckPosition"  // StringPluckPosition
-        },
+    // string
+    {
+        "eventWatch",    // StringEventWatchFlag
+        "audioIn",
+        "oversample",    // StringOversample
+        "freq",          // StringFreq
+        "waveLength",    // StringWaveLength
+        "dampFreq",      // StringDampFreq
+        "decay",         // StringDecay
+        "targetLevel",   // StringTargetLevel
+        "levelSmooth",   // StringLevelSmooth
+        "levelStrength", // StringLevelStrength
+        "pickupPoint",   // StringPickupPoint
+        "levelMode",     // StringLevelMode
+        "rippleGain",    // StringRippleGain
+        "rippleDelay",   // StringRippleDelay
+        "pluckPosition"  // StringPluckPosition
+    },
 
-        // VCA
-        {},
+    // VCA
+    {},
 
-        // softclip
-        {
-            "eventWatch", //
-           "inputGain", // OscHarmonic
-           "offset", // OscPitchOffset
-           "shape", // OscPitchFine
-           "outputGain", // OscFreqOffset
-           "" // OscNumParams (typically represents the count, no corresponding parameter)
-        },
+    // softclip
+    {
+        "eventWatch", //
+        "audioIn",
+       "inputGain", // OscHarmonic
+       "offset", // OscPitchOffset
+       "shape", // OscPitchFine
+       "outputGain", // OscFreqOffset
+       "" // OscNumParams (typically represents the count, no corresponding parameter)
+    },
 
-        // delay
-        {
-            "eventWatch",
-            "delayTime",
-            "gain",
-            "",
-            ""
-        },
+    // delay
+    {
+        "eventWatch",
+        "audioIn",
+        "delayTime",
+        "gain",
+        "",
+        ""
+    },
 
-        // noise
-        {
-            "eventWatch",
-            "gain",
-            "tilt",
-            "peakAmt",
-            "peakFreq",
-            "peakBandwidth"
-        },
+    // noise
+    {
+        "eventWatch",
+        "audioIn",
+        "gain",
+        "tilt",
+        "peakAmt",
+        "peakFreq",
+        "peakBandwidth"
+    },
 
-        // simpleNoise
-        {
-            "eventWatch",
-            "gain"
-        },
+    // simpleNoise
+    {
+        "eventWatch",
+        "audioIn",
+        "gain"
+    },
 
-        // perlinNoise
-        {
-            "eventWatch",
-            "gain",
-            "rate",
-            "energy"
-        }
+    // perlinNoise
+    {
+        "eventWatch",
+        "audioIn",
+        "gain",
+        "rate",
+        "energy"
     }
+}
 
 };
 
