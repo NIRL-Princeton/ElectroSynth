@@ -30,12 +30,11 @@ void AudioRoutingManager::registerPort (AudioPortComponent& port) {
     const auto already_registered = std::any_of(ports_.begin(), ports_.end(),[&port] (const SafePort &existing) {
         return existing.getComponent() == &port;
     });
+
     if (already_registered) return; // if the port is already registered, return
 
     ports_.emplace_back(&port);   // add to vector of safepointers, ports_
     port.addListener(this);     // add listener to new port
-    // Rebuild every port's display from the canonical connection list. This
-    // also restores dots when a port is recreated while editing a lane.
     updatePortConnectionSlots();
 }
 
@@ -264,24 +263,50 @@ std::optional<electrosynth::audio::AudioConnection> AudioRoutingManager::getConn
 }
 
 void AudioRoutingManager::updatePortConnectionSlots() {
+    const auto find_port = [this](const electrosynth::audio::AudioPortAddress& address) -> AudioPortComponent* {
+        for (const auto& safe_port : ports_) {
+            auto* port = safe_port.getComponent();
+
+            if (port != nullptr && port->getAddress().nodeId == address.nodeId
+                && port->getAddress().portId == address.portId)
+                return port;
+        }
+        return nullptr;
+    };
+
     for (const auto& safeport : ports_) { // iterate through all ports
+
         auto* port = safeport.getComponent();
         if (port == nullptr) continue;
 
         const auto& address = port->getAddress();
-        std::vector<electrosynth::audio::AudioPortAddress> destinations;
+        std::vector<AudioConnectionSlot> slots_for_port;
 
         for (const auto& connection : connections_) { // for each port, iterate through all of its connections
+
             const auto& endpoint = address.direction == electrosynth::audio::PortDirection::Input ?
                     connection.destination : connection.source;
 
             if (endpoint.nodeId == address.nodeId && endpoint.portId == address.portId) {
-                // Both sides store the destination
-                destinations.push_back(connection.destination);
+
+                const auto& peer_address = address.direction == electrosynth::audio::PortDirection::Input ?
+                    connection.source : connection.destination;
+
+                if (auto* peer = find_port(peer_address)) {
+
+                    auto* owner = peer->getParentComponent();
+
+                    const auto label = owner != nullptr && owner->getName().isNotEmpty() ?
+                        owner->getName() : peer->getName();
+
+                    slots_for_port.push_back({peer_address,label,
+                        peer->findColour(Skin::kWidgetPrimary1, true)
+                    });
+                }
             }
         }
 
         if (auto* slots = port->getConnectionSlots())
-            slots->setDestinations(std::move(destinations));
+            slots->setConnections(std::move(slots_for_port));
     }
 }

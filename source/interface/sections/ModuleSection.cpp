@@ -80,7 +80,7 @@ ModuleSection::ModuleSection(const juce::ValueTree &v, electrosynth::audio::Node
 
         output_connection_slots_ = std::make_unique<AudioConnectionSlots>(*output_port_);
         addSubSection(output_connection_slots_.get());
-        output_connection_slots_->setDestinations({});
+        output_connection_slots_->setConnections({});
     }
 
     if (audioNodeDescriptor_.hasInput) { // if this module supports inputs...
@@ -97,7 +97,7 @@ ModuleSection::ModuleSection(const juce::ValueTree &v, electrosynth::audio::Node
 
         input_connection_slots_ = std::make_unique<AudioConnectionSlots>(*input_port_);
         addSubSection(input_connection_slots_.get());
-        input_connection_slots_->setDestinations({});
+        input_connection_slots_->setConnections({});
     }
 
     if (audio_routing_manager_ != nullptr) {

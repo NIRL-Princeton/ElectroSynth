@@ -150,7 +150,7 @@ audio_routing_manager_(arm), ModulesInterface( module_list), footer_body(new Ope
 
         lane_output_slots_ = std::make_unique<AudioConnectionSlots>(*lane_output_port_);
         addSubSection(lane_output_slots_.get());
-        lane_output_slots_->setDestinations({});
+        lane_output_slots_->setConnections({});
     }
 
     if (module_list.getAudioNodeDescriptor().hasInput) { // if this module supports inputs...
@@ -167,7 +167,7 @@ audio_routing_manager_(arm), ModulesInterface( module_list), footer_body(new Ope
 
         lane_input_slots_ = std::make_unique<AudioConnectionSlots>(*lane_input_port_);
         addSubSection(lane_input_slots_.get());
-        lane_input_slots_->setDestinations({});
+        lane_input_slots_->setConnections({});
     }
 
     if (audio_routing_manager_ != nullptr) {
@@ -382,9 +382,6 @@ void EffectModuleSection::moduleAdded(ProcessorBase *newModule) {
             for (auto slider : sub->all_sliders_) {
                 //slider.second->setScissor(this, open_gl);
                 slider.second->setScissorComponent(&viewport_);
-            }
-            for (auto component : sub->open_gl_components_) {
-                component->setScissorComponent(&viewport_);
             }
         }
         container_->setScissorComponent(&viewport_);
