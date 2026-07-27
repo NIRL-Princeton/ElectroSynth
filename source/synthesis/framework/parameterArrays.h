@@ -35,6 +35,7 @@ const std::array<std::vector<std::string>, 11> paramsAllArray =
             "", // OscSyncMode (undefined / not modulatable )
             "", // OscSyncIn (undefined / not modulaatblae )
             "oscType", // OscType
+            "portaType" // OscPortaType (always or not always)
             "" // OscNumParams (typically represents the count, no corresponding parameter)
         },
 

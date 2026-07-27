@@ -77,7 +77,7 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
 {
     OscillatorParams(LEAF* leaf) : LEAFParams<_tOscModule>(leaf)
     {
-       add(harmonic, pitchOffset, pitchFine, freqOffset, glide, shape, harmonicstepped, amp, oscType);
+       add(harmonic, pitchOffset, pitchFine, freqOffset, glide, shape, harmonicstepped, amp, oscType, portaType);
         //add(pitchOffset);
 
     }
@@ -261,6 +261,22 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
         }
     };
 
+    chowdsp::FloatParameter::Ptr portaType {
+        juce::ParameterID{"portaType" , 100},
+        "PortaType",
+        chowdsp::ParamUtils::createNormalisableRange(0.f, 1.f, 0.5f, 1.f),
+        0.0f,
+        all_params[OscParams::OscPortaType],
+        [this](float val)
+        { for (auto mod : modules)
+            tOscModule_setParameter(mod,OscPortaType,val);
+            //DBG("pitch [0 - 1] " + juce::String(val)  + " ... pitch actual " + juce::String(modules[0]->pitchOffset));
+        },
+
+         &chowdsp::ParamUtils::floatValToString,
+         &chowdsp::ParamUtils::stringToFloatVal
+     };
+
 };
 class OscillatorModuleProcessor : public ProcessorStateBase<PluginStateImpl_<OscillatorParams>>
 {
@@ -282,7 +298,7 @@ public:
    // juce::AudioProcessorEditor* createEditor() override {return new electrosynth::ParametersViewEditor{*this,vstate.getProperty(IDs::type).toString() + vstate.getProperty(IDs::uuid).toString()};};
     chowdsp::ScopedCallbackList callbacks;
 
-    tStack activeModules;
+    uint8_t noVoicesSounding = 1;
 
 };
 
