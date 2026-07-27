@@ -4,10 +4,19 @@
 
 #include "audio_routing_manager.h"
 
+#include "AudioConnection.h"
+#include "audio_connection_slots.h"
 #include "chowdsp_sources/chowdsp_sources.h"
 
-AudioRoutingManager::AudioRoutingManager() : SynthSection("audio_routing_manager"), drag_icon_("audio_drag_icon") {
+AudioRoutingManager::AudioRoutingManager() : SynthSection("audio_routing_manager"),
+drag_icon_("audio_drag_icon"), mapping_mode_dim_quad_(Shaders::kColorFragment, "audio_mapping_mode_dim") {
+
     setInterceptsMouseClicks(false, true);
+
+    mapping_mode_dim_quad_.setTargetComponent(this);
+    mapping_mode_dim_quad_.setQuad(0,-1.0f,-1.0f,2.0f, 2.0f);
+    mapping_mode_dim_quad_.setAlpha(0.0f);
+    mapping_mode_dim_quad_.setInterceptsMouseClicks(false, false);
 
     drag_icon_.setShape(Paths::rightArrow());
     drag_icon_.setUseAlpha(true);
@@ -25,6 +34,9 @@ void AudioRoutingManager::registerPort (AudioPortComponent& port) {
 
     ports_.emplace_back(&port);   // add to vector of safepointers, ports_
     port.addListener(this);     // add listener to new port
+    // Rebuild every port's display from the canonical connection list. This
+    // also restores dots when a port is recreated while editing a lane.
+    updatePortConnectionSlots();
 }
 
 void AudioRoutingManager::unregisterPort (AudioPortComponent& port){
@@ -61,6 +73,23 @@ void AudioRoutingManager::startDestinationMap(AudioPortComponent* source, const 
 
     mouse_drag_position_ = getLocalPoint(source, event.getPosition());
     positionDragIcon();
+
+    for (const auto& safe_port : ports_) {
+        if (auto* port = safe_port.getComponent()) {
+            port->setMappingTarget(isValidDestination (port));
+        }
+    }
+}
+
+void AudioRoutingManager::drawDestinationHighlights(OpenGlWrapper& open_gl) {
+    if (!isMappingMode())
+        return;
+
+    for (const auto& safe_port : ports_) {
+        auto* port = safe_port.getComponent();
+        if (isValidDestination (port)) port->render (open_gl, true);
+    }
+
 }
 
 bool AudioRoutingManager::isMappingMode() const {
@@ -68,7 +97,7 @@ bool AudioRoutingManager::isMappingMode() const {
 }
 
 bool AudioRoutingManager::isPointInsideDestinationDropArea(AudioPortComponent* destination, juce::Point<int> position) const {
-    if (destination == nullptr || current_source_ == nullptr)
+    if (!isValidDestination (destination))
         return false;
 
     const auto& source = current_source_->getAddress();
@@ -110,11 +139,21 @@ void AudioRoutingManager::audioDraggedToComponent(AudioPortComponent* destinatio
     if (current_destination_.getComponent() == destination)
         return;
 
-    current_destination_ = SafePort(destination);
+    if (current_destination_) // current_destination_ is initialized to nullptr
+        current_destination_->setDragTarget(false);
 
-    if (destination != nullptr) {
-        DBG("Audio destination: " + destination->getAddress().nodeId + " / " + destination->getAddress().portId);
-    }
+    current_destination_ = destination; // then it's set to whatever we are hovering over
+
+    if (current_destination_) // if we're hovering over something, make it a drag target
+        current_destination_->setDragTarget(true);
+
+}
+
+bool AudioRoutingManager::isValidDestination(const AudioPortComponent* port) const {
+    if (port == nullptr || port == current_source_)
+        return false;
+
+    return port->getAddress().direction == electrosynth::audio::PortDirection::Input;
 }
 
 void AudioRoutingManager::positionDragIcon() {
@@ -140,11 +179,11 @@ void AudioRoutingManager::positionDragIcon() {
 
 void AudioRoutingManager::endAudioMap() {
     if (current_source_ != nullptr && current_destination_ != nullptr) {
-        const auto& source = current_source_->getAddress();
-
-        const auto& destination = current_destination_->getAddress();
-
-        DBG("Audio connection: " + source.nodeId + "/" + source.portId + " -> " + destination.nodeId + "/" + destination.portId);
+        electrosynth::audio::AudioConnection connection;
+        connection.source = current_source_->getAddress();
+        connection.destination = current_destination_->getAddress();
+        if (connection.isValid())
+            connectAudio(connection);
     }
 
     dragging_ = false;
@@ -153,12 +192,13 @@ void AudioRoutingManager::endAudioMap() {
 
     drag_icon_.setVisible(false);
     drag_icon_.setActive(false);
-}
 
-// OpenGl lifecycle methods
-void AudioRoutingManager::initOpenGlComponents(OpenGlWrapper& open_gl) {
-    drag_icon_.init(open_gl);
-    SynthSection::initOpenGlComponents(open_gl);
+    for (const auto& safe_port : ports_) {
+        if (auto* port = safe_port.getComponent()) {
+            port->setMappingTarget(false);
+            port->setDragTarget(false);
+        }
+    }
 }
 
 void AudioRoutingManager::drawDraggingAudio(OpenGlWrapper& open_gl) {
@@ -167,16 +207,81 @@ void AudioRoutingManager::drawDraggingAudio(OpenGlWrapper& open_gl) {
     drag_icon_.render(open_gl, true);
 }
 
+void AudioRoutingManager::drawMappingMode(OpenGlWrapper& open_gl) {
+    if (!isMappingMode()) {
+        mapping_mode_dim_quad_.setAlpha(0.0f);
+        return;
+    }
+
+    mapping_mode_dim_quad_.setColor(findColour(Skin::kBackground, true));
+    mapping_mode_dim_quad_.setAlpha(0.45f);
+    mapping_mode_dim_quad_.render(open_gl, true);
+}
+
+// OpenGl lifecycle methods *************************************************
+void AudioRoutingManager::initOpenGlComponents(OpenGlWrapper& open_gl) {
+    mapping_mode_dim_quad_.init(open_gl);
+    drag_icon_.init(open_gl);
+    SynthSection::initOpenGlComponents(open_gl);
+}
+
 void AudioRoutingManager::renderOpenGlComponents(OpenGlWrapper& open_gl, bool animate) {
     juce::ScopedLock lock(open_gl_critical_section_);
-
+    drawMappingMode(open_gl); // dark overlay first...
     SynthSection::renderOpenGlComponents(open_gl, animate);
     OpenGlComponent::setViewPort(this, open_gl);
-
-    drawDraggingAudio(open_gl);
+    drawDestinationHighlights(open_gl); // then bright targets
+    drawDraggingAudio(open_gl); // then bright icon
 }
 
 void AudioRoutingManager::destroyOpenGlComponents(juce::OpenGLContext& open_gl) {
+    mapping_mode_dim_quad_.destroy(open_gl);
     drag_icon_.destroy(open_gl);
     SynthSection::destroyOpenGlComponents(open_gl);
+}
+
+bool AudioRoutingManager::connectAudio(const electrosynth::audio::AudioConnection& connection) {
+    if (!connection.isValid()) return false;
+
+    // only allow one input for each audio node for now - if overriding, erase old input for the new connection
+    std::erase_if(connections_, [&](const auto& existing) {
+        return existing.destination.nodeId == connection.destination.nodeId
+            && existing.destination.portId == connection.destination.portId;
+    });
+
+    connections_.push_back(connection);
+    updatePortConnectionSlots();
+    return true;
+}
+
+std::optional<electrosynth::audio::AudioConnection> AudioRoutingManager::getConnectionTo(const electrosynth::audio::AudioPortAddress& destination) const {
+    const auto match = std::find_if(connections_.begin(), connections_.end(), [&](const auto& connection) {
+        return connection.destination.nodeId == destination.nodeId && connection.destination.portId == destination.portId;
+    });
+    if (match == connections_.end()) return std::nullopt;
+
+    return *match;
+}
+
+void AudioRoutingManager::updatePortConnectionSlots() {
+    for (const auto& safeport : ports_) { // iterate through all ports
+        auto* port = safeport.getComponent();
+        if (port == nullptr) continue;
+
+        const auto& address = port->getAddress();
+        std::vector<electrosynth::audio::AudioPortAddress> destinations;
+
+        for (const auto& connection : connections_) { // for each port, iterate through all of its connections
+            const auto& endpoint = address.direction == electrosynth::audio::PortDirection::Input ?
+                    connection.destination : connection.source;
+
+            if (endpoint.nodeId == address.nodeId && endpoint.portId == address.portId) {
+                // Both sides store the destination
+                destinations.push_back(connection.destination);
+            }
+        }
+
+        if (auto* slots = port->getConnectionSlots())
+            slots->setDestinations(std::move(destinations));
+    }
 }

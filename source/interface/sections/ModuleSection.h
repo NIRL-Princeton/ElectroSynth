@@ -4,15 +4,16 @@
 
 #ifndef ELECTROSYNTH_MODULESECTION_H
 #define ELECTROSYNTH_MODULESECTION_H
-#include "synth_section.h"
-#include "PluginStateImpl_.h"
-#include "ParameterView/ParametersView.h"
 #include <juce_gui_basics/juce_gui_basics.h>
-#include "open_gl_background.h"
-#include "open_gl_image_component.h"
+#include "ParameterView/ParametersView.h"
+#include "PluginStateImpl_.h"
 #include "ProcessorBase.h"
+#include "audio_connection_slots.h"
 #include "audio_port_component.h"
 #include "audio_routing_manager.h"
+#include "open_gl_background.h"
+#include "open_gl_image_component.h"
+#include "synth_section.h"
 
 class ModuleSection : public SynthSection {
 public:
@@ -123,10 +124,16 @@ private:
     std::unique_ptr<SynthSection> _view;
     std::vector<Listener*> listeners_;
     juce::UndoManager& undo;
+
     AudioRoutingManager* audio_routing_manager_ = nullptr;
     electrosynth::audio::NodeDescriptor audioNodeDescriptor_;
+
     std::shared_ptr<AudioPortComponent> output_port_;
     std::shared_ptr<AudioPortComponent> input_port_;
+
+    std::unique_ptr<AudioConnectionSlots> output_connection_slots_;
+    std::unique_ptr<AudioConnectionSlots> input_connection_slots_;
 };
+
 
 #endif //ELECTROSYNTH_MODULESECTION_H

@@ -135,10 +135,61 @@ audio_routing_manager_(arm), ModulesInterface( module_list), footer_body(new Ope
     toggle_button_->setVisible(false);
     setInterceptsMouseClicks(true,true);
 
+    // initialize routing UI
+    if (module_list.getAudioNodeDescriptor().hasOutput) { // if this module supports outputs...
+        electrosynth::audio::AudioPortAddress address { // give it an output audio port address
+            module_list.getAudioNodeId(),
+            module_list.getAudioNodeDescriptor().outputPortId,
+            electrosynth::audio::PortDirection::Output,
+            module_list.getAudioNodeDescriptor().domain
+        };
+        lane_output_port_ = std::make_shared<AudioPortComponent>( // make an output arrow belonging to this output port
+            "audio_output",
+            std::move(address));
+        addOpenGlComponent(lane_output_port_);
+
+        lane_output_slots_ = std::make_unique<AudioConnectionSlots>(*lane_output_port_);
+        addSubSection(lane_output_slots_.get());
+        lane_output_slots_->setDestinations({});
+    }
+
+    if (module_list.getAudioNodeDescriptor().hasInput) { // if this module supports inputs...
+        electrosynth::audio::AudioPortAddress address { // give it an output audio port address
+            module_list.getAudioNodeId(),
+            module_list.getAudioNodeDescriptor().inputPortId,
+            electrosynth::audio::PortDirection::Input,
+            module_list.getAudioNodeDescriptor().domain
+        };
+        lane_input_port_ = std::make_shared<AudioPortComponent>( // make an output arrow belonging to this output port
+            "audio_input",
+            std::move(address));
+        addOpenGlComponent(lane_input_port_);
+
+        lane_input_slots_ = std::make_unique<AudioConnectionSlots>(*lane_input_port_);
+        addSubSection(lane_input_slots_.get());
+        lane_input_slots_->setDestinations({});
+    }
+
+    if (audio_routing_manager_ != nullptr) {
+        if (lane_output_port_ != nullptr)
+            audio_routing_manager_->registerPort(*lane_output_port_);
+
+        if (lane_input_port_ != nullptr)
+            audio_routing_manager_->registerPort(*lane_input_port_);
+    }
+
     setSkinOverride(Skin::kFx);
 }
 
 EffectModuleSection::~EffectModuleSection() {
+    if (audio_routing_manager_ != nullptr) {
+        if (lane_input_port_)
+            audio_routing_manager_->unregisterPort(*lane_input_port_);
+
+        if (lane_output_port_)
+            audio_routing_manager_->unregisterPort(*lane_output_port_);
+    }
+
    module_sections.clear();
 }
 
@@ -461,7 +512,37 @@ void EffectModuleSection::resized() {
         border->setRounding(border_rounding);
         border->setThickness(1.0f, true);
     }
+
+    static constexpr int kLanePortSize = 24;
+    static constexpr int kLanePortInset = 6;
+    static constexpr int kConnectionSlotSpacing = 2;
+
+    const int port_y = (title_width - kLanePortSize) / 2;
+
+    if (lane_input_port_) {
+        lane_input_port_->setBounds(kLanePortInset, port_y, kLanePortSize, kLanePortSize);
+
+        lane_input_slots_->setBounds(
+            lane_input_port_->getRight() + kConnectionSlotSpacing,
+            lane_input_port_->getY(),
+            AudioConnectionSlots::kPreferredWidth,
+            lane_input_port_->getHeight());
+    }
+
+    if (lane_output_port_) {
+        lane_output_port_->setBounds(getWidth() - kLanePortInset - kLanePortSize,
+            port_y, kLanePortSize, kLanePortSize);
+
+        lane_output_slots_->setBounds(
+            lane_output_port_->getX()
+                - kConnectionSlotSpacing
+                - AudioConnectionSlots::kPreferredWidth,
+            lane_output_port_->getY(),
+            AudioConnectionSlots::kPreferredWidth,
+            lane_output_port_->getHeight());
+    }
 }
+
 void EffectModuleSection::removeModule(ProcessorBase *newModule) {
     // Find exactly the one module whose state matches. find_if (vs non-stable
     // std::partition) does not reorder the surviving modules.

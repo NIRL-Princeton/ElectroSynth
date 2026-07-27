@@ -5,6 +5,8 @@
 #ifndef EFFECTLIST_H
 #define EFFECTLIST_H
 #include "ModuleList.h"
+#include "AudioNode.h"
+
 class EffectList : public ModuleList<ProcessorBase> {
 
     public:
@@ -15,6 +17,8 @@ class EffectList : public ModuleList<ProcessorBase> {
     }
 
     ProcessorBase* createNewObject(const juce::ValueTree &) override;
+    juce::String getAudioNodeId() const;
+    electrosynth::audio::NodeDescriptor getAudioNodeDescriptor() const;
     const int lane;
 };
 

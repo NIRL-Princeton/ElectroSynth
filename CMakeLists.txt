@@ -103,6 +103,10 @@ add_library(SharedCode INTERFACE
         source/interface/components/audio_port_component.cpp
         source/interface/sections/audio_routing_manager.h
         source/interface/sections/audio_routing_manager.cpp
+        source/common/AudioConnection.cpp
+        source/common/AudioConnection.h
+        source/interface/components/audio_connection_slots.cpp
+        source/interface/components/audio_connection_slots.h
 
 )
 

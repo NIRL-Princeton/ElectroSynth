@@ -478,6 +478,7 @@ ModulationManager::ModulationManager(ValueTree &tree, SynthBase* base) :
         modulation_icon_[i]->setDrawWhenNotVisible(true);
   }
 
+
 }
 
 void ModulationManager::createModulationMeter(SynthSlider* slider, OpenGlMultiQuad* quads, int index) {

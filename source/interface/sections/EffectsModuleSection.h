@@ -70,4 +70,10 @@ private:
     // adjacent non-dragged modules (boundaries touching the insertion gap are
     // covered by insertion_region_ itself).
     std::shared_ptr<OpenGlMultiQuad> drag_boundary_bands_;
+
+    std::shared_ptr<AudioPortComponent> lane_input_port_;
+    std::shared_ptr<AudioPortComponent> lane_output_port_;
+
+    std::unique_ptr<AudioConnectionSlots> lane_input_slots_;
+    std::unique_ptr<AudioConnectionSlots> lane_output_slots_;
 };
