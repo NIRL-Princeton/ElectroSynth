@@ -122,7 +122,7 @@ void PopupDisplay::setContent(const std::string& text, juce::Rectangle<int> boun
 
     text_->setText(text);
     text_->setTextSize(height * 0.5f);
-    DBG("PopupDisplay shown, body = " << findColour(Skin::kBody, true).toDisplayString(true));
+    //DBG("PopupDisplay shown, body = " << findColour(Skin::kBody, true).toDisplayString(true));
 }
 
 PopupList::PopupList() : SynthSection("Popup List"),

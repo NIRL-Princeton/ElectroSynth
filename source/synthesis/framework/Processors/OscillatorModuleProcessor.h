@@ -141,7 +141,7 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
         &chowdsp::ParamUtils::stringToFloatVal
     };
 
-    chowdsp::FloatParameter::Ptr freqOffset
+    chowdsp::FreqHzParameter::Ptr freqOffset
         {
         juce::ParameterID{"freqoffset" , 100},
         "Freq Offset",
@@ -152,25 +152,22 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
         {for (auto mod : modules)
             tOscModule_setParameter(mod,OscFreqOffset,val);
             //DBG("freq [0 - 1] " + juce::String(val) + " .... freq actual Val" + juce::String(modules[0]->freqOffset));
-        },
-        &chowdsp::ParamUtils::floatValToString,
-        &chowdsp::ParamUtils::stringToFloatVal
+        }
     };
 
-    chowdsp::FloatParameter::Ptr glide
+    chowdsp::TimeMsParameter::Ptr glide
     {
         juce::ParameterID{"glide" , 100},
         "Freq Glide",
-        chowdsp::ParamUtils::createNormalisableRange(0.f, 1.f,0.5f),
+        chowdsp::ParamUtils::createNormalisableRange(0.f, 8000.f,500.f),
         0.0f,
         all_params[OscParams::OscGlide],
         [this]( float val)
-        {for (auto mod : modules)
-            tOscModule_setParameter(mod,OscGlide,val);
+        {   float realVal = glide->getCurrentValue();
+            for (auto mod : modules)
+            tOscModule_setParameter(mod,OscGlide, realVal);
             //DBG("freq [0 - 1] " + juce::String(val) + " .... glide actual Val" + juce::String(mod->glide));
-        },
-        &chowdsp::ParamUtils::floatValToString,
-        &chowdsp::ParamUtils::stringToFloatVal
+        }
     };
     chowdsp::FloatParameter::Ptr shape
         {
@@ -188,21 +185,19 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
             &chowdsp::ParamUtils::floatValToString,
             &chowdsp::ParamUtils::stringToFloatVal
         };
-    chowdsp::FloatParameter::Ptr amp
+    chowdsp::GainDBParameter::Ptr amp
         {
             juce::ParameterID{"amp" , 100},
             "amplitude",
-            chowdsp::ParamUtils::createNormalisableRange(0.0f, 2.f ,1.f),
-            0.8f,
+            chowdsp::ParamUtils::createNormalisableRange(-24.f, 24.f ,0.f),
+            0.f,
             all_params[OscParams::OscAmpParam],
             [this]( float val)
             {for (auto mod : modules)
                 tOscModule_setParameter(mod,OscAmpParam,val);
 
             //DBG("amp [0 - 1] " + juce::String(val) + ".. .... amp actual " + juce::String(modules[0]->amp));
-            },
-            &chowdsp::ParamUtils::floatValToString,
-            &chowdsp::ParamUtils::stringToFloatVal
+            }
         };
     chowdsp::BoolParameter::Ptr harmonicstepped
     {
