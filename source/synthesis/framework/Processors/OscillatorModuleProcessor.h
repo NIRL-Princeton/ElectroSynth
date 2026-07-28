@@ -99,7 +99,7 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
     chowdsp::FloatParameter::Ptr harmonic {
         juce::ParameterID{"harmonic" , 100},
         "Harmonic",
-        chowdsp::ParamUtils::createNormalisableRange(-16.f, 16.f, 0.f),
+        chowdsp::ParamUtils::createNormalisableRange(-15.f, 15.f, 0.f, 1.f),
         0.f,
         all_params[OscParams::OscHarmonic],
         [this](float val){
@@ -224,12 +224,14 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
     {
         juce::ParameterID{"oscType" , 100},
         "Oscillator Type",
-        chowdsp::ParamUtils::createNormalisableRange(0.0f, 1.f ,0.5f),
+        chowdsp::ParamUtils::createNormalisableRange(0.f, 5.f, 2.5f, 1.f),
         0.f,
         all_params[OscParams::OscType],
         [this]( float val)
         {for (auto mod : modules)
             tOscModule_setParameter(mod,OscType,val);
+
+
             //DBG("amp [0 - 1] " + juce::String(val) + ".. .... amp actual " + juce::String(modules[0]->amp));
         },
         &chowdsp::ParamUtils::floatValToString,
