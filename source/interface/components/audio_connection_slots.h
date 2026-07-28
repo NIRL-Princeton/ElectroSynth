@@ -19,8 +19,8 @@ class AudioConnectionSlots final : public SynthSection {
 
 public:
     static constexpr int kMaxVisibleSlots = 4;
-    static constexpr int kSlotWidth = 60;
-    static constexpr int kSlotHeight = 16;
+    static constexpr int kSlotWidth = 44;
+    static constexpr int kSlotHeight = 14;
     static constexpr int kSlotGap = 2;
     static constexpr int kSlotPitch = kSlotWidth + kSlotGap;
     static constexpr int kPreferredWidth =

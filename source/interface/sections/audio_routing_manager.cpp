@@ -8,6 +8,37 @@
 #include "audio_connection_slots.h"
 #include "chowdsp_sources/chowdsp_sources.h"
 
+namespace {
+    juce::String abbreviateLabel(const juce::String& label) {
+        const auto abbreviate_prefix = [&label] (const juce::String& full, const juce::String& abbreviated)
+        -> std::optional<juce::String> {
+            if (!label.startsWithIgnoreCase(full))
+                return std::nullopt;
+
+            const auto suffix = label.substring(full.length()).trimStart();
+
+            return suffix.isEmpty() ? abbreviated : abbreviated + " " + suffix;
+        };
+
+        if (auto result = abbreviate_prefix("Oscillator", "osc")) return *result;
+
+        if (auto result = abbreviate_prefix("Filter", "flt")) return *result;
+
+        if (auto result = abbreviate_prefix("String", "str")) return *result;
+
+        if (auto result = abbreviate_prefix("Soft Clip", "clp")) return *result;
+
+        if (auto result = abbreviate_prefix("Delay", "dly")) return *result;
+
+        if (auto result = abbreviate_prefix("Noise", "ns")) return *result;
+
+        if (auto result = abbreviate_prefix("Lane", "ln")) return *result;
+
+        return label;
+    }
+}
+
+
 AudioRoutingManager::AudioRoutingManager() : SynthSection("audio_routing_manager"),
 drag_icon_("audio_drag_icon"), mapping_mode_dim_quad_(Shaders::kColorFragment, "audio_mapping_mode_dim") {
 
@@ -242,12 +273,6 @@ void AudioRoutingManager::destroyOpenGlComponents(juce::OpenGLContext& open_gl) 
 bool AudioRoutingManager::connectAudio(const electrosynth::audio::AudioConnection& connection) {
     if (!connection.isValid()) return false;
 
-    // only allow one input for each audio node for now - if overriding, erase old input for the new connection
-    std::erase_if(connections_, [&](const auto& existing) {
-        return existing.destination.nodeId == connection.destination.nodeId
-            && existing.destination.portId == connection.destination.portId;
-    });
-
     connections_.push_back(connection);
     updatePortConnectionSlots();
     return true;
@@ -296,8 +321,9 @@ void AudioRoutingManager::updatePortConnectionSlots() {
 
                     auto* owner = peer->getParentComponent();
 
-                    const auto label = owner != nullptr && owner->getName().isNotEmpty() ?
+                    const auto full_label = owner != nullptr && owner->getName().isNotEmpty() ?
                         owner->getName() : peer->getName();
+                    const auto label = abbreviateLabel (full_label); 
 
                     slots_for_port.push_back({peer_address,label,
                         peer->findColour(Skin::kWidgetPrimary1, true)

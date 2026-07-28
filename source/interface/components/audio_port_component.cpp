@@ -25,7 +25,7 @@ void AudioPortComponent::mouseDown(const juce::MouseEvent& event) {
 
 void AudioPortComponent::mouseEnter(const juce::MouseEvent& event) {
     mouse_hovered_ = true;
-    setArrowScale(1.0f);
+    updateArrowScale();
 }
 
 void AudioPortComponent::mouseExit(const juce::MouseEvent& event) {
@@ -72,7 +72,8 @@ void AudioPortComponent::setDragTarget(bool target) {
 
 void AudioPortComponent::updateArrowScale() {
     const float scale = drag_target_ || mouse_hovered_ ? 1.0f : mapping_target_ ? 0.9f : 0.8f;
-    setArrowScale(scale);
+    if (address_.direction == electrosynth::audio::PortDirection::Output)
+        setArrowScale(scale);
 }
 
 void AudioPortComponent::render(OpenGlWrapper& open_gl, bool animate) {

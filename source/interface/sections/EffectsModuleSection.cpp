@@ -236,13 +236,14 @@ void EffectModuleSection::setEffectPositions() {
 
     int delay_index = 1;
     int filt_index = 1;
+    int lane_number = static_cast<int>(state.getProperty(IDs::effect_lane)) + 1;
     for (int i = 0; i < module_sections.size(); ++i) {
         ModuleSection* section = module_sections[i].get();
         const auto type = section->state.getProperty(IDs::type).toString();
         if (type == "delay")
-            section->setName("Delay " + juce::String(delay_index++));
+            section->setName("Delay " + juce::String(lane_number) + "." + juce::String(delay_index++));
         else if (type == "filt")
-            section->setName("Filter " + juce::String(filt_index++));
+            section->setName("Filter " + juce::String(lane_number) + "." + juce::String(filt_index++));
 
 
         // During a drag the dragged module floats at its pointer-driven position;
