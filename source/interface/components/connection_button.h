@@ -20,23 +20,23 @@
 #include "open_gl_image_component.h"
 
 namespace electrosynth {
-  struct ModulationConnection;
+  struct Connection;
 } // namespace vital
 
 class SynthGuiInterface;
 
-class ModulationButton : public PlainShapeComponent {
+class ConnectionButton : public PlainShapeComponent {
   public:
     static constexpr float kFontAreaHeightRatio = 0.3f;
-    static constexpr int kModulationKnobColumns = 3;
-    static constexpr int kModulationKnobRows = 2;
-    static constexpr int kMaxModulationKnobs = kModulationKnobRows * kModulationKnobColumns;
+    static constexpr int kColumns = 3;
+    static constexpr int kRows = 2;
+    static constexpr int kMaxKnobs = kRows * kColumns;
     static constexpr float kMeterAreaRatio = 0.05f;
 
     enum MenuId {
       kCancel = 0,
       kDisconnect,
-      kModulationList
+      kConnectionList
     };
 
     enum MouseState {
@@ -51,20 +51,20 @@ class ModulationButton : public PlainShapeComponent {
       public:
         virtual ~Listener() = default;
 
-        virtual void modulationConnectionChanged() { }
-        virtual void modulationDisconnected(electrosynth::ModulationConnection* connection, bool last) { }
-        virtual void modulationSelected(ModulationButton* source) { }
-        virtual void modulationLostFocus(ModulationButton* source) { }
-        virtual void startDestinationMap(ModulationButton* source, const MouseEvent& e) { }
-        virtual void modulationDragged(const MouseEvent& e) { }
-        virtual void modulationWheelMoved(const MouseEvent& e, const MouseWheelDetails& wheel) { }
-        virtual void endModulationMap() { }
-        virtual void modulationClicked(ModulationButton* source) { }
-        virtual void modulationCleared() { }
+        virtual void connectionChanged() { }
+        virtual void connectionDisconnected(electrosynth::Connection* connection, bool last) { }
+        virtual void connectionSelected(ConnectionButton* source) { }
+        virtual void mappingLostFocus(ConnectionButton* source) { }
+        virtual void startDestinationMap(ConnectionButton* source, const MouseEvent& e) { }
+        virtual void mappingDragged(const MouseEvent& e) { }
+        virtual void connectionWheelMoved(const MouseEvent& e, const MouseWheelDetails& wheel) { }
+        virtual void endDestinationMap() { }
+        virtual void connectionClicked(ConnectionButton* source) { }
+        virtual void connectionCleared() { }
     };
   
-    ModulationButton(String name);
-    virtual ~ModulationButton();
+    ConnectionButton(String name);
+    virtual ~ConnectionButton();
     void init(OpenGlWrapper& ) override;
     void paintBackground(Graphics& g) override;
     void parentHierarchyChanged() override;
@@ -84,11 +84,11 @@ class ModulationButton : public PlainShapeComponent {
 
     void select(bool select);
     bool isSelected() const { return selected_; }
-    void setActiveModulation(bool active);
-    bool isActiveModulation() const { return active_modulation_; }
+    void setActiveConnection(bool active);
+    bool isActiveConnection() const { return active_connection_; }
 
     void setForceEnableModulationSource();
-    bool hasAnyModulation();
+    bool hasAnyConnection();
     void setSourceColor(juce::Colour color);
     juce::Colour getSourceColor() const { return source_color_; }
     void setFontSize(float size) { font_size_ = size; }
@@ -103,7 +103,7 @@ class ModulationButton : public PlainShapeComponent {
     juce::String display_label_;
 
   private:
-    void disconnectModulation(electrosynth::ModulationConnection* connection);
+    void disconnectConnection(electrosynth::Connection* connection);
     bool initialized;
     String text_override_;
     SynthGuiInterface* parent_;
@@ -112,7 +112,7 @@ class ModulationButton : public PlainShapeComponent {
     bool selected_;
     bool connect_right_;
     bool draw_border_;
-    bool active_modulation_;
+    bool active_connection_;
     OpenGlImageComponent drag_drop_;
     Component drag_drop_area_;
     float font_size_;
@@ -123,5 +123,5 @@ class ModulationButton : public PlainShapeComponent {
     bool show_drag_drop_;
     float drag_drop_alpha_;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ModulationButton)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ConnectionButton)
 };

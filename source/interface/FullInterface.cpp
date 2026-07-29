@@ -21,8 +21,8 @@
 #include "about_section.h"
 #include "audio_routing_manager.h"
 #include "juce_core/unit_tests/juce_UnitTestCategories.h"
+#include "mapping_manager.h"
 #include "midi_manager.h"
-#include "modulation_manager.h"
 #include "sound_engine.h"
 #include "synth_base.h"
 #include "synth_gui_interface.h"
@@ -39,10 +39,10 @@ FullInterface::FullInterface(SynthGuiData* synth_data) : SynthSection("full_inte
     default_skin.copyValuesToLookAndFeel(TextLookAndFeel::instance());
     juce::LookAndFeel::setDefaultLookAndFeel(DefaultLookAndFeel::instance());
 
-    modulation_manager = std::make_unique<ModulationManager>(synth_data->tree, synth_data->synth);
+    modulation_manager = std::make_unique<MappingManager>(synth_data->tree, synth_data->synth);
     modulation_manager->setOpaque(false);
     modulation_manager->setAlwaysOnTop(true);
-    modulation_manager->setModulationAmounts();
+    modulation_manager->setConnectionAmounts();
     modulation_manager->setVisibleMeterBounds();
     modulation_manager->hideUnusedHoverModulations();
     modulation_manager->toFront(false);
@@ -540,7 +540,7 @@ std::map<std::string, SynthSlider*> FullInterface::getAllSliders(){
 }
 
 
-std::map<std::string, ModulationButton*> FullInterface::getAllModulationButtons(){
+std::map<std::string, ConnectionButton*> FullInterface::getAllModulationButtons(){
     return main_->getAllModulationButtons();
 }
 

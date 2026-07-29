@@ -10,12 +10,12 @@
 
 class ModuleSection;
 class ProcessorBase;
-class ModulationManager;
+class MappingManager;
 class AudioRoutingManager;
 
 class SoundModuleSection : public ModulesInterface<ProcessorBase> {
 public:
-    explicit SoundModuleSection( ModulationManager* m, AudioRoutingManager*, ModuleList<ProcessorBase> &,const juce::ValueTree &, juce::UndoManager& um);
+    explicit SoundModuleSection( MappingManager* m, AudioRoutingManager*, ModuleList<ProcessorBase> &,const juce::ValueTree &, juce::UndoManager& um);
     virtual ~SoundModuleSection();
 
     void setSoundModuleIndex(int index);

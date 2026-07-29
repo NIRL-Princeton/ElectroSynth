@@ -2,23 +2,21 @@
 // Created by Davis Polito on 2/1/24.
 //
 #include "main_section.h"
+#include "EffectList.h"
+#include "FullInterface.h"
+#include "ModulationModuleSection.h"
+#include "ModulationSection.h"
+#include "Modulators/EnvModuleProcessor.h"
+#include "SoundModuleSection.h"
+#include "connection_button.h"
+#include "mapping_manager.h"
+#include "sound_engine.h"
+#include "synth_base.h"
 #include "synth_gui_interface.h"
 #include "synth_slider.h"
-#include "SoundModuleSection.h"
-#include "ModulationModuleSection.h"
-#include "synth_base.h"
-#include "ModulationSection.h"
-#include "modulation_button.h"
-#include "sound_engine.h"
-#include "sound_engine.h"
-#include "sound_engine.h"
-#include "Modulators/EnvModuleProcessor.h"
-#include "EffectList.h"
-#include "modulation_manager.h"
-#include "FullInterface.h"
 
 MainSection::MainSection(const juce::ValueTree& v, juce::UndoManager &um, OpenGlWrapper & open_gl, SynthGuiData* data,
-    ModulationManager* modulation_manager, AudioRoutingManager* audio_routing_manager) : SynthSection("main_section"),
+    MappingManager* modulation_manager, AudioRoutingManager* audio_routing_manager) : SynthSection("main_section"),
     v(v), um(um), audio_routing_manager_(audio_routing_manager) {
 
     sound_interface = std::make_unique<AudioChainSection>( *data->synth->processors_,modulation_manager, audio_routing_manager ,um);
@@ -102,9 +100,9 @@ std::map<std::string, SynthSlider*> MainSection::getAllSliders() {
 
     return result;
 }
-std::map<std::string, ModulationButton*> MainSection::getAllModulationButtons()
+std::map<std::string, ConnectionButton*> MainSection::getAllModulationButtons()
 {
-    std::map<std::string, ModulationButton*> result = modulation_interface->getAllModulationButtons();
+    std::map<std::string, ConnectionButton*> result = modulation_interface->getAllModulationButtons();
 
     const auto& extraButtons = master_voice_envelope_section->getAllModulationButtons();
     result.insert(extraButtons.begin(), extraButtons.end());

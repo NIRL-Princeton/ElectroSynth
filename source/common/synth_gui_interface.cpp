@@ -39,11 +39,11 @@ float SynthGuiInterface::getControlValue(const std::string& name) { return 0.0f;
 bool SynthGuiInterface::connectModulation(std::string source, std::string destination, int destination_slot) {
     return false;
 }
-void SynthGuiInterface::connectModulation(electrosynth::ModulationConnection* connection) { }
+void SynthGuiInterface::connectModulation(electrosynth::Connection* connection) { }
 void SynthGuiInterface::setModulationValues(const std::string& source, const std::string& destination,
                                             float amount, bool bipolar, bool stereo, bool bypass) { }
 void SynthGuiInterface::disconnectModulation(std::string source, std::string destination) { }
-void SynthGuiInterface::disconnectModulation(electrosynth::ModulationConnection* connection) { }
+void SynthGuiInterface::disconnectModulation(electrosynth::Connection* connection) { }
 void SynthGuiInterface::setFocus() { }
 void SynthGuiInterface::notifyChange() { }
 void SynthGuiInterface::notifyFresh() { }
@@ -247,7 +247,7 @@ void SynthGuiInterface::disconnectModulation(std::string source, std::string des
     notifyModulationsChanged();
 }
 
-void SynthGuiInterface::disconnectModulation(electrosynth::ModulationConnection* connection) {
+void SynthGuiInterface::disconnectModulation(electrosynth::Connection* connection) {
     synth_->disconnectModulation(connection);
     notifyModulationsChanged();
 }

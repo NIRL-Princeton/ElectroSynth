@@ -1,9 +1,9 @@
 #pragma once
 #include <chowdsp_plugin_state/chowdsp_plugin_state.h>
+#include "open_gl_combobox.h"
+#include "slots.h"
 #include "synth_section.h"
 #include "synth_slider.h"
-#include "open_gl_combobox.h"
-#include "modulation_slots.h"
 
 namespace electrosynth {
 
@@ -50,7 +50,7 @@ private:
     std::shared_ptr<OpenGlQuad> filter_type_combo_border_;
 
     std::map<juce::Component*, std::shared_ptr<PlainTextComponent>> slider_labels_;
-    std::map<SynthSlider*, std::unique_ptr<ModulationSlots>> modulation_slot_strips_;
+    std::map<SynthSlider*, std::unique_ptr<Slots>> modulation_slot_strips_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FxModuleTemplateView)
 };

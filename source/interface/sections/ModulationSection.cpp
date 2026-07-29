@@ -4,14 +4,14 @@
 
 
 #include "ModulationSection.h"
-#include "modulation_button.h"
-#include "modulation_manager.h"
+#include "connection_button.h"
+#include "mapping_manager.h"
 
 ModulationSection::ModulationSection( const juce::ValueTree &v, std::unique_ptr<SynthSection> editor, juce::UndoManager& um)
                         : SynthSection(editor->getName()),
                         state(v),
                         _view(std::move(editor)),
-                        mod_button(new ModulationButton("mod")),
+                        mod_button(new ConnectionButton("mod")),
                         undo(um) // this is the dragged connector
 {
     setComponentID(_view->getName());
@@ -54,7 +54,7 @@ void ModulationSection::resized() {
 }
 
 
-void ModulationSection::addModButtonListener(ModulationManager* manager) const {
+void ModulationSection::addModButtonListener(MappingManager* manager) const {
     mod_button->addListener(manager);
 }
 

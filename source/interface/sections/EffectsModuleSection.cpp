@@ -8,7 +8,7 @@
 #include "ModuleSection.h"
 #include "Processors/ProcessorBase.h"
 #include "about_section.h"
-#include "modulation_manager.h"
+#include "mapping_manager.h"
 #include "synth_base.h"
 #include "synth_gui_interface.h"
 
@@ -44,7 +44,7 @@ public:
 };
 }
 
-EffectModuleSection::EffectModuleSection(ModulationManager *m, AudioRoutingManager* arm, EffectList &module_list,const juce::ValueTree &v, juce::UndoManager& um) :
+EffectModuleSection::EffectModuleSection(MappingManager *m, AudioRoutingManager* arm, EffectList &module_list,const juce::ValueTree &v, juce::UndoManager& um) :
 audio_routing_manager_(arm), ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRectangleFragment)), state(v), undo(um)
 {
     scroll_bar_ = std::make_unique<OpenGlScrollBar>();

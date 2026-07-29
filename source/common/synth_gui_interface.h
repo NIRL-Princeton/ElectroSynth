@@ -42,7 +42,7 @@ class ModulatorBase;
 class ProcessorBase;
 namespace electrosynth
 {
-    class ModulationConnection;
+    class Connection;
 }
 class SynthGuiInterface :  public juce::ApplicationCommandTarget {
   public:
@@ -88,7 +88,7 @@ class SynthGuiInterface :  public juce::ApplicationCommandTarget {
     void addModulationSource(std::unique_ptr<ModulatorBase> modSource, int voice_index);
     bool connectModulation(std::string source, std::string destination, int destination_slot = -1);
     void disconnectModulation(std::string source, std::string destination);
-    void disconnectModulation(electrosynth::ModulationConnection* connection);
+    void disconnectModulation(electrosynth::Connection* connection);
     void notifyModulationsChanged();
     void setFocus();
     void notifyChange();

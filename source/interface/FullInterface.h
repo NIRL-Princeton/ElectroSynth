@@ -18,7 +18,7 @@ class AboutSection;
 struct SynthGuiData;
 class HeaderSection;
 class MainSection;
-class ModulationManager;
+class MappingManager;
 class AudioRoutingManager;
 
 namespace electrosynth{
@@ -97,7 +97,7 @@ public :
     juce::CriticalSection open_gl_critical_section_;
     OpenGlWrapper open_gl_;
     std::map<std::string, SynthSlider*> getAllSliders() override;
-    std::map<std::string, ModulationButton*> getAllModulationButtons() override;
+    std::map<std::string, ConnectionButton*> getAllModulationButtons() override;
     void modulationChanged();
     juce::ScopedPointer<ValueTreeDebugger> valueTreeDebugger;
 
@@ -128,7 +128,7 @@ private :
     //std::unique_ptr<OpenGlToggleButton> inspectButton;
     OpenGlBackground background_;
 
-    std::unique_ptr<ModulationManager> modulation_manager;
+    std::unique_ptr<MappingManager> modulation_manager;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FullInterface)
 };

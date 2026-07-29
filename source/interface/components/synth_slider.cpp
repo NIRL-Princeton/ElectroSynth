@@ -743,12 +743,12 @@ void SynthSlider::setLinearTextEntryBounds() {
 
 void SynthSlider::notifyModulationAmountChanged() {
   for (SynthSlider::SliderListener* listener : slider_listeners_)
-    listener->modulationAmountChanged(this);
+    listener->connectionAmountChanged(this);
 }
 
 void SynthSlider::notifyModulationRemoved() {
   for (SynthSlider::SliderListener* listener : slider_listeners_)
-    listener->modulationRemoved(this);
+    listener->connectionRemoved(this);
 }
 
 void SynthSlider::notifyModulationsChanged() {

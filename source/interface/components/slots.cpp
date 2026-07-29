@@ -3,7 +3,7 @@
 //
 
 
-#include "modulation_slots.h"
+#include "slots.h"
 #include <cmath>
 
 namespace electrosynth {
@@ -20,37 +20,37 @@ namespace electrosynth {
         }
     } // namespace
 
-    ModulationSlotComponent::ModulationSlotComponent(SynthSlider& destination_slider, int slot_index)
+    SlotComponent::SlotComponent(SynthSlider& destination_slider, int slot_index)
         : destination_slider_(destination_slider), slot_index_(slot_index) {
 
-        jassert(juce::isPositiveAndBelow(slot_index_, SynthSlider::kNumModulationSlots));
+        jassert(juce::isPositiveAndBelow(slot_index_, SynthSlider::kNumSlots));
         setComponentID(destination_slider_.getComponentID() + "_modulation_slot_" + juce::String(slot_index_));
         setInterceptsMouseClicks(false, false);
     }
 
-    void ModulationSlotComponent::paint(juce::Graphics&) { }
+    void SlotComponent::paint(juce::Graphics&) { }
 
-    void ModulationSlotComponent::notifySlotHost() {
+    void SlotComponent::notifySlotHost() {
         repaint();
-        if (auto* slots = findParentComponentOfClass<ModulationSlots>())
+        if (auto* slots = findParentComponentOfClass<Slots>())
             slots->syncOpenGl();
     }
 
-    void ModulationSlotComponent::setSourceName(juce::String source_name) {
+    void SlotComponent::setSourceName(juce::String source_name) {
         if (source_name_ == source_name)
             return;
         source_name_ = std::move(source_name);
         notifySlotHost();
     }
 
-    void ModulationSlotComponent::setSourceDisplayLabel(juce::String display_label) {
+    void SlotComponent::setSourceDisplayLabel(juce::String display_label) {
         if (display_label_ == display_label)
             return;
         display_label_ = std::move(display_label);
         notifySlotHost();
     }
 
-    void ModulationSlotComponent::setModulationAmount(float amount) {
+    void SlotComponent::setModulationAmount(float amount) {
         amount = juce::jlimit(-1.0f, 1.0f, amount);
         if (juce::approximatelyEqual(modulation_amount_, amount))
             return;
@@ -58,14 +58,14 @@ namespace electrosynth {
         notifySlotHost();
     }
 
-    void ModulationSlotComponent::setBypass(bool bypass) {
+    void SlotComponent::setBypass(bool bypass) {
         if (bypass_ == bypass)
             return;
         bypass_ = bypass;
         notifySlotHost();
     }
 
-    void ModulationSlotComponent::setAuxSource(juce::String source_name, juce::String display_label) {
+    void SlotComponent::setAuxSource(juce::String source_name, juce::String display_label) {
         if (aux_source_name_ == source_name && aux_display_label_ == display_label)
             return;
         aux_source_name_ = std::move(source_name);
@@ -73,7 +73,7 @@ namespace electrosynth {
         notifySlotHost();
     }
 
-    void ModulationSlotComponent::clearSource() {
+    void SlotComponent::clearSource() {
         const bool changed = source_name_.isNotEmpty() || display_label_.isNotEmpty()
                          || aux_source_name_.isNotEmpty() || aux_display_label_.isNotEmpty()
                          || !juce::approximatelyEqual(modulation_amount_, 0.0f) || bypass_;
@@ -87,7 +87,7 @@ namespace electrosynth {
             notifySlotHost();
     }
 
-    juce::Colour ModulationSlotComponent::getColorForSource(const juce::String& source_name) const {
+    juce::Colour SlotComponent::getColorForSource(const juce::String& source_name) const {
         if (source_name.startsWithIgnoreCase("env"))
             return findColour(Skin::kEnvelopeAccent);
         if (source_name.startsWithIgnoreCase("lfo"))
@@ -97,7 +97,7 @@ namespace electrosynth {
         return ShaderColors::kNoise;
     }
 
-    juce::String ModulationSlotComponent::getLabelForSource(const juce::String& source_name,
+    juce::String SlotComponent::getLabelForSource(const juce::String& source_name,
                                                         const juce::String& display_label) const {
         if (display_label.isNotEmpty())
             return display_label;
@@ -119,29 +119,29 @@ namespace electrosynth {
         return prefix + (digits.isNotEmpty() ? digits : "");
     }
 
-    juce::Colour ModulationSlotComponent::getSourceColor() const {
+    juce::Colour SlotComponent::getSourceColor() const {
         return getColorForSource(source_name_);
     }
 
-    juce::String ModulationSlotComponent::getSourceLabel() const {
+    juce::String SlotComponent::getSourceLabel() const {
         return getLabelForSource(source_name_, display_label_);
     }
 
-    juce::Colour ModulationSlotComponent::getAuxSourceColor() const {
+    juce::Colour SlotComponent::getAuxSourceColor() const {
         return getColorForSource(aux_source_name_);
     }
 
-    juce::String ModulationSlotComponent::getAuxSourceLabel() const {
+    juce::String SlotComponent::getAuxSourceLabel() const {
         return getLabelForSource(aux_source_name_, aux_display_label_);
     }
 
-    ModulationSlots::ModulationSlots(SynthSlider& destination)
+    Slots::Slots(SynthSlider& destination)
         : SynthSection(destination.getComponentID() + "_modulation_slots"), destination_(destination) {
 
         setInterceptsMouseClicks(false, true);
 
-        for (int slot = 0; slot < SynthSlider::kNumModulationSlots; ++slot) {
-            auto target = std::make_unique<ModulationSlotComponent>(destination_, slot);
+        for (int slot = 0; slot < SynthSlider::kNumSlots; ++slot) {
+            auto target = std::make_unique<SlotComponent>(destination_, slot);
             addAndMakeVisible(target.get());
             destination_.setExtraModulationTarget(slot, target.get());
             slots_[slot] = std::move(target);
@@ -182,16 +182,16 @@ namespace electrosynth {
         }
     }
 
-    ModulationSlots::~ModulationSlots() {
-        for (int slot = 0; slot < SynthSlider::kNumModulationSlots; ++slot)
+    Slots::~Slots() {
+        for (int slot = 0; slot < SynthSlider::kNumSlots; ++slot)
             destination_.setExtraModulationTarget(slot, nullptr);
     }
 
-    void ModulationSlots::resized() {
+    void Slots::resized() {
         const auto bounds = getLocalBounds();
-        for (int slot = 0; slot < SynthSlider::kNumModulationSlots; ++slot) {
-            const int left = slot * bounds.getWidth() / SynthSlider::kNumModulationSlots;
-            const int right = (slot + 1) * bounds.getWidth() / SynthSlider::kNumModulationSlots;
+        for (int slot = 0; slot < SynthSlider::kNumSlots; ++slot) {
+            const int left = slot * bounds.getWidth() / SynthSlider::kNumSlots;
+            const int right = (slot + 1) * bounds.getWidth() / SynthSlider::kNumSlots;
             const juce::Rectangle<int> slot_bounds(left, 0, right - left, bounds.getHeight());
             slots_[slot]->setBounds(slot_bounds);
             slots_[slot]->setVisible(true);
@@ -209,9 +209,9 @@ namespace electrosynth {
         syncOpenGl();
     }
 
-    void ModulationSlots::syncOpenGl() {
+    void Slots::syncOpenGl() {
         const auto empty = juce::Colours::transparentBlack;
-        for (int slot = 0; slot < SynthSlider::kNumModulationSlots; ++slot) {
+        for (int slot = 0; slot < SynthSlider::kNumSlots; ++slot) {
             auto* state = slots_[slot].get();
             auto& visuals = visuals_[slot];
             const bool occupied = state->isOccupied();

@@ -9,15 +9,14 @@
 // 4) Forwards listener events when modules are moved, added, or removed
 // 5) Assigns top-level display numbers.
 
-
 #include "AudioChainSection.h"
-#include "synth_gui_interface.h"
-#include "synth_base.h"
-#include "about_section.h"
-#include "modulation_manager.h"
 #include "FullInterface.h"
+#include "about_section.h"
+#include "mapping_manager.h"
+#include "synth_base.h"
+#include "synth_gui_interface.h"
 
-AudioChainSection::AudioChainSection(ChainList<ProcessorBase> &chains, ModulationManager *m, AudioRoutingManager* arm, juce::UndoManager& um) :
+AudioChainSection::AudioChainSection(ChainList<ProcessorBase> &chains, MappingManager *m, AudioRoutingManager* arm, juce::UndoManager& um) :
     SynthSection("chains"), chains_(chains), modulation_manager_(m), audio_routing_manager_(arm), undo(um) {
 
     setSkinOverride(Skin::kSoundModule);

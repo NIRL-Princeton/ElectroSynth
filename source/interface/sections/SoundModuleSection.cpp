@@ -10,13 +10,13 @@
 #include "../../synthesis/framework/Processors/OscillatorModuleProcessor.h"
 #include "ModuleSection.h"
 #include "Processors/ProcessorBase.h"
+#include "audio_routing_manager.h"
 #include "chowdsp_plugin_utils/Files/chowdsp_TweaksFile.h"
-#include "modulation_manager.h"
+#include "mapping_manager.h"
 #include "synth_base.h"
 #include "synth_gui_interface.h"
-#include "audio_routing_manager.h"
 
-SoundModuleSection::SoundModuleSection(ModulationManager *m, AudioRoutingManager* arm, ModuleList<ProcessorBase> &module_list,const juce::ValueTree &v,
+SoundModuleSection::SoundModuleSection(MappingManager *m, AudioRoutingManager* arm, ModuleList<ProcessorBase> &module_list,const juce::ValueTree &v,
         juce::UndoManager& um) : audio_routing_manager_(arm), ModulesInterface( module_list),
         footer_body(new OpenGlQuad(Shaders::kRoundedRectangleFragment)), state(v), undo(um) {
 

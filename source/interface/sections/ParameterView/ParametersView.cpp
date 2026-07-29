@@ -302,7 +302,7 @@ public:
         if (modulation_slot_strips_.contains(&slider))
             return;
 
-        auto strip = std::make_unique<ModulationSlots>(slider);
+        auto strip = std::make_unique<Slots>(slider);
         addSubSection(strip.get());
         modulation_slot_strips_[&slider] = std::move(strip);
     }
@@ -514,7 +514,7 @@ void FxModuleTemplateView::ensureModulationSlots(SynthSlider& slider) {
     if (modulation_slot_strips_.contains(&slider))
         return;
 
-    auto strip = std::make_unique<ModulationSlots>(slider);
+    auto strip = std::make_unique<Slots>(slider);
     addSubSection(strip.get());
     modulation_slot_strips_[&slider] = std::move(strip);
 }
@@ -552,7 +552,7 @@ int FxModuleTemplateView::getPreferredHeight() const {
 
     const int perRow  = std::max(1, std::min(getWidth() / kFxMinKnobCellWidth, n));
     const int numRows = (n + perRow - 1) / perRow; // matches resized()'s grouping row count
-    const int rowContentH = kFxLabelHeight + kFxLabelToArcGap + knobPx + kFxModulationBoxGap + ModulationSlots::kHeight;
+    const int rowContentH = kFxLabelHeight + kFxLabelToArcGap + knobPx + kFxModulationBoxGap + Slots::kHeight;
 
     return top_pad + numRows * rowContentH + (numRows - 1) * kFxRowGap + kFxRowBottomPad + footerHeight + footerTopGap;
 }
@@ -613,7 +613,7 @@ void FxModuleTemplateView::resized() {
         filter_type_combo_border_->setThickness(1.0f, true);
     }
 
-    const int rowContentH = kFxLabelHeight + kFxLabelToArcGap + knobPx + kFxModulationBoxGap + ModulationSlots::kHeight;
+    const int rowContentH = kFxLabelHeight + kFxLabelToArcGap + knobPx + kFxModulationBoxGap + Slots::kHeight;
     const int cellW = (w - 2 * kFxSideInset) / perRow;
     int idx = 0;
     int y = top_pad;
@@ -657,7 +657,7 @@ void FxModuleTemplateView::resized() {
                 const int box_width = std::max(0, std::min(kFxModulationBoxWidth, cellW - 4));
                 strip->second->setBounds(synth_slider->getBounds().getCentreX() - box_width / 2,
                                          synth_slider->getBottom() + kFxModulationBoxGap,
-                                         box_width, ModulationSlots::kHeight);
+                                         box_width, Slots::kHeight);
             }
         }
 

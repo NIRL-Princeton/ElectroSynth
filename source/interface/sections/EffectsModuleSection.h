@@ -8,13 +8,13 @@
 #include "ModuleList.h"
 class ModuleSection;
 class ProcessorBase;
-class ModulationManager;
+class MappingManager;
 class EffectList;
 class AudioRoutingManager;
 
 class EffectModuleSection : public ModulesInterface<ProcessorBase> {
 public:
-    explicit EffectModuleSection( ModulationManager* m, AudioRoutingManager* ,EffectList &,const juce::ValueTree &, juce::UndoManager& um);
+    explicit EffectModuleSection( MappingManager* m, AudioRoutingManager* ,EffectList &,const juce::ValueTree &, juce::UndoManager& um);
     virtual ~EffectModuleSection();
 
     void setEffectPositions() override;

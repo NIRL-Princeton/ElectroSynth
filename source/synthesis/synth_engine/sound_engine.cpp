@@ -142,8 +142,26 @@ namespace electrosynth
     {
         for (auto mapping : mappings)
         {
-            for (int i = 0; i < MAX_NUM_VOICES; i++)
-                processMapping (&mapping->mapping_[i]);
+            if (mapping == nullptr)
+                continue;
+
+            for (int i = 0; i < MAX_NUM_VOICES; i++) {
+                auto* voice_mapping = &mapping->mapping_[i];
+                if (voice_mapping->initialVal == nullptr || voice_mapping->destObject == nullptr)
+                    continue;
+
+                bool valid_sources = true;
+                for (int source = 0; source < voice_mapping->numUsedSources; ++source) {
+                    if (voice_mapping->inSources[source] == nullptr
+                        || voice_mapping->scalingValues[source] == nullptr) {
+                        valid_sources = false;
+                        break;
+                    }
+                }
+
+                if (valid_sources)
+                    processMapping (voice_mapping);
+            }
         }
     }
 

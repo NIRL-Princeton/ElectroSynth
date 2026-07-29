@@ -14,18 +14,18 @@
  * along with vital.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "modulation_button.h"
-#include "paths.h"
+#include "connection_button.h"
 #include "juce_gui_basics/juce_gui_basics.h"
-#include "synth_gui_interface.h"
+#include "paths.h"
 #include "skin.h"
 #include "synth_base.h"
+#include "synth_gui_interface.h"
 //#include "modulation_matrix.h"
 #include "synth_section.h"
 
-ModulationButton:: ModulationButton(String name) : PlainShapeComponent(std::move(name)), parent_(nullptr),
+ConnectionButton:: ConnectionButton(String name) : PlainShapeComponent(std::move(name)), parent_(nullptr),
                                                   mouse_state_(kNone), selected_(false), connect_right_(false),
-                                                  draw_border_(false), active_modulation_(false), font_size_(12.0f),
+                                                  draw_border_(false), active_connection_(false), font_size_(12.0f),
                                                   drag_drop_color_(juce::Colours::white),
                                                   source_color_(juce::Colours::white),
                                                   background_color_(juce::Colours::black),
@@ -44,19 +44,19 @@ ModulationButton:: ModulationButton(String name) : PlainShapeComponent(std::move
   setColor(source_color_);
 }
 
-ModulationButton::~ModulationButton() {
+ConnectionButton::~ConnectionButton() {
 //  if (parent_)
 //    parent_->getSynth()->forceShowModulation(getName().toStdString(), false);
 }
 
-bool ModulationButton::hasAnyModulation() {
+bool ConnectionButton::hasAnyConnection() {
   if (parent_)
 //    return parent_->getSynth()->isSourceConnected(getName().toStdString());
   return false;
 }
 
-Rectangle<int> ModulationButton::getModulationAmountBounds(int index, int total) {
-  int columns = kModulationKnobColumns;
+Rectangle<int> ConnectionButton::getModulationAmountBounds(int index, int total) {
+  int columns = kColumns;
 
   int row = index / columns;
   int column = index % columns;
@@ -69,7 +69,7 @@ Rectangle<int> ModulationButton::getModulationAmountBounds(int index, int total)
   return Rectangle<int>(x, y, width, width);
 }
 
-Rectangle<int> ModulationButton::getMeterBounds() {
+Rectangle<int> ConnectionButton::getMeterBounds() {
   static constexpr int kMinMeterWidth = 4;
 
   int width = getWidth();
@@ -78,7 +78,7 @@ Rectangle<int> ModulationButton::getMeterBounds() {
   return Rectangle<int>(1, 1, meter_width, meter_height);
 }
 
-Rectangle<int> ModulationButton::getModulationAreaBounds() {
+Rectangle<int> ConnectionButton::getModulationAreaBounds() {
   static constexpr int kMaxWidthHeightRatio = 3;
 
   SynthSection* parent = findParentComponentOfClass<SynthSection>();
@@ -90,8 +90,8 @@ Rectangle<int> ModulationButton::getModulationAreaBounds() {
   int height = getHeight();
 
   int widget_width = width - 2 * widget_margin;
-  int knob_width = widget_width / kModulationKnobColumns;
-  widget_width = knob_width * kModulationKnobColumns;
+  int knob_width = widget_width / kColumns;
+  widget_width = knob_width * kColumns;
   int widget_x = getMeterBounds().getRight() + (width - widget_width) / 2;
   int min_y = kFontAreaHeightRatio * width;
   int max_widget_height = ceilf(widget_width * 2.0f / 3.0f);
@@ -103,7 +103,7 @@ Rectangle<int> ModulationButton::getModulationAreaBounds() {
   return Rectangle<int>(widget_x, widget_y, widget_width, widget_height);
 }
 
-void ModulationButton::paintBackground(Graphics& g) {
+void ConnectionButton::paintBackground(Graphics& g) {
   if (getWidth() == 0 || getHeight() == 0)
     return;
 
@@ -119,19 +119,19 @@ void ModulationButton::paintBackground(Graphics& g) {
   g.drawRoundedRectangle(bounds.reduced(0.5f), rounding_amount, selected_ ? 2.0f : 1.0f);
 }
 
-void ModulationButton::parentHierarchyChanged() {
+void ConnectionButton::parentHierarchyChanged() {
   if (parent_ == nullptr) {
     parent_ = findParentComponentOfClass<SynthGuiInterface>();
     setForceEnableModulationSource();
   }
 }
 
-void ModulationButton::resized() {
+void ConnectionButton::resized() {
   PlainShapeComponent::resized();
   drag_drop_area_.setBounds(getLocalBounds().reduced(4));
 }
 
-void ModulationButton::render(OpenGlWrapper& open_gl, bool animate) {
+void ConnectionButton::render(OpenGlWrapper& open_gl, bool animate) {
   static constexpr float kDeltaAlpha = 0.15f;
 
   float target = 1.0f;
@@ -153,18 +153,18 @@ void ModulationButton::render(OpenGlWrapper& open_gl, bool animate) {
   PlainShapeComponent::render(open_gl, animate);
 }
 
-void ModulationButton::init(OpenGlWrapper &open_gl) {
+void ConnectionButton::init(OpenGlWrapper &open_gl) {
     PlainShapeComponent::init(open_gl);
     //DBG(juce::String(image_.shader()->getProgramID()));
     if (image_.shader()->getProgramID() !=  0)
         initialized = true;
 }
 
-bool ModulationButton::isInit() {
+bool ConnectionButton::isInit() {
     return initialized;
 }
 
-void ModulationButton::mouseDown(const MouseEvent& e) {
+void ConnectionButton::mouseDown(const MouseEvent& e) {
     DBG(getComponentID() + "currmode");
   if (e.mods.isPopupMenu()) {
     if (parent_ == nullptr)
@@ -192,15 +192,15 @@ void ModulationButton::mouseDown(const MouseEvent& e) {
 //    parent->showPopupSelector(this, e.getPosition(), options, [=](int selection) { disconnectIndex(selection); });
   }
   else {
-    setActiveModulation(true);
+    setActiveConnection(true);
     mouse_state_ = kMouseDown;
 
     for (Listener* listener : listeners_)
-      listener->modulationSelected(this);
+      listener->connectionSelected(this);
   }
 }
 
-void ModulationButton::mouseDrag(const MouseEvent& e) {
+void ConnectionButton::mouseDrag(const MouseEvent& e) {
   if (e.mods.isRightButtonDown())
     return;
 
@@ -213,27 +213,27 @@ void ModulationButton::mouseDrag(const MouseEvent& e) {
 
   if (mouse_state_ == kDraggingOut) {
     for (Listener* listener : listeners_)
-      listener->modulationDragged(e);
+      listener->mappingDragged(e);
   }
   else if (mouse_state_ != kMouseDragging)
     mouse_state_ = kMouseDragging;
 }
 
-void ModulationButton::mouseUp(const MouseEvent& e) {
+void ConnectionButton::mouseUp(const MouseEvent& e) {
   if (!e.mods.isRightButtonDown() && mouse_state_ == kDraggingOut) {
     for (Listener* listener : listeners_)
-      listener->endModulationMap();
+      listener->endDestinationMap();
   }
   else if (!e.mods.isRightButtonDown()) {
     for (Listener* listener : listeners_)
-      listener->modulationClicked(this);
+      listener->connectionClicked(this);
   }
   setMouseCursor(MouseCursor::ParentCursor);
 
   mouse_state_ = kHover;
 }
 
-void ModulationButton::mouseEnter(const MouseEvent& e) {
+void ConnectionButton::mouseEnter(const MouseEvent& e) {
   mouse_state_ = kHover;
   drag_drop_color_ = source_color_;
   show_drag_drop_ = true;//parent_->getSynth()->getSourceConnections(getName().toStdString()).empty();
@@ -241,26 +241,26 @@ void ModulationButton::mouseEnter(const MouseEvent& e) {
   redrawImage(true);
 }
 
-void ModulationButton::mouseExit(const MouseEvent& e) {
+void ConnectionButton::mouseExit(const MouseEvent& e) {
   mouse_state_ = kNone;
   show_drag_drop_ = true;
 }
 
-void ModulationButton::mouseWheelMove(const MouseEvent& e, const MouseWheelDetails& wheel) {
+void ConnectionButton::mouseWheelMove(const MouseEvent& e, const MouseWheelDetails& wheel) {
   for (Listener* listener : listeners_)
-    listener->modulationWheelMoved(e, wheel);
+    listener->connectionWheelMoved(e, wheel);
 }
 
-void ModulationButton::focusLost(FocusChangeType cause) {
+void ConnectionButton::focusLost(FocusChangeType cause) {
   for (Listener* listener : listeners_)
-    listener->modulationLostFocus(this);
+    listener->mappingLostFocus(this);
 }
 
-void ModulationButton::addListener(Listener* listener) {
+void ConnectionButton::addListener(Listener* listener) {
   listeners_.push_back(listener);
 }
 
-void ModulationButton::setSourceColor(juce::Colour color) {
+void ConnectionButton::setSourceColor(juce::Colour color) {
   source_color_ = color;
   drag_drop_color_ = color;
   setColor(source_color_.withMultipliedAlpha(drag_drop_alpha_));
@@ -268,7 +268,7 @@ void ModulationButton::setSourceColor(juce::Colour color) {
   redrawImage(true);
 }
 
-void ModulationButton::disconnectIndex(int index) {
+void ConnectionButton::disconnectIndex(int index) {
   if (parent_ == nullptr)
     return;
 
@@ -285,22 +285,22 @@ void ModulationButton::disconnectIndex(int index) {
 //  }
 }
 
-void ModulationButton::select(bool select) {
+void ConnectionButton::select(bool select) {
   selected_ = select;
   setForceEnableModulationSource();
 }
 
-void ModulationButton::setActiveModulation(bool active) {
-  active_modulation_ = active;
+void ConnectionButton::setActiveConnection(bool active) {
+  active_connection_ = active;
   setForceEnableModulationSource();
 }
 
-void ModulationButton::setForceEnableModulationSource() {
+void ConnectionButton::setForceEnableModulationSource() {
 //  if (parent_)
 //    parent_->getSynth()->forceShowModulation(getName().toStdString(), active_modulation_);
 }
 
-void ModulationButton::disconnectModulation(electrosynth::ModulationConnection* connection) {
+void ConnectionButton::disconnectConnection(electrosynth::Connection* connection) {
 ////  int modulations_left = parent_->getSynth()->getNumModulations(connection->destination_name);
 //
 //  for (Listener* listener : listeners_) {

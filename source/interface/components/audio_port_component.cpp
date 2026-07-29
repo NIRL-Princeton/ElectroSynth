@@ -78,8 +78,8 @@ void AudioPortComponent::updateArrowScale() {
 
 void AudioPortComponent::render(OpenGlWrapper& open_gl, bool animate) {
     const auto color = drag_target_ ?
-        findColour(Skin::kWidgetAccent1, true) : mapping_target_ ?
-        findColour(Skin::kWidgetPrimary2, true) : findColour(Skin::kWidgetPrimary1, true);
+        findColour(Skin::kWidgetPrimary1, true) : mapping_target_ ?
+        findColour(Skin::kTextComponentText, true) : findColour(Skin::kWidgetPrimary1, true);
 
     setColor(color);
     PlainShapeComponent::render(open_gl, animate);

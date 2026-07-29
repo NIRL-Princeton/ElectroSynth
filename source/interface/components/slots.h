@@ -8,10 +8,10 @@
 
 namespace electrosynth {
 
-    class ModulationSlots;
-    class ModulationSlotComponent final : public juce::Component {
+    class Slots;
+    class SlotComponent final : public juce::Component {
         public:
-        ModulationSlotComponent(SynthSlider& destination_slider, int slot_index);
+        SlotComponent(SynthSlider& destination_slider, int slot_index);
 
         void paint(juce::Graphics& g) override;
 
@@ -49,15 +49,15 @@ namespace electrosynth {
         float modulation_amount_ = 0.0f;
         bool bypass_ = false;
 
-        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ModulationSlotComponent)
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SlotComponent)
 };
 
-class ModulationSlots final : public SynthSection {
+class Slots final : public SynthSection {
 public:
     static constexpr int kHeight = 16;
 
-    explicit ModulationSlots(SynthSlider& destination);
-    ~ModulationSlots() override;
+    explicit Slots(SynthSlider& destination);
+    ~Slots() override;
 
     void resized() override;
     void paintBackground(juce::Graphics&) override { }
@@ -75,10 +75,10 @@ private:
     };
 
     SynthSlider& destination_;
-    std::array<std::unique_ptr<ModulationSlotComponent>, SynthSlider::kNumModulationSlots> slots_;
-    std::array<SlotVisuals, SynthSlider::kNumModulationSlots> visuals_;
+    std::array<std::unique_ptr<SlotComponent>, SynthSlider::kNumSlots> slots_;
+    std::array<SlotVisuals, SynthSlider::kNumSlots> visuals_;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ModulationSlots)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Slots)
 };
 
 } // namespace electrosynth
