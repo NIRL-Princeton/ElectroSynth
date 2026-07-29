@@ -14,8 +14,9 @@ namespace {
     constexpr int kExitButtonRightOffset = 50;
 }
 
-ModuleSection::ModuleSection(const juce::ValueTree &v, electrosynth::audio::NodeDescriptor node_descriptor, std::unique_ptr<SynthSection> editor, juce::UndoManager& um)
-    : SynthSection(editor->getName()), audioNodeDescriptor_ (std::move(node_descriptor)),state(v), _view(std::move(editor)), undo(um) {
+ModuleSection::ModuleSection(const juce::ValueTree &v, electrosynth::audio::NodeDescriptor node_descriptor, std::unique_ptr<SynthSection> editor,
+    juce::UndoManager& um, AudioRoutingManager* arm) : SynthSection(editor->getName()), audioNodeDescriptor_ (std::move(node_descriptor)),
+    state(v), _view(std::move(editor)), undo(um), audio_routing_manager_ (arm) {
 
     // The module's body fill is normally baked into the owning lane's scroll image and
     // does not follow a live-moving wrapper. While dragged, this quad supplies an opaque
@@ -68,6 +69,7 @@ ModuleSection::ModuleSection(const juce::ValueTree &v, electrosynth::audio::Node
     if (audioNodeDescriptor_.hasOutput) { // if this module supports outputs...
         electrosynth::audio::AudioPortAddress address { // give it an output audio port address
             getAudioNodeId(),
+            getName(),
             audioNodeDescriptor_.outputPortId,
             electrosynth::audio::PortDirection::Output,
             audioNodeDescriptor_.domain
@@ -77,11 +79,16 @@ ModuleSection::ModuleSection(const juce::ValueTree &v, electrosynth::audio::Node
             std::move(address));
         //output_port_->addListener (this);
         addOpenGlComponent(output_port_);
+
+        output_connection_slots_ = std::make_unique<AudioConnectionSlots>(*output_port_);
+        addSubSection(output_connection_slots_.get());
+        output_connection_slots_->setConnections({});
     }
 
     if (audioNodeDescriptor_.hasInput) { // if this module supports inputs...
         electrosynth::audio::AudioPortAddress address { // give it an output audio port address
             getAudioNodeId(),
+            getName(),
             audioNodeDescriptor_.inputPortId,
             electrosynth::audio::PortDirection::Input,
             audioNodeDescriptor_.domain
@@ -91,11 +98,28 @@ ModuleSection::ModuleSection(const juce::ValueTree &v, electrosynth::audio::Node
             std::move(address));
         //input_port_->addListener (this);
         addOpenGlComponent(input_port_);
+
+        input_connection_slots_ = std::make_unique<AudioConnectionSlots>(*input_port_);
+        addSubSection(input_connection_slots_.get());
+        input_connection_slots_->setConnections({});
     }
 
+    if (audio_routing_manager_ != nullptr) {
+        if (output_port_ != nullptr)
+            audio_routing_manager_->registerPort(*output_port_);
+
+        if (input_port_ != nullptr)
+            audio_routing_manager_->registerPort(*input_port_);
+    }
 }
 
-ModuleSection::~ModuleSection() = default;
+ModuleSection::~ModuleSection() {
+    if (audio_routing_manager_ == nullptr)
+        return;
+
+    if (output_port_) audio_routing_manager_->unregisterPort(*output_port_);
+    if (input_port_) audio_routing_manager_->unregisterPort(*input_port_);
+}
 
 void ModuleSection::setAreaSkinOverride(Skin::SectionOverride skin_override) {
     setSkinOverride(skin_override);
@@ -104,7 +128,7 @@ void ModuleSection::setAreaSkinOverride(Skin::SectionOverride skin_override) {
 }
 
 int ModuleSection::getPreferredHeight() const {
-    return (_view != nullptr ? _view->getPreferredHeight() : 0) + kHeaderHeight; // + kContentBottomPadding;
+    return (_view != nullptr ? _view->getPreferredHeight() : 0) + kHeaderHeight;
 }
 
 int ModuleSection::refreshHeight() {
@@ -113,9 +137,11 @@ int ModuleSection::refreshHeight() {
 }
 
 void ModuleSection::resized() {
-    static constexpr int kAudioPortPanelWidth = 34;
+    static constexpr int kAudioPortPanelWidth = 5;
     static constexpr int kAudioPortSize = 24;
     static constexpr int kAudioPortY = 5;
+    static constexpr int kWidthOffset = 23;
+    static constexpr int kConnectionSlotSpacing = 2;
 
     auto local = getLocalBounds();
     local.removeFromTop(kHeaderHeight);
@@ -147,16 +173,34 @@ void ModuleSection::resized() {
     exit_button_->setBounds(exit_x, (kHeaderHeight - kExitButtonSize) / 2, kExitButtonSize, kExitButtonSize);
 
     if (output_port_) {
-        output_port_->setBounds(getWidth() - kAudioPortPanelWidth, getHeight() - kAudioPortSize - kAudioPortY,
+        output_port_->setBounds(getWidth() - kAudioPortPanelWidth - kWidthOffset, getHeight() - kAudioPortSize - kAudioPortY,
             kAudioPortSize, kAudioPortSize);
         output_port_->setColor(findColour(Skin::kWidgetPrimary1, true));
         output_port_->resized();
+
+        if (output_connection_slots_) {
+            output_connection_slots_->setBounds(
+                output_port_->getX()
+                    - kConnectionSlotSpacing
+                    - AudioConnectionSlots::kPreferredWidth,
+                output_port_->getY(),
+                AudioConnectionSlots::kPreferredWidth,
+                output_port_->getHeight());
+        }
     }
     if (input_port_) {
         input_port_->setBounds(kAudioPortPanelWidth, getHeight() - kAudioPortSize - kAudioPortY,
             kAudioPortSize, kAudioPortSize);
         input_port_->setColor(findColour(Skin::kWidgetPrimary1, true));
         input_port_->resized();
+
+        if (input_connection_slots_) {
+            input_connection_slots_->setBounds(
+                input_port_->getRight() + kConnectionSlotSpacing,
+                input_port_->getY(),
+                AudioConnectionSlots::kPreferredWidth,
+                input_port_->getHeight());
+        }
     }
 
     bottom_separator_->setBounds(0, std::max(0, getHeight() - 1), getWidth(), 2);

@@ -27,6 +27,7 @@
 #include "leaf.h"
 #include "ModulationWrapper.h"
 #include "ModulationConnection.h"
+#include "AudioConnection.h"
 #include "circular_queue.h"
 #include "ModulationConnection.h"
 #include "ModuleList.h"
@@ -80,6 +81,10 @@ public:
                            int destination_slot = -1);
 
     void connectModulation(electrosynth::ModulationConnection *connection);
+
+    bool connectAudioConnection(const electrosynth::audio::AudioConnection& connection);
+    bool disconnectAudioConnection(const electrosynth::audio::AudioConnection& connection);
+
 
     int getSampleRate();
 

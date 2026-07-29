@@ -15,6 +15,8 @@ class SoundModuleSection;
 class ModulationModuleSection;
 struct SynthGuiData;
 class ModulationManager;
+class AudioRoutingManager;
+
 class MasterVoiceEnvelopeSection : public SynthSection {
 public:
     MasterVoiceEnvelopeSection(const juce::ValueTree& v, juce::UndoManager &um,
@@ -37,7 +39,7 @@ public:
         //virtual void showAboutSection() = 0;
     };
 
-    MainSection(const juce::ValueTree& v, juce::UndoManager &um, OpenGlWrapper &open_gl, SynthGuiData * data, ModulationManager* );
+    MainSection(const juce::ValueTree& v, juce::UndoManager &um, OpenGlWrapper &open_gl, SynthGuiData * data, ModulationManager*, AudioRoutingManager*);
 
     void paintBackground(Graphics& g) override;
     void resized() override;
@@ -58,6 +60,7 @@ private:
     std::vector<Listener*> listeners_;
     std::unique_ptr<ModulationModuleSection> modulation_interface;
     std::unique_ptr<MasterVoiceEnvelopeSection> master_voice_envelope_section;
+    AudioRoutingManager* audio_routing_manager_ = nullptr;
 
 };
 

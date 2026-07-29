@@ -15,7 +15,7 @@ struct DelayParams : public LEAFParams<_tDelayModule >
 {
     DelayParams(LEAF* leaf) : LEAFParams<_tDelayModule>(leaf)
     {
-        add(time,gain);
+        add(audioIn,time,gain);
     }
 
     //add env watch param so that it isnt null
@@ -27,6 +27,20 @@ struct DelayParams : public LEAFParams<_tDelayModule >
         all_params[0],
         [this] (float val) {
             // for (auto mod: modules) mod->setterFunctions[EnvParams::EnvSustain](mod, val);
+        },
+        &chowdsp::ParamUtils::floatValToString,
+        &chowdsp::ParamUtils::stringToFloatVal
+    };
+
+    chowdsp::FloatParameter::Ptr audioIn {
+        juce::ParameterID{"in" , 100},
+        "in",
+        chowdsp::ParamUtils::createNormalisableRange(-1.f, 1.f, 0.f),
+        0.f,
+        all_params[DelParams::DelayAudioIn],
+        [this](float val){
+            for (auto mod : modules)
+                tDelayModule_setParameter(mod,DelayAudioIn,val);
         },
         &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal

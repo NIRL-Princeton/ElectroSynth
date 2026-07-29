@@ -63,15 +63,23 @@ SynthGuiInterface::SynthGuiInterface(SynthBase* synth, bool use_gui) : synth_(sy
   if (use_gui) {
     SynthGuiData synth_data(synth_);
     gui_ = std::make_unique<FullInterface>(&synth_data);
+
+    if (auto* arm = gui_->getAudioRoutingManager())
+        arm->addListener(this);
+
     // for registering hotkeys etc.
     commandHandler = std::make_unique<ApplicationCommandHandler>(this);
     commandManager.registerAllCommandsForTarget(commandHandler.get());
   }
 
-
 }
 
-SynthGuiInterface::~SynthGuiInterface() { }
+SynthGuiInterface::~SynthGuiInterface() {
+    if (gui_ != nullptr) {
+        if (auto* arm = gui_->getAudioRoutingManager())
+            arm->removeListener(this);
+    }
+}
 
 bool SynthGuiInterface::perform(const InvocationInfo & info) {
     {
@@ -253,6 +261,16 @@ void SynthGuiInterface::disconnectModulation(electrosynth::ModulationConnection*
 }
 void SynthGuiInterface::notifyModulationsChanged() {
     gui_->modulationChanged();
+}
+
+void SynthGuiInterface::audioConnectionCreated(const electrosynth::audio::AudioConnection& connection)
+{
+    synth_->connectAudioConnection(connection);
+}
+
+void SynthGuiInterface::audioConnectionRemoved(const electrosynth::audio::AudioConnection& connection)
+{
+    synth_->disconnectAudioConnection(connection);
 }
 //float SynthGuiInterface::getControlValue(const std::string& name) {
 //  return synth_->getControls()[name]->value();

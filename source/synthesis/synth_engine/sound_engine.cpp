@@ -641,6 +641,7 @@ namespace electrosynth
 
         std::string param_string;
         std::getline (ss, param_string, '_');
+
         int index = -1;
         auto it = std::find (paramsAllArray[procID].cbegin(), paramsAllArray[procID].cend(), param_string);
         if (it != paramsAllArray[procID].cend())

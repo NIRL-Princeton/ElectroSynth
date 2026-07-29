@@ -15,7 +15,7 @@ struct SoftClipParams : public LEAFParams<_tSoftClipModule >
 {
     SoftClipParams(LEAF* leaf) : LEAFParams<_tSoftClipModule>(leaf)
     {
-                                        add(inputGain,offset, shape);
+                                        add(audioIn, inputGain,offset, shape);
     }
     //add env watch param so that it isnt null
     chowdsp::FloatParameter::Ptr envwatchparam {
@@ -26,6 +26,19 @@ struct SoftClipParams : public LEAFParams<_tSoftClipModule >
         all_params[0],
         [this] (float val) {
             // for (auto mod: modules) mod->setterFunctions[EnvParams::EnvSustain](mod, val);
+        },
+        &chowdsp::ParamUtils::floatValToString,
+        &chowdsp::ParamUtils::stringToFloatVal
+    };
+    chowdsp::FloatParameter::Ptr audioIn {
+        juce::ParameterID{"in" , 100},
+        "in",
+        chowdsp::ParamUtils::createNormalisableRange(-1.f, 1.f, 0.f),
+        0.f,
+        all_params[SoftClipModuleParams::SoftClipAudioIn],
+        [this](float val){
+            for (auto mod : modules)
+                tSoftClipModule_setParameter(mod,EnvAudioIn,val);
         },
         &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal

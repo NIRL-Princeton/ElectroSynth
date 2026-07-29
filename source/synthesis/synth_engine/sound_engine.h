@@ -134,6 +134,7 @@ namespace electrosynth {
         std::pair<  std::array<ModuleHeader*, MAX_NUM_VOICES>* , int> getParameterInfo(const std::string&);
         std::vector<std::vector<std::unique_ptr<ProcessorBase>>> processors;
         std::vector<std::unique_ptr<RoutingProcessor>> chainPostGain;
+        //std::vector<leaf::tAudioRouting*> chain_to_lane_routings;
         std::vector<std::unique_ptr<RoutingProcessor>> effectPreGain;
         std::array<std::vector<std::unique_ptr<ProcessorBase>>,3> effects;
         std::vector<std::vector<std::unique_ptr<ModulatorBase>>> modSources;

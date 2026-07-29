@@ -3,11 +3,11 @@
 //
 
 #include "audio_port_component.h"
-
 #include "juce_events/juce_events.h"
+#include "audio_connection_slots.h"
 
 AudioPortComponent::AudioPortComponent(juce::String name, electrosynth::audio::AudioPortAddress address)
-    : PlainShapeComponent(std::move(name)), address_(std::move(address)) {
+    : PlainShapeComponent(std::move(name)), address_(std::move(address)){
     using electrosynth::audio::PortDirection;
 
     setShape(Paths::rightArrow());
@@ -24,10 +24,12 @@ void AudioPortComponent::mouseDown(const juce::MouseEvent& event) {
 }
 
 void AudioPortComponent::mouseEnter(const juce::MouseEvent& event) {
+    mouse_hovered_ = true;
     setArrowScale(1.0f);
 }
 
 void AudioPortComponent::mouseExit(const juce::MouseEvent& event) {
+    mouse_hovered_ = false;
     setArrowScale(0.8f);
 }
 
@@ -48,4 +50,36 @@ void AudioPortComponent::setArrowScale(float scale) {
     image().setTopRight(scale, scale);
     image().setBottomLeft(-scale, -scale);
     image().setBottomRight(scale, -scale);
+}
+
+void AudioPortComponent::setConnectionSlots(AudioConnectionSlots* slots) noexcept {
+    connection_slots_ = slots;
+}
+
+AudioConnectionSlots* AudioPortComponent::getConnectionSlots() const noexcept {
+    return connection_slots_;
+}
+
+void AudioPortComponent::setMappingTarget(bool target) {
+    mapping_target_ = target;
+    updateArrowScale();
+}
+
+void AudioPortComponent::setDragTarget(bool target) {
+    drag_target_ = target;
+    updateArrowScale();
+}
+
+void AudioPortComponent::updateArrowScale() {
+    const float scale = drag_target_ || mouse_hovered_ ? 1.0f : mapping_target_ ? 0.9f : 0.8f;
+    setArrowScale(scale);
+}
+
+void AudioPortComponent::render(OpenGlWrapper& open_gl, bool animate) {
+    const auto color = drag_target_ ?
+        findColour(Skin::kWidgetAccent1, true) : mapping_target_ ?
+        findColour(Skin::kWidgetPrimary2, true) : findColour(Skin::kWidgetPrimary1, true);
+
+    setColor(color);
+    PlainShapeComponent::render(open_gl, animate);
 }

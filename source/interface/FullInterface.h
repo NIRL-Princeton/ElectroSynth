@@ -19,20 +19,22 @@ struct SynthGuiData;
 class HeaderSection;
 class MainSection;
 class ModulationManager;
+class AudioRoutingManager;
+
 namespace electrosynth{
     constexpr int kMinWindowWidth = 350;
     constexpr int kMinWindowHeight = 205;
     constexpr int kDefaultWindowWidth = 1400;
     constexpr int kDefaultWindowHeight = 820;
 }
+
 class FullInterface : public SynthSection, public juce::OpenGLRenderer, public HeaderSection::Listener,
-                      public MainSection::Listener, juce::DragAndDropContainer, private juce::Timer
-{
+                      public MainSection::Listener, juce::DragAndDropContainer, private juce::Timer {
 
 public :
     static constexpr double kMinOpenGlVersion = 1.4;
     FullInterface(SynthGuiData *synth_gui_data);
-     ~FullInterface() override;
+    ~FullInterface() override;
 
      void paintBackground(juce::Graphics& g) override;
 
@@ -98,7 +100,13 @@ public :
     std::map<std::string, ModulationButton*> getAllModulationButtons() override;
     void modulationChanged();
     juce::ScopedPointer<ValueTreeDebugger> valueTreeDebugger;
+
+    AudioRoutingManager* getAudioRoutingManager() { return audio_routing_manager_.get(); }
+
 private :
+    // Declared before MainSection so it outlives MainSection and every registered
+    // AudioPortComponent during reverse-order member destruction.
+    std::unique_ptr<AudioRoutingManager> audio_routing_manager_;
     std::unique_ptr<AboutSection> about_section_;
     std::unique_ptr<MainSection> main_;
     std::unique_ptr<HeaderSection> header_;
@@ -121,6 +129,7 @@ private :
     // std::unique_ptr<melatonin::Inspector> inspector;
     //std::unique_ptr<OpenGlToggleButton> inspectButton;
     OpenGlBackground background_;
+
     std::unique_ptr<ModulationManager> modulation_manager;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FullInterface)

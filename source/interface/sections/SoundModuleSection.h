@@ -5,15 +5,17 @@
 #ifndef ELECTROSYNTH_SOUNDMODULESECTION_H
 #define ELECTROSYNTH_SOUNDMODULESECTION_H
 #include "modules_interface.h"
+#include "ModuleList.h"
+#include "ParameterView/RoutingView.h"
+
 class ModuleSection;
 class ProcessorBase;
 class ModulationManager;
-#include "ModuleList.h"
-#include "ParameterView/RoutingView.h"
-class SoundModuleSection : public ModulesInterface<ProcessorBase>
-{
+class AudioRoutingManager;
+
+class SoundModuleSection : public ModulesInterface<ProcessorBase> {
 public:
-    explicit SoundModuleSection( ModulationManager* m, ModuleList<ProcessorBase> &,const juce::ValueTree &, juce::UndoManager& um);
+    explicit SoundModuleSection( ModulationManager* m, AudioRoutingManager*, ModuleList<ProcessorBase> &,const juce::ValueTree &, juce::UndoManager& um);
     virtual ~SoundModuleSection();
 
     void setSoundModuleIndex(int index);
@@ -56,6 +58,7 @@ public:
     int sound_module_index_ = 1;
     std::unique_ptr<RoutingView> routing_view_;
     juce::UndoManager& undo;
+    AudioRoutingManager* audio_routing_manager_ = nullptr;
 };
 
 #endif //ELECTROSYNTH_SOUNDMODULESECTION_H
