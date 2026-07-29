@@ -76,7 +76,7 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
 {
     OscillatorParams(LEAF* leaf) : LEAFParams<_tOscModule>(leaf)
     {
-       add(harmonic, pitchOffset, pitchFine, freqOffset, glide, shape, harmonicstepped, amp, oscType);
+       add(audioIn, harmonic, pitchOffset, pitchFine, freqOffset, glide, shape, harmonicstepped, amp, oscType);
         //add(pitchOffset);
 
     }
@@ -94,6 +94,19 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
         &chowdsp::ParamUtils::stringToFloatVal
     };
 
+    chowdsp::FloatParameter::Ptr audioIn {
+        juce::ParameterID{"in" , 100},
+        "in",
+        chowdsp::ParamUtils::createNormalisableRange(-1.f, 1.f, 0.f),
+        0.f,
+        all_params[OscParams::OscAudioIn],
+        [this](float val){
+            for (auto mod : modules)
+                tOscModule_setParameter(mod,OscAudioIn,val);
+        },
+        &chowdsp::ParamUtils::floatValToString,
+        &chowdsp::ParamUtils::stringToFloatVal
+    };
 
     chowdsp::FloatParameter::Ptr harmonic {
         juce::ParameterID{"harmonic" , 100},

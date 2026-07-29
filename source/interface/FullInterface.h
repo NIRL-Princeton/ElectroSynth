@@ -101,6 +101,8 @@ public :
     void modulationChanged();
     juce::ScopedPointer<ValueTreeDebugger> valueTreeDebugger;
 
+    AudioRoutingManager* getAudioRoutingManager() { return audio_routing_manager_.get(); }
+
 private :
     // Declared before MainSection so it outlives MainSection and every registered
     // AudioPortComponent during reverse-order member destruction.

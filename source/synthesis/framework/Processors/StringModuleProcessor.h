@@ -22,7 +22,7 @@ struct StringParams : public LEAFParams<_tStringModule>
     StringParams(LEAF* leaf) : LEAFParams<_tStringModule>(leaf)
     {
         add(
-            oversample, freq, waveLength, dampFreq, decay, targetLevel,
+            audioIn, oversample, freq, waveLength, dampFreq, decay, targetLevel,
             levelSmooth, levelStrength, pickupPoint, levelMode, rippleGain,
             rippleDelay, pluckPosition
         );
@@ -40,7 +40,19 @@ struct StringParams : public LEAFParams<_tStringModule>
         &chowdsp::ParamUtils::stringToFloatVal
     };
 
-
+    chowdsp::FloatParameter::Ptr audioIn {
+        juce::ParameterID{"in" , 100},
+        "in",
+        chowdsp::ParamUtils::createNormalisableRange(-1.f, 1.f, 0.f),
+        0.f,
+        all_params[StringModelParams::StringAudioIn],
+        [this](float val){
+            for (auto mod : modules)
+                tStringModule_setParameter(mod,StringAudioIn,val);
+        },
+        &chowdsp::ParamUtils::floatValToString,
+        &chowdsp::ParamUtils::stringToFloatVal
+    };
 
     chowdsp::FloatParameter::Ptr oversample {
         juce::ParameterID{"oversample", 100},

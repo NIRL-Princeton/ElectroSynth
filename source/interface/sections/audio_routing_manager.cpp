@@ -181,8 +181,11 @@ void AudioRoutingManager::endAudioMap() {
         electrosynth::audio::AudioConnection connection;
         connection.source = current_source_->getAddress();
         connection.destination = current_destination_->getAddress();
-        if (connection.isValid())
-            connectAudio(connection);
+        if (connection.isValid() && connectAudio(connection))
+        {
+            listeners_.call([&](Listener& l) { l.audioConnectionCreated(connection); });
+        }
+
     }
 
     dragging_ = false;
@@ -242,11 +245,16 @@ void AudioRoutingManager::destroyOpenGlComponents(juce::OpenGLContext& open_gl) 
 bool AudioRoutingManager::connectAudio(const electrosynth::audio::AudioConnection& connection) {
     if (!connection.isValid()) return false;
 
-    // only allow one input for each audio node for now - if overriding, erase old input for the new connection
-    std::erase_if(connections_, [&](const auto& existing) {
-        return existing.destination.nodeId == connection.destination.nodeId
-            && existing.destination.portId == connection.destination.portId;
-    });
+    for (auto it = connections_.begin(); it != connections_.end(); ) {
+        if (it->destination.nodeId == connection.destination.nodeId &&
+            it->destination.portId == connection.destination.portId) {
+            auto removed = *it;
+            it = connections_.erase(it);
+            listeners_.call([&](Listener& l) { l.audioConnectionRemoved(removed); });
+            } else {
+                ++it;
+            }
+    }
 
     connections_.push_back(connection);
     updatePortConnectionSlots();

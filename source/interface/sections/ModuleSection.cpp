@@ -69,6 +69,7 @@ ModuleSection::ModuleSection(const juce::ValueTree &v, electrosynth::audio::Node
     if (audioNodeDescriptor_.hasOutput) { // if this module supports outputs...
         electrosynth::audio::AudioPortAddress address { // give it an output audio port address
             getAudioNodeId(),
+            getName(),
             audioNodeDescriptor_.outputPortId,
             electrosynth::audio::PortDirection::Output,
             audioNodeDescriptor_.domain
@@ -86,6 +87,7 @@ ModuleSection::ModuleSection(const juce::ValueTree &v, electrosynth::audio::Node
     if (audioNodeDescriptor_.hasInput) { // if this module supports inputs...
         electrosynth::audio::AudioPortAddress address { // give it an output audio port address
             getAudioNodeId(),
+            getName(),
             audioNodeDescriptor_.inputPortId,
             electrosynth::audio::PortDirection::Input,
             audioNodeDescriptor_.domain

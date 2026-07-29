@@ -13,6 +13,17 @@ class AudioRoutingManager final : public SynthSection, private AudioPortComponen
 public:
     AudioRoutingManager();
 
+    class Listener {
+    public:
+        virtual ~Listener() = default;
+
+        virtual void audioConnectionCreated(const electrosynth::audio::AudioConnection& connection) = 0;
+        virtual void audioConnectionRemoved(const electrosynth::audio::AudioConnection& connection) = 0;
+    };
+
+    void addListener(Listener* listener) { listeners_.add(listener); }
+    void removeListener(Listener* listener) { listeners_.remove(listener); }
+
     struct AudioPortDisplayInfo {
         juce::String name;
         juce::Colour colour;
@@ -35,6 +46,8 @@ public:
     void positionDragIcon();
 
 private:
+    juce::ListenerList<Listener> listeners_;
+
     void audioPortDragStarted(AudioPortComponent* port, const juce::MouseEvent& event) override;
     void audioPortDragged(AudioPortComponent* port, const juce::MouseEvent& event) override;
     void audioPortDragEnded(AudioPortComponent* port, const juce::MouseEvent& event) override;

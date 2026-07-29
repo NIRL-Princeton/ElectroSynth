@@ -134,7 +134,6 @@ namespace electrosynth {
         std::pair<  std::array<ModuleHeader*, MAX_NUM_VOICES>* , int> getParameterInfo(const std::string&);
         std::vector<std::vector<std::unique_ptr<ProcessorBase>>> processors;
         std::vector<std::unique_ptr<RoutingProcessor>> chainPostGain;
-        std::vector<leaf::tAudioRouting*> chain_to_lane_routings;
         std::vector<std::unique_ptr<RoutingProcessor>> effectPreGain;
         std::array<std::vector<std::unique_ptr<ProcessorBase>>,3> effects;
         std::vector<std::vector<std::unique_ptr<ModulatorBase>>> modSources;
@@ -145,12 +144,13 @@ namespace electrosynth {
         ProcessorBase* getProcessorFromUUID(int uuid);
         ModulatorBase* getModulatorFromUUID(int uuid);
 
-     std::array<ModuleHeader*, MAX_NUM_VOICES>* getLeafProcessorFromUUID(int uuid);
-      char memory[536870912]; //512 MB
-      //char* memory;
-      LEAF leaf;
+        std::array<ModuleHeader*, MAX_NUM_VOICES>* getLeafProcessorFromUUID(int uuid);
+        std::array<ModuleHeader*, MAX_NUM_VOICES>* getLeafProcessorFromAudioNode(const juce::String& audioNodeId);
+        char memory[536870912]; //512 MB
+        //char* memory;
+        LEAF leaf;
 
-      struct VoiceHandler {
+        struct VoiceHandler {
             float voiceNote[MAX_NUM_VOICES];
             float voicePrevBend[MAX_NUM_VOICES];
             tSimplePoly* voices[MAX_NUM_VOICES];
@@ -158,13 +158,13 @@ namespace electrosynth {
             bool mpeMode;
             int numVoicesActive;
             tEventEmitter eventEmitter;
-      };
-      std::unique_ptr<EnvModuleProcessor> MasterVoiceEnvelopeProcessor;
-      VoiceHandler voiceHandler;
-      void setOversamplingAmount(int oversampling_amount, int sample_rate);
-      int last_oversampling_amount_;
-      int last_sample_rate_;
-      int buffer_size;
+        };
+         std::unique_ptr<EnvModuleProcessor> MasterVoiceEnvelopeProcessor;
+         VoiceHandler voiceHandler;
+         void setOversamplingAmount(int oversampling_amount, int sample_rate);
+        int last_oversampling_amount_;
+        int last_sample_rate_;
+        int buffer_size;
       int curr_sample_rate;
       juce::AudioBuffer<float> temp_voice_buffer{MAX_NUM_VOICES*2,1};
       std::array<juce::AudioBuffer<float>, 4> temp_fx_buffers;

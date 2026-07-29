@@ -23,7 +23,7 @@ namespace electrosynth{
 // creating the parameters associated with a filter module [cutoff, Q, and amp]
 struct FilterParams : public LEAFParams<_tFiltModule > {
     FilterParams(LEAF* leaf) : LEAFParams<_tFiltModule>(leaf) {
-        add(cutoff,Q, amp);
+        add(audioIn, cutoff,Q, amp);
     }
     //add env watch param so that it isn't null
     chowdsp::FloatParameter::Ptr envwatchparam {
@@ -34,6 +34,20 @@ struct FilterParams : public LEAFParams<_tFiltModule > {
         all_params[0],
         [this] (float val) {
             // for (auto mod: modules) mod->setterFunctions[EnvParams::EnvSustain](mod, val);
+        },
+        &chowdsp::ParamUtils::floatValToString,
+        &chowdsp::ParamUtils::stringToFloatVal
+    };
+
+    chowdsp::FloatParameter::Ptr audioIn {
+        juce::ParameterID{"in" , 100},
+        "in",
+        chowdsp::ParamUtils::createNormalisableRange(-1.f, 1.f, 0.f),
+        0.f,
+        all_params[FiltParams::FiltAudioIn],
+        [this](float val){
+            for (auto mod : modules)
+                tFiltModule_setParameter(mod,FiltAudioIn,val);
         },
         &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal

@@ -22,6 +22,7 @@ const std::array<std::vector<std::string>, 11> paramsAllArray =
         // oscillator
         {
             "eventWatch",
+                "audioIn",
             "midiPitch", // OscMidiPitch
 
             "harmonic", // OscHarmonic
@@ -41,6 +42,7 @@ const std::array<std::vector<std::string>, 11> paramsAllArray =
         // lfo
         {
             "eventWatch",
+                "audioIn",
             "rate",
             "shape",
             "phase",
@@ -50,6 +52,7 @@ const std::array<std::vector<std::string>, 11> paramsAllArray =
         // envelope
         {
             "eventWatch", // EnvEventWatchFlag
+                "audioIn",
             "attack",     // EnvAttack
             "decay",      // EnvDecay
             "sustain",    // EnvSustain
@@ -62,6 +65,7 @@ const std::array<std::vector<std::string>, 11> paramsAllArray =
         // filter
         {
             "eventWatch", // FiltEventWatchFlag
+                "audioIn",
             "midiPitch", // FiltMidiPitch
             "cutoff", // FiltCutoff
             "amp", // FiltGain
@@ -75,6 +79,7 @@ const std::array<std::vector<std::string>, 11> paramsAllArray =
         // string
         {
             "eventWatch",    // StringEventWatchFlag
+                "audioIn",
             "oversample",    // StringOversample
             "freq",          // StringFreq
             "waveLength",    // StringWaveLength
@@ -96,6 +101,7 @@ const std::array<std::vector<std::string>, 11> paramsAllArray =
         // softclip
         {
             "eventWatch", //
+                "audioIn",
            "inputGain", // OscHarmonic
            "offset", // OscPitchOffset
            "shape", // OscPitchFine
@@ -106,6 +112,7 @@ const std::array<std::vector<std::string>, 11> paramsAllArray =
         // delay
         {
             "eventWatch",
+                "audioIn",
             "delayTime",
             "gain",
             "",
@@ -115,6 +122,7 @@ const std::array<std::vector<std::string>, 11> paramsAllArray =
         // noise
         {
             "eventWatch",
+                "audioIn",
             "gain",
             "tilt",
             "peakAmt",
@@ -125,12 +133,14 @@ const std::array<std::vector<std::string>, 11> paramsAllArray =
         // simpleNoise
         {
             "eventWatch",
+                "audioIn",
             "gain"
         },
 
         // perlinNoise
         {
             "eventWatch",
+                "audioIn",
             "gain",
             "rate",
             "energy"

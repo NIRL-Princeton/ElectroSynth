@@ -14,7 +14,7 @@ struct NoiseParams : public LEAFParams<_tNoiseModule>
 {
     NoiseParams(LEAF* leaf) : LEAFParams<_tNoiseModule>(leaf)
     {
-        add(gain, tilt, peakGain, peakFreq, peakBandwidth);
+        add(audioIn, gain, tilt, peakGain, peakFreq, peakBandwidth);
     }
 
     //add env watch param so that it isnt null
@@ -26,6 +26,20 @@ struct NoiseParams : public LEAFParams<_tNoiseModule>
         all_params[0],
         [this] (float val) {
             // for (auto mod: modules) mod->setterFunctions[EnvParams::EnvSustain](mod, val);
+        },
+        &chowdsp::ParamUtils::floatValToString,
+        &chowdsp::ParamUtils::stringToFloatVal
+    };
+
+    chowdsp::FloatParameter::Ptr audioIn {
+        juce::ParameterID{"in" , 100},
+        "in",
+        chowdsp::ParamUtils::createNormalisableRange(-1.f, 1.f, 0.f),
+        0.f,
+        all_params[NosParams::NoiseAudioIn],
+        [this](float val){
+            for (auto mod : modules)
+                tNoiseModule_setParameter(mod,NoiseAudioIn,val);
         },
         &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal

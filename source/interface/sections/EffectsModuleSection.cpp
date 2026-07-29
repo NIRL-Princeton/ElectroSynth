@@ -139,12 +139,13 @@ audio_routing_manager_(arm), ModulesInterface( module_list), footer_body(new Ope
     if (module_list.getAudioNodeDescriptor().hasOutput) { // if this module supports outputs...
         electrosynth::audio::AudioPortAddress address { // give it an output audio port address
             module_list.getAudioNodeId(),
+            getName(),
             module_list.getAudioNodeDescriptor().outputPortId,
             electrosynth::audio::PortDirection::Output,
             module_list.getAudioNodeDescriptor().domain
         };
         lane_output_port_ = std::make_shared<AudioPortComponent>( // make an output arrow belonging to this output port
-            "audio_output",
+            "_laneOut",
             std::move(address));
         addOpenGlComponent(lane_output_port_);
 
@@ -156,12 +157,13 @@ audio_routing_manager_(arm), ModulesInterface( module_list), footer_body(new Ope
     if (module_list.getAudioNodeDescriptor().hasInput) { // if this module supports inputs...
         electrosynth::audio::AudioPortAddress address { // give it an output audio port address
             module_list.getAudioNodeId(),
+            getName(),
             module_list.getAudioNodeDescriptor().inputPortId,
             electrosynth::audio::PortDirection::Input,
             module_list.getAudioNodeDescriptor().domain
         };
         lane_input_port_ = std::make_shared<AudioPortComponent>( // make an output arrow belonging to this output port
-            "audio_input",
+            "_laneIn",
             std::move(address));
         addOpenGlComponent(lane_input_port_);
 

@@ -644,7 +644,7 @@ electrosynth::mapping_change SynthBase::createMappingChange(electrosynth::Modula
     std::string proc_string;
     std::getline(ss, proc_string, '_');
     auto [dest, index] = engine_->getParameterInfo(connection->destination_name);
-    auto source = engine_->getLEAFProcessorModulator(proc_string);
+    auto source = engine_->getLEAFProcessor(proc_string); // was getLEAFProcessorModulator()
     connection->sourceProc_ = source;
     change.mapping = connection->mapping_;
     change.destination = connection->destination_name;
@@ -696,6 +696,28 @@ bool SynthBase::hasSourceDestinationConnection(const std::string &source, const 
         if (existing->source_name == source && existing->destination_name == destination) return true;
     }
     return false;
+}
+
+bool SynthBase::connectAudioConnection(const electrosynth::audio::AudioConnection& connection)
+{
+    const std::string source = connection.source.nodeName.toStdString() + "_" + connection.source.portId.toStdString();
+    const std::string dest = connection.destination.nodeName.toStdString() + "_" + connection.destination.portId.toStdString();
+
+
+    DBG("connect audio connection: " + source + " -> " + dest);
+
+    return connectModulation(source, dest, 1);
+}
+
+bool SynthBase::disconnectAudioConnection(const electrosynth::audio::AudioConnection& connection)
+{
+    std::string source = connection.source.nodeName.toStdString();
+    std::string dest = connection.destination.nodeName.toStdString();
+
+    DBG("disconnect audio connection: " + source + " -> " + dest);
+
+    disconnectModulation(source, dest);
+    return true;
 }
 
 bool SynthBase::connectModulation(const std::string &source, const std::string &destination, int destination_slot) {
@@ -777,7 +799,6 @@ void SynthBase::disconnectModulationsForDestinationProcessor(const std::string& 
         disconnectModulation(connection);
     }
 }
-
 
 void SynthBase::processMappingChanges() {
     electrosynth::mapping_change change;

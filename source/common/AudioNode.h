@@ -42,8 +42,8 @@ namespace electrosynth::audio
         AudioDomain domain = AudioDomain::PerVoiceStereo;
         bool hasInput = false;
         bool hasOutput = false;
-        juce::String inputPortId = { "audio_in"};
-        juce::String outputPortId = { "audio_out"};
+        juce::String inputPortId = { "audioIn"};
+        juce::String outputPortId = { "audioOut"};
     };
 
     inline NodeDescriptor makeGeneratorDescriptor()
@@ -53,8 +53,8 @@ namespace electrosynth::audio
         .domain = AudioDomain::PerVoiceStereo,
         .hasInput = false,
         .hasOutput= true,
-        .inputPortId = "audio_in",
-        .outputPortId = "audio_out"};
+        .inputPortId = "audioIn",
+        .outputPortId = "audioOut"};
     }
 
     inline NodeDescriptor makeProcessorDescriptor()
@@ -64,8 +64,8 @@ namespace electrosynth::audio
             .domain = AudioDomain::PerVoiceStereo,
             .hasInput = true,
             .hasOutput = true,
-            .inputPortId = "audio_in",
-            .outputPortId = "audio_out"
+            .inputPortId = "audioIn",
+            .outputPortId = "audioOut"
         };
     }
 
@@ -76,8 +76,8 @@ namespace electrosynth::audio
             .domain = AudioDomain::PerVoiceStereo,
             .hasInput = true,
             .hasOutput = true,
-            .inputPortId = "audio_in",
-            .outputPortId = "audio_out"
+            .inputPortId = "audioIn",
+            .outputPortId = "audioOut"
         };
     }
 
@@ -100,6 +100,7 @@ namespace electrosynth::audio
     // one port belonging to one specific node
     struct AudioPortAddress {
         juce::String nodeId;
+        juce::String nodeName;
         juce::String portId;
         PortDirection direction = PortDirection::Input;
         AudioDomain domain = AudioDomain::PerVoiceStereo;

@@ -15,7 +15,7 @@
  */
 
 #pragma once
-
+#include "audio_routing_manager.h"
 
 #if HEADLESS
 
@@ -43,8 +43,9 @@ class ProcessorBase;
 namespace electrosynth
 {
     class ModulationConnection;
+    class AudioConnection;
 }
-class SynthGuiInterface :  public juce::ApplicationCommandTarget {
+class SynthGuiInterface :  public juce::ApplicationCommandTarget, public AudioRoutingManager::Listener {
   public:
     SynthGuiInterface(SynthBase* synth, bool use_gui = true);
     virtual ~SynthGuiInterface();
@@ -82,6 +83,9 @@ class SynthGuiInterface :  public juce::ApplicationCommandTarget {
   juce::File getActiveFile();
    void openLoadDialog();
 
+    void audioConnectionCreated(const electrosynth::audio::AudioConnection& connection) override;
+    void audioConnectionRemoved(const electrosynth::audio::AudioConnection& connection) override;
+
     virtual void updateGuiControl(const std::string& name, float value);
     void tryEnqueueProcessorInitQueue(juce::FixedSizeFunction<48, void()> callback);
     void addProcessor(std::unique_ptr<ProcessorBase> processor, int voice_index);
@@ -108,6 +112,8 @@ class SynthGuiInterface :  public juce::ApplicationCommandTarget {
     SynthBase* synth_;
   std::unique_ptr<juce::FileChooser> filechooser;
     std::unique_ptr<FullInterface> gui_;
+
+
   
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SynthGuiInterface)
 };
