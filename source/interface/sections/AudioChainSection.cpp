@@ -16,8 +16,8 @@
 #include "synth_base.h"
 #include "synth_gui_interface.h"
 
-AudioChainSection::AudioChainSection(ChainList<ProcessorBase> &chains, MappingManager *m, AudioRoutingManager* arm, juce::UndoManager& um) :
-    SynthSection("chains"), chains_(chains), modulation_manager_(m), audio_routing_manager_(arm), undo(um) {
+AudioChainSection::AudioChainSection(ChainList<ProcessorBase> &chains, MappingManager *m, juce::UndoManager& um) :
+    SynthSection("chains"), chains_(chains), modulation_manager_(m), undo(um) {
 
     setSkinOverride(Skin::kSoundModule);
     container_ = std::make_unique<ModulesListContainer>("container");
@@ -241,7 +241,7 @@ void AudioChainSection::removeChain(ModuleList<ProcessorBase> *moduleToRemove) {
 
 void AudioChainSection::chainAdded(ModuleList<ProcessorBase> *module_list) {
 
-    auto sound_interface = std::make_unique<SoundModuleSection>(modulation_manager_, audio_routing_manager_, *module_list,module_list->state, undo);
+    auto sound_interface = std::make_unique<SoundModuleSection>(modulation_manager_, *module_list,module_list->state, undo);
     auto* rawPtr = sound_interface.get();
 
     sound_interface->onExpandChanged = [this,rawPtr]() {

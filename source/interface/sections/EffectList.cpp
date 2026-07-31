@@ -5,7 +5,7 @@
 #include "synth_base.h"
 
 EffectList::EffectList(SynthBase *synth, const ValueTree &v, int _lane) : ModuleList<ProcessorBase>(synth,v), lane(_lane) {
-    electrosynth::audio::ensureAudioNodeId(state);
+    electrosynth::audio::ensureNodeId(state);
 }
 
 void EffectList::deleteObject(ProcessorBase *base) {
@@ -38,15 +38,15 @@ ProcessorBase *EffectList::createNewObject(const juce::ValueTree &v) {
     return nullptr;
 }
 
-juce::String EffectList::getAudioNodeId() const
-{
-    return state.getProperty(IDs::audioNodeId).toString();
-}
-
 electrosynth::audio::NodeDescriptor EffectList::getAudioNodeDescriptor() const
 {
     auto descriptor = electrosynth::audio::makeSystemProcessorDescriptor();
     descriptor.inputPortId = "lane_in";
     descriptor.outputPortId = "lane_out";
     return descriptor;
+}
+
+juce::String EffectList::getNodeId() const
+{
+    return state.getProperty(IDs::nodeID).toString();
 }

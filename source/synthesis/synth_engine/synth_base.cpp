@@ -698,6 +698,23 @@ bool SynthBase::hasSourceDestinationConnection(const std::string &source, const 
     return false;
 }
 
+bool SynthBase::connect(const electrosynth::ConnectionRecord& connection) {
+    if (!connection.isValid())
+        return false;
+
+    switch (connection.type) {
+        case electrosynth::ConnectionType::Modulation:
+            return connectModulation(connection.source.endpointId.toStdString(),
+                                     connection.destination.endpointId.toStdString(),
+                                     connection.destinationSlot);
+
+        case electrosynth::ConnectionType::Audio:
+            return true;
+    }
+
+    return false;
+}
+
 bool SynthBase::connectModulation(const std::string &source, const std::string &destination, int destination_slot) {
 
     electrosynth::Connection *connection = getConnection(source, destination, destination_slot);

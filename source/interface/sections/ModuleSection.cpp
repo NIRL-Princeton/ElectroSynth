@@ -6,8 +6,10 @@
 // editor view (ParametersView) and gives it a header, border/background, exit button, draft behavior, and a height.
 
 #include "ModuleSection.h"
-#include "SoundModuleSection.h"
+
 #include "ParameterView/FxModuleTemplateView.h"
+#include "SoundModuleSection.h"
+#include "mapping_manager.h"
 
 namespace {
     constexpr int kExitButtonSize = 25;
@@ -15,8 +17,8 @@ namespace {
 }
 
 ModuleSection::ModuleSection(const juce::ValueTree &v, electrosynth::audio::NodeDescriptor node_descriptor, std::unique_ptr<SynthSection> editor,
-    juce::UndoManager& um, AudioRoutingManager* arm) : SynthSection(editor->getName()), audioNodeDescriptor_ (std::move(node_descriptor)),
-    state(v), _view(std::move(editor)), undo(um), audio_routing_manager_ (arm) {
+    juce::UndoManager& um, MappingManager* map_manager) : SynthSection(editor->getName()), audioNodeDescriptor_ (std::move(node_descriptor)),
+    state(v), _view(std::move(editor)), undo(um), mapping_manager_(map_manager) {
 
     // The module's body fill is normally baked into the owning lane's scroll image and
     // does not follow a live-moving wrapper. While dragged, this quad supplies an opaque
@@ -67,54 +69,75 @@ ModuleSection::ModuleSection(const juce::ValueTree &v, electrosynth::audio::Node
     addOpenGlComponent(highlight_border_);
 
     if (audioNodeDescriptor_.hasOutput) { // if this module supports outputs...
-        electrosynth::audio::AudioPortAddress address { // give it an output audio port address
-            getAudioNodeId(),
-            audioNodeDescriptor_.outputPortId,
-            electrosynth::audio::PortDirection::Output,
-            audioNodeDescriptor_.domain
+        electrosynth::EndpointDescriptor output {
+            .address {
+                .type = electrosynth::ConnectionType::Audio,
+                .nodeId = getNodeId(),
+                .endpointId = audioNodeDescriptor_.outputPortId,
+                .direction = electrosynth::EndpointDirection::Source,
+                .audioDomain = audioNodeDescriptor_.domain
+            },
+            .capabilities {
+                .maxIncomingConnections = 0
+            }
         };
-        output_port_ = std::make_shared<AudioPortComponent>( // make an output arrow belonging to this output port
-            "audio_output",
-            std::move(address));
+        // make an output arrow belonging to this output port
+        output_port_ = std::make_shared<AudioPortComponent>( "audio_output", std::move(output));
         addOpenGlComponent(output_port_);
 
-        output_connection_slots_ = std::make_unique<AudioConnectionSlots>(*output_port_);
+        output_connection_slots_ = std::make_unique<ConnectionSlots>(*output_port_);
         addSubSection(output_connection_slots_.get());
         output_connection_slots_->setConnections({});
     }
 
     if (audioNodeDescriptor_.hasInput) { // if this module supports inputs...
-        electrosynth::audio::AudioPortAddress address { // give it an output audio port address
-            getAudioNodeId(),
-            audioNodeDescriptor_.inputPortId,
-            electrosynth::audio::PortDirection::Input,
-            audioNodeDescriptor_.domain
+        electrosynth::EndpointDescriptor input { // give it an output audio port address
+            .address {
+                .type = electrosynth::ConnectionType::Audio,
+                .nodeId = getNodeId(),
+                .endpointId = audioNodeDescriptor_.inputPortId,
+                .direction = electrosynth::EndpointDirection::Destination,
+                .audioDomain = audioNodeDescriptor_.domain
+            },
+            .capabilities {
+                .maxIncomingConnections = 64
+            }
         };
-        input_port_ = std::make_shared<AudioPortComponent>( // make an output arrow belonging to this output port
-            "audio_input",
-            std::move(address));
+
+        input_port_ = std::make_shared<AudioPortComponent>("audio_input", std::move(input));
         addOpenGlComponent(input_port_);
 
-        input_connection_slots_ = std::make_unique<AudioConnectionSlots>(*input_port_);
+        input_connection_slots_ = std::make_unique<ConnectionSlots>(*input_port_);
         addSubSection(input_connection_slots_.get());
         input_connection_slots_->setConnections({});
     }
 
-    if (audio_routing_manager_ != nullptr) {
-        if (output_port_ != nullptr)
-            audio_routing_manager_->registerPort(*output_port_);
+    if (mapping_manager_ != nullptr) {
+        if (output_port_ != nullptr) {
+            mapping_manager_->registerEndpoint(
+                {
+                .descriptor = output_port_->getEndpoint(),
+                .component = output_port_.get()
+            });
+        }
 
-        if (input_port_ != nullptr)
-            audio_routing_manager_->registerPort(*input_port_);
+        if (input_port_ != nullptr) {
+            if (mapping_manager_ != nullptr) {
+                mapping_manager_->registerEndpoint({
+                    .descriptor = input_port_->getEndpoint(),
+                    .component = input_port_.get()
+                });
+            }
+        }
     }
 }
 
 ModuleSection::~ModuleSection() {
-    if (audio_routing_manager_ == nullptr)
-        return;
+    if (mapping_manager_ != nullptr) {
+        if (output_port_) mapping_manager_->unregisterEndpoint(output_port_->getEndpoint().address);
+        if (input_port_) mapping_manager_->unregisterEndpoint(input_port_->getEndpoint().address);
+    }
 
-    if (output_port_) audio_routing_manager_->unregisterPort(*output_port_);
-    if (input_port_) audio_routing_manager_->unregisterPort(*input_port_);
 }
 
 void ModuleSection::setAreaSkinOverride(Skin::SectionOverride skin_override) {
@@ -178,9 +201,9 @@ void ModuleSection::resized() {
             output_connection_slots_->setBounds(
                 output_port_->getX()
                     - kConnectionSlotSpacing
-                    - AudioConnectionSlots::kPreferredWidth,
+                    - ConnectionSlots::kPreferredWidth,
                 output_port_->getY(),
-                AudioConnectionSlots::kPreferredWidth,
+                ConnectionSlots::kPreferredWidth,
                 output_port_->getHeight());
         }
     }
@@ -194,7 +217,7 @@ void ModuleSection::resized() {
             input_connection_slots_->setBounds(
                 input_port_->getRight() + kConnectionSlotSpacing,
                 input_port_->getY(),
-                AudioConnectionSlots::kPreferredWidth,
+                ConnectionSlots::kPreferredWidth,
                 input_port_->getHeight());
         }
     }

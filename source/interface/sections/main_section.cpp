@@ -16,20 +16,20 @@
 #include "synth_slider.h"
 
 MainSection::MainSection(const juce::ValueTree& v, juce::UndoManager &um, OpenGlWrapper & open_gl, SynthGuiData* data,
-    MappingManager* modulation_manager, AudioRoutingManager* audio_routing_manager) : SynthSection("main_section"),
-    v(v), um(um), audio_routing_manager_(audio_routing_manager) {
+    MappingManager* modulation_manager) : SynthSection("main_section"),
+    v(v), um(um) {
 
-    sound_interface = std::make_unique<AudioChainSection>( *data->synth->processors_,modulation_manager, audio_routing_manager ,um);
+    sound_interface = std::make_unique<AudioChainSection>( *data->synth->processors_,modulation_manager, um);
     addSubSection(sound_interface.get());
 
     modulation_interface = std::make_unique<ModulationModuleSection>(modulation_manager,*data->synth->modulators_, um);
     addSubSection(modulation_interface.get());
 
-    effects_section_0 = std::make_unique<EffectModuleSection>(modulation_manager, audio_routing_manager, *data->synth->effects_0,data->synth->effects_0->state,um);
+    effects_section_0 = std::make_unique<EffectModuleSection>(modulation_manager,  *data->synth->effects_0,data->synth->effects_0->state,um);
     addSubSection(effects_section_0.get());
-    effects_section_1 = std::make_unique<EffectModuleSection>(modulation_manager, audio_routing_manager, *data->synth->effects_1,data->synth->effects_1->state,um);
+    effects_section_1 = std::make_unique<EffectModuleSection>(modulation_manager, *data->synth->effects_1,data->synth->effects_1->state,um);
     addSubSection(effects_section_1.get());
-    effects_section_2 = std::make_unique<EffectModuleSection>(modulation_manager, audio_routing_manager, *data->synth->effects_2,data->synth->effects_2->state,um);
+    effects_section_2 = std::make_unique<EffectModuleSection>(modulation_manager, *data->synth->effects_2,data->synth->effects_2->state,um);
     addSubSection(effects_section_2.get());
 
     master_voice_envelope_section = std::make_unique<MasterVoiceEnvelopeSection>(v, um, open_gl, data,std::move(data->synth->getEngine()->MasterVoiceEnvelopeProcessor->createEditor()));

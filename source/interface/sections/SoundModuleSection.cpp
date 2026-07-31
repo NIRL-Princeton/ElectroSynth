@@ -10,14 +10,13 @@
 #include "../../synthesis/framework/Processors/OscillatorModuleProcessor.h"
 #include "ModuleSection.h"
 #include "Processors/ProcessorBase.h"
-#include "audio_routing_manager.h"
 #include "chowdsp_plugin_utils/Files/chowdsp_TweaksFile.h"
 #include "mapping_manager.h"
 #include "synth_base.h"
 #include "synth_gui_interface.h"
 
-SoundModuleSection::SoundModuleSection(MappingManager *m, AudioRoutingManager* arm, ModuleList<ProcessorBase> &module_list,const juce::ValueTree &v,
-        juce::UndoManager& um) : audio_routing_manager_(arm), ModulesInterface( module_list),
+SoundModuleSection::SoundModuleSection(MappingManager *m,  ModuleList<ProcessorBase> &module_list,const juce::ValueTree &v,
+        juce::UndoManager& um) : mapping_manager_(m), ModulesInterface( module_list),
         footer_body(new OpenGlQuad(Shaders::kRoundedRectangleFragment)), state(v), undo(um) {
 
     setName("Sound Module");
@@ -234,7 +233,7 @@ void SoundModuleSection::paintBackground(juce::Graphics& g) {
 
 void SoundModuleSection::moduleAdded(ProcessorBase *newModule) {
     auto module_section = std::make_unique<ModuleSection>(newModule->state, newModule->getAudioNodeDescriptor(),
-    std::move (newModule->createEditor()), undo, audio_routing_manager_);
+    std::move (newModule->createEditor()), undo, mapping_manager_);
     module_section->setAreaSkinOverride(Skin::kSoundModule);
     {
         juce::ScopedLock lock(open_gl_critical_section_);

@@ -1,21 +1,33 @@
 //
-// Created by Callista Chong on 7/22/26.
+// Created by Callista Chong on 7/25/26.
 //
 
 #pragma once
-#include "synth_section.h"
+#include "audio_port_component.h"
 #include "synth_slider.h"
+#include "open_gl_multi_quad.h"
+#include "synth_section.h"
+#include <array>
+#include <vector>
+
+struct ConnectionSlotData {
+    juce::String connectionId;
+    electrosynth::EndpointAddress peer;
+    juce::String label;
+    juce::Colour colour;
+
+    bool hasAmount = false;
+    bool hasBipolar = false;
+    float amount = 1.0f;
+};
 
 namespace electrosynth {
 
-    class Slots;
     class SlotComponent final : public juce::Component {
-        public:
-        SlotComponent(SynthSlider& destination_slider, int slot_index);
+    public:
+        SlotComponent(juce::String componentId, int slot_index, std::function<void()> onChange);
 
         void paint(juce::Graphics& g) override;
-
-        SynthSlider& getDestinationSlider() const { return destination_slider_; }
         int getSlotIndex() const { return slot_index_; }
 
         void setSourceName(juce::String source_name);
@@ -34,13 +46,16 @@ namespace electrosynth {
         juce::Colour getAuxSourceColor() const;
         juce::String getAuxSourceLabel() const;
 
+
+
     private:
         void notifySlotHost();
         juce::Colour getColorForSource(const juce::String& source_name) const;
         juce::String getLabelForSource(const juce::String& source_name,
                                    const juce::String& display_label) const;
 
-        SynthSlider& destination_slider_;
+
+        std::function<void()> on_change_;
         int slot_index_;
         juce::String source_name_;
         juce::String display_label_;
@@ -50,21 +65,34 @@ namespace electrosynth {
         bool bypass_ = false;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SlotComponent)
-};
+    };
+}
 
-class Slots final : public SynthSection {
+
+class ConnectionSlots final : public SynthSection {
+
 public:
-    static constexpr int kHeight = 16;
+    static constexpr int kMaxVisibleSlots = 4;
+    static constexpr int kSlotWidth = 44;
+    static constexpr int kSlotHeight = 14;
+    static constexpr int kSlotGap = 2;
+    static constexpr int kSlotPitch = kSlotWidth + kSlotGap;
+    static constexpr int kPreferredWidth =
+        kMaxVisibleSlots * kSlotWidth + (kMaxVisibleSlots - 1) * kSlotGap;
 
-    explicit Slots(SynthSlider& destination);
-    ~Slots() override;
+    explicit ConnectionSlots(AudioPortComponent& port);
+    explicit ConnectionSlots(SynthSlider& destination);
+    ~ConnectionSlots() override;
 
+    void setConnections(std::vector<ConnectionSlotData> connections);
+    int getConnectionCount() const noexcept {
+        return static_cast<int>(connections_.size());
+    }
     void resized() override;
-    void paintBackground(juce::Graphics&) override { }
-    void syncOpenGl();
+    void paintBackground(Graphics&) override {}
 
 private:
-    struct SlotVisuals {
+    struct SlotVisual {
         std::shared_ptr<OpenGlQuad> body;
         std::shared_ptr<OpenGlQuad> amount;
         std::shared_ptr<OpenGlQuad> border;
@@ -74,11 +102,10 @@ private:
         std::shared_ptr<PlainTextComponent> aux_label;
     };
 
-    SynthSlider& destination_;
-    std::array<std::unique_ptr<SlotComponent>, SynthSlider::kNumSlots> slots_;
-    std::array<SlotVisuals, SynthSlider::kNumSlots> visuals_;
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Slots)
+    void syncOpenGl();
+    std::vector<ConnectionSlotData> connections_;
+    AudioPortComponent* port_ = nullptr;
+    SynthSlider* destination_ = nullptr;
+    std::array<std::unique_ptr<electrosynth::SlotComponent>, kMaxVisibleSlots> slot_components_;
+    std::array<SlotVisual, kMaxVisibleSlots> visuals_;
 };
-
-} // namespace electrosynth

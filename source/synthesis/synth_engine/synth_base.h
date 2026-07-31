@@ -30,6 +30,7 @@
 #include "circular_queue.h"
 #include "ModulationConnection.h"
 #include "ModuleList.h"
+#include "ConnectionRecord.h"
 class RoutingProcessor;
 class ProcessorBase;
 class ModulatorBase;
@@ -78,6 +79,8 @@ public:
 
     bool connectModulation(const std::string &source, const std::string &destination,
                            int destination_slot = -1);
+
+    bool connect(const electrosynth::ConnectionRecord& connection);
 
     void connectModulation(electrosynth::Connection *connection);
 

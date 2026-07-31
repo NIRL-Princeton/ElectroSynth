@@ -30,6 +30,9 @@
 #include "ModulationModuleSection.h"
 #include "SoundModuleSection.h"
 
+#include "ConnectionRecord.h"
+#include "endpoint_arrow_component.h"
+
 class ExpandConnectionButton;
 class ModulationMatrix;
 class ModulationMeter;
@@ -176,6 +179,11 @@ class SlotExpansionBox : public OpenGlQuad {
     std::vector<Listener*> listeners_;
 };
 
+struct RegisteredMappingEndpoint {
+    electrosynth::EndpointDescriptor descriptor;
+    juce::Component::SafePointer<EndpointArrowComponent> component;
+};
+
 class MappingManager : public SynthSection,
                           public ConnectionButton::Listener,
                           public ModulationAmountKnob::Listener,
@@ -193,8 +201,17 @@ class MappingManager : public SynthSection,
     MappingManager(ValueTree& tree,SynthBase* bank);
     ~MappingManager();
 
-    void createMappingMeter(
-                               SynthSlider* slider, OpenGlMultiQuad* quads, int index);
+    void registerEndpoint(RegisteredMappingEndpoint endpoint);
+    void unregisterEndpoint(const electrosynth::EndpointAddress& address);
+
+    void mouseDown(const juce::MouseEvent& event) override;
+    void mouseDrag(const juce::MouseEvent& event) override;
+    void mouseUp(const juce::MouseEvent& event) override;
+
+
+
+
+    void createMappingMeter(SynthSlider* slider, OpenGlMultiQuad* quads, int index);
     void createMappingSlider(std::string name, SynthSlider* slider);
 
     bool connectMapping(std::string source, std::string destination, int destination_slot = -1);
@@ -215,10 +232,8 @@ class MappingManager : public SynthSection,
     void connectionAmountChanged(SynthSlider* slider) override;
     void connectionRemoved(SynthSlider* slider) override;
 
-    void connectionDisconnected(electrosynth::Connection* connection, bool last) override;
     void connectionSelected(ConnectionButton* source) override;
     void connectionClicked(ConnectionButton* source) override;
-    void connectionCleared() override;
     bool hasFreeConnection();
     void startDestinationMap(ConnectionButton* source, const juce::MouseEvent& e) override;
     void mappingDragged(const juce::MouseEvent& e) override;
@@ -251,8 +266,6 @@ class MappingManager : public SynthSection,
 
     void renderOpenGlComponents(OpenGlWrapper& open_gl, bool animate) override;
     void renderMeters(OpenGlWrapper& open_gl, bool animate);
-    void renderSourceMeters(OpenGlWrapper& open_gl, int index);
-    void updateSmoothModValues();
     void destroyOpenGlComponents(juce::OpenGLContext& open_gl) override;
     void paintBackground(juce::Graphics& g) override { positionConnectionAmountSliders(); }
 
@@ -296,6 +309,13 @@ class MappingManager : public SynthSection,
     void effectsMoved() override { return; }
 
 private:
+
+    void updateEndpointDestinationVisuals();
+    void clearEndpointDestinationVisuals();
+    void positionEndpointDragIcon();
+    void drawEndpointDestinations(OpenGlWrapper& openGl);
+
+
     void setDestinationQuadBounds(ConnectionDestination* destination);
     bool isPointInsideDestinationDropArea(SynthSlider* slider, juce::Point<int> manager_position) const;
     int findSlotForNewConnection(SynthSlider* slider) const;
@@ -315,6 +335,14 @@ private:
     void hideConnectionAmountOverlay();
     void componentAdded();
     void scheduleComponentUpdate();
+
+    static juce::String getEndpointKey(const electrosynth::EndpointAddress& address);
+    RegisteredMappingEndpoint* getRegisteredMappingEndpoint(juce::Component* component);
+    bool endpointsAreCompatible(const electrosynth::EndpointAddress& source, const electrosynth::EndpointAddress& destination) const;
+    RegisteredMappingEndpoint* findEndpointAt(juce::Point<int> managerPosition);
+    bool connectEndpoints(const electrosynth::EndpointAddress& source, const electrosynth::EndpointAddress& destination);
+    RegisteredMappingEndpoint* getRegisteredMappingEndpoint(const electrosynth::EndpointAddress& address);
+    void updateConnectionSlots();
 
     CriticalSection open_gl_critical_section_;
     juce::ValueTree state_;
@@ -362,8 +390,6 @@ private:
     std::map<std::string, std::unique_ptr<ExpandConnectionButton>> callout_buttons_;
 
     std::map<std::string, bool> active_mod_values_;
-    long long last_milliseconds_;
-    std::unique_ptr<BarRenderer> source_meters_;
 
     std::map<std::string, ConnectionDestination*> destination_lookup_;
     std::map<std::string, SynthSlider*> slider_model_lookup_;
@@ -378,6 +404,14 @@ private:
     void drawMappingMode(OpenGlWrapper& open_gl);
     bool isMappingMode() const;
     OpenGlQuad mapping_mode_dim_quad_;
+
+    std::map<juce::String, RegisteredMappingEndpoint> mapping_endpoints_;
+    std::optional<electrosynth::EndpointAddress> endpoint_drag_source_;
+    juce::Component::SafePointer<EndpointArrowComponent> endpoint_drag_source_component_;
+    std::optional<electrosynth::EndpointAddress> endpoint_drag_destination_;
+    juce::Component::SafePointer<EndpointArrowComponent> endpoint_drag_destination_component_;
+
+    std::vector<electrosynth::ConnectionRecord> connection_records_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MappingManager)
 };

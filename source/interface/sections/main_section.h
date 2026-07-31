@@ -15,7 +15,6 @@ class SoundModuleSection;
 class ModulationModuleSection;
 struct SynthGuiData;
 class MappingManager;
-class AudioRoutingManager;
 
 class MasterVoiceEnvelopeSection : public SynthSection {
 public:
@@ -39,7 +38,7 @@ public:
         //virtual void showAboutSection() = 0;
     };
 
-    MainSection(const juce::ValueTree& v, juce::UndoManager &um, OpenGlWrapper &open_gl, SynthGuiData * data, MappingManager*, AudioRoutingManager*);
+    MainSection(const juce::ValueTree& v, juce::UndoManager &um, OpenGlWrapper &open_gl, SynthGuiData * data, MappingManager*);
 
     void paintBackground(Graphics& g) override;
     void resized() override;
@@ -60,8 +59,6 @@ private:
     std::vector<Listener*> listeners_;
     std::unique_ptr<ModulationModuleSection> modulation_interface;
     std::unique_ptr<MasterVoiceEnvelopeSection> master_voice_envelope_section;
-    AudioRoutingManager* audio_routing_manager_ = nullptr;
-
 };
 
 #endif //ELECTROSYNTH2_MAIN_SECTION_H

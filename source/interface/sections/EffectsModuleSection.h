@@ -10,11 +10,10 @@ class ModuleSection;
 class ProcessorBase;
 class MappingManager;
 class EffectList;
-class AudioRoutingManager;
 
 class EffectModuleSection : public ModulesInterface<ProcessorBase> {
 public:
-    explicit EffectModuleSection( MappingManager* m, AudioRoutingManager* ,EffectList &,const juce::ValueTree &, juce::UndoManager& um);
+    explicit EffectModuleSection( MappingManager* m,EffectList &,const juce::ValueTree &, juce::UndoManager& um);
     virtual ~EffectModuleSection();
 
     void setEffectPositions() override;
@@ -50,7 +49,7 @@ public:
 
     juce::ValueTree state;
     juce::UndoManager& undo;
-    AudioRoutingManager* audio_routing_manager_ = nullptr;
+    MappingManager* mapping_manager_ = nullptr;
 
 private:
     // Drag-reorder session. UI order previews live in module_sections; the ValueTree
@@ -74,6 +73,6 @@ private:
     std::shared_ptr<AudioPortComponent> lane_input_port_;
     std::shared_ptr<AudioPortComponent> lane_output_port_;
 
-    std::unique_ptr<AudioConnectionSlots> lane_input_slots_;
-    std::unique_ptr<AudioConnectionSlots> lane_output_slots_;
+    std::unique_ptr<ConnectionSlots> lane_input_slots_;
+    std::unique_ptr<ConnectionSlots> lane_output_slots_;
 };

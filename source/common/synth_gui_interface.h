@@ -15,7 +15,7 @@
  */
 
 #pragma once
-
+#include "ConnectionRecord.h"
 
 #if HEADLESS
 
@@ -48,6 +48,7 @@ class SynthGuiInterface :  public juce::ApplicationCommandTarget {
   public:
     SynthGuiInterface(SynthBase* synth, bool use_gui = true);
     virtual ~SynthGuiInterface();
+    bool connect(const electrosynth::ConnectionRecord& connection);
     // Define your command IDs
     enum CommandIDs {
         undo = 0x2000,

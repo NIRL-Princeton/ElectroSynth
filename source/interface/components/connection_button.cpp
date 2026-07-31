@@ -20,39 +20,25 @@
 #include "skin.h"
 #include "synth_base.h"
 #include "synth_gui_interface.h"
-//#include "modulation_matrix.h"
 #include "synth_section.h"
 
-ConnectionButton:: ConnectionButton(String name) : PlainShapeComponent(std::move(name)), parent_(nullptr),
-                                                  mouse_state_(kNone), selected_(false), connect_right_(false),
-                                                  draw_border_(false), active_connection_(false), font_size_(12.0f),
-                                                  drag_drop_color_(juce::Colours::white),
-                                                  source_color_(juce::Colours::white),
-                                                  background_color_(juce::Colours::black),
-                                                  show_drag_drop_(true), drag_drop_alpha_(1.0f), initialized(false) {
+ConnectionButton::ConnectionButton(String name)
+    : EndpointArrowComponent(std::move(name)), initialized(false), parent_(nullptr),
+      mouse_state_(kNone), active_connection_(false) {
   setWantsKeyboardFocus(true);
   setComponentID("mod");
-  Path shape = Paths::dragDropArrows();
-  //shape.addLineSegment(Line<float>(-50.0f, -50.0f, -50.0f, -50.0f), 0.2f);
-  setShape(Paths::dragDropArrows());
   setComponent(&drag_drop_area_);
-  setActive(true);
-  setUseAlpha(true);
-  setInterceptsMouseClicks(true, false);
   addAndMakeVisible(drag_drop_area_);
   drag_drop_area_.setInterceptsMouseClicks(false, false);
-  setColor(source_color_);
+  source_color_ = findColour(Skin::kWidgetPrimary1, true);
+  setArrowColor(source_color_);
 }
 
-ConnectionButton::~ConnectionButton() {
-//  if (parent_)
-//    parent_->getSynth()->forceShowModulation(getName().toStdString(), false);
-}
+ConnectionButton::~ConnectionButton() = default;
 
 bool ConnectionButton::hasAnyConnection() {
-  if (parent_)
-//    return parent_->getSynth()->isSourceConnected(getName().toStdString());
-  return false;
+  return parent_ != nullptr
+      && !parent_->getSynth()->getSourceConnections(getComponentID().toStdString()).empty();
 }
 
 Rectangle<int> ConnectionButton::getModulationAmountBounds(int index, int total) {
@@ -103,27 +89,9 @@ Rectangle<int> ConnectionButton::getModulationAreaBounds() {
   return Rectangle<int>(widget_x, widget_y, widget_width, widget_height);
 }
 
-void ConnectionButton::paintBackground(Graphics& g) {
-  if (getWidth() == 0 || getHeight() == 0)
-    return;
-
-  SynthSection* parent = findParentComponentOfClass<SynthSection>();
-  int rounding_amount = 4;
-  if (parent)
-    rounding_amount = parent->findValue(Skin::kBodyRounding);
-
-  const auto bounds = getLocalBounds().toFloat();
-  g.setColour(background_color_);
-  g.fillRoundedRectangle(bounds, rounding_amount);
-  g.setColour(source_color_);
-  g.drawRoundedRectangle(bounds.reduced(0.5f), rounding_amount, selected_ ? 2.0f : 1.0f);
-}
-
 void ConnectionButton::parentHierarchyChanged() {
-  if (parent_ == nullptr) {
+  if (parent_ == nullptr)
     parent_ = findParentComponentOfClass<SynthGuiInterface>();
-    setForceEnableModulationSource();
-  }
 }
 
 void ConnectionButton::resized() {
@@ -132,25 +100,7 @@ void ConnectionButton::resized() {
 }
 
 void ConnectionButton::render(OpenGlWrapper& open_gl, bool animate) {
-  static constexpr float kDeltaAlpha = 0.15f;
-
-  float target = 1.0f;
-  if (mouse_state_ == kMouseDown || mouse_state_ == kMouseDragging || mouse_state_ == kDraggingOut)
-    target = 1.35f;
-
-  bool increase = drag_drop_alpha_ < target;
-  if (increase)
-    drag_drop_alpha_ = std::min(drag_drop_alpha_ + kDeltaAlpha, target);
-  else
-    drag_drop_alpha_ = std::max(drag_drop_alpha_ - kDeltaAlpha, target);
-
-  if (drag_drop_alpha_ <= 0.0f) {
-    drag_drop_alpha_ = 0.0f;
-    setActive(false);
-  }
-
-  setColor(drag_drop_color_.withMultipliedAlpha(drag_drop_alpha_));
-  PlainShapeComponent::render(open_gl, animate);
+  EndpointArrowComponent::render(open_gl, animate);
 }
 
 void ConnectionButton::init(OpenGlWrapper &open_gl) {
@@ -165,39 +115,14 @@ bool ConnectionButton::isInit() {
 }
 
 void ConnectionButton::mouseDown(const MouseEvent& e) {
-    DBG(getComponentID() + "currmode");
-  if (e.mods.isPopupMenu()) {
-    if (parent_ == nullptr)
-      return;
+  if (e.mods.isPopupMenu())
+    return;
 
-//    std::vector<vital::ModulationConnection*> connections =
-//        parent_->getSynth()->getSourceConnections(getName().toStdString());
+  setActiveConnection(true);
+  mouse_state_ = kMouseDown;
 
-//    if (connections.empty())
-//      return;
-
-    mouse_state_ = kNone;
-
-//    PopupItems options;
-//    std::string disconnect = "Disconnect from ";
-//    for (int i = 0; i < connections.size(); ++i) {
-//      std::string destination = vital::Parameters::getDisplayName(connections[i]->destination_name);
-//      options.addItem(kModulationList + i, disconnect + destination);
-//    }
-//
-//    if (connections.size() > 1)
-//      options.addItem(kDisconnect, "Disconnect all");
-//
-//    SynthSection* parent = findParentComponentOfClass<SynthSection>();
-//    parent->showPopupSelector(this, e.getPosition(), options, [=](int selection) { disconnectIndex(selection); });
-  }
-  else {
-    setActiveConnection(true);
-    mouse_state_ = kMouseDown;
-
-    for (Listener* listener : listeners_)
-      listener->connectionSelected(this);
-  }
+  for (Listener* listener : listeners_)
+    listener->connectionSelected(this);
 }
 
 void ConnectionButton::mouseDrag(const MouseEvent& e) {
@@ -234,16 +159,15 @@ void ConnectionButton::mouseUp(const MouseEvent& e) {
 }
 
 void ConnectionButton::mouseEnter(const MouseEvent& e) {
+  EndpointArrowComponent::mouseEnter(e);
   mouse_state_ = kHover;
-  drag_drop_color_ = source_color_;
-  show_drag_drop_ = true;//parent_->getSynth()->getSourceConnections(getName().toStdString()).empty();
-  setActive(show_drag_drop_);
+  setActive(true);
   redrawImage(true);
 }
 
 void ConnectionButton::mouseExit(const MouseEvent& e) {
+  EndpointArrowComponent::mouseExit(e);
   mouse_state_ = kNone;
-  show_drag_drop_ = true;
 }
 
 void ConnectionButton::mouseWheelMove(const MouseEvent& e, const MouseWheelDetails& wheel) {
@@ -257,61 +181,21 @@ void ConnectionButton::focusLost(FocusChangeType cause) {
 }
 
 void ConnectionButton::addListener(Listener* listener) {
-  listeners_.push_back(listener);
+  if (listener != nullptr && std::find(listeners_.begin(), listeners_.end(), listener) == listeners_.end())
+    listeners_.push_back(listener);
+}
+
+void ConnectionButton::removeListener(Listener* listener) {
+  std::erase(listeners_, listener);
 }
 
 void ConnectionButton::setSourceColor(juce::Colour color) {
   source_color_ = color;
-  drag_drop_color_ = color;
-  setColor(source_color_.withMultipliedAlpha(drag_drop_alpha_));
+  setArrowColor(color);
   repaintBackground();
   redrawImage(true);
 }
 
-void ConnectionButton::disconnectIndex(int index) {
-  if (parent_ == nullptr)
-    return;
-
-//  std::vector<vital::ModulationConnection*> connections =
-//      parent_->getSynth()->getSourceConnections(getName().toStdString());
-
-//  if (index == kDisconnect) {
-//    for (vital::ModulationConnection* connection : connections)
-//      disconnectModulation(connection);
-//  }
-//  else if (index >= kModulationList) {
-//    int connection_index = index - kModulationList;
-//    disconnectModulation(connections[connection_index]);
-//  }
-}
-
-void ConnectionButton::select(bool select) {
-  selected_ = select;
-  setForceEnableModulationSource();
-}
-
 void ConnectionButton::setActiveConnection(bool active) {
   active_connection_ = active;
-  setForceEnableModulationSource();
-}
-
-void ConnectionButton::setForceEnableModulationSource() {
-//  if (parent_)
-//    parent_->getSynth()->forceShowModulation(getName().toStdString(), active_modulation_);
-}
-
-void ConnectionButton::disconnectConnection(electrosynth::Connection* connection) {
-////  int modulations_left = parent_->getSynth()->getNumModulations(connection->destination_name);
-//
-//  for (Listener* listener : listeners_) {
-//    listener->modulationDisconnected(connection, modulations_left <= 1);
-//    listener->modulationConnectionChanged();
-//  }
-//
-////  parent_->disconnectModulation(connection);
-//
-//  if (modulations_left <= 1) {
-//    for (Listener* listener : listeners_)
-//      listener->modulationCleared();
-//  }
 }

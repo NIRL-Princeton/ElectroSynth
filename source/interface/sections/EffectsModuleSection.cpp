@@ -44,8 +44,8 @@ public:
 };
 }
 
-EffectModuleSection::EffectModuleSection(MappingManager *m, AudioRoutingManager* arm, EffectList &module_list,const juce::ValueTree &v, juce::UndoManager& um) :
-audio_routing_manager_(arm), ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRectangleFragment)), state(v), undo(um)
+EffectModuleSection::EffectModuleSection(MappingManager *m, EffectList &module_list,const juce::ValueTree &v, juce::UndoManager& um) :
+mapping_manager_ (m),ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRectangleFragment)), state(v), undo(um)
 {
     scroll_bar_ = std::make_unique<OpenGlScrollBar>();
     addAndMakeVisible(scroll_bar_.get());
@@ -137,57 +137,69 @@ audio_routing_manager_(arm), ModulesInterface( module_list), footer_body(new Ope
 
     // initialize routing UI
     if (module_list.getAudioNodeDescriptor().hasOutput) { // if this module supports outputs...
-        electrosynth::audio::AudioPortAddress address { // give it an output audio port address
-            module_list.getAudioNodeId(),
-            module_list.getAudioNodeDescriptor().outputPortId,
-            electrosynth::audio::PortDirection::Output,
-            module_list.getAudioNodeDescriptor().domain
+        electrosynth::EndpointDescriptor output { // give it an output audio port address
+            .address {
+                .type = electrosynth::ConnectionType::Audio,
+                .nodeId = module_list.getNodeId(),
+                .endpointId = module_list.getAudioNodeDescriptor().outputPortId,
+                .direction = electrosynth::EndpointDirection::Source,
+                .audioDomain = module_list.getAudioNodeDescriptor().domain
+            },
+            .capabilities {
+                .maxIncomingConnections = 0
+            }
         };
-        lane_output_port_ = std::make_shared<AudioPortComponent>( // make an output arrow belonging to this output port
-            "audio_output",
-            std::move(address));
+
+        // make the UI arrow
+        lane_output_port_ = std::make_shared<AudioPortComponent>("audio_output", std::move(output));
         addOpenGlComponent(lane_output_port_);
 
-        lane_output_slots_ = std::make_unique<AudioConnectionSlots>(*lane_output_port_);
+        lane_output_slots_ = std::make_unique<ConnectionSlots>(*lane_output_port_);
         addSubSection(lane_output_slots_.get());
         lane_output_slots_->setConnections({});
     }
 
     if (module_list.getAudioNodeDescriptor().hasInput) { // if this module supports inputs...
-        electrosynth::audio::AudioPortAddress address { // give it an output audio port address
-            module_list.getAudioNodeId(),
-            module_list.getAudioNodeDescriptor().inputPortId,
-            electrosynth::audio::PortDirection::Input,
-            module_list.getAudioNodeDescriptor().domain
+        electrosynth::EndpointDescriptor input { // give it an output audio port address
+            .address {
+                .type = electrosynth::ConnectionType::Audio,
+                .nodeId = module_list.getNodeId(),
+                .endpointId = module_list.getAudioNodeDescriptor().inputPortId,
+                .direction = electrosynth::EndpointDirection::Destination,
+                .audioDomain = module_list.getAudioNodeDescriptor().domain
+            },
+            .capabilities {
+                .maxIncomingConnections = 64
+            }
         };
-        lane_input_port_ = std::make_shared<AudioPortComponent>( // make an output arrow belonging to this output port
-            "audio_input",
-            std::move(address));
+        lane_input_port_ = std::make_shared<AudioPortComponent>("audio_input", std::move(input));
         addOpenGlComponent(lane_input_port_);
 
-        lane_input_slots_ = std::make_unique<AudioConnectionSlots>(*lane_input_port_);
+        lane_input_slots_ = std::make_unique<ConnectionSlots>(*lane_input_port_);
         addSubSection(lane_input_slots_.get());
         lane_input_slots_->setConnections({});
     }
 
-    if (audio_routing_manager_ != nullptr) {
-        if (lane_output_port_ != nullptr)
-            audio_routing_manager_->registerPort(*lane_output_port_);
+    if (mapping_manager_ != nullptr) {
+        if (lane_output_port_)
+            mapping_manager_->registerEndpoint({
+                lane_output_port_->getEndpoint(),
+                lane_output_port_.get()
+            });
 
-        if (lane_input_port_ != nullptr)
-            audio_routing_manager_->registerPort(*lane_input_port_);
+        if (lane_input_port_)
+            mapping_manager_->registerEndpoint({
+                lane_input_port_->getEndpoint(),
+                lane_input_port_.get()
+            });
     }
-
     setSkinOverride(Skin::kFx);
 }
 
 EffectModuleSection::~EffectModuleSection() {
-    if (audio_routing_manager_ != nullptr) {
-        if (lane_input_port_)
-            audio_routing_manager_->unregisterPort(*lane_input_port_);
-
-        if (lane_output_port_)
-            audio_routing_manager_->unregisterPort(*lane_output_port_);
+    if (mapping_manager_ != nullptr) {
+        if (lane_input_port_ != nullptr) mapping_manager_->unregisterEndpoint (lane_input_port_->getEndpoint().address);
+        if (lane_output_port_ != nullptr) mapping_manager_->unregisterEndpoint (lane_output_port_->getEndpoint().address);
     }
 
    module_sections.clear();
@@ -348,7 +360,9 @@ std::map<std::string, SynthSlider *> EffectModuleSection::getAllSliders() {
 
 void EffectModuleSection::moduleAdded(ProcessorBase *newModule) {
     auto module_section = std::make_unique<ModuleSection>(newModule->state, newModule->getAudioNodeDescriptor(),
-        std::move (newModule->createEditor()), undo, audio_routing_manager_);
+        std::move (newModule->createEditor()), undo, mapping_manager_);
+
+
     module_section->setAreaSkinOverride(Skin::kFx);
     module_section->setDragAccentColor(Skin::kFXAccent);
     module_section->height = 300;
@@ -359,9 +373,11 @@ void EffectModuleSection::moduleAdded(ProcessorBase *newModule) {
         endDragSession(dragged);
     };
 
-    { juce::ScopedLock lock(open_gl_critical_section_);
+    {
+        juce::ScopedLock lock(open_gl_critical_section_);
         container_->addSubSection(module_section.get());
     }
+
     module_section->applySkinFromTopLevel();
     module_section->setInterceptsMouseClicks(true, true);
     parentHierarchyChanged();
@@ -378,6 +394,7 @@ void EffectModuleSection::moduleAdded(ProcessorBase *newModule) {
         listener->added();
     }
     auto interface = findParentComponentOfClass<SynthGuiInterface>();
+
     for (auto sub : sub_sections_) {
             OpenGlComponent::setScissorBounds(sub, viewport_.getLocalBounds(), *interface->getOpenGlWrapper());
             for (auto slider : sub->all_sliders_) {
@@ -523,7 +540,7 @@ void EffectModuleSection::resized() {
         lane_input_slots_->setBounds(
             lane_input_port_->getRight() + kConnectionSlotSpacing,
             lane_input_port_->getY(),
-            AudioConnectionSlots::kPreferredWidth,
+            ConnectionSlots::kPreferredWidth,
             lane_input_port_->getHeight());
     }
 
@@ -534,9 +551,9 @@ void EffectModuleSection::resized() {
         lane_output_slots_->setBounds(
             lane_output_port_->getX()
                 - kConnectionSlotSpacing
-                - AudioConnectionSlots::kPreferredWidth,
+                - ConnectionSlots::kPreferredWidth,
             lane_output_port_->getY(),
-            AudioConnectionSlots::kPreferredWidth,
+            ConnectionSlots::kPreferredWidth,
             lane_output_port_->getHeight());
     }
 }

@@ -19,7 +19,6 @@ struct SynthGuiData;
 class HeaderSection;
 class MainSection;
 class MappingManager;
-class AudioRoutingManager;
 
 namespace electrosynth{
     constexpr int kMinWindowWidth = 350;
@@ -102,13 +101,13 @@ public :
     juce::ScopedPointer<ValueTreeDebugger> valueTreeDebugger;
 
 private :
-    // Declared before MainSection so it outlives MainSection and every registered
-    // AudioPortComponent during reverse-order member destruction.
-    std::unique_ptr<AudioRoutingManager> audio_routing_manager_;
+
     std::unique_ptr<AboutSection> about_section_;
+    std::unique_ptr<MappingManager> modulation_manager;
     std::unique_ptr<MainSection> main_;
     std::unique_ptr<HeaderSection> header_;
 //std::unique_ptr<TestSection> test_;
+
     int width_;
     int resized_width_;
     bool animate_;
@@ -127,8 +126,6 @@ private :
     // std::unique_ptr<melatonin::Inspector> inspector;
     //std::unique_ptr<OpenGlToggleButton> inspectButton;
     OpenGlBackground background_;
-
-    std::unique_ptr<MappingManager> modulation_manager;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FullInterface)
 };

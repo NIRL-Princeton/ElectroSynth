@@ -19,7 +19,6 @@
 #include "ModulationModuleSection.h"
 #include "SoundModuleSection.h"
 #include "about_section.h"
-#include "audio_routing_manager.h"
 #include "juce_core/unit_tests/juce_UnitTestCategories.h"
 #include "mapping_manager.h"
 #include "midi_manager.h"
@@ -48,12 +47,7 @@ FullInterface::FullInterface(SynthGuiData* synth_data) : SynthSection("full_inte
     modulation_manager->toFront(false);
     addSubSection(modulation_manager.get());
 
-    audio_routing_manager_ = std::make_unique<AudioRoutingManager>();
-    audio_routing_manager_->setOpaque(false);
-    audio_routing_manager_->setAlwaysOnTop(true);
-    addSubSection (audio_routing_manager_.get());
-
-    main_ = std::make_unique<MainSection>(data->tree, data->um, open_gl_, data, modulation_manager.get(), audio_routing_manager_.get());
+    main_ = std::make_unique<MainSection>(data->tree, data->um, open_gl_, data, modulation_manager.get());
     addSubSection(main_.get());
     main_->addListener(this);
 
@@ -286,7 +280,6 @@ void FullInterface::resized() {
     juce::Rectangle<int> bounds(0, 0, width, height);
 
     modulation_manager->setBounds(bounds);
-    audio_routing_manager_->setBounds(bounds);
 
     float width_ratio = getWidth() / (1.0f * electrosynth::kDefaultWindowWidth);
     float ratio = width_ratio * display_scale_;
