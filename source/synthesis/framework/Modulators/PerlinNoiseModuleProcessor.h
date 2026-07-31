@@ -45,8 +45,8 @@ struct PerlNoiseParamHolder : public LEAFParams<_tPerlNoiseModule>
     chowdsp::FloatParameter::Ptr rateMs {
         juce::ParameterID { "rateMs", 100 },
         "RateMs",
-        chowdsp::ParamUtils::createNormalisableRange (0.001f,200.f,1.f),
-        1.0f,
+        chowdsp::ParamUtils::createNormalisableRange (0.1f,2000.f,100.f),
+        100.0f,
         all_params[PerlNosParams::PerlNoiseRate],
         [this] (float val) {
             for (auto mod: modules) tPerlNoiseModule_setParameter(mod,PerlNosParams::PerlNoiseRate,val);
