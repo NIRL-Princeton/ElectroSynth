@@ -48,7 +48,7 @@ namespace {
         else if (source_name.startsWithIgnoreCase("lfo"))
             prefix = "Lfo ";
         else if (source_name.startsWithIgnoreCase("vca") || source_name.containsIgnoreCase("master"))
-            prefix = "Env ";
+            prefix = "Master ";
         else if (source_name.startsWithIgnoreCase("filt"))
             prefix = "Flt ";
         else if (source_name.startsWithIgnoreCase("delay"))
@@ -1367,17 +1367,18 @@ bool MappingManager::isSlotOccupied(const std::string& destination, int destinat
 }
 
 void MappingManager::updateSlotVisuals() {
-		SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
-		if (parent == nullptr) return;
+    SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
+    if (parent == nullptr) return;
 
     std::vector<electrosynth::SlotComponent*> active_slots;
 
-	    auto get_display_label = [this](const std::string& source_name) {
-	        if (auto button = modulation_buttons_.find(source_name);
-	            button != modulation_buttons_.end() && button->second != nullptr)
+    auto get_display_label = [this](const std::string& source_name) {
+        auto button = modulation_buttons_.find(source_name);
+        if (button != modulation_buttons_.end() && button->second != nullptr
+                && button->second->getDisplayLabel().isNotEmpty())
             return button->second->getDisplayLabel();
 
-        return juce::String();
+        return getConnectionSourceLabel(source_name);
     };
 
 	auto& bank = parent->getSynth()->getModulationBank();
@@ -1393,24 +1394,45 @@ void MappingManager::updateSlotVisuals() {
 	    auto* target = slider->second->getExtraModulationTarget(connection->destination_slot);
 	    if (auto* slot = dynamic_cast<electrosynth::SlotComponent*>(target)) {
             active_slots.push_back(slot);
-	        slot->setSourceName(connection->source_name);
-	        slot->setSourceDisplayLabel(get_display_label(connection->source_name));
-	        slot->setModulationAmount(connection->getCurrentBaseValue());
-	        slot->setBypass(connection->isBypass());
 
-            bool has_aux = false;
-            if (auto aux = aux_connections_to_from_.find(connection->index_in_all_mods);
-                aux != aux_connections_to_from_.end()) {
-                if (auto* aux_connection = bank.atIndex(aux->second);
-                    aux_connection != nullptr && !aux_connection->source_name.empty()) {
-	                    slot->setAuxSource(aux_connection->source_name, get_display_label(aux_connection->source_name));
-                    has_aux = true;
+            const auto source_button = modulation_buttons_.find(connection->source_name);
+            const auto source_colour = source_button != modulation_buttons_.end()
+                    && source_button->second != nullptr
+                ? source_button->second->getSourceColor()
+                : getConnectionSourceColor(connection->source_name);
+
+	        ConnectionSlotData data {
+	            .connectionId = juce::String(connection->uuid),
+                .peer = {}, // resolve from registered modulation endpoint later
+                .label = get_display_label(connection->source_name),
+                .colour = source_colour,
+                .hasAmount = true,
+                .hasBipolar = true,
+                .amount = connection->getCurrentBaseValue(),
+                .bipolar = connection->isBipolar(),
+                .bypass = connection->isBypass(),
+                .stereo = connection->isStereo()
+            };
+	        auto aux = aux_connections_to_from_.find(connection->index_in_all_mods); // iterator of all aux connections
+            if (aux != aux_connections_to_from_.end()) {
+                auto* aux_connection = bank.atIndex(aux->second);
+                if (aux_connection != nullptr && !aux_connection->source_name.empty()) {
+                    auto button = modulation_buttons_.find(aux_connection->source_name);
+                    const auto colour = button != modulation_buttons_.end() && button->second != nullptr ?
+                    button->second->getSourceColor() : getConnectionSourceColor(aux_connection->source_name);
+
+                    data.auxiliary = ConnectionSlotData::Auxiliary {
+                        .connectionId = juce::String(aux_connection->uuid),
+                        .peer = {},
+                        .label = get_display_label(aux_connection->source_name),
+                        .colour = colour
+                    };
                 }
             }
-            if (!has_aux)
-                slot->setAuxSource({}, {});
+	        slot->setConnection(std::move(data));
+
 	    }
-		}
+	}
 
     for (const auto& [name, slider] : slider_model_lookup_) {
         if (slider == nullptr) continue;
@@ -1420,8 +1442,9 @@ void MappingManager::updateSlotVisuals() {
             if (slot == nullptr)
                 continue;
 
-            if (std::find(active_slots.begin(), active_slots.end(), slot) == active_slots.end())
-                slot->clearSource();
+            if (std::find(active_slots.begin(), active_slots.end(), slot) == active_slots.end()) {
+                slot->clearConnection();
+            }
         }
     }
 

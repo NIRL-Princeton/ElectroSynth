@@ -34,104 +34,71 @@ namespace electrosynth {
             on_change_();
     }
 
-    void SlotComponent::setSourceName(juce::String source_name) {
-        if (source_name_ == source_name)
-            return;
-        source_name_ = std::move(source_name);
+    void SlotComponent::setConnection (ConnectionSlotData connection) {
+        connection_ = std::move(connection);
         notifySlotHost();
     }
 
-    void SlotComponent::setSourceDisplayLabel(juce::String display_label) {
-        if (display_label_ == display_label)
+    void SlotComponent::clearConnection() {
+        if (!connection_)
             return;
-        display_label_ = std::move(display_label);
+
+        connection_.reset();
         notifySlotHost();
     }
 
-    void SlotComponent::setModulationAmount(float amount) {
-        amount = juce::jlimit(-1.0f, 1.0f, amount);
-        if (juce::approximatelyEqual(modulation_amount_, amount))
-            return;
-        modulation_amount_ = amount;
-        notifySlotHost();
+    bool SlotComponent::hasConnection() const noexcept {
+        return connection_.has_value();
     }
 
-    void SlotComponent::setBypass(bool bypass) {
-        if (bypass_ == bypass)
-            return;
-        bypass_ = bypass;
-        notifySlotHost();
+    const ConnectionSlotData* SlotComponent::getConnection() const noexcept {
+        return connection_ ? &*connection_ : nullptr;
+    }
+}
+
+void ConnectionSlots::initialiseSlot(int index, const juce::String& prefix) {
+    auto& visual = visuals_[index];
+    visual.body = std::make_shared<OpenGlQuad>(Shaders::kColorFragment, prefix + "_body");
+    visual.amount = std::make_shared<OpenGlQuad>(Shaders::kColorFragment, prefix + "_amount");
+    visual.border = std::make_shared<OpenGlQuad>(Shaders::kRoundedRectangleBorderFragment, prefix + "_border");
+    visual.label = std::make_shared<PlainTextComponent>(prefix + "_label", "");
+    visual.aux_body = std::make_shared<OpenGlQuad>(Shaders::kColorFragment, prefix + "_aux_body");
+    visual.aux_border = std::make_shared<OpenGlQuad>(Shaders::kRoundedRectangleBorderFragment, prefix + "_aux_border");
+    visual.aux_label = std::make_shared<PlainTextComponent>(prefix + "_aux_label", "");
+
+    for (auto* quad : { visual.body.get(), visual.amount.get(), visual.border.get(),
+                        visual.aux_body.get(), visual.aux_border.get() }) {
+        quad->setInterceptsMouseClicks(false, false);
+        quad->setAlwaysOnTop(true);
     }
 
-    void SlotComponent::setAuxSource(juce::String source_name, juce::String display_label) {
-        if (aux_source_name_ == source_name && aux_display_label_ == display_label)
-            return;
-        aux_source_name_ = std::move(source_name);
-        aux_display_label_ = std::move(display_label);
-        notifySlotHost();
+    for (auto* label : { visual.label.get(), visual.aux_label.get() }) {
+        label->setInterceptsMouseClicks(false, false);
+        label->setAlwaysOnTop(true);
+        label->setFontType(PlainTextComponent::kRegular);
+        label->setJustification(juce::Justification::centred);
     }
 
-    void SlotComponent::clearSource() {
-        const bool changed = source_name_.isNotEmpty() || display_label_.isNotEmpty()
-                         || aux_source_name_.isNotEmpty() || aux_display_label_.isNotEmpty()
-                         || !juce::approximatelyEqual(modulation_amount_, 0.0f) || bypass_;
-        source_name_.clear();
-        display_label_.clear();
-        aux_source_name_.clear();
-        aux_display_label_.clear();
-        modulation_amount_ = 0.0f;
-        bypass_ = false;
-        if (changed)
-            notifySlotHost();
-    }
+    visual.border->setThickness(1.0f, true);
+    visual.aux_border->setThickness(1.0f, true);
 
-    juce::Colour SlotComponent::getColorForSource(const juce::String& source_name) const {
-        if (source_name.startsWithIgnoreCase("env"))
-            return findColour(Skin::kEnvelopeAccent);
-        if (source_name.startsWithIgnoreCase("lfo"))
-            return findColour(Skin::kLFOAccent);
-        if (source_name.startsWithIgnoreCase("vca") || source_name.containsIgnoreCase("master"))
-            return findColour(Skin::kMasterEnvelopeAccent);
-        return ShaderColors::kNoise;
-    }
+    addOpenGlComponent(visual.body);
+    addOpenGlComponent(visual.amount);
+    addOpenGlComponent(visual.border);
+    addOpenGlComponent(visual.label);
+    addOpenGlComponent(visual.aux_body);
+    addOpenGlComponent(visual.aux_border);
+    addOpenGlComponent(visual.aux_label);
 
-    juce::String SlotComponent::getLabelForSource(const juce::String& source_name,
-                                                        const juce::String& display_label) const {
-        if (display_label.isNotEmpty())
-            return display_label;
+    auto slot = std::make_unique<electrosynth::SlotComponent>(
+        prefix + "_component", index, [this] { syncOpenGl(); });
+    auto* slot_component = slot.get();
+    addAndMakeVisible(slot_component);
 
-        juce::String prefix;
-        if (source_name.startsWithIgnoreCase("env"))
-            prefix = "Env ";
-        else if (source_name.startsWithIgnoreCase("lfo"))
-            prefix = "Lfo ";
-        else if (source_name.startsWithIgnoreCase("vca") || source_name.containsIgnoreCase("master"))
-            prefix = "Master ";
-        else
-            return source_name;
+    if (destination_ != nullptr)
+        destination_->setExtraModulationTarget(index, slot_component);
 
-        juce::String digits;
-        for (auto character : source_name)
-            if (juce::CharacterFunctions::isDigit(character))
-                digits += character;
-        return prefix + (digits.isNotEmpty() ? digits : "");
-    }
-
-    juce::Colour SlotComponent::getSourceColor() const {
-        return getColorForSource(source_name_);
-    }
-
-    juce::String SlotComponent::getSourceLabel() const {
-        return getLabelForSource(source_name_, display_label_);
-    }
-
-    juce::Colour SlotComponent::getAuxSourceColor() const {
-        return getColorForSource(aux_source_name_);
-    }
-
-    juce::String SlotComponent::getAuxSourceLabel() const {
-        return getLabelForSource(aux_source_name_, aux_display_label_);
-    }
+    slot_components_[index] = std::move(slot);
 }
 
 ConnectionSlots::ConnectionSlots(AudioPortComponent& port)
@@ -141,75 +108,21 @@ ConnectionSlots::ConnectionSlots(AudioPortComponent& port)
     setInterceptsMouseClicks(false, false);
 
     for (int index = 0; index < kMaxVisibleSlots; ++index) {
-        auto& visual = visuals_[index];
         const auto prefix = getName() + "_" + juce::String(index);
-
-        visual.body = std::make_shared<OpenGlQuad>(Shaders::kRoundedRectangleFragment, prefix + "_body");
-        visual.body->setInterceptsMouseClicks(false, false);
-        addOpenGlComponent(visual.body);
-
-        visual.border = std::make_shared<OpenGlQuad>(Shaders::kRoundedRectangleBorderFragment, prefix + "_border");
-        visual.border->setInterceptsMouseClicks(false, false);
-        visual.border->setThickness(1.0f, true);
-        addOpenGlComponent(visual.border);
-
-        visual.label = std::make_shared<PlainTextComponent>(prefix + "_label", "");
-        visual.label->setInterceptsMouseClicks(false, false);
-        visual.label->setFontType(PlainTextComponent::kRegular);
-        visual.label->setJustification(juce::Justification::centred);
-        addOpenGlComponent(visual.label);
-
-        auto slot = std::make_unique<electrosynth::SlotComponent>(prefix + "_component", index,
-    [this] { syncOpenGl(); });
-        addAndMakeVisible(slot.get());
-        slot_components_[index] = std::move(slot);
+        initialiseSlot(index, prefix);
     }
+
     port_->setConnectionSlots(this);
 }
 
 ConnectionSlots::ConnectionSlots (SynthSlider& destination) : SynthSection(destination.getComponentID() + "_connection_slots"), destination_(&destination) {
     setInterceptsMouseClicks(false, true);
 
-    for (int slot = 0; slot < SynthSlider::kNumSlots; ++slot) {
-        auto target = std::make_unique<electrosynth::SlotComponent>(destination_->getComponentID() + "_modulation_slot_" + juce::String(slot), slot,
-            [this] { syncOpenGl(); });
-        addAndMakeVisible(target.get());
-        destination_->setExtraModulationTarget(slot, target.get());
-        slot_components_[slot] = std::move(target);
+    for (int index = 0; index < SynthSlider::kNumSlots; ++index) {
+        const auto prefix = destination_->getComponentID() + "_modulation_slot_" + juce::String(index);
+        initialiseSlot (index, prefix);
 
-            auto& visuals = visuals_[slot];
-            const auto prefix = destination_->getComponentID() + "_modulation_slot_" + juce::String(slot);
-            visuals.body = std::make_shared<OpenGlQuad>(Shaders::kColorFragment, prefix + "_body");
-            visuals.amount = std::make_shared<OpenGlQuad>(Shaders::kColorFragment, prefix + "_amount");
-            visuals.border = std::make_shared<OpenGlQuad>(Shaders::kRoundedRectangleBorderFragment, prefix + "_border");
-            visuals.label = std::make_shared<PlainTextComponent>(prefix + "_label", "");
-            visuals.aux_body = std::make_shared<OpenGlQuad>(Shaders::kColorFragment, prefix + "_aux_body");
-            visuals.aux_border = std::make_shared<OpenGlQuad>(Shaders::kRoundedRectangleBorderFragment, prefix + "_aux_border");
-            visuals.aux_label = std::make_shared<PlainTextComponent>(prefix + "_aux_label", "");
-
-            for (auto* quad : { visuals.body.get(), visuals.amount.get(), visuals.border.get(),
-                                visuals.aux_body.get(), visuals.aux_border.get() }) {
-                quad->setInterceptsMouseClicks(false, false);
-                quad->setAlwaysOnTop(true);
-                            }
-            for (auto* label : { visuals.label.get(), visuals.aux_label.get() }) {
-                label->setInterceptsMouseClicks(false, false);
-                label->setAlwaysOnTop(true);
-                label->setFontType(PlainTextComponent::kRegular);
-                label->setJustification(juce::Justification::centred);
-            }
-
-            visuals.border->setThickness(1.0f, true);
-            visuals.aux_border->setThickness(1.0f, true);
-
-            addOpenGlComponent(visuals.body);
-            addOpenGlComponent(visuals.amount);
-            addOpenGlComponent(visuals.border);
-            addOpenGlComponent(visuals.label);
-            addOpenGlComponent(visuals.aux_body);
-            addOpenGlComponent(visuals.aux_border);
-            addOpenGlComponent(visuals.aux_label);
-        }
+    }
 }
 
 ConnectionSlots::~ConnectionSlots() {
@@ -225,19 +138,17 @@ ConnectionSlots::~ConnectionSlots() {
 }
 
 void ConnectionSlots::setConnections(std::vector<ConnectionSlotData> connections) {
-    connections_ = std::move(connections);
-    const int visible_count = juce::jmin(static_cast<int>(connections_.size()), kMaxVisibleSlots);
+    const int visible_count = juce::jmin(static_cast<int>(connections.size()), kMaxVisibleSlots);
 
     for (int index = 0; index < kMaxVisibleSlots; ++index) {
-        const bool visible = index < visible_count;
-        visuals_[index].body->setVisible(visible);
-        visuals_[index].border->setVisible(visible);
-        visuals_[index].label->setVisible(visible);
+        if (index < visible_count)
+            slot_components_[index]->setConnection(std::move(connections[index]));
+        else
+            slot_components_[index]->clearConnection();
     }
 
     setVisible(visible_count > 0);
-    if (visible_count > 0)
-        syncOpenGl();
+    syncOpenGl();
 }
 
 void ConnectionSlots::resized() {
@@ -293,17 +204,23 @@ void ConnectionSlots::syncOpenGl() {
         static_cast<float>(kSlotHeight) * 0.5f);
 
         for (int index = 0; index < kMaxVisibleSlots; ++index) {
+            auto* connection = slot_components_[index]->getConnection();
+            const bool occupied = connection != nullptr;
+            const auto colour = occupied ? connection->colour : juce::Colours::transparentBlack;
+
             auto& visual = visuals_[index];
-            const bool occupied = index < static_cast<int>(connections_.size());
-            const auto colour = occupied ? connections_[index].colour : juce::Colours::transparentBlack;
 
             visual.body->setColor(colour.withAlpha(0.28f));
             visual.body->setRounding(rounding);
             visual.border->setColor(colour);
             visual.border->setRounding(rounding);
-            visual.label->setText(occupied ? connections_[index].label : "");
+            visual.label->setText(occupied ? connection->label : "");
             visual.label->setTextSize(9.0f);
             visual.label->setColor(colour);
+
+            visual.body->setVisible(occupied);
+            visual.border->setVisible(occupied);
+            visual.label->setVisible(occupied);
         }
     }
     if (destination_ == nullptr) return;
@@ -311,20 +228,21 @@ void ConnectionSlots::syncOpenGl() {
     const auto empty = juce::Colours::transparentBlack;
 
     for (int slot = 0; slot < SynthSlider::kNumSlots; ++slot) {
-        auto* state = slot_components_[slot].get();
+        auto* slotComponent = slot_components_[slot].get();
+        const auto* connection = slotComponent->getConnection();
+        bool occupied = connection != nullptr;
+
         auto& visuals = visuals_[slot];
-        const bool occupied = state->isOccupied();
-        const auto color = occupied ? getBypassAdjustedColor(state->getSourceColor(), state->isBypass()) : empty;
-        const bool has_aux = state->hasAuxSource();
-        const auto aux_color = has_aux ? state->getAuxSourceColor() : empty;
-        const float amount = juce::jlimit(-1.0f, 1.0f, state->getModulationAmount());
-        const auto slot_bounds = state->getBounds();
+        const auto color = occupied ? getBypassAdjustedColor(connection->colour, connection->bypass) : empty;
+        const float amount = occupied && connection->hasAmount ?
+            juce::jlimit(-1.0f, 1.0f, connection->amount) : 1.0f;
+        const auto slot_bounds = slotComponent->getBounds();
 
         visuals.body->setColor(color.withAlpha(0.28f));
         visuals.body->setVisible(occupied);
         visuals.border->setColor(color);
         visuals.border->setVisible(true);
-        visuals.label->setText(occupied ? state->getSourceLabel() : "");
+        visuals.label->setText(occupied ? connection->label : "");
         visuals.label->setTextSize(std::max(9.0f, slot_bounds.getHeight() * 0.45f));
         visuals.label->setColor(color);
         visuals.label->setVisible(occupied);
@@ -335,15 +253,19 @@ void ConnectionSlots::syncOpenGl() {
         amount_bounds.setWidth(std::max(0, static_cast<int>(std::round(amount_bounds.getWidth() * (amount + 1.0f) * 0.5f))));
         visuals.amount->setBounds(amount_bounds);
 
+        const auto* auxiliary = occupied && connection->auxiliary ?
+            &*connection->auxiliary : nullptr;
+        const bool hasAux = auxiliary != nullptr;
+        const auto auxColour = hasAux ? auxiliary->colour : empty;
 
-        visuals.aux_body->setColor(aux_color.withAlpha(0.32f));
-        visuals.aux_body->setVisible(occupied && has_aux);
-        visuals.aux_border->setColor(aux_color);
-        visuals.aux_border->setVisible(occupied && has_aux);
-        visuals.aux_label->setText(has_aux ? state->getAuxSourceLabel() : "");
+        visuals.aux_body->setColor(auxColour.withAlpha(0.32f));
+        visuals.aux_body->setVisible(hasAux);
+        visuals.aux_border->setColor(auxColour);
+        visuals.aux_border->setVisible(hasAux);
+        visuals.aux_label->setText(hasAux ? auxiliary->label : "");
         visuals.aux_label->setTextSize(std::max(7.0f, slot_bounds.getHeight() * 0.28f));
-        visuals.aux_label->setColor(aux_color);
-        visuals.aux_label->setVisible(occupied && has_aux);
+        visuals.aux_label->setColor(auxColour);
+        visuals.aux_label->setVisible(hasAux);
     }
 
 }

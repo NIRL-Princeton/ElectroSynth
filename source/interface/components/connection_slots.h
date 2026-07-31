@@ -9,6 +9,7 @@
 #include "synth_section.h"
 #include <array>
 #include <vector>
+#include <optional>
 
 struct ConnectionSlotData {
     juce::String connectionId;
@@ -19,6 +20,18 @@ struct ConnectionSlotData {
     bool hasAmount = false;
     bool hasBipolar = false;
     float amount = 1.0f;
+
+    bool bipolar = false;
+    bool bypass = false;
+    bool stereo = false;
+
+    struct Auxiliary {
+        juce::String connectionId;
+        electrosynth::EndpointAddress peer;
+        juce::String label;
+        juce::Colour colour;
+    };
+    std::optional<Auxiliary> auxiliary;
 };
 
 namespace electrosynth {
@@ -30,39 +43,17 @@ namespace electrosynth {
         void paint(juce::Graphics& g) override;
         int getSlotIndex() const { return slot_index_; }
 
-        void setSourceName(juce::String source_name);
-        void setSourceDisplayLabel(juce::String display_label);
-        void setModulationAmount(float amount);
-        void setBypass(bool bypass);
-        void setAuxSource(juce::String source_name, juce::String display_label);
-        void clearSource();
+        void setConnection(ConnectionSlotData connection);
+        void clearConnection();
 
-        bool isOccupied() const { return source_name_.isNotEmpty(); }
-        juce::Colour getSourceColor() const;
-        juce::String getSourceLabel() const;
-        float getModulationAmount() const { return modulation_amount_; }
-        bool isBypass() const { return bypass_; }
-        bool hasAuxSource() const { return aux_source_name_.isNotEmpty(); }
-        juce::Colour getAuxSourceColor() const;
-        juce::String getAuxSourceLabel() const;
-
-
+        bool hasConnection() const noexcept;
+        const ConnectionSlotData* getConnection() const noexcept;
 
     private:
         void notifySlotHost();
-        juce::Colour getColorForSource(const juce::String& source_name) const;
-        juce::String getLabelForSource(const juce::String& source_name,
-                                   const juce::String& display_label) const;
-
-
+        std::optional<ConnectionSlotData> connection_;
         std::function<void()> on_change_;
         int slot_index_;
-        juce::String source_name_;
-        juce::String display_label_;
-        juce::String aux_source_name_;
-        juce::String aux_display_label_;
-        float modulation_amount_ = 0.0f;
-        bool bypass_ = false;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SlotComponent)
     };
@@ -85,11 +76,9 @@ public:
     ~ConnectionSlots() override;
 
     void setConnections(std::vector<ConnectionSlotData> connections);
-    int getConnectionCount() const noexcept {
-        return static_cast<int>(connections_.size());
-    }
     void resized() override;
     void paintBackground(Graphics&) override {}
+
 
 private:
     struct SlotVisual {
@@ -102,8 +91,8 @@ private:
         std::shared_ptr<PlainTextComponent> aux_label;
     };
 
+    void initialiseSlot(int index, const juce::String& prefix);
     void syncOpenGl();
-    std::vector<ConnectionSlotData> connections_;
     AudioPortComponent* port_ = nullptr;
     SynthSlider* destination_ = nullptr;
     std::array<std::unique_ptr<electrosynth::SlotComponent>, kMaxVisibleSlots> slot_components_;
