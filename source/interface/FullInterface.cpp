@@ -335,26 +335,38 @@ void FullInterface::showAboutSection()
     about_section_->setVisible(true);
 }
 
-void FullInterface::sendToDeviceRequested() {
-    auto outputs = juce::MidiOutput::getAvailableDevices();
-    const juce::MidiDeviceInfo* electroDevice = nullptr;
+// installs a callback that returns currently selected MIDI output
+void FullInterface::setSelectedMidiOutputProvider(std::function<juce::MidiOutput*()> provider) {
+    selected_midi_output_provider_ = std::move(provider);
+}
+// sends all messages in the buffer to the currently selected MIDI output
+bool FullInterface::sendMidiBufferToSelectedOutput(const juce::MidiBuffer& midi_messages) {
+    if (!selected_midi_output_provider_)
+        return false;
 
-    for (const auto& device : outputs) {
-        if (device.name.contains("Electrobass") || device.name.contains("Electrosteel")) {
-            electroDevice = &device;
-            break;
-        }
+    if (auto* selected_output = selected_midi_output_provider_()) {
+        selected_output->sendBlockOfMessagesNow(midi_messages);
+        return true;
     }
 
-    if (electroDevice != nullptr) {
-        auto midiOutput = juce::MidiOutput::openDevice(electroDevice->identifier);
-        if (midiOutput) {
-            leaf::tMappingPreset7Bit preset7Bit;
-            // message size 48 bytes bc w lose one every 4 based on usb midi standard, no more than 64 based on bulk endpoint standard?
-            sendPresetOverMidi(preset7Bit, electrosynth::kSysexChunkSize, midiOutput.get());
-        }
+    return false;
+}
+
+void FullInterface::sendToDeviceRequested() {
+    // value-initialize preset so it doesn't contain indeterminent data
+    leaf::tMappingPreset7Bit preset7Bit {};
+
+    // build sysex message
+    juce::MidiBuffer midi_messages;
+    sendPresetOverMidi(preset7Bit, electrosynth::kSysexChunkSize, midi_messages);
+
+    // send message to currently selected output, or show the alert
+    if (!sendMidiBufferToSelectedOutput(midi_messages)) {
+        juce::AlertWindow::showMessageBoxAsync(juce::AlertWindow::WarningIcon, "MIDI Output",
+            "No valid output selected in Audio/MIDI Settings.");
     }
 }
+
 void FullInterface::animate(bool animate) {
    if (animate_ != animate)
        open_gl_context_.setContinuousRepainting(animate);
@@ -369,9 +381,9 @@ void FullInterface::reset() {
     //since individual components must be capable of being created and destroyed we want to lock or block in those
     //individual destruction calls -- 4/25/25 -- davis
 
-   SynthSection::reset();
-   DBG("critical opengl");
-   repaintSynthesisSection();
+    SynthSection::reset();
+    DBG("critical opengl");
+    repaintSynthesisSection();
     DBG("critical opengl over");
 }
 
@@ -542,7 +554,6 @@ std::map<std::string, SynthSlider*> FullInterface::getAllSliders(){
 std::map<std::string, ModulationButton*> FullInterface::getAllModulationButtons(){
     return main_->getAllModulationButtons();
 }
-
 
 
 
