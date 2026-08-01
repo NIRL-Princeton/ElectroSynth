@@ -23,7 +23,7 @@ namespace electrosynth{
 // creating the parameters associated with a filter module [cutoff, Q, and amp]
 struct FilterParams : public LEAFParams<_tFiltModule > {
     FilterParams(LEAF* leaf) : LEAFParams<_tFiltModule>(leaf) {
-        add(cutoff,Q, amp, filterType);
+        add(cutoff,Q, amp, filterType, keyFollow);
     }
     //add env watch param so that it isn't null
     chowdsp::FloatParameter::Ptr envwatchparam {
@@ -43,7 +43,7 @@ struct FilterParams : public LEAFParams<_tFiltModule > {
     chowdsp::MidiHzParameter::Ptr cutoff {
         juce::ParameterID{"cutoff" , 100},
         "Cutoff",
-        chowdsp::ParamUtils::createNormalisableRange(0.0f, 127.f, 60.f),
+        chowdsp::ParamUtils::createNormalisableRange(0.0f, 137.f, 60.f),
         60.f,
         all_params[FiltParams::FiltCutoff],
         [this](float val)
@@ -58,7 +58,7 @@ struct FilterParams : public LEAFParams<_tFiltModule > {
         juce::ParameterID{"resonance", 100},
         "Q",
         chowdsp::ParamUtils::createNormalisableRange(0.1f, 1.0f, 0.5f),
-        1.f,
+        0.5f,
         all_params[FiltParams::FiltResonance],
         [this](float val)
         {
@@ -90,6 +90,20 @@ struct FilterParams : public LEAFParams<_tFiltModule > {
         [this](float val)
         {
             for (auto mod: modules)  tFiltModule_setParameter(mod,FiltType,val);
+        },
+        &chowdsp::ParamUtils::floatValToString,
+        &chowdsp::ParamUtils::stringToFloatVal
+    };
+
+    chowdsp::FloatParameter::Ptr keyFollow {
+        juce::ParameterID{"keyfollow", 100},
+        "Keyfollow",
+        chowdsp::ParamUtils::createNormalisableRange(0.f, 1.0f, 0.5f),
+        0.f,
+        all_params[FiltParams::FiltKeyfollow],
+        [this](float val)
+        {
+            for (auto mod: modules)  tFiltModule_setParameter(mod,FiltKeyfollow,val);
         },
         &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal
