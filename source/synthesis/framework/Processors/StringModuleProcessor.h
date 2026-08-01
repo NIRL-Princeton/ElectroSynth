@@ -39,9 +39,7 @@ struct StringParams : public LEAFParams<_tStringModule>
         &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal
     };
-
-
-
+    
     chowdsp::FloatParameter::Ptr oversample {
         juce::ParameterID{"oversample", 100},
         "Oversample",
