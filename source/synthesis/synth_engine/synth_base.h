@@ -22,13 +22,10 @@
 #include <set>
 #include <string>
 #include "midi_manager.h"
-#include <set>
-#include <string>
 #include "leaf.h"
 #include "ModulationWrapper.h"
 #include "ModulationConnection.h"
 #include "circular_queue.h"
-#include "ModulationConnection.h"
 #include "ModuleList.h"
 #include "ConnectionRecord.h"
 class RoutingProcessor;

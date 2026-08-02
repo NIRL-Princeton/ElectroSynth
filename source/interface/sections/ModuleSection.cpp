@@ -82,7 +82,7 @@ ModuleSection::ModuleSection(const juce::ValueTree &v, electrosynth::audio::Node
             }
         };
         // make an output arrow belonging to this output port
-        output_port_ = std::make_shared<AudioPortComponent>( "audio_output", std::move(output));
+        output_port_ = std::make_shared<EndpointArrowComponent>( "audio_output", std::move(output));
         addOpenGlComponent(output_port_);
 
         output_connection_slots_ = std::make_unique<ConnectionSlots>(*output_port_);
@@ -100,11 +100,12 @@ ModuleSection::ModuleSection(const juce::ValueTree &v, electrosynth::audio::Node
                 .audioDomain = audioNodeDescriptor_.domain
             },
             .capabilities {
+                .hasAmount = true,
                 .maxIncomingConnections = 64
             }
         };
 
-        input_port_ = std::make_shared<AudioPortComponent>("audio_input", std::move(input));
+        input_port_ = std::make_shared<EndpointArrowComponent>("audio_input", std::move(input));
         addOpenGlComponent(input_port_);
 
         input_connection_slots_ = std::make_unique<ConnectionSlots>(*input_port_);
@@ -113,29 +114,18 @@ ModuleSection::ModuleSection(const juce::ValueTree &v, electrosynth::audio::Node
     }
 
     if (mapping_manager_ != nullptr) {
-        if (output_port_ != nullptr) {
-            mapping_manager_->registerEndpoint(
-                {
-                .descriptor = output_port_->getEndpoint(),
-                .component = output_port_.get()
-            });
-        }
+        if (output_port_ != nullptr)
+            mapping_manager_->registerEndpoint(*output_port_);
 
-        if (input_port_ != nullptr) {
-            if (mapping_manager_ != nullptr) {
-                mapping_manager_->registerEndpoint({
-                    .descriptor = input_port_->getEndpoint(),
-                    .component = input_port_.get()
-                });
-            }
-        }
+        if (input_port_ != nullptr)
+            mapping_manager_->registerEndpoint(*input_port_);
     }
 }
 
 ModuleSection::~ModuleSection() {
     if (mapping_manager_ != nullptr) {
-        if (output_port_) mapping_manager_->unregisterEndpoint(output_port_->getEndpoint().address);
-        if (input_port_) mapping_manager_->unregisterEndpoint(input_port_->getEndpoint().address);
+        if (output_port_) mapping_manager_->unregisterEndpoint(*output_port_);
+        if (input_port_) mapping_manager_->unregisterEndpoint(*input_port_);
     }
 
 }

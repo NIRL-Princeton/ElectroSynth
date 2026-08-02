@@ -3,13 +3,15 @@
 //
 
 #pragma once
-#include "audio_port_component.h"
-#include "synth_slider.h"
+#include <array>
+#include <optional>
+#include <vector>
+#include "ConnectionRecord.h"
 #include "open_gl_multi_quad.h"
 #include "synth_section.h"
-#include <array>
-#include <vector>
-#include <optional>
+#include "synth_slider.h"
+
+class EndpointArrowComponent;
 
 struct ConnectionSlotData {
     juce::String connectionId;
@@ -19,7 +21,7 @@ struct ConnectionSlotData {
 
     bool hasAmount = false;
     bool hasBipolar = false;
-    float amount = 1.0f;
+    float amount = 1.0f;            // set default modulation amount
 
     bool bipolar = false;
     bool bypass = false;
@@ -38,7 +40,13 @@ namespace electrosynth {
 
     class SlotComponent final : public juce::Component {
     public:
-        SlotComponent(juce::String componentId, int slot_index, std::function<void()> onChange);
+        using ClickCallback = std::function<void(int, const juce::MouseEvent&)>;
+        using AmountCallback = std::function<void(int, float)>;
+
+        SlotComponent(juce::String componentId, int slotIndex,
+                      std::function<void()> onChange,
+                      ClickCallback onClick,
+                      AmountCallback onAmountChanged);
 
         void paint(juce::Graphics& g) override;
         int getSlotIndex() const { return slot_index_; }
@@ -46,14 +54,22 @@ namespace electrosynth {
         void setConnection(ConnectionSlotData connection);
         void clearConnection();
 
-        bool hasConnection() const noexcept;
         const ConnectionSlotData* getConnection() const noexcept;
+
+        void mouseDown(const juce::MouseEvent& event) override;
+        void mouseDrag(const juce::MouseEvent& event) override;
+
 
     private:
         void notifySlotHost();
         std::optional<ConnectionSlotData> connection_;
-        std::function<void()> on_change_;
         int slot_index_;
+        std::function<void()> on_change_;
+        ClickCallback on_click_;
+
+        AmountCallback on_amount_changed_;
+        float drag_start_amount_ = 1.0f;
+        int drag_start_y_ = 0;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SlotComponent)
     };
@@ -63,6 +79,14 @@ namespace electrosynth {
 class ConnectionSlots final : public SynthSection {
 
 public:
+    class Listener {
+        public:
+        virtual ~Listener() = default;
+
+        virtual void connectionSlotClicked(const ConnectionSlotData& connection, const juce::MouseEvent& event) = 0;
+        virtual void connectionAmountChanged(const ConnectionSlotData& connection, float amount) = 0;
+    };
+
     static constexpr int kMaxVisibleSlots = 4;
     static constexpr int kSlotWidth = 44;
     static constexpr int kSlotHeight = 14;
@@ -71,7 +95,7 @@ public:
     static constexpr int kPreferredWidth =
         kMaxVisibleSlots * kSlotWidth + (kMaxVisibleSlots - 1) * kSlotGap;
 
-    explicit ConnectionSlots(AudioPortComponent& port);
+    explicit ConnectionSlots(EndpointArrowComponent& endpoint_arrow);
     explicit ConnectionSlots(SynthSlider& destination);
     ~ConnectionSlots() override;
 
@@ -79,6 +103,8 @@ public:
     void resized() override;
     void paintBackground(Graphics&) override {}
 
+    void addListener(Listener* listener);
+    void removeListener(Listener* listener);
 
 private:
     struct SlotVisual {
@@ -91,9 +117,13 @@ private:
         std::shared_ptr<PlainTextComponent> aux_label;
     };
 
+    std::vector<Listener*> listeners_;
+
     void initialiseSlot(int index, const juce::String& prefix);
+    void slotClicked(int index, const juce::MouseEvent& event);
+    void slotAmountChanged(int index, float amount);
     void syncOpenGl();
-    AudioPortComponent* port_ = nullptr;
+    EndpointArrowComponent* arrow_ = nullptr;
     SynthSlider* destination_ = nullptr;
     std::array<std::unique_ptr<electrosynth::SlotComponent>, kMaxVisibleSlots> slot_components_;
     std::array<SlotVisual, kMaxVisibleSlots> visuals_;

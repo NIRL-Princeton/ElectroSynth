@@ -99,8 +99,6 @@ add_library(SharedCode INTERFACE
         source/synthesis/framework/Modulators/PerlinNoiseModuleProcessor.h
         source/interface/components/endpoint_arrow_component.h
         source/interface/components/endpoint_arrow_component.cpp
-        source/interface/components/audio_port_component.h
-        source/interface/components/audio_port_component.cpp
         source/interface/components/connection_slots.cpp
         source/interface/components/connection_slots.h
         source/common/ConnectionRecord.h

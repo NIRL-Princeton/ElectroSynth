@@ -4,6 +4,8 @@
 
 #include "connection_slots.h"
 
+#include "endpoint_arrow_component.h"
+
 namespace {
     juce::Rectangle<int> getAuxSlotBounds(juce::Rectangle<int> slotBounds) {
         auto bounds = slotBounds.reduced(2, 2);
@@ -19,11 +21,15 @@ namespace {
 }
 
 namespace electrosynth {
-    SlotComponent::SlotComponent(juce::String componentId, int slotIndex, std::function<void()> onChange) :
-        slot_index_(slotIndex), on_change_(std::move(onChange)) {
+    SlotComponent::SlotComponent(juce::String componentId, int slotIndex,
+                                 std::function<void()> onChange,
+                                 ClickCallback onClick,
+                                 AmountCallback onAmountChanged) :
+        slot_index_(slotIndex), on_change_(std::move(onChange)),
+        on_click_(std::move(onClick)), on_amount_changed_(std::move(onAmountChanged)) {
 
         setComponentID(std::move(componentId));
-        setInterceptsMouseClicks(false, false);
+        setInterceptsMouseClicks(true, false);
     }
 
     void SlotComponent::paint(juce::Graphics&) { }
@@ -47,12 +53,41 @@ namespace electrosynth {
         notifySlotHost();
     }
 
-    bool SlotComponent::hasConnection() const noexcept {
-        return connection_.has_value();
-    }
 
     const ConnectionSlotData* SlotComponent::getConnection() const noexcept {
         return connection_ ? &*connection_ : nullptr;
+    }
+
+
+    void SlotComponent::mouseDown(const juce::MouseEvent& event) {
+        if (!connection_) return;
+        if (on_click_) on_click_(slot_index_, event);
+
+        if (!event.mods.isPopupMenu() && connection_->hasAmount) {
+            drag_start_amount_ = connection_->amount;
+            drag_start_y_ = event.getScreenY();
+        }
+    }
+
+    void SlotComponent::mouseDrag(const juce::MouseEvent& event) {
+
+        if (!connection_ || !connection_->hasAmount || event.mods.isPopupMenu())
+            return;
+
+        constexpr float dragDistance = 100.0f;
+        const float delta = static_cast<float>(drag_start_y_ - event.getScreenY()) / dragDistance;
+
+        const float minimum = connection_->hasBipolar ? -1.0f : 0.0f;
+        const float amount = juce::jlimit(minimum, 1.0f, drag_start_amount_ + delta);
+
+        if (amount == connection_->amount)
+            return;
+
+        connection_->amount = amount;
+        notifySlotHost();
+
+        if (on_amount_changed_)
+            on_amount_changed_(slot_index_, amount);
     }
 }
 
@@ -91,7 +126,14 @@ void ConnectionSlots::initialiseSlot(int index, const juce::String& prefix) {
     addOpenGlComponent(visual.aux_label);
 
     auto slot = std::make_unique<electrosynth::SlotComponent>(
-        prefix + "_component", index, [this] { syncOpenGl(); });
+        prefix + "_component", index, [this] { syncOpenGl(); },
+        [this](int slotIndex, const juce::MouseEvent& event) {
+            slotClicked(slotIndex, event);
+        },
+        [this](int slotIndex, float amount) {
+            slotAmountChanged(slotIndex, amount);
+        });
+
     auto* slot_component = slot.get();
     addAndMakeVisible(slot_component);
 
@@ -101,18 +143,18 @@ void ConnectionSlots::initialiseSlot(int index, const juce::String& prefix) {
     slot_components_[index] = std::move(slot);
 }
 
-ConnectionSlots::ConnectionSlots(AudioPortComponent& port)
-    : SynthSection(port.getComponentID() + "_connection_slots"), port_(&port) {
+ConnectionSlots::ConnectionSlots(EndpointArrowComponent& endpoint_arrow)
+    : SynthSection(endpoint_arrow.getComponentID() + "_connection_slots"), arrow_(&endpoint_arrow) {
 
     setAlwaysOnTop(true);
-    setInterceptsMouseClicks(false, false);
+    setInterceptsMouseClicks(false, true);
 
     for (int index = 0; index < kMaxVisibleSlots; ++index) {
         const auto prefix = getName() + "_" + juce::String(index);
         initialiseSlot(index, prefix);
     }
 
-    port_->setConnectionSlots(this);
+    arrow_->setConnectionSlots(this);
 }
 
 ConnectionSlots::ConnectionSlots (SynthSlider& destination) : SynthSection(destination.getComponentID() + "_connection_slots"), destination_(&destination) {
@@ -126,9 +168,9 @@ ConnectionSlots::ConnectionSlots (SynthSlider& destination) : SynthSection(desti
 }
 
 ConnectionSlots::~ConnectionSlots() {
-    if (port_ != nullptr) {
-        if (port_->getConnectionSlots() == this)
-            port_->setConnectionSlots(nullptr);
+    if (arrow_ != nullptr) {
+        if (arrow_->getConnectionSlots() == this)
+            arrow_->setConnectionSlots(nullptr);
     }
 
     if (destination_ != nullptr) {
@@ -154,8 +196,8 @@ void ConnectionSlots::setConnections(std::vector<ConnectionSlotData> connections
 void ConnectionSlots::resized() {
     SynthSection::resized();
 
-    if (port_ != nullptr) {
-        const bool is_input = port_->getEndpoint().address.direction == electrosynth::EndpointDirection::Destination;
+    if (arrow_ != nullptr) {
+        const bool is_input = arrow_->getEndpoint().address.direction == electrosynth::EndpointDirection::Destination;
         const int slot_y = (getHeight() - kSlotHeight) / 2;
 
         for (int index = 0; index < kMaxVisibleSlots; ++index) {
@@ -165,6 +207,7 @@ void ConnectionSlots::resized() {
             visuals_[index].body->setBounds(bounds);
             visuals_[index].border->setBounds(bounds);
             visuals_[index].label->setBounds(bounds.reduced(2, 1));
+            visuals_[index].amount->setBounds(bounds.reduced(1));
             slot_components_[index]->setBounds(bounds);
         }
 
@@ -199,7 +242,7 @@ void ConnectionSlots::resized() {
 }
 
 void ConnectionSlots::syncOpenGl() {
-    if (port_ != nullptr) {
+    if (arrow_ != nullptr) {
         const auto rounding = juce::jmin(findValue(Skin::kWidgetRoundedCorner),
         static_cast<float>(kSlotHeight) * 0.5f);
 
@@ -221,8 +264,20 @@ void ConnectionSlots::syncOpenGl() {
             visual.body->setVisible(occupied);
             visual.border->setVisible(occupied);
             visual.label->setVisible(occupied);
+
+            const float amountPercent = connection != nullptr ? connection->bipolar ?
+            (juce::jlimit(-1.0f, 1.0f, connection->amount) + 1.0f) * 0.5f
+            : juce::jlimit(0.0f, 1.0f, connection->amount) : 0.0f;
+
+            auto amountBounds = slot_components_[index]->getBounds().reduced(1);
+            amountBounds.setWidth(juce::roundToInt(amountBounds.getWidth() * amountPercent));
+
+            visual.amount->setBounds(amountBounds);
+            visual.amount->setColor(colour.withAlpha(0.2f));
+            visual.amount->setVisible(occupied && connection->hasAmount);
         }
     }
+
     if (destination_ == nullptr) return;
 
     const auto empty = juce::Colours::transparentBlack;
@@ -267,5 +322,33 @@ void ConnectionSlots::syncOpenGl() {
         visuals.aux_label->setColor(auxColour);
         visuals.aux_label->setVisible(hasAux);
     }
+}
 
+void ConnectionSlots::slotClicked(int index, const juce::MouseEvent& event) {
+    const auto* connection = slot_components_[index]->getConnection();
+
+    if (connection == nullptr)
+        return;
+
+    for (auto* listener : listeners_)
+        listener->connectionSlotClicked(*connection, event);
+}
+
+void ConnectionSlots::slotAmountChanged(int index, float amount) {
+    const auto* connection = slot_components_[index]->getConnection();
+    if (connection == nullptr)
+        return;
+
+    for (auto* listener : listeners_)
+        listener->connectionAmountChanged(*connection, amount);
+}
+
+void ConnectionSlots::addListener(Listener* listener) {
+    if (listener != nullptr && std::find(listeners_.begin(), listeners_.end(), listener) == listeners_.end()) {
+        listeners_.push_back(listener);
+    }
+}
+
+void ConnectionSlots::removeListener(Listener* listener) {
+    std::erase(listeners_, listener);
 }

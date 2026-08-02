@@ -19,16 +19,8 @@
 
 #include "endpoint_arrow_component.h"
 
-class SynthGuiInterface;
-
 class ConnectionButton : public EndpointArrowComponent {
   public:
-    static constexpr float kFontAreaHeightRatio = 0.3f;
-    static constexpr int kColumns = 3;
-    static constexpr int kRows = 2;
-    static constexpr int kMaxKnobs = kRows * kColumns;
-    static constexpr float kMeterAreaRatio = 0.05f;
-
     enum MouseState {
       kNone,
       kHover,
@@ -53,10 +45,8 @@ class ConnectionButton : public EndpointArrowComponent {
     ConnectionButton(String name);
     virtual ~ConnectionButton();
     void init(OpenGlWrapper& ) override;
-    void parentHierarchyChanged() override;
     void resized() override;
     bool isInit() override;
-    virtual void render(OpenGlWrapper& open_gl, bool animate) override;
 
     void mouseDown(const MouseEvent& e) override;
     void mouseDrag(const MouseEvent& e) override;
@@ -68,25 +58,18 @@ class ConnectionButton : public EndpointArrowComponent {
     void addListener(Listener* listener);
     void removeListener(Listener* listener);
 
-    void setActiveConnection(bool active);
-    bool isActiveConnection() const { return active_connection_; }
-
-    bool hasAnyConnection();
     void setSourceColor(juce::Colour color);
     juce::Colour getSourceColor() const { return source_color_; }
-    Rectangle<int> getModulationAmountBounds(int index, int total);
-    Rectangle<int> getModulationAreaBounds();
-    Rectangle<int> getMeterBounds();
+
     void setDisplayLabel(juce::String label) { display_label_ = std::move(label); }
     juce::String getDisplayLabel() const { return display_label_; }
     juce::String display_label_;
 
   private:
     bool initialized;
-    SynthGuiInterface* parent_;
     std::vector<Listener*> listeners_;
     MouseState mouse_state_;
-    bool active_connection_;
+
     Component drag_drop_area_;
 
     Colour source_color_;

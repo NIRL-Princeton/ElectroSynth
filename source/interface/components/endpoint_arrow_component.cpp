@@ -1,14 +1,19 @@
 #include "endpoint_arrow_component.h"
 
-#include "ConnectionRecord.h"
 #include "skin.h"
 
-EndpointArrowComponent::EndpointArrowComponent(juce::String name) : PlainShapeComponent(std::move(name)) {
+EndpointArrowComponent::EndpointArrowComponent(juce::String name, electrosynth::EndpointDescriptor endpoint) :
+    PlainShapeComponent(std::move(name)), endpoint_(std::move(endpoint)) {
     setShape(Paths::rightArrow());
     setArrowScale(0.8f);
     setActive(true);
     setUseAlpha(true);
     setInterceptsMouseClicks(true, false);
+}
+
+void EndpointArrowComponent::resized() {
+    PlainShapeComponent::resized();
+    redrawImage(true);
 }
 
 void EndpointArrowComponent::mouseEnter(const juce::MouseEvent&) {
@@ -33,11 +38,6 @@ void EndpointArrowComponent::setDragTarget(bool target) {
 
 void EndpointArrowComponent::setArrowColor(juce::Colour color) {
     arrow_color_ = color;
-    redrawImage(true);
-}
-
-void EndpointArrowComponent::clearArrowColor() {
-    arrow_color_.reset();
     redrawImage(true);
 }
 

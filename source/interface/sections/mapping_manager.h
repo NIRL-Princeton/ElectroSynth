@@ -180,39 +180,30 @@ class SlotExpansionBox : public OpenGlQuad {
 };
 
 struct RegisteredMappingEndpoint {
-    electrosynth::EndpointDescriptor descriptor;
     juce::Component::SafePointer<EndpointArrowComponent> component;
 };
 
-class MappingManager : public SynthSection,
-                          public ConnectionButton::Listener,
-                          public ModulationAmountKnob::Listener,
-                          public SynthSlider::SliderListener,
-                          public SlotExpansionBox::Listener,
-                          public ModulesInterface<ProcessorBase>::Listener,
-                          public ModulesInterface<ModulatorBase>::Listener,
-                          public AudioChainSection::Listener
+class MappingManager : public SynthSection, public ConnectionSlots::Listener, public ConnectionButton::Listener, public ModulationAmountKnob::Listener,
+                        public SynthSlider::SliderListener, public SlotExpansionBox::Listener, public ModulesInterface<ProcessorBase>::Listener,
+                        public ModulesInterface<ModulatorBase>::Listener, public AudioChainSection::Listener {
 
-{
-  public:
+    public:
     static constexpr int kIndicesPerMeter = 6;
     static constexpr float kDragImageWidthPercent = 0.018f;
 
     MappingManager(ValueTree& tree,SynthBase* bank);
     ~MappingManager();
 
-    void registerEndpoint(RegisteredMappingEndpoint endpoint);
-    void unregisterEndpoint(const electrosynth::EndpointAddress& address);
+    void registerEndpoint(EndpointArrowComponent& endpoint);
+    void unregisterEndpoint(const EndpointArrowComponent& endpoint);
 
     void mouseDown(const juce::MouseEvent& event) override;
     void mouseDrag(const juce::MouseEvent& event) override;
     void mouseUp(const juce::MouseEvent& event) override;
 
-
-
-
     void createMappingMeter(SynthSlider* slider, OpenGlMultiQuad* quads, int index);
     void createMappingSlider(std::string name, SynthSlider* slider);
+
 
     bool connectMapping(std::string source, std::string destination, int destination_slot = -1);
     void removeMapping(std::string source, std::string destination, int destination_slot = -1);
@@ -227,7 +218,6 @@ class MappingManager : public SynthSection,
     void initAuxConnections();
 
     void resized() override;
-    void parentHierarchyChanged() override;
     void updateMappingMeterLocations();
     void connectionAmountChanged(SynthSlider* slider) override;
     void connectionRemoved(SynthSlider* slider) override;
@@ -308,12 +298,17 @@ class MappingManager : public SynthSection,
     }
     void effectsMoved() override { return; }
 
+
 private:
 
     void updateEndpointDestinationVisuals();
     void clearEndpointDestinationVisuals();
     void positionEndpointDragIcon();
     void drawEndpointDestinations(OpenGlWrapper& openGl);
+
+    // connection_slot callbacks
+    void connectionSlotClicked(const ConnectionSlotData& connection, const juce::MouseEvent& event) override;
+    void connectionAmountChanged(const ConnectionSlotData& connection, float amount) override;
 
 
     void setDestinationQuadBounds(ConnectionDestination* destination);
@@ -337,6 +332,7 @@ private:
     void scheduleComponentUpdate();
 
     static juce::String getEndpointKey(const electrosynth::EndpointAddress& address);
+    void unregisterEndpoint(const electrosynth::EndpointAddress& address);
     RegisteredMappingEndpoint* getRegisteredMappingEndpoint(juce::Component* component);
     bool endpointsAreCompatible(const electrosynth::EndpointAddress& source, const electrosynth::EndpointAddress& destination) const;
     RegisteredMappingEndpoint* findEndpointAt(juce::Point<int> managerPosition);

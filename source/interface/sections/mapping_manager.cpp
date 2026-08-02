@@ -20,7 +20,6 @@
 #include "ModulationConnection.h"
 #include "ParameterView/ParametersView.h"
 #include "connection_slots.h"
-#include "audio_port_component.h"
 #include "midi_manager.h"
 #include "modulation_meter.h"
 #include "paths.h"
@@ -289,8 +288,6 @@ void ModulationAmountKnob::mouseDown(const juce::MouseEvent& e) {
                 listener->menuFinished(this);
         };
 
-        parent_->showPopupSelector(this, e.getPosition(), options, callback, cancel);
-
         for (SliderListener* listener : slider_listeners_)
             listener->mouseDown(this);
     }
@@ -487,20 +484,34 @@ MappingManager::MappingManager(ValueTree &tree, SynthBase* base) :
 }
 
 // Endpoint organization and maintenance methods *****************************************************************  Endpoint organization and maintenance methods
-void MappingManager::registerEndpoint(RegisteredMappingEndpoint endpoint) {
-    if (!endpoint.descriptor.address.isValid() || endpoint.component == nullptr) return;
+void MappingManager::registerEndpoint(EndpointArrowComponent& endpoint) {
+    if (!endpoint.hasEndpoint()) return;
 
-    const auto endpoint_key = getEndpointKey(endpoint.descriptor.address);
+    const auto address = endpoint.getEndpoint().address;
+    const auto endpoint_key = getEndpointKey(address);
 
     auto existing = mapping_endpoints_.find(endpoint_key); // clear listener from old recreated component
     if (existing != mapping_endpoints_.end()) {
-        if (auto* component = existing->second.component.getComponent())
-            component->removeMouseListener(this);
-        }
+        if (auto* oldComponent = existing->second.component.getComponent())
+            oldComponent->removeMouseListener(this);
+    }
 
-    endpoint.component->addMouseListener(this, false);
-    mapping_endpoints_[endpoint_key] = std::move(endpoint);
+    endpoint.addMouseListener(this, false);
+    mapping_endpoints_[endpoint_key] = {
+        .component = &endpoint
+    };
+
+    if (auto* slots = endpoint.getConnectionSlots())
+        slots->addListener(this);
+
     updateConnectionSlots();
+}
+
+void MappingManager::unregisterEndpoint(const EndpointArrowComponent& endpoint) {
+    if (auto* slots = endpoint.getConnectionSlots())
+        slots->removeListener(this);
+
+    unregisterEndpoint(endpoint.getEndpoint().address);
 }
 
 void MappingManager::unregisterEndpoint(const electrosynth::EndpointAddress& address) {
@@ -556,15 +567,19 @@ RegisteredMappingEndpoint* MappingManager::getRegisteredMappingEndpoint(const el
 
 // Generic Endpoint mouse handlers  **********************************************************************************************  Generic Endpoint mouse handlers
 void MappingManager::mouseDown(const juce::MouseEvent& event) {
-    auto* endpoint = getRegisteredMappingEndpoint(event.eventComponent);
-    if (endpoint == nullptr || endpoint->descriptor.address.direction != electrosynth::EndpointDirection::Source)
+    auto* registered_endpoint = getRegisteredMappingEndpoint(event.eventComponent);
+    auto* endpoint = registered_endpoint != nullptr
+        ? registered_endpoint->component.getComponent()
+        : nullptr;
+    if (endpoint == nullptr
+        || endpoint->getEndpoint().address.direction != electrosynth::EndpointDirection::Source)
         return;
 
     clearEndpointDestinationVisuals();
     endpoint_drag_destination_.reset();
     endpoint_drag_destination_component_ = nullptr;
-    endpoint_drag_source_ = endpoint->descriptor.address;
-    endpoint_drag_source_component_ = endpoint->component;
+    endpoint_drag_source_ = endpoint->getEndpoint().address;
+    endpoint_drag_source_component_ = endpoint;
 
     mouse_drag_position_ = getLocalPoint(event.eventComponent, event.getPosition());
 
@@ -597,14 +612,14 @@ void MappingManager::mouseDrag(const juce::MouseEvent& event) {
             next->setDragTarget(true);  // set new drag target
     }
 
-    if (destination == nullptr) {
+    if (next == nullptr) {
         endpoint_drag_destination_.reset();
         endpoint_drag_destination_component_ = nullptr;
         return;
     }
 
-    endpoint_drag_destination_ = destination->descriptor.address;
-    endpoint_drag_destination_component_ = destination->component;
+    endpoint_drag_destination_ = next->getEndpoint().address;
+    endpoint_drag_destination_component_ = next;
 }
 
 void MappingManager::mouseUp(const juce::MouseEvent& event) {
@@ -650,7 +665,7 @@ RegisteredMappingEndpoint* MappingManager::findEndpointAt(juce::Point<int> manag
     for (auto& [key, endpoint] : mapping_endpoints_) {
         auto* component = endpoint.component.getComponent();
         if (component == nullptr || !component->isShowing() || !endpoint_drag_source_.has_value() ||
-            !endpointsAreCompatible(*endpoint_drag_source_, endpoint.descriptor.address))
+            !endpointsAreCompatible(*endpoint_drag_source_, component->getEndpoint().address))
             continue;
 
         const auto local_position = component->getLocalPoint(nullptr, screen_position);
@@ -667,7 +682,10 @@ bool MappingManager::connectEndpoints (const electrosynth::EndpointAddress& sour
     auto* destinationEndpoint = getRegisteredMappingEndpoint(destination);
     if (destinationEndpoint == nullptr) return false;
 
-    const int capacity = destinationEndpoint->descriptor.capabilities.maxIncomingConnections;
+    auto* destination_component = destinationEndpoint->component.getComponent();
+    if (destination_component == nullptr) return false;
+
+    const int capacity = destination_component->getEndpoint().capabilities.maxIncomingConnections;
     const auto connectionsToDestination = [&] (const electrosynth::ConnectionRecord& record) {
         return record.destination.matches(destination);
     };
@@ -721,11 +739,11 @@ void MappingManager::updateConnectionSlots()
     };
 
     for (auto& [key, registered_endpoint] : mapping_endpoints_) {
-        const auto& address = registered_endpoint.descriptor.address;
-        if (address.type != electrosynth::ConnectionType::Audio) continue;
-
-        auto* port = dynamic_cast<AudioPortComponent*>(registered_endpoint.component.getComponent());
+        auto* port = registered_endpoint.component.getComponent();
         if (port == nullptr) continue;
+
+        const auto& address = port->getEndpoint().address;
+        if (address.type != electrosynth::ConnectionType::Audio) continue;
 
         std::vector<ConnectionSlotData> slots_for_port;
         for (const auto& connection : connection_records_) {
@@ -735,8 +753,15 @@ void MappingManager::updateConnectionSlots()
             const auto& peer_address = address.direction == electrosynth::EndpointDirection::Destination ? connection.source : connection.destination;
             auto* peer_endpoint = getRegisteredMappingEndpoint(peer_address);
             if (peer_endpoint == nullptr) continue;
-            auto* peer = dynamic_cast<AudioPortComponent*>(peer_endpoint->component.getComponent());
+            auto* peer = peer_endpoint->component.getComponent();
             if (peer == nullptr) continue;
+
+            auto* destination_endpoint = getRegisteredMappingEndpoint(connection.destination);
+            auto* destination_component = destination_endpoint != nullptr
+                ? destination_endpoint->component.getComponent()
+                : nullptr;
+            if (destination_component == nullptr) continue;
+
             auto* owner = peer->getParentComponent();
             const auto full_label = owner != nullptr && owner->getName().isNotEmpty() ? owner->getName() : peer->getName();
 
@@ -744,7 +769,14 @@ void MappingManager::updateConnectionSlots()
                 .connectionId = connection.id,
                 .peer = peer_address,
                 .label = get_label(full_label),
-                .colour = peer->findColour(Skin::kWidgetPrimary1, true)
+                .colour = peer->findColour(Skin::kWidgetPrimary1, true),
+
+                .hasAmount = destination_component->getEndpoint().capabilities.hasAmount,
+                .hasBipolar = destination_component->getEndpoint().capabilities.hasBipolar,
+                .amount = connection.amount,
+                .bipolar = connection.bipolar,
+                .bypass = connection.bypass,
+                .stereo = connection.stereo
             });
         }
 
@@ -765,7 +797,7 @@ void MappingManager::updateEndpointDestinationVisuals() {
     if (!endpoint_drag_source_) return;
     for (auto& [key, endpoint] : mapping_endpoints_) {
         if (auto* arrow = endpoint.component.getComponent())
-            arrow->setMappingTarget(endpointsAreCompatible(*endpoint_drag_source_, endpoint.descriptor.address));
+            arrow->setMappingTarget(endpointsAreCompatible(*endpoint_drag_source_, arrow->getEndpoint().address));
     }
 }
 
@@ -794,15 +826,36 @@ void MappingManager::positionEndpointDragIcon() {
 void MappingManager::drawEndpointDestinations(OpenGlWrapper& openGl) {
     if (!endpoint_drag_source_) return;
     for (auto& [key, endpoint] : mapping_endpoints_) {
-        if (!endpointsAreCompatible (*endpoint_drag_source_, endpoint.descriptor.address))
+        auto* arrow = endpoint.component.getComponent();
+        if (arrow == nullptr
+            || !endpointsAreCompatible(*endpoint_drag_source_, arrow->getEndpoint().address))
             continue;
 
-        if (auto* arrow = endpoint.component.getComponent())
-            arrow->render(openGl, true);
+        arrow->render(openGl, true);
     }
 }
 
+// connection slider callbacks *************************************************************************************************************** connection slider callbacks
 
+void MappingManager::connectionSlotClicked(const ConnectionSlotData& connection, const juce::MouseEvent& event)  {
+    DBG("Clicked connection: " + connection.connectionId);
+
+    if (event.mods.isPopupMenu())
+        DBG("Connection popup requested");
+}
+
+void MappingManager::connectionAmountChanged(const ConnectionSlotData& connection, float amount)  {
+    auto found = std::find_if(connection_records_.begin(), connection_records_.end(),
+        [&connection](const auto& record) {
+            return record.id == connection.connectionId;
+        });
+
+    if (found == connection_records_.end())
+        return;
+
+    found->amount = amount;
+    updateConnectionSlots();
+}
 
 
 
@@ -901,24 +954,6 @@ void MappingManager::resized() {
   clearConnectionSource();
 }
 
-void MappingManager::parentHierarchyChanged() {
-  SynthSection::parentHierarchyChanged();
-//  if (!modulation_source_readouts_.empty())
-//    return;
-
-  SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
-  if (parent == nullptr)
-    return;
-
-//  for (auto& mod_button : modulation_buttons_) {
-//    modulation_source_readouts_[mod_button.first] = parent->getSynth()->getStatusOutput(mod_button.first);
-//    smooth_mod_values_[mod_button.first] = 0.0f;
-//    active_mod_values_[mod_button.first] = false;
-//  }
-//
-//  num_voices_readout_ = parent->getSynth()->getStatusOutput("num_voices");
-}
-
 void MappingManager::updateMappingMeterLocations() {
   SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
 
@@ -953,8 +988,6 @@ void MappingManager::connectionRemoved(SynthSlider* slider) {
 }
 
 void MappingManager::connectionSelected(ConnectionButton* source) {
-  for (auto& button : modulation_buttons_)
-    button.second->setActiveConnection(button.second == source);
 
   current_modulator_ = source;
   for (auto& hover_slider : modulation_icon_)
@@ -1678,7 +1711,6 @@ void MappingManager::endDestinationMap() {
 }
 
 void MappingManager::mappingLostFocus(ConnectionButton* source) {
-  source->setActiveConnection(false);
   clearConnectionSource();
 }
 

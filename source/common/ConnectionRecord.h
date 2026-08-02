@@ -53,6 +53,11 @@ namespace electrosynth {
         EndpointAddress destination;
         int destinationSlot = -1;   // which visual slot does this connection occupy?
 
+        float amount = 1.0f; // persistent states for connection, not UI
+        bool bipolar = false;
+        bool bypass = false;
+        bool stereo = false;
+
         bool isValid() const noexcept {
             return id.isNotEmpty() && source.isValid() && destination.isValid() && source.type == type &&
                 destination.type == type && source.direction == EndpointDirection::Source

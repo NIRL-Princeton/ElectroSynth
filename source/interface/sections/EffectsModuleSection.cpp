@@ -151,7 +151,7 @@ mapping_manager_ (m),ModulesInterface( module_list), footer_body(new OpenGlQuad(
         };
 
         // make the UI arrow
-        lane_output_port_ = std::make_shared<AudioPortComponent>("audio_output", std::move(output));
+        lane_output_port_ = std::make_shared<EndpointArrowComponent>("audio_output", std::move(output));
         addOpenGlComponent(lane_output_port_);
 
         lane_output_slots_ = std::make_unique<ConnectionSlots>(*lane_output_port_);
@@ -169,10 +169,11 @@ mapping_manager_ (m),ModulesInterface( module_list), footer_body(new OpenGlQuad(
                 .audioDomain = module_list.getAudioNodeDescriptor().domain
             },
             .capabilities {
+                .hasAmount = true,
                 .maxIncomingConnections = 64
             }
         };
-        lane_input_port_ = std::make_shared<AudioPortComponent>("audio_input", std::move(input));
+        lane_input_port_ = std::make_shared<EndpointArrowComponent>("audio_input", std::move(input));
         addOpenGlComponent(lane_input_port_);
 
         lane_input_slots_ = std::make_unique<ConnectionSlots>(*lane_input_port_);
@@ -182,24 +183,18 @@ mapping_manager_ (m),ModulesInterface( module_list), footer_body(new OpenGlQuad(
 
     if (mapping_manager_ != nullptr) {
         if (lane_output_port_)
-            mapping_manager_->registerEndpoint({
-                lane_output_port_->getEndpoint(),
-                lane_output_port_.get()
-            });
+            mapping_manager_->registerEndpoint(*lane_output_port_);
 
         if (lane_input_port_)
-            mapping_manager_->registerEndpoint({
-                lane_input_port_->getEndpoint(),
-                lane_input_port_.get()
-            });
+            mapping_manager_->registerEndpoint(*lane_input_port_);
     }
     setSkinOverride(Skin::kFx);
 }
 
 EffectModuleSection::~EffectModuleSection() {
     if (mapping_manager_ != nullptr) {
-        if (lane_input_port_ != nullptr) mapping_manager_->unregisterEndpoint (lane_input_port_->getEndpoint().address);
-        if (lane_output_port_ != nullptr) mapping_manager_->unregisterEndpoint (lane_output_port_->getEndpoint().address);
+        if (lane_input_port_ != nullptr) mapping_manager_->unregisterEndpoint(*lane_input_port_);
+        if (lane_output_port_ != nullptr) mapping_manager_->unregisterEndpoint(*lane_output_port_);
     }
 
    module_sections.clear();
