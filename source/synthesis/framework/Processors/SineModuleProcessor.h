@@ -5,7 +5,7 @@
 #ifndef ELECTORSYNTH_SINEMODULEPROCESSOR_H
 #define ELECTORSYNTH_SINEMODULEPROCESSOR_H
 
-#include "SineModule.h"
+#include "../../third_party/leaf_modules/modules/SineModule.h"
 #include "../PluginStateImpl_.h"
 #include "ParameterView/ParametersView.h"
 #include "Identifiers.h"

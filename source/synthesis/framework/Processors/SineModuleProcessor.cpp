@@ -74,7 +74,7 @@ void SineModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
         auto* R = buffer.getWritePointer(v*2+1);
         for (int i = 0; i < numSamples; i++)
         {
-           tSineModule_tick(state_.params.modules[v],L);
+            tSineModule_tick(state_.params.modules[v],L);
             L[i] += state_.params.modules[v]->header.outputs[0];
             R[i] = L[i];
         }
