@@ -15,6 +15,7 @@ void StringModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     auto* L = buffer.getWritePointer(0);
     auto* R = buffer.getWritePointer(1);
     for (int v = 0; v < engine->voiceHandler.numVoicesActive; v++) {
+        tStringModule_setParameter(state_.params.modules[v], StringMidiFreq,mtof (engine->voiceHandler.voiceNote[v]/127.f));
         for (int i = 0; i < numSamples; i++)
         {
 

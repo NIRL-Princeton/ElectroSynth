@@ -22,7 +22,7 @@ struct StringParams : public LEAFParams<_tStringModule>
     StringParams(LEAF* leaf) : LEAFParams<_tStringModule>(leaf)
     {
         add(
-            oversample, freq, waveLength, dampFreq, decay, targetLevel,
+            oversample, waveLength, dampFreq, decay, targetLevel,
             levelSmooth, levelStrength, pickupPoint, levelMode, rippleGain,
             rippleDelay, pluckPosition
         );
@@ -39,37 +39,37 @@ struct StringParams : public LEAFParams<_tStringModule>
         &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal
     };
-    
+
     chowdsp::FloatParameter::Ptr oversample {
         juce::ParameterID{"oversample", 100},
         "Oversample",
         chowdsp::ParamUtils::createNormalisableRange(2.f,4.f, 3.f, 2.0f),
         2.f,
         all_params[StringOversample],
-        [this](float val) { for (auto mod: modules) tStringModule_setParameter(mod,StringOversample,val);
+        [this](float val) { for (auto mod: modules) tStringModule_setParameter(mod,StringOversample,1.f);
             }
         ,    &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal
     };
 
-    chowdsp::FloatParameter::Ptr freq {
-        juce::ParameterID{"freq", 100},
-        "Frequency",
-        chowdsp::ParamUtils::createNormalisableRange(0.f, 1.f, 0.5f),
-      0.5f,
-        all_params[StringFreq],
-        [this](float val) {
-            for (auto mod: modules) tStringModule_setParameter(mod,StringFreq,val);
-        },
-        &chowdsp::ParamUtils::floatValToString,
-    &chowdsp::ParamUtils::stringToFloatVal
-    };
+    // chowdsp::FloatParameter::Ptr freq {
+    //     juce::ParameterID{"freq", 100},
+    //     "Frequency",
+    //     chowdsp::ParamUtils::createNormalisableRange(0.f, 1.f, 0.5f),
+    //   0.5f,
+    //     all_params[StringMidiFreq],
+    //     [this](float val) {
+    //         for (auto mod: modules) tStringModule_setParameter(mod,StringMidiFreq,val * 127.f);
+    //     },
+    //     &chowdsp::ParamUtils::floatValToString,
+    // &chowdsp::ParamUtils::stringToFloatVal
+    // };
 
     chowdsp::FloatParameter::Ptr waveLength {
         juce::ParameterID{"waveLength", 100},
         "Wave Length",
-        chowdsp::ParamUtils::createNormalisableRange(0.f, 1.f, 0.5f),
-        0.5f,
+        chowdsp::ParamUtils::createNormalisableRange(5.f, 100.f, 50.f),
+        50.f,
         all_params[StringWaveLength],
         [this](float val) { for (auto mod: modules)tStringModule_setParameter(mod,StringWaveLength,val); },
         &chowdsp::ParamUtils::floatValToString,
@@ -82,7 +82,8 @@ struct StringParams : public LEAFParams<_tStringModule>
         chowdsp::ParamUtils::createNormalisableRange(0.f, 1.f, 0.5f),
       0.5f,
         all_params[StringDampFreq],
-        [this](float val) { for (auto mod: modules)tStringModule_setParameter(mod,StringDampFreq,val);},    &chowdsp::ParamUtils::floatValToString,
+        [this](float val) { for (auto mod: modules)tStringModule_setParameter(mod,StringDampFreq,val * 19980.f + 20.f);},
+        &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal
     };
 
@@ -92,7 +93,7 @@ struct StringParams : public LEAFParams<_tStringModule>
         chowdsp::ParamUtils::createNormalisableRange(0.01f, 1.f, 0.5f),
         0.5f,
         all_params[StringDecay],
-        [this](float val) { for (auto mod: modules) tStringModule_setParameter(mod,StringDecay,val); },
+        [this](float val) { for (auto mod: modules) tStringModule_setParameter(mod,StringDecay,1.f); },
         &chowdsp::ParamUtils::floatValToString,
     &chowdsp::ParamUtils::stringToFloatVal
     };
