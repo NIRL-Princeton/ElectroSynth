@@ -73,15 +73,18 @@ public:
                                          juce::Point<int> pointerScreen);
     void clearExternalTargetPreview();
     void finishSameLaneDrag(ModuleSection& dragged, bool commit);
+    bool transferModuleTo(EffectModuleSection& target, ProcessorBase* processor,
+                          int targetEffectIndex);
 
 
     juce::ValueTree state;
     juce::UndoManager& undo;
 
 private:
+    void configureModuleSectionDragCallbacks(ModuleSection& module);
     // Drag-reorder session. UI order previews live in module_sections; the ValueTree
-    // is updated exactly once on drop. DSP processing order is intentionally not
-    // updated yet (deferred) — it re-syncs to tree order on preset/state reload.
+    // is updated exactly once on drop, and EffectList publishes the corresponding
+    // identity-based audio-thread order command.
     void beginDragSession(ModuleSection* dragged);
     void updateDragSession(ModuleSection* dragged, juce::Rectangle<int> bounds);
     void updateVerticalReorderPreview(ModuleSection& dragged,

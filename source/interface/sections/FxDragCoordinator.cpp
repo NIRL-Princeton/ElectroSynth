@@ -71,6 +71,7 @@ void FxDragCoordinator::dragMoved(ModuleSection& module, juce::Point<int> pointe
         else
             updateArmedPreview(pointerScreen);
 
+        updateArmedLaneEmphasis();
         if (hostedMidpointIsInsideArmedLane())
             enterArmedLane(pointerScreen);
     }
@@ -182,6 +183,8 @@ void FxDragCoordinator::updateHorizontalIntent(juce::Point<int> pointerScreen) {
                 clearArmedLane();
                 phase_ = targetVerticalMode_ ? Phase::TargetLanePreview
                                              : Phase::TargetLaneHover;
+                traversalAnchorScreen_ = pointerScreen;
+                horizontalDirection_ = 0;
             }
         }
         return;
@@ -196,6 +199,7 @@ void FxDragCoordinator::updateHorizontalIntent(juce::Point<int> pointerScreen) {
             externallyHostedModule_.store(nullptr, std::memory_order_release);
             sourceLane_->restoreExternalVisualHosting(*draggedModule_);
             phase_ = Phase::SameLaneDrag;
+            traversalAnchorScreen_ = pointerScreen;
             horizontalDirection_ = 0;
         }
         return;
@@ -230,10 +234,9 @@ void FxDragCoordinator::armLane(EffectModuleSection& lane, int direction) {
         externallyHostedModule_.store(draggedModule_, std::memory_order_release);
     }
 
-    for (auto& registered : lanes_) {
-        registered.lane->setExternalTransferHighlight(registered.lane == armedLane_);
-        registered.lane->setExternalTransferDimmed(registered.lane != armedLane_);
-    }
+    // Arming owns horizontal movement, but visual emphasis begins only when the
+    // hosted module actually overlaps the adjacent content viewport.
+    updateArmedLaneEmphasis();
     phase_ = Phase::AdjacentLaneArmed;
 }
 
@@ -262,6 +265,7 @@ void FxDragCoordinator::enterArmedLane(juce::Point<int> pointerScreen) {
         return;
 
     auto* new_target = armedLane_;
+    const bool continue_vertical_mode = targetVerticalMode_;
     clearArmedLane();
 
     if (!hasEnteredDestination_) {
@@ -283,6 +287,14 @@ void FxDragCoordinator::enterArmedLane(juce::Point<int> pointerScreen) {
     phase_ = Phase::TargetLaneHover;
     targetInsertionIndex_ = enteredTargetLane_->beginExternalTargetPreview(
         *draggedModule_, pointerScreen);
+
+    // Once the drag has deliberately entered ordinary vertical-style preview,
+    // crossing a neighboring lane's midpoint transfers that established mode to
+    // the new lane. The new lane owns a fresh gap/overlap preview immediately;
+    // the user does not have to repeat the large vertical-intent gesture at every
+    // traversal step.
+    if (continue_vertical_mode)
+        enterTargetVerticalDrag(pointerScreen);
 }
 
 void FxDragCoordinator::updateTargetHover(juce::Point<int> pointerScreen) {
@@ -308,6 +320,12 @@ void FxDragCoordinator::updateTargetHover(juce::Point<int> pointerScreen) {
     if (std::abs(step.x) > std::abs(step.y))
         verticalIntentAnchorScreen_ = pointerScreen;
 
+    // Target hover is no longer a traversal dead end. The entry gesture was
+    // consumed by resetting traversalAnchorScreen_ in enterArmedLane(), so this
+    // can only arm a neighbor after a fresh deliberate horizontal movement.
+    if (maybeArmAdjacentLane(pointerScreen))
+        return;
+
     const auto delta = pointerScreen - verticalIntentAnchorScreen_;
     const int abs_x = std::abs(delta.x);
     const int abs_y = std::abs(delta.y);
@@ -320,9 +338,6 @@ void FxDragCoordinator::updateTargetHover(juce::Point<int> pointerScreen) {
         enterTargetVerticalDrag(pointerScreen);
     }
 
-    // Deliberately no armLane() here: the horizontal gesture that entered this lane
-    // is consumed at entry, and a new adjacent lane may only be armed by a fresh
-    // horizontal gesture after vertical mode is established (updateTargetPreview).
 }
 
 void FxDragCoordinator::enterTargetVerticalDrag(juce::Point<int> pointerScreen) {
@@ -360,19 +375,43 @@ void FxDragCoordinator::updateTargetPreview(juce::Point<int> pointerScreen) {
     targetInsertionIndex_ = enteredTargetLane_->updateExternalTargetVerticalDrag(
         *draggedModule_, pointerScreen);
 
-    if (armedLane_ == nullptr) {
-        const auto delta = pointerScreen - traversalAnchorScreen_;
-        const int activation = kHorizontalActivationDistance;
-        if (std::abs(delta.x) >= activation
-            && static_cast<float>(std::abs(delta.x))
-                   >= static_cast<float>(std::abs(delta.y)) * kHorizontalOverVerticalDominance) {
-            const int direction = delta.x < 0 ? -1 : 1;
-            if (auto* next = adjacentLane(traversalLane_, direction))
-                armLane(*next, direction);
+    maybeArmAdjacentLane(pointerScreen);
+}
+
+bool FxDragCoordinator::maybeArmAdjacentLane(juce::Point<int> pointerScreen) {
+    if (armedLane_ != nullptr || traversalLane_ == nullptr)
+        return false;
+
+    const auto delta = pointerScreen - traversalAnchorScreen_;
+    const int abs_x = std::abs(delta.x);
+    const int abs_y = std::abs(delta.y);
+    if (abs_x >= kHorizontalActivationDistance
+        && static_cast<float>(abs_x)
+             >= static_cast<float>(abs_y) * kHorizontalOverVerticalDominance) {
+        const int direction = delta.x < 0 ? -1 : 1;
+        if (auto* next = adjacentLane(traversalLane_, direction)) {
+            armLane(*next, direction);
+            return true;
         }
-        else if (std::abs(delta.y) >= activation && std::abs(delta.y) > std::abs(delta.x)) {
-            traversalAnchorScreen_ = pointerScreen;
-        }
+    }
+    else if (abs_y >= kHorizontalActivationDistance && abs_y > abs_x) {
+        // Vertical movement belongs to the current lane. Refresh the horizontal
+        // origin so accumulated reorder travel cannot prevent a later lane change.
+        traversalAnchorScreen_ = pointerScreen;
+    }
+
+    return false;
+}
+
+void FxDragCoordinator::updateArmedLaneEmphasis() {
+    const bool overlapsArmedLane = draggedModule_ != nullptr && armedLane_ != nullptr
+        && draggedModule_->getScreenBounds().intersects(
+               armedLane_->getContentViewportScreenBounds());
+
+    for (auto& registered : lanes_) {
+        const bool isArmed = registered.lane == armedLane_;
+        registered.lane->setExternalTransferHighlight(overlapsArmedLane && isArmed);
+        registered.lane->setExternalTransferDimmed(overlapsArmedLane && !isArmed);
     }
 }
 
@@ -391,9 +430,7 @@ void FxDragCoordinator::finish(bool emitIntent, juce::Point<int> pointerScreen) 
     externallyHostedModule_.store(nullptr, std::memory_order_release);
 
     if (source != nullptr && module != nullptr) {
-        if (entered)
-            source->restoreExternalSourcePreview(*module);
-        else {
+        if (!entered) {
             if (module->getParentComponent() == &sharedContentClip_)
                 source->restoreExternalVisualHosting(*module);
             source->finishSameLaneDrag(*module, true);
@@ -412,12 +449,16 @@ void FxDragCoordinator::finish(bool emitIntent, juce::Point<int> pointerScreen) 
     hasEnteredDestination_ = false;
     targetVerticalMode_ = false;
 
+    bool accepted = false;
     if (emitIntent && module != nullptr && source != nullptr && target != nullptr
         && target != source
         && insertion_index >= 0 && onMoveRequested) {
-        onMoveRequested({ module->getAudioNodeId(), identifierFor(source),
-                          identifierFor(target), insertion_index });
+        accepted = onMoveRequested({ module->getAudioNodeId(), identifierFor(source),
+                                     identifierFor(target), insertion_index });
     }
+
+    if (entered && !accepted && source != nullptr && module != nullptr)
+        source->restoreExternalSourcePreview(*module);
 
     juce::ignoreUnused(pointerScreen);
 }

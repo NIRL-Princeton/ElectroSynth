@@ -19,8 +19,14 @@
 
 #include <chowdsp_dsp_data_structures/chowdsp_dsp_data_structures.h>
 #include <juce_dsp/juce_dsp.h>
+#include <atomic>
+#include <cstdint>
+#include <deque>
+#include <optional>
 #include <set>
 #include <string>
+#include <type_traits>
+#include <vector>
 #include "midi_manager.h"
 #include <set>
 #include <string>
@@ -159,6 +165,29 @@ public:
 
     void addEffect(std::unique_ptr<ProcessorBase> processor, int lane);
 
+    struct EffectOrderCommand {
+        int lane = -1;
+        int targetLane = -1;
+        ProcessorBase* movedProcessor = nullptr;
+        ProcessorBase* nextProcessor = nullptr;
+        std::uint64_t generation = 0;
+    };
+    static_assert(std::is_trivially_copyable_v<EffectOrderCommand>);
+
+    void submitEffectOrder(int lane, ProcessorBase* movedProcessor, ProcessorBase* nextProcessor);
+    void submitEffectMove(int sourceLane, int targetLane,
+                          ProcessorBase* movedProcessor, ProcessorBase* nextProcessor);
+    void registerEffectList(EffectList* effectList);
+    void unregisterEffectList(EffectList* effectList);
+
+    std::uint64_t getLastAdoptedEffectOrderGeneration() const noexcept {
+        return lastAdoptedEffectOrderGeneration_.load(std::memory_order_acquire);
+    }
+
+    std::uint64_t getRejectedEffectOrderCommandCount() const noexcept {
+        return rejectedEffectOrderCommandCount_.load(std::memory_order_relaxed);
+    }
+
     void addModulationSource(std::unique_ptr<ModulatorBase> processor, int voice_index);
 
     // juce::ValueTree& getValueTree();
@@ -191,6 +220,27 @@ public:
     int getNumModulations(const std::string &destination);
 
     void timerCallback() override;
+
+private:
+    static constexpr std::size_t kEffectOrderQueueCapacity = 64;
+
+    void drainEffectOrderQueue();
+    void completeEffectOrderCommand(const EffectOrderCommand& command);
+    bool applyEffectOrderCommand(const EffectOrderCommand& command);
+    void flushPendingEffectOrderCommands();
+    void reconcileEffectOrders();
+
+    moodycamel::ReaderWriterQueue<EffectOrderCommand> effectOrderQueue_{kEffectOrderQueueCapacity};
+    std::deque<EffectOrderCommand> pendingEffectOrderCommands_;
+    std::optional<EffectOrderCommand> activeEffectOrderCommand_;
+    std::optional<EffectOrderCommand> deferredEffectOrderCommand_;
+    std::vector<EffectList*> registeredEffectLists_;
+    std::uint64_t nextEffectOrderGeneration_ = 1;
+    std::atomic<std::uint64_t> lastAdoptedEffectOrderGeneration_{0};
+    std::atomic<std::uint64_t> rejectedEffectOrderCommandCount_{0};
+    std::atomic<bool> effectOrderReconciliationRequested_{false};
+
+public:
 
     juce::ValueTree tree;
     juce::UndoManager um;

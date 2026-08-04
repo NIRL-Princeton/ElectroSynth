@@ -34,6 +34,10 @@
 #include "parameterArrays.h"
 #include "Modulators/EnvModuleProcessor.h"
 #include "EffectList.h"
+#include "EffectOrderPlacement.h"
+#include <algorithm>
+#include <iterator>
+
 SynthBase::SynthBase(AudioDeviceManager *deviceManager) : tree(ValueTree(IDs::ELECTROSYNTH)), manager(deviceManager) {
     tree.addChild(juce::ValueTree{IDs::CHAINS}, -1, nullptr);
     tree.addChild(juce::ValueTree{IDs::MODULATORS}, -1, nullptr);
@@ -73,6 +77,7 @@ SynthBase::SynthBase(AudioDeviceManager *deviceManager) : tree(ValueTree(IDs::EL
 }
 
 SynthBase::~SynthBase() {
+    stopTimer();
     tree.removeListener(this);
     processors_.reset();
     modulators_.reset();
@@ -338,6 +343,166 @@ void SynthBase::addEffect(std::unique_ptr<ProcessorBase> processor, int lane) {
     engine_->voiceHandler.eventEmitter.numListeners++;
     engine_->effects[lane].push_back(std::move(processor));
 }
+
+void SynthBase::submitEffectOrder(int lane, ProcessorBase* movedProcessor, ProcessorBase* nextProcessor) {
+    if (movedProcessor == nullptr)
+        return;
+
+    EffectOrderCommand command {
+        lane,
+        -1,
+        movedProcessor,
+        nextProcessor,
+        nextEffectOrderGeneration_++
+    };
+
+    if (!pendingEffectOrderCommands_.empty() || !effectOrderQueue_.try_enqueue(command))
+        pendingEffectOrderCommands_.push_back(command);
+}
+
+void SynthBase::submitEffectMove(int sourceLane, int targetLane,
+                                 ProcessorBase* movedProcessor,
+                                 ProcessorBase* nextProcessor) {
+    if (movedProcessor == nullptr || sourceLane == targetLane)
+        return;
+
+    EffectOrderCommand command {
+        sourceLane,
+        targetLane,
+        movedProcessor,
+        nextProcessor,
+        nextEffectOrderGeneration_++
+    };
+    if (!pendingEffectOrderCommands_.empty() || !effectOrderQueue_.try_enqueue(command))
+        pendingEffectOrderCommands_.push_back(command);
+}
+
+void SynthBase::registerEffectList(EffectList* effectList) {
+    if (effectList == nullptr)
+        return;
+
+    if (std::find(registeredEffectLists_.begin(), registeredEffectLists_.end(), effectList) == registeredEffectLists_.end())
+        registeredEffectLists_.push_back(effectList);
+}
+
+void SynthBase::unregisterEffectList(EffectList* effectList) {
+    registeredEffectLists_.erase(
+        std::remove(registeredEffectLists_.begin(), registeredEffectLists_.end(), effectList),
+        registeredEffectLists_.end());
+}
+
+void SynthBase::flushPendingEffectOrderCommands() {
+    while (!pendingEffectOrderCommands_.empty()) {
+        if (!effectOrderQueue_.try_enqueue(pendingEffectOrderCommands_.front()))
+            break;
+        pendingEffectOrderCommands_.pop_front();
+    }
+}
+
+void SynthBase::reconcileEffectOrders() {
+    for (auto* effectList : registeredEffectLists_)
+        if (effectList != nullptr)
+            effectList->publishCurrentOrder();
+}
+
+bool SynthBase::applyEffectOrderCommand(const EffectOrderCommand& command) {
+    if (engine_ == nullptr || command.lane < 0 || command.lane >= static_cast<int>(engine_->effects.size()))
+        return false;
+
+    auto& effectLane = engine_->effects[static_cast<std::size_t>(command.lane)];
+    if (command.targetLane >= 0) {
+        if (command.targetLane >= static_cast<int>(engine_->effects.size())
+            || command.targetLane == command.lane)
+            return false;
+
+        auto moved = std::find_if(effectLane.begin(), effectLane.end(),
+                                  [&command](const auto& processor) {
+                                      return processor.get() == command.movedProcessor;
+                                  });
+        auto& targetLane = engine_->effects[static_cast<std::size_t>(command.targetLane)];
+        auto insertion = command.nextProcessor == nullptr
+                           ? targetLane.end()
+                           : std::find_if(targetLane.begin(), targetLane.end(),
+                                          [&command](const auto& processor) {
+                                              return processor.get() == command.nextProcessor;
+                                          });
+        if (moved == effectLane.end()
+            || (command.nextProcessor != nullptr && insertion == targetLane.end()))
+            return false;
+
+        auto ownedProcessor = std::move(*moved);
+        effectLane.erase(moved);
+        targetLane.insert(insertion, std::move(ownedProcessor));
+        return true;
+    }
+
+    return electrosynth::effect_order::placeBefore(
+               effectLane, command.movedProcessor, command.nextProcessor)
+           == electrosynth::effect_order::PlacementResult::applied;
+}
+
+void SynthBase::completeEffectOrderCommand(const EffectOrderCommand& command) {
+    const auto applied = applyEffectOrderCommand(command);
+    if (applied) {
+        lastAdoptedEffectOrderGeneration_.store(command.generation, std::memory_order_release);
+    } else {
+        rejectedEffectOrderCommandCount_.fetch_add(1, std::memory_order_relaxed);
+        effectOrderReconciliationRequested_.store(true, std::memory_order_release);
+    }
+}
+
+void SynthBase::drainEffectOrderQueue() {
+    if (engine_ == nullptr)
+        return;
+
+    if (!activeEffectOrderCommand_.has_value()) {
+        EffectOrderCommand nextCommand;
+        if (deferredEffectOrderCommand_.has_value()) {
+            nextCommand = *deferredEffectOrderCommand_;
+            deferredEffectOrderCommand_.reset();
+        } else if (!effectOrderQueue_.try_dequeue(nextCommand)) {
+            return;
+        }
+
+        if (nextCommand.lane < 0
+            || nextCommand.lane >= static_cast<int>(engine_->effects.size())) {
+            completeEffectOrderCommand(nextCommand);
+            return;
+        }
+
+        activeEffectOrderCommand_ = nextCommand;
+        engine_->beginEffectLaneFadeOut(nextCommand.lane);
+        if (nextCommand.targetLane >= 0)
+            engine_->beginEffectLaneFadeOut(nextCommand.targetLane);
+        return;
+    }
+
+    const auto transitionLane = activeEffectOrderCommand_->lane;
+    const int targetTransitionLane = activeEffectOrderCommand_->targetLane;
+    if (!engine_->isEffectLaneSilent(transitionLane)
+        || (targetTransitionLane >= 0
+            && !engine_->isEffectLaneSilent(targetTransitionLane)))
+        return;
+
+    completeEffectOrderCommand(*activeEffectOrderCommand_);
+
+    EffectOrderCommand nextCommand;
+    if (targetTransitionLane < 0) {
+        while (effectOrderQueue_.try_dequeue(nextCommand)) {
+            if (nextCommand.lane != transitionLane || nextCommand.targetLane >= 0) {
+                deferredEffectOrderCommand_ = nextCommand;
+                break;
+            }
+            completeEffectOrderCommand(nextCommand);
+        }
+    }
+
+    activeEffectOrderCommand_.reset();
+    engine_->beginEffectLaneFadeIn(transitionLane);
+    if (targetTransitionLane >= 0)
+        engine_->beginEffectLaneFadeIn(targetTransitionLane);
+}
+
 void SynthBase::addModulationSource(std::unique_ptr<ModulatorBase> modulationSource, int voice_index) {
     modulationSource->prepareToPlay(engine_->getBufferSize(), engine_->getSampleRate());
 
@@ -436,6 +601,7 @@ void SynthBase::processAudio(AudioSampleBuffer *buffer, int channels, int sample
     AudioThreadAction action;
     while (processorInitQueue.try_dequeue(action))
         action();
+    drainEffectOrderQueue();
     processMappingChanges();
     engine_->process(*buffer, channels, samples, offset);
     //writeAudio(buffer, channels, samples, offset);
@@ -447,6 +613,7 @@ void SynthBase::processAudioAndMidi(juce::AudioBuffer<float> &audio_buffer, juce
     AudioThreadAction action;
     while (processorInitQueue.try_dequeue(action))
         action();
+    drainEffectOrderQueue();
     processMappingChanges();
 
     engine_->process(audio_buffer, midi_buffer);
@@ -795,6 +962,11 @@ void SynthBase::timerCallback() {
     DeleteThreadAction action;
     while (processorDeleteQueue.try_dequeue(action))
         action();
+
+    if (effectOrderReconciliationRequested_.exchange(false, std::memory_order_acq_rel))
+        reconcileEffectOrders();
+    flushPendingEffectOrderCommands();
+
     // bool succeeded = true;
     // while (succeeded) {
     //     auto * front = processorDeleteQueue.peek();

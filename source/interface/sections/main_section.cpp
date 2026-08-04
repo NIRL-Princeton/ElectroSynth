@@ -46,15 +46,52 @@ MainSection::MainSection(const juce::ValueTree& v, juce::UndoManager &um, OpenGl
                                     ? persisted
                                     : "fx-lane-" + juce::String(fallbackIndex) };
     };
-    fx_drag_coordinator_->registerLane(*effects_section_0, laneIdentifier(*effects_section_0, 0));
-    fx_drag_coordinator_->registerLane(*effects_section_1, laneIdentifier(*effects_section_1, 1));
-    fx_drag_coordinator_->registerLane(*effects_section_2, laneIdentifier(*effects_section_2, 2));
-    fx_drag_coordinator_->onMoveRequested = [](const FxMoveIntent& intent) {
-        // Observation only. This callback deliberately performs no ValueTree,
-        // EffectList, processor-ownership, or DSP mutation.
-        DBG("Gated FxMoveIntent: " + intent.moduleAudioNodeId + " "
-            + intent.sourceLane.value + " -> " + intent.targetLane.value
-            + " @ " + juce::String(intent.targetEffectIndex));
+    const auto lane0Id = laneIdentifier(*effects_section_0, 0);
+    const auto lane1Id = laneIdentifier(*effects_section_1, 1);
+    const auto lane2Id = laneIdentifier(*effects_section_2, 2);
+    fx_drag_coordinator_->registerLane(*effects_section_0, lane0Id);
+    fx_drag_coordinator_->registerLane(*effects_section_1, lane1Id);
+    fx_drag_coordinator_->registerLane(*effects_section_2, lane2Id);
+
+    auto* list0 = data->synth->effects_0.get();
+    auto* list1 = data->synth->effects_1.get();
+    auto* list2 = data->synth->effects_2.get();
+    effect_lists_ = { list0, list1, list2 };
+    list0->onUiTransferRequested = [this, list1](ProcessorBase* processor, EffectList& target, int index) {
+        auto* targetSection = &target == list1 ? effects_section_1.get()
+                            : &target == effect_lists_[2] ? effects_section_2.get() : nullptr;
+        if (targetSection == nullptr)
+            return false;
+        return effects_section_0->transferModuleTo(*targetSection, processor, index);
+    };
+    list1->onUiTransferRequested = [this, list0](ProcessorBase* processor, EffectList& target, int index) {
+        auto* targetSection = &target == list0 ? effects_section_0.get()
+                            : &target == effect_lists_[2] ? effects_section_2.get() : nullptr;
+        if (targetSection == nullptr)
+            return false;
+        return effects_section_1->transferModuleTo(*targetSection, processor, index);
+    };
+    list2->onUiTransferRequested = [this, list0](ProcessorBase* processor, EffectList& target, int index) {
+        auto* targetSection = &target == list0 ? effects_section_0.get()
+                            : &target == effect_lists_[1] ? effects_section_1.get() : nullptr;
+        if (targetSection == nullptr)
+            return false;
+        return effects_section_2->transferModuleTo(*targetSection, processor, index);
+    };
+
+    fx_drag_coordinator_->onMoveRequested = [this, list0, list1, list2,
+                                              lane0Id, lane1Id, lane2Id](const FxMoveIntent& intent) {
+        EffectList* source = intent.sourceLane == lane0Id ? list0
+                           : intent.sourceLane == lane1Id ? list1
+                           : intent.sourceLane == lane2Id ? list2 : nullptr;
+        EffectList* target = intent.targetLane == lane0Id ? list0
+                           : intent.targetLane == lane1Id ? list1
+                           : intent.targetLane == lane2Id ? list2 : nullptr;
+        if (source == nullptr || target == nullptr)
+            return false;
+        this->um.beginNewTransaction("Move effect between lanes");
+        return source->moveEffectTo(*target, intent.moduleAudioNodeId,
+                                    intent.targetEffectIndex, this->um);
     };
 
     master_voice_envelope_section = std::make_unique<MasterVoiceEnvelopeSection>(v, um, open_gl, data,std::move(data->synth->getEngine()->MasterVoiceEnvelopeProcessor->createEditor()));
@@ -73,6 +110,12 @@ MainSection::MainSection(const juce::ValueTree& v, juce::UndoManager &um, OpenGl
 //    test_ = std::make_unique<TestSection>();
 //    addSubSection(test_.get());
     setSkinOverride(Skin::kNone);
+}
+
+MainSection::~MainSection() {
+    for (auto* list : effect_lists_)
+        if (list != nullptr)
+            list->onUiTransferRequested = nullptr;
 }
 
 void MainSection::renderOpenGlComponents(OpenGlWrapper& open_gl, bool animate) {

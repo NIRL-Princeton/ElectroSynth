@@ -63,7 +63,9 @@ public:
         return externallyHostedModule_.load(std::memory_order_acquire);
     }
 
-    std::function<void(const FxMoveIntent&)> onMoveRequested;
+    // Returns true only when state, UI ownership, and DSP transfer were accepted
+    // as one transaction. A rejected intent restores the source preview.
+    std::function<bool(const FxMoveIntent&)> onMoveRequested;
 
 private:
     struct RegisteredLane {
@@ -93,6 +95,8 @@ private:
     void updateTargetHover(juce::Point<int> pointerScreen);
     void enterTargetVerticalDrag(juce::Point<int> pointerScreen);
     void updateTargetPreview(juce::Point<int> pointerScreen);
+    bool maybeArmAdjacentLane(juce::Point<int> pointerScreen);
+    void updateArmedLaneEmphasis();
     void finish(bool emitIntent, juce::Point<int> pointerScreen);
     void clearArmedLane();
 

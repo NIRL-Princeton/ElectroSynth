@@ -87,6 +87,11 @@ namespace electrosynth
         {
             modSource.reserve (10);
         }
+        // Inter-lane moves happen at the fade-to-silence boundary on the audio
+        // thread. Reserve normal UI capacity up front so vector insertion does not
+        // allocate during that transaction.
+        for (auto& effectLane : effects)
+            effectLane.reserve(64);
 
         MasterVoiceEnvelopeProcessor = std::make_unique<EnvModuleProcessor> (
             this, juce::ValueTree (IDs::MODULATOR).setProperty (IDs::type, "env", nullptr), &leaf, &undo);
@@ -154,6 +159,24 @@ namespace electrosynth
 
         last_oversampling_amount_ = oversampling_amount;
         last_sample_rate_ = sample_rate;
+    }
+
+    void SoundEngine::beginEffectLaneFadeOut(int lane) noexcept
+    {
+        if (juce::isPositiveAndBelow(lane, static_cast<int>(effectLaneTransitions_.size())))
+            effectLaneTransitions_[static_cast<std::size_t>(lane)].beginFadeOut();
+    }
+
+    void SoundEngine::beginEffectLaneFadeIn(int lane) noexcept
+    {
+        if (juce::isPositiveAndBelow(lane, static_cast<int>(effectLaneTransitions_.size())))
+            effectLaneTransitions_[static_cast<std::size_t>(lane)].beginFadeIn();
+    }
+
+    bool SoundEngine::isEffectLaneSilent(int lane) const noexcept
+    {
+        return juce::isPositiveAndBelow(lane, static_cast<int>(effectLaneTransitions_.size()))
+               && effectLaneTransitions_[static_cast<std::size_t>(lane)].isSilent();
     }
 
     void SoundEngine::processMappings()
@@ -303,18 +326,21 @@ namespace electrosynth
                 audio_buffer.addSample (0, i, temp_fx_buffers[0].getSample (v * 2, 0));
                 audio_buffer.addSample (1, i, temp_fx_buffers[0].getSample (v * 2 + 1, 0));
             }
+            std::size_t effectLaneIndex = 0;
             for (auto& fx_lane : effects)
             {
+                const auto laneGain = effectLaneTransitions_[effectLaneIndex].advance();
                 for (auto& fx : fx_lane)
                 {
                     fx->processBlock (temp_fx_buffers[index], empty);
                 }
                 for (int v = 0; v < voiceHandler.numVoicesActive; ++v)
                 {
-                    audio_buffer.addSample (0, i, temp_fx_buffers[index].getSample (v * 2, 0));
-                    audio_buffer.addSample (1, i, temp_fx_buffers[index].getSample (v * 2 + 1, 0));
+                    audio_buffer.addSample (0, i, laneGain * temp_fx_buffers[index].getSample (v * 2, 0));
+                    audio_buffer.addSample (1, i, laneGain * temp_fx_buffers[index].getSample (v * 2 + 1, 0));
                 }
                 index++;
+                effectLaneIndex++;
             }
 
             for (auto& fx : temp_fx_buffers)

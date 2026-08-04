@@ -49,7 +49,6 @@ struct FilterParams : public LEAFParams<_tFiltModule > {
         [this](float val)
         {
             for (auto mod: modules) tFiltModule_setParameter(mod,FiltCutoff,val);
-            DBG("Filt [0 - 1]" + juce::String(val) + " .. .  Filt actual Val" + juce::String(modules[0]->cutoffKnob));
         }
     };
 

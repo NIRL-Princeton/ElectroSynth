@@ -17,6 +17,7 @@ namespace {
 constexpr int kMaxDragBoundaryBands = 16;
 constexpr int kDragBoundaryBandHeight = 8;
 constexpr float kExternalTransferDimAlpha = 0.38f;
+constexpr float kInsertionPreviewAlpha = 0.18f;
 
 juce::String getEffectTypeDisplayName(const juce::String& type) {
     // UI labels are kept separate from persistent type tokens. Adding a future
@@ -288,8 +289,14 @@ void EffectModuleSection::setEffectPositions() {
     viewport_.setViewPosition(view_position);
 
     if (insertion_region_ != nullptr) {
-        if ((dragged_module_ != nullptr || external_target_preview_active_) && !gap_bounds.isEmpty())
+        if ((dragged_module_ != nullptr || external_target_preview_active_) && !gap_bounds.isEmpty()) {
             insertion_region_->setBounds(gap_bounds);  // container coordinates
+            // Layout may temporarily have no gap while a source-owned wrapper is
+            // excluded and then re-entered as an external target. Reassert alpha
+            // whenever the gap is valid so a prior empty layout cannot leave the
+            // source lane's red target permanently invisible.
+            insertion_region_->setAlpha(kInsertionPreviewAlpha);
+        }
         else
             insertion_region_->setAlpha(0.0f);
     }
@@ -363,24 +370,7 @@ void EffectModuleSection::moduleAdded(ProcessorBase *newModule) {
     module_section->setAreaSkinOverride(Skin::kFx);
     module_section->setDragAccentColor(Skin::kFXAccent);
     module_section->height = 300;
-    module_section->onDragStart = [this](ModuleSection* dragged, juce::Point<int> screen) {
-        if (drag_coordinator_ != nullptr)
-            drag_coordinator_->dragStarted(*this, *dragged, screen);
-    };
-    module_section->onDragMove = [this](ModuleSection* dragged, juce::Rectangle<int> bounds,
-                                        juce::Point<int> screen) {
-        if (drag_coordinator_ != nullptr)
-            drag_coordinator_->dragMoved(*dragged, screen);
-        if (drag_coordinator_ == nullptr || !drag_coordinator_->isExternalPreviewActive(dragged))
-            updateDragSession(dragged, bounds);
-    };
-    module_section->onDragEnd = [this](ModuleSection* dragged, juce::Rectangle<int>,
-                                       juce::Point<int> screen) {
-        if (drag_coordinator_ != nullptr && drag_coordinator_->ownsDrag(dragged))
-            drag_coordinator_->dragEnded(*dragged, screen);
-        else if (dragged_module_ == dragged)
-            endDragSession(dragged);
-    };
+    configureModuleSectionDragCallbacks(*module_section);
 
     { juce::ScopedLock lock(open_gl_critical_section_);
         container_->addSubSection(module_section.get());
@@ -426,6 +416,94 @@ void EffectModuleSection::moduleAdded(ProcessorBase *newModule) {
             }
         }
 
+}
+
+void EffectModuleSection::configureModuleSectionDragCallbacks(ModuleSection& module) {
+    module.onDragStart = [this](ModuleSection* dragged, juce::Point<int> screen) {
+        if (drag_coordinator_ != nullptr)
+            drag_coordinator_->dragStarted(*this, *dragged, screen);
+    };
+    module.onDragMove = [this](ModuleSection* dragged, juce::Rectangle<int> bounds,
+                                        juce::Point<int> screen) {
+        if (drag_coordinator_ != nullptr)
+            drag_coordinator_->dragMoved(*dragged, screen);
+        if (drag_coordinator_ == nullptr || !drag_coordinator_->isExternalPreviewActive(dragged))
+            updateDragSession(dragged, bounds);
+    };
+    module.onDragEnd = [this](ModuleSection* dragged, juce::Rectangle<int>,
+                                       juce::Point<int> screen) {
+        if (drag_coordinator_ != nullptr && drag_coordinator_->ownsDrag(dragged))
+            drag_coordinator_->dragEnded(*dragged, screen);
+        else if (dragged_module_ == dragged)
+            endDragSession(dragged);
+    };
+}
+
+bool EffectModuleSection::transferModuleTo(EffectModuleSection& target,
+                                           ProcessorBase* processor,
+                                           int targetEffectIndex) {
+    if (processor == nullptr || &target == this)
+        return false;
+
+    const auto found = std::find_if(module_sections.begin(), module_sections.end(),
+                                    [processor](const auto& section) {
+                                        return section != nullptr
+                                            && section->state == processor->state;
+                                    });
+    if (found == module_sections.end())
+        return false;
+
+    auto transferred = std::move(*found);
+    module_sections.erase(found);
+    auto* raw = transferred.get();
+
+    {
+        juce::ScopedLock sourceLock(open_gl_critical_section_);
+        container_->setBakeExcludedChild(nullptr);
+        container_->removeSubSection(raw);
+    }
+
+    dragged_module_ = nullptr;
+    drop_target_module_ = nullptr;
+    external_source_excluded_ = false;
+    external_target_preview_active_ = false;
+    external_target_insertion_index_ = -1;
+    external_target_gap_height_ = 0;
+    external_gap_move_centre_y_ = 0;
+    external_gap_move_direction_ = 0;
+    insertion_region_->setAlpha(0.0f);
+    drag_boundary_bands_->setAlpha(0.0f);
+    drag_boundary_bands_->setNumQuads(0);
+    juce::Component::beginDragAutoRepeat(0);
+
+    target.clearExternalTargetPreview();
+    target.configureModuleSectionDragCallbacks(*raw);
+    const int insertionIndex = juce::jlimit(0,
+        static_cast<int>(target.module_sections.size()), targetEffectIndex);
+    target.module_sections.insert(target.module_sections.begin() + insertionIndex,
+                                  std::move(transferred));
+    {
+        juce::ScopedLock targetLock(target.open_gl_critical_section_);
+        target.container_->addSubSection(raw);
+    }
+    raw->setVisible(true);
+    raw->setInterceptsMouseClicks(true, true);
+    raw->setHorizontalDragOwnedExternally(false);
+    raw->setExternallyVisualHosted(false);
+    raw->setAlwaysOnTop(false);
+    raw->setDragVisual(ModuleSection::DragVisual::kNormal);
+    target.setModuleDragScissor(*raw, &target.viewport_);
+    raw->applySkinFromTopLevel();
+
+    setEffectPositions();
+    target.setEffectPositions();
+    redoBackgroundImage();
+    target.redoBackgroundImage();
+    for (auto* listener : listeners_)
+        listener->removed();
+    for (auto* listener : target.listeners_)
+        listener->added();
+    return true;
 }
 void EffectModuleSection::resized() {
     //ModulesInterface::resized();
@@ -608,11 +686,11 @@ void EffectModuleSection::beginDragSession(ModuleSection* dragged) {
 
     insertion_region_->setColor(findColour(Skin::kFXAccent, true));
     insertion_region_->setRounding(std::max(0.5f, findValue(Skin::kBodyRounding)));
-    insertion_region_->setAlpha(0.18f);
+    insertion_region_->setAlpha(kInsertionPreviewAlpha);
 
     // Boundary bands share the insertion region's accent and translucency.
     drag_boundary_bands_->setColor(findColour(Skin::kFXAccent, true));
-    drag_boundary_bands_->setAlpha(0.18f);
+    drag_boundary_bands_->setAlpha(kInsertionPreviewAlpha);
 
     // Keep mouseDrag firing while the pointer rests near a viewport edge so
     // autoScroll continues without pointer movement.
@@ -782,9 +860,8 @@ void EffectModuleSection::finishSameLaneDrag(ModuleSection& dragged, bool commit
 
     // Persist the previewed order: exactly one ValueTree move per drop, through the
     // undo manager. The resulting moduleOrderChanged() callback re-syncs
-    // module_sections to tree order (a no-op sort here, but it also serves undo/redo).
-    // NOTE: DSP processing order is intentionally not updated yet (deferred); the
-    // audible chain follows tree order again after preset/state reload.
+    // module_sections to tree order (a no-op sort here, but it also serves undo/redo)
+    // and publishes the identity-based DSP placement command.
     juce::ValueTree parent_tree = dragged.state.getParent();
     const int tree_index = parent_tree.indexOf(dragged.state);
     if (ui_index < 0 || tree_index < 0)
@@ -946,9 +1023,9 @@ int EffectModuleSection::beginExternalTargetPreview(ModuleSection& dragged,
     external_gap_move_direction_ = 0;
     insertion_region_->setColor(findColour(Skin::kFXAccent, true));
     insertion_region_->setRounding(std::max(0.5f, findValue(Skin::kBodyRounding)));
-    insertion_region_->setAlpha(0.18f);
+    insertion_region_->setAlpha(kInsertionPreviewAlpha);
     drag_boundary_bands_->setColor(findColour(Skin::kFXAccent, true));
-    drag_boundary_bands_->setAlpha(0.18f);
+    drag_boundary_bands_->setAlpha(kInsertionPreviewAlpha);
     for (auto& section : module_sections)
         section->setDragVisual(section.get() == dragged_module_ && external_source_excluded_
                                    ? ModuleSection::DragVisual::kDragged
