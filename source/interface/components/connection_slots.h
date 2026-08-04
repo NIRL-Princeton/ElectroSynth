@@ -34,6 +34,7 @@ struct ConnectionSlotData {
         juce::String label;
         juce::Colour colour;
     };
+
     std::optional<Auxiliary> auxiliary;
 };
 
@@ -71,6 +72,15 @@ namespace electrosynth {
         AmountCallback on_amount_changed_;
         float drag_start_amount_ = 1.0f;
         int drag_start_y_ = 0;
+
+        bool draw_background_;
+
+        juce::String source_name_;
+        bool editing_;
+        int index_;
+        bool showing_;
+        bool hovering_;
+        bool current_source_;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SlotComponent)
     };
@@ -117,6 +127,7 @@ private:
         std::shared_ptr<OpenGlQuad> aux_border;
         std::shared_ptr<PlainTextComponent> aux_label;
     };
+
 
     std::vector<Listener*> listeners_;
 

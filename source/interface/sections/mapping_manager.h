@@ -64,9 +64,7 @@ class ModulationAmountKnob : public SynthSlider {
 
     ModulationAmountKnob(juce::String name, int index, const ValueTree &v);
 
-    void mouseDown(const juce::MouseEvent& e) override;
-    void mouseUp(const juce::MouseEvent& e) override;
-    void mouseExit(const juce::MouseEvent& e) override;
+
     void handleModulationMenuCallback(int result);
 
     void makeVisible(bool visible);
@@ -314,11 +312,14 @@ private:
     void positionEndpointDragIcon();
     void drawEndpointDestinations(OpenGlWrapper& openGl);
 
+    electrosynth::Connection* findModulationConnection(const juce::String& connectionId) const;
+
     // connection_slot callbacks
     void connectionSlotClicked(const ConnectionSlotData& connection, const juce::MouseEvent& event) override;
     void connectionAmountChanged(const ConnectionSlotData& connection, float amount) override;
     void removeConnectionRecord(const juce::String& connectionId);
     void handleConnectionMenuResult(const juce::String& connectionId, int result);
+
 
     void setDestinationQuadBounds(ConnectionDestination* destination);
     bool isPointInsideDestinationDropArea(SynthSlider* slider, juce::Point<int> manager_position) const;
@@ -335,7 +336,7 @@ private:
     void hideConnectionAmountCallout();
     void positionConnectionAmountSliders();
     bool enteringHoverValue();
-    void showConnectionAmountOverlay(ModulationAmountKnob* slider);
+    void showConnectionAmountOverlay(const juce::String& connectionId);
     void hideConnectionAmountOverlay();
     void componentAdded();
     void scheduleComponentUpdate();

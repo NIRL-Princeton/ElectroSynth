@@ -159,6 +159,7 @@ ConnectionSlots::ConnectionSlots(EndpointArrowComponent& endpoint_arrow)
     setAlwaysOnTop(true);
     setInterceptsMouseClicks(false, true);
 
+
     for (int index = 0; index < kMaxVisibleSlots; ++index) {
         const auto prefix = getName() + "_" + juce::String(index);
         initialiseSlot(index, prefix);
