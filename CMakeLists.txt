@@ -96,6 +96,8 @@ add_library(SharedCode INTERFACE
         source/synthesis/framework/Modulators/SimpleNoiseModuleProcessor.h
         source/synthesis/framework/Modulators/PerlinNoiseModuleProcessor.cpp
         source/synthesis/framework/Modulators/PerlinNoiseModuleProcessor.h
+        source/synthesis/framework/Processors/SineModuleProcessor.cpp
+        source/synthesis/framework/Processors/SineModuleProcessor.h
 
 
 )
