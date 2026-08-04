@@ -382,6 +382,17 @@ void FullInterface::popupDisplay(juce::Component* source, const std::string& tex
     display->setVisible(true);
 }
 
+void FullInterface::popupTextEntry(juce::Component* source, const std::string& display_text,
+    const juce::String& editable_text, juce::BubbleComponent::BubblePlacement placement,
+    std::function<void(const juce::String&)> commit, std::function<void()> cancel) {
+    PopupDisplay* display = popup_display_1_.get();
+    display->setEditableContent(display_text, editable_text,
+                                getLocalArea(source, source->getLocalBounds()), placement,
+                                std::move(commit), std::move(cancel));
+    display->setVisible(true);
+    display->toFront(false);
+}
+
 //void FullInterface::prepDisplay(PreparationSection* prep)
 //{
 //    DBG("*********SETTING CONTENT***************");
@@ -393,7 +404,7 @@ void FullInterface::popupDisplay(juce::Component* source, const std::string& tex
 void FullInterface::hideDisplay(bool primary) {
    PopupDisplay* display = primary ? popup_display_1_.get() : popup_display_2_.get();
    if (display)
-       display->setVisible(false);
+       display->dismiss();
 }
 
 void FullInterface::popupSelector(juce::Component* source, juce::Point<int> position, const PopupItems& options,
@@ -542,7 +553,6 @@ std::map<std::string, SynthSlider*> FullInterface::getAllSliders(){
 std::map<std::string, ModulationButton*> FullInterface::getAllModulationButtons(){
     return main_->getAllModulationButtons();
 }
-
 
 
 

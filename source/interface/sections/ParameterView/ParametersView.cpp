@@ -15,22 +15,6 @@
 
 namespace electrosynth {
 
-// Rotary slider that suppresses the value bubble popup on drag/hover.
-class NoPopupSynthSlider : public SynthSlider {
-public:
-    using SynthSlider::SynthSlider;
-    bool shouldShowPopup() override { return false; }
-    // Keep the normal selected/unselected colors: Mix and PostGain use LinearBar
-    // style, whose bar body would disappear if the old rotary-only transparent
-    // color overrides were retained.
-    float findValue(Skin::ValueId value_id) const override {
-        float base = SynthSlider::findValue(value_id);
-        if (value_id == Skin::kKnobArcThickness)
-            return base * (isMouseOverOrDragging() ? (0.5f / 1.4f) : 0.5f);
-        return base;
-    }
-};
-
     namespace parameters_view_detail {
 
         //==============================================================================
@@ -422,14 +406,14 @@ FxModuleTemplateView::FxModuleTemplateView(chowdsp::PluginState& pluginState,
     // Mix / PostGain are intended visible FX controls. NOTE: they are currently
     // UI-only (no chowdsp parameter attachment) and are NOT wired to DSP yet.
     // They use a dedicated utility layout below the real rotary parameters.
-    mix_knob_ = std::make_unique<NoPopupSynthSlider>("Mix");
+    mix_knob_ = std::make_unique<SynthSlider>("Mix");
     mix_knob_->setSliderStyle(juce::Slider::LinearBar);
     mix_knob_->setScrollWheelEnabled(false);
     mix_knob_->setKnobSizeScale(1.0f);
     addSlider(mix_knob_.get(), true);
     mix_knob_->parentHierarchyChanged();
 
-    postgain_knob_ = std::make_unique<NoPopupSynthSlider>("PostGain");
+    postgain_knob_ = std::make_unique<SynthSlider>("PostGain");
     postgain_knob_->setSliderStyle(juce::Slider::LinearBar);
     postgain_knob_->setScrollWheelEnabled(false);
     postgain_knob_->setKnobSizeScale(1.0f);

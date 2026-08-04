@@ -884,6 +884,17 @@ void SynthSection::showPopupDisplay(Component* source, const std::string& text,
         parent->popupDisplay(source, text, placement, primary);
 }
 
+void SynthSection::showPopupTextEntry(Component* source, const std::string& display_text,
+                                      const juce::String& editable_text,
+                                      BubbleComponent::BubblePlacement placement,
+                                      std::function<void(const juce::String&)> commit,
+                                      std::function<void()> cancel) {
+    FullInterface* parent = findParentComponentOfClass<FullInterface>();
+    if (parent)
+        parent->popupTextEntry(source, display_text, editable_text, placement,
+                               std::move(commit), std::move(cancel));
+}
+
 void SynthSection::hidePopupDisplay(bool primary) {
   FullInterface* parent = findParentComponentOfClass<FullInterface>();
   if (parent)

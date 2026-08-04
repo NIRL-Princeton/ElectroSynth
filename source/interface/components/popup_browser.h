@@ -21,18 +21,34 @@
 #include "open_gl_multi_quad.h"
 #include "synth_section.h"
 #include "default_look_and_feel.h"
-class PopupDisplay : public SynthSection {
+class PopupDisplay : public SynthSection, private juce::TextEditor::Listener {
 public:
     PopupDisplay();
 
     void resized() override;
+    void visibilityChanged() override;
 
     void setContent(const std::string& text, juce::Rectangle<int> bounds, juce::BubbleComponent::BubblePlacement placement);
+    void setEditableContent(const std::string& display_text, const juce::String& editable_text,
+                            juce::Rectangle<int> bounds, juce::BubbleComponent::BubblePlacement placement,
+                            std::function<void(const juce::String&)> commit,
+                            std::function<void()> cancel);
+    void dismiss();
 
 private:
+    void textEditorTextChanged(juce::TextEditor& editor) override;
+    void textEditorReturnKeyPressed(juce::TextEditor& editor) override;
+    void textEditorEscapeKeyPressed(juce::TextEditor& editor) override;
+    void textEditorFocusLost(juce::TextEditor& editor) override;
+    void finishEditing(bool commit);
+
     std::shared_ptr<PlainTextComponent> text_;
     std::shared_ptr<OpenGlQuad> body_;
     std::shared_ptr<OpenGlQuad> border_;
+    std::unique_ptr<OpenGlTextEditor> text_editor_;
+    std::function<void(const juce::String&)> commit_;
+    std::function<void()> cancel_;
+    bool editing_ = false;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PopupDisplay)
 };

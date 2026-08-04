@@ -250,6 +250,11 @@ class SynthSection : public Component, public Slider::Listener,
 //                               const PopupItems& options, std::function<void(int)> callback);
     void showPopupDisplay(Component* source, const std::string& text,
                           BubbleComponent::BubblePlacement placement, bool primary);
+    void showPopupTextEntry(Component* source, const std::string& display_text,
+                            const juce::String& editable_text,
+                            BubbleComponent::BubblePlacement placement,
+                            std::function<void(const juce::String&)> commit,
+                            std::function<void()> cancel);
     void hidePopupDisplay(bool primary);
 
     virtual void loadFile(const File& file) { }

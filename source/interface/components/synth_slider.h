@@ -320,7 +320,7 @@ class SynthSlider : public OpenGlSlider, public juce::TextEditor::Listener {
     }
     void textEditorReturnKeyPressed(juce::TextEditor& editor) override;
     void textEditorFocusLost(juce::TextEditor& editor) override;
-    void setSliderPositionFromText();
+    void setSliderPositionFromText(const juce::String& text);
 
     void showTextEntry();
     virtual bool shouldShowPopup() { return true; }
@@ -497,6 +497,7 @@ class SynthSlider : public OpenGlSlider, public juce::TextEditor::Listener {
     std::array<juce::Component*, kNumModulationSlots> extra_modulation_targets_ {};
     SynthGuiInterface* synth_interface_;
     std::unique_ptr<OpenGlTextEditor> text_entry_;
+    bool command_text_entry_candidate_ = false;
 
     std::vector<SliderListener*> slider_listeners_;
 
