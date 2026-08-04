@@ -288,6 +288,9 @@ void ModulationAmountKnob::mouseDown(const juce::MouseEvent& e) {
                 listener->menuFinished(this);
         };
 
+        if (parent_ != nullptr)
+            parent_->showPopupSelector(this, e.getPosition(), options, callback, cancel);
+
         for (SliderListener* listener : slider_listeners_)
             listener->mouseDown(this);
     }
@@ -412,8 +415,6 @@ juce::String ModulationAmountKnob::getSourceLabel() const {
 juce::Colour ModulationAmountKnob::getSourceColor() const {
   return getConnectionSourceColor(source_name_);
 }
-
-
 
 MappingManager::MappingManager(ValueTree &tree, SynthBase* base) :
         SynthSection("modulation_manager"), drag_quad_(Shaders::kRingFragment), drag_icon_("modulation_drag_icon"),
@@ -581,6 +582,20 @@ void MappingManager::mouseDown(const juce::MouseEvent& event) {
     endpoint_drag_source_ = endpoint->getEndpoint().address;
     endpoint_drag_source_component_ = endpoint;
 
+    const auto& address = endpoint->getEndpoint().address;
+
+    if (address.type == electrosynth::ConnectionType::Modulation) {
+        auto* button = dynamic_cast<ConnectionButton*>(endpoint);
+        if (button == nullptr)
+            return;
+        // Existing modulation selection behavior.
+        connectionSelected(button);
+        return;
+        }
+
+    // Existing audio setup remains below.
+    clearEndpointDestinationVisuals();
+
     mouse_drag_position_ = getLocalPoint(event.eventComponent, event.getPosition());
 
     // visuals
@@ -592,6 +607,26 @@ void MappingManager::mouseDown(const juce::MouseEvent& event) {
 void MappingManager::mouseDrag(const juce::MouseEvent& event) {
     if (!endpoint_drag_source_.has_value() || endpoint_drag_source_component_ == nullptr)
         return;
+
+    if (endpoint_drag_source_->type == electrosynth::ConnectionType::Modulation)
+    {
+        auto* button = dynamic_cast<ConnectionButton*>(endpoint_drag_source_component_.getComponent());
+
+        if (button == nullptr)
+            return;
+
+        const auto sourceEvent = event.getEventRelativeTo(button);
+        if (!dragging_) {
+            if (button->getLocalBounds().contains(sourceEvent.getPosition()))
+                return;
+
+            startDestinationMap(button, sourceEvent);
+        }
+
+        if (dragging_)
+            mappingDragged(sourceEvent);
+        return;
+    }
 
     mouse_drag_position_ = getLocalPoint(event.eventComponent, event.getPosition());
     positionEndpointDragIcon();
@@ -623,6 +658,23 @@ void MappingManager::mouseDrag(const juce::MouseEvent& event) {
 }
 
 void MappingManager::mouseUp(const juce::MouseEvent& event) {
+
+    if (endpoint_drag_source_ && endpoint_drag_source_->type == electrosynth::ConnectionType::Modulation) {
+
+        auto* button = dynamic_cast<ConnectionButton*>(endpoint_drag_source_component_.getComponent());
+
+        if (dragging_)
+            endDestinationMap();
+        else if (button != nullptr)
+            connectionClicked(button);
+
+        endpoint_drag_source_.reset();
+        endpoint_drag_source_component_ = nullptr;
+        endpoint_drag_destination_.reset();
+        endpoint_drag_destination_component_ = nullptr;
+        return;
+    }
+
     // if valid, connect endpoints
     if (endpoint_drag_source_.has_value() && endpoint_drag_destination_.has_value()) {
         connectEndpoints(*endpoint_drag_source_, *endpoint_drag_destination_);
@@ -757,9 +809,7 @@ void MappingManager::updateConnectionSlots()
             if (peer == nullptr) continue;
 
             auto* destination_endpoint = getRegisteredMappingEndpoint(connection.destination);
-            auto* destination_component = destination_endpoint != nullptr
-                ? destination_endpoint->component.getComponent()
-                : nullptr;
+            auto* destination_component = destination_endpoint != nullptr ? destination_endpoint->component.getComponent() : nullptr;
             if (destination_component == nullptr) continue;
 
             auto* owner = peer->getParentComponent();
@@ -773,24 +823,26 @@ void MappingManager::updateConnectionSlots()
 
                 .hasAmount = destination_component->getEndpoint().capabilities.hasAmount,
                 .hasBipolar = destination_component->getEndpoint().capabilities.hasBipolar,
+                .hasStereo = destination_component->getEndpoint().capabilities.hasStereo,
                 .amount = connection.amount,
                 .bipolar = connection.bipolar,
                 .bypass = connection.bypass,
                 .stereo = connection.stereo
             });
         }
-
         if (auto* slots = port->getConnectionSlots()) slots->setConnections (std::move(slots_for_port));
-
     }
 }
 
 // Drag/drop visuals ***************************************************************************************************************************** Drag/drop visuals
 
 bool MappingManager::isMappingMode() const {
+
+    const bool endpoint_mapping = endpoint_drag_source_.has_value() && endpoint_drag_source_component_ != nullptr
+    && endpoint_drag_source_->type == electrosynth::ConnectionType::Audio;
     const bool modulation_mapping = dragging_ && current_modulator_ != nullptr;
-    const bool audio_mapping = endpoint_drag_source_.has_value() && endpoint_drag_source_component_ != nullptr;
-    return modulation_mapping || audio_mapping;
+
+    return modulation_mapping || endpoint_mapping;
 }
 
 void MappingManager::updateEndpointDestinationVisuals() {
@@ -840,22 +892,181 @@ void MappingManager::drawEndpointDestinations(OpenGlWrapper& openGl) {
 void MappingManager::connectionSlotClicked(const ConnectionSlotData& connection, const juce::MouseEvent& event)  {
     DBG("Clicked connection: " + connection.connectionId);
 
-    if (event.mods.isPopupMenu())
-        DBG("Connection popup requested");
+    if (!event.mods.isPopupMenu())
+        return;
+
+    PopupItems options;
+    options.addItem (kRemoveConnection, "Remove connection");
+    options.addItem(kToggleConnectionBypass, connection.bypass ? "Unbypass" : "Bypass");
+
+    if (connection.hasBipolar) {
+        options.addItem(kToggleConnectionBipolar, connection.bipolar ? "Make unipolar" : "Make bipolar");
+    }
+
+    if (connection.hasStereo) {
+        options.addItem(kToggleConnectionStereo, connection.stereo ? "Make mono" : "Make stereo");
+    }
+
+    const auto connectionId = connection.connectionId;
+    auto* source_component = event.eventComponent;
+
+    showPopupSelector(source_component, event.getPosition(), options, [this, connectionId](int result) {
+        handleConnectionMenuResult(connectionId, result);
+    });
+}
+
+void MappingManager::handleConnectionMenuResult(const juce::String& connectionId, int result) {
+    if (result == kRemoveConnection) {
+        removeConnectionRecord(connectionId);
+        return;
+    }
+
+    auto audioConnectionRecord = std::find_if(connection_records_.begin(), connection_records_.end(),
+        [&connectionId](const electrosynth::ConnectionRecord& connection) {
+            return connection.id == connectionId;
+        });
+
+    if (audioConnectionRecord != connection_records_.end()) {
+        switch (result)
+        {
+            case kToggleConnectionBypass:
+                audioConnectionRecord->bypass = !audioConnectionRecord->bypass;
+                break;
+
+            case kToggleConnectionBipolar:
+                audioConnectionRecord->bipolar = !audioConnectionRecord->bipolar;
+                break;
+
+            case kToggleConnectionStereo:
+                audioConnectionRecord->stereo = !audioConnectionRecord->stereo;
+                break;
+
+            default:
+                return;
+        }
+
+        updateConnectionSlots();
+        return;
+    }
+
+    auto* parent = findParentComponentOfClass<SynthGuiInterface>();
+    if (parent == nullptr)
+        return;
+
+    auto& modulationBank = parent->getSynth()->getModulationBank();
+    for (int index = 0; index < electrosynth::kMaxConnections; ++index) {
+        auto* modulationConnection = modulationBank.atIndex(index);
+        if (modulationConnection == nullptr
+            || juce::String(modulationConnection->uuid) != connectionId)
+            continue;
+
+        bool bipolar = modulationConnection->isBipolar();
+        bool stereo = modulationConnection->isStereo();
+        bool bypass = modulationConnection->isBypass();
+
+        switch (result) {
+            case kToggleConnectionBypass:
+                bypass = !bypass;
+                break;
+            case kToggleConnectionBipolar:
+                bipolar = !bipolar;
+                break;
+            case kToggleConnectionStereo:
+                stereo = !stereo;
+                break;
+            default:
+                return;
+        }
+
+        setConnectionValues(modulationConnection->source_name,
+                            modulationConnection->destination_name,
+                            modulationConnection->getCurrentBaseValue(),
+                            bipolar, stereo, bypass,
+                            modulationConnection->destination_slot);
+        return;
+    }
+}
+
+void MappingManager::removeConnectionRecord(const juce::String& connectionId)
+{
+    const auto removed = std::erase_if(connection_records_, [&connectionId](const auto& connection) {
+        return connection.id == connectionId;
+    });
+
+    if (removed > 0) {
+        updateConnectionSlots();
+        return;
+    }
+
+    auto* parent = findParentComponentOfClass<SynthGuiInterface>();
+    if (parent == nullptr) return;
+
+    auto& modulation_bank = parent->getSynth()->getModulationBank();
+    for (int index = 0; index < electrosynth::kMaxConnections; ++index){
+        auto* connection = modulation_bank.atIndex(index);
+        if (connection == nullptr || juce::String(connection->uuid) != connectionId) continue;
+
+        const auto source = connection->source_name;
+        const auto destination = connection->destination_name;
+        const int destination_slot = connection->destination_slot;
+
+        removeMapping(source, destination, destination_slot);
+        return;
+    }
 }
 
 void MappingManager::connectionAmountChanged(const ConnectionSlotData& connection, float amount)  {
-    auto found = std::find_if(connection_records_.begin(), connection_records_.end(),
+    // audio connections first
+    auto found_audio = std::find_if(connection_records_.begin(), connection_records_.end(),
         [&connection](const auto& record) {
             return record.id == connection.connectionId;
         });
 
-    if (found == connection_records_.end())
+    if (found_audio != connection_records_.end()) {
+        found_audio->amount = amount;
+        updateConnectionSlots();
+        return;
+    }
+
+    // now onto modulation connection
+    auto* parent = findParentComponentOfClass<SynthGuiInterface>();
+    if (parent == nullptr)
         return;
 
-    found->amount = amount;
-    updateConnectionSlots();
+    auto& bank = parent->getSynth()->getModulationBank();
+
+    for (int index = 0; index < electrosynth::kMaxConnections; ++index) {
+        const auto* current_connection = bank.atIndex(index);
+
+        if (current_connection == nullptr || juce::String(current_connection->uuid) != connection.connectionId) {
+            continue;
+            }
+
+        setConnectionValues(
+            current_connection->source_name,
+            current_connection->destination_name,
+            amount,
+            current_connection->isBipolar(),
+            current_connection->isStereo(),
+            current_connection->isBypass(),
+            current_connection->destination_slot);
+
+        return;
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1027,8 +1238,7 @@ void MappingManager::scheduleComponentUpdate()
   });
 }
 
-void MappingManager::componentAdded()
-{
+void MappingManager::componentAdded() {
   FullInterface* full = findParentComponentOfClass<FullInterface>();
   if (full == nullptr || !full->open_gl_.context.isAttached() || full->open_gl_.shaders == nullptr) {
     if (!component_update_pending_) {
@@ -1104,8 +1314,6 @@ void MappingManager::componentAdded()
             return false;
         };
 
-        if (!contains_current_modulator(current_modulator_))
-            current_modulator_ = nullptr;
         if (!contains_current_modulator(current_source_))
             current_source_ = nullptr;
         current_expanded_ = nullptr;
@@ -1135,12 +1343,15 @@ void MappingManager::componentAdded()
         num_rotary_meters.clear();
         modulation_buttons_ = mod_buttons;
         for (auto& modulation_button : modulation_buttons_) {
-            modulation_button.second->addListener(this);
+            if (!modulation_button.second->hasEndpoint()) {
+                modulation_button.second->addListener(this);
+            }
             callout_buttons_[modulation_button.first] = std::make_unique<ExpandConnectionButton>();
             addChildComponent(callout_buttons_[modulation_button.first].get());
             // addOpenGlComponent(modulation_callout_buttons_[modulation_button.first]->getGlComponent());
             callout_buttons_[modulation_button.first]->addListener(this);
         }
+
         slider_model_lookup_.clear();
         slider_model_lookup_ = sliders;
         for (auto& slider : slider_model_lookup_) {
@@ -1426,6 +1637,9 @@ void MappingManager::updateSlotVisuals() {
 
 	    auto* target = slider->second->getExtraModulationTarget(connection->destination_slot);
 	    if (auto* slot = dynamic_cast<electrosynth::SlotComponent*>(target)) {
+	        if (auto* slots = dynamic_cast<ConnectionSlots*>(slot->getParentComponent())) {
+	            slots->addListener(this);
+        }
             active_slots.push_back(slot);
 
             const auto source_button = modulation_buttons_.find(connection->source_name);
@@ -1441,6 +1655,7 @@ void MappingManager::updateSlotVisuals() {
                 .colour = source_colour,
                 .hasAmount = true,
                 .hasBipolar = true,
+	            .hasStereo = true,
                 .amount = connection->getCurrentBaseValue(),
                 .bipolar = connection->isBipolar(),
                 .bypass = connection->isBypass(),
@@ -2455,18 +2670,8 @@ bool MappingManager::placeConnectionAmountInSlot(SynthSlider* destination,
       || !juce::isPositiveAndBelow(connection->destination_slot, SynthSlider::kNumSlots))
         return false;
 
-    auto* target = destination->getExtraModulationTarget(connection->destination_slot);
-    if (target == nullptr) return false;
-
-    const juce::Point<int> top_left = getLocalPoint(target, juce::Point<int>());
-    amount_knob->setBounds(top_left.x, top_left.y, target->getWidth(), target->getHeight());
-    amount_knob->setPopupPlacement(juce::BubbleComponent::below);
-    amount_knob->setAlwaysOnTop(true);
-    amount_knob->getQuadComponent()->setAlwaysOnTop(true);
-    amount_knob->getImageComponent()->setAlwaysOnTop(true);
-    amount_knob->getQuadComponent()->setVisible(false);
-    amount_knob->getImageComponent()->setVisible(false);
-    return true;
+    return dynamic_cast<electrosynth::SlotComponent*>(destination->getExtraModulationTarget(
+            connection->destination_slot)) != nullptr;
 }
 
 void MappingManager::makeConnectionsVisible(SynthSlider* destination, bool visible) {
@@ -2488,8 +2693,9 @@ void MappingManager::makeConnectionsVisible(SynthSlider* destination, bool visib
         auto* amount_knob = getConnectionAmountControl(connection);
         if (amount_knob == nullptr) continue;
         syncConnectionAmountControl(connection, amount_knob);
-        ++num_amount_controls;
-  }
+        if (!placeConnectionAmountInSlot(destination, connection, amount_knob))
+            ++num_amount_controls;
+    }
 
   int amount_control_width = size_ratio_ * 24.0f;
   juce::Rectangle<int> destination_bounds = getLocalArea(destination, destination->getLocalBounds());
@@ -2524,19 +2730,23 @@ void MappingManager::makeConnectionsVisible(SynthSlider* destination, bool visib
     if (amount_knob == nullptr)
       continue;
 
-    bool placed_in_slot = placeConnectionAmountInSlot(destination, connection, amount_knob);
-    if (!placed_in_slot) {
-      amount_knob->setPopupPlacement(placement);
-      amount_knob->setBounds(x, y, amount_control_width, amount_control_width);
-      amount_knob->setAlwaysOnTop(false);
-      amount_knob->getQuadComponent()->setAlwaysOnTop(false);
-      amount_knob->getImageComponent()->setAlwaysOnTop(false);
-      amount_knob->getQuadComponent()->setVisible(true);
-      amount_knob->getImageComponent()->setVisible(true);
+    const bool placed_in_slot = placeConnectionAmountInSlot(destination, connection, amount_knob);
+    if (placed_in_slot) {
+        amount_knob->makeVisible(false);
+        amount_knob->setInterceptsMouseClicks(false, false);
+        continue;
     }
 
-    amount_knob->makeVisible(visible && (!placed_in_slot || allVisible(destination)));
-    amount_knob->setAlpha(placed_in_slot ? 0.0f : 1.0f, true);
+    amount_knob->setInterceptsMouseClicks(true, true);
+    amount_knob->setPopupPlacement(placement);
+    amount_knob->setBounds(x, y, amount_control_width, amount_control_width);
+    amount_knob->setAlwaysOnTop(false);
+    amount_knob->getQuadComponent()->setAlwaysOnTop(false);
+    amount_knob->getImageComponent()->setAlwaysOnTop(false);
+    amount_knob->getQuadComponent()->setVisible(true);
+    amount_knob->getImageComponent()->setVisible(true);
+    amount_knob->makeVisible(visible && allVisible(destination));
+    amount_knob->setAlpha(1.0f, true);
     amount_knob->redoImage();
 
     x += delta_x;

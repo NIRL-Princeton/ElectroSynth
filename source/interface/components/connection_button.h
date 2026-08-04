@@ -42,7 +42,9 @@ class ConnectionButton : public EndpointArrowComponent {
         virtual void connectionClicked(ConnectionButton* source) { }
     };
   
-    ConnectionButton(String name);
+    explicit ConnectionButton(
+        String name,
+        electrosynth::EndpointDescriptor endpoint = {});
     virtual ~ConnectionButton();
     void init(OpenGlWrapper& ) override;
     void resized() override;

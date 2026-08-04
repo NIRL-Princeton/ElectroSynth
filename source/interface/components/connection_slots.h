@@ -21,6 +21,7 @@ struct ConnectionSlotData {
 
     bool hasAmount = false;
     bool hasBipolar = false;
+    bool hasStereo = false;
     float amount = 1.0f;            // set default modulation amount
 
     bool bipolar = false;

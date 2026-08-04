@@ -18,6 +18,16 @@ namespace {
             ? color.withSaturation(0.0f).withMultipliedBrightness(0.85f)
             : color;
     }
+
+    float getAmountPercent(const ConnectionSlotData* connection) {
+        if (connection == nullptr || !connection->hasAmount)
+            return 0.0f;
+
+        if (connection->hasBipolar)
+            return (juce::jlimit(-1.0f, 1.0f, connection->amount) + 1.0f) * 0.5f;
+
+        return juce::jlimit(0.0f, 1.0f, connection->amount);
+    }
 }
 
 namespace electrosynth {
@@ -243,17 +253,16 @@ void ConnectionSlots::resized() {
 
 void ConnectionSlots::syncOpenGl() {
     if (arrow_ != nullptr) {
-        const auto rounding = juce::jmin(findValue(Skin::kWidgetRoundedCorner),
-        static_cast<float>(kSlotHeight) * 0.5f);
+        const auto rounding = juce::jmin(findValue(Skin::kWidgetRoundedCorner), static_cast<float>(kSlotHeight) * 0.4f);
 
         for (int index = 0; index < kMaxVisibleSlots; ++index) {
             auto* connection = slot_components_[index]->getConnection();
             const bool occupied = connection != nullptr;
-            const auto colour = occupied ? connection->colour : juce::Colours::transparentBlack;
+            const auto colour = occupied ? getBypassAdjustedColor(connection->colour, connection->bypass) : juce::Colours::transparentBlack;
 
             auto& visual = visuals_[index];
 
-            visual.body->setColor(colour.withAlpha(0.28f));
+            visual.body->setColor(colour.withAlpha(0.0f));  // set label background color, currently transparent
             visual.body->setRounding(rounding);
             visual.border->setColor(colour);
             visual.border->setRounding(rounding);
@@ -265,15 +274,13 @@ void ConnectionSlots::syncOpenGl() {
             visual.border->setVisible(occupied);
             visual.label->setVisible(occupied);
 
-            const float amountPercent = connection != nullptr ? connection->bipolar ?
-            (juce::jlimit(-1.0f, 1.0f, connection->amount) + 1.0f) * 0.5f
-            : juce::jlimit(0.0f, 1.0f, connection->amount) : 0.0f;
+            const float amountPercent = getAmountPercent(connection);
 
             auto amountBounds = slot_components_[index]->getBounds().reduced(1);
             amountBounds.setWidth(juce::roundToInt(amountBounds.getWidth() * amountPercent));
 
             visual.amount->setBounds(amountBounds);
-            visual.amount->setColor(colour.withAlpha(0.2f));
+            visual.amount->setColor(colour.withAlpha(0.4f));
             visual.amount->setVisible(occupied && connection->hasAmount);
         }
     }
@@ -289,8 +296,7 @@ void ConnectionSlots::syncOpenGl() {
 
         auto& visuals = visuals_[slot];
         const auto color = occupied ? getBypassAdjustedColor(connection->colour, connection->bypass) : empty;
-        const float amount = occupied && connection->hasAmount ?
-            juce::jlimit(-1.0f, 1.0f, connection->amount) : 1.0f;
+        const float amountPercent = getAmountPercent(connection);
         const auto slot_bounds = slotComponent->getBounds();
 
         visuals.body->setColor(color.withAlpha(0.28f));
@@ -303,9 +309,9 @@ void ConnectionSlots::syncOpenGl() {
         visuals.label->setVisible(occupied);
 
         visuals.amount->setColor(color.withAlpha(0.2f));
-        visuals.amount->setVisible(occupied);
+        visuals.amount->setVisible(occupied && connection->hasAmount);
         auto amount_bounds = slot_bounds.reduced(1);
-        amount_bounds.setWidth(std::max(0, static_cast<int>(std::round(amount_bounds.getWidth() * (amount + 1.0f) * 0.5f))));
+        amount_bounds.setWidth(juce::roundToInt(amount_bounds.getWidth() * amountPercent));
         visuals.amount->setBounds(amount_bounds);
 
         const auto* auxiliary = occupied && connection->auxiliary ?

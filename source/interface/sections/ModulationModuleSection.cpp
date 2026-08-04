@@ -511,6 +511,9 @@ void ModulationModuleSection::moduleAdded(ModulatorBase *newModule) {
     module_sections.emplace_back(std::move(module_section));
 
     auto mod_button = module_sections.back()->getModulationButtonPtr();
+    // register modulation buttons as endpoints
+    if (modulation_manager != nullptr && mod_button->hasEndpoint())
+        modulation_manager->registerEndpoint(*mod_button);
 
     addOpenGlComponent(std::static_pointer_cast<OpenGlImageComponent>(mod_button));
     selected_tab_ = static_cast<int>(module_sections.size()) - 1;
@@ -530,6 +533,7 @@ void ModulationModuleSection::moduleListChanged() {
 }
 
 void ModulationModuleSection::removeModule(ModulatorBase *newModule) {
+
     decltype(module_sections)::iterator it;
     {
         juce::ScopedLock(this->open_gl_critical_section_);
@@ -570,8 +574,11 @@ void ModulationModuleSection::removeModule(ModulatorBase *newModule) {
         }
         else {
             auto& openGLContext = *juce::OpenGLContext::getCurrentContext();
-            if (modulation_button != nullptr)
+            if (modulation_button != nullptr) {
+                modulation_manager->unregisterEndpoint(*modulation_button);
                 destroyOpenGlComponent(*modulation_button, openGLContext);
+            }
+
             section->destroyOpenGlComponents(openGLContext);
             container_->removeSubSection(section);
         }
@@ -586,8 +593,7 @@ void ModulationModuleSection::removeModule(ModulatorBase *newModule) {
         setEffectPositions();
         updateTabs();
 
-        for(auto listener : listeners_)
-        {
+        for(auto listener : listeners_) {
             listener->removed();
         }
         resized();

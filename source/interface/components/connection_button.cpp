@@ -18,7 +18,8 @@
 #include "juce_gui_basics/juce_gui_basics.h"
 #include "skin.h"
 
-ConnectionButton::ConnectionButton(String name) : EndpointArrowComponent(std::move(name)),
+ConnectionButton::ConnectionButton(String name, electrosynth::EndpointDescriptor endpoint) :
+    EndpointArrowComponent(std::move(name), std::move(endpoint)),
     initialized(false), mouse_state_(kNone) {
 
     setWantsKeyboardFocus(true);

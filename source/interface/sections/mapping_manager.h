@@ -194,6 +194,14 @@ class MappingManager : public SynthSection, public ConnectionSlots::Listener, pu
     MappingManager(ValueTree& tree,SynthBase* bank);
     ~MappingManager();
 
+
+    enum ConnectionMenuOption {
+        kRemoveConnection = 1,
+        kToggleConnectionBypass = 2,
+        kToggleConnectionBipolar = 3,
+        kToggleConnectionStereo = 4
+    };
+
     void registerEndpoint(EndpointArrowComponent& endpoint);
     void unregisterEndpoint(const EndpointArrowComponent& endpoint);
 
@@ -309,7 +317,8 @@ private:
     // connection_slot callbacks
     void connectionSlotClicked(const ConnectionSlotData& connection, const juce::MouseEvent& event) override;
     void connectionAmountChanged(const ConnectionSlotData& connection, float amount) override;
-
+    void removeConnectionRecord(const juce::String& connectionId);
+    void handleConnectionMenuResult(const juce::String& connectionId, int result);
 
     void setDestinationQuadBounds(ConnectionDestination* destination);
     bool isPointInsideDestinationDropArea(SynthSlider* slider, juce::Point<int> manager_position) const;
