@@ -45,8 +45,8 @@ const std::array<std::vector<std::string>, 12> paramsAllArray =
             "rate",
             "shape",
             "phase",
-            "",
-            ""},
+            "type",
+            "syncNoteOn"},
 
         // envelope
         {

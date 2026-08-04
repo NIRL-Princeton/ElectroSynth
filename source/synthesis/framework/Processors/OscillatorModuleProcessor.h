@@ -269,7 +269,6 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
             tOscModule_setParameter(mod,OscPortaType,val);
             //DBG("pitch [0 - 1] " + juce::String(val)  + " ... pitch actual " + juce::String(modules[0]->pitchOffset));
         },
-
          &chowdsp::ParamUtils::floatValToString,
          &chowdsp::ParamUtils::stringToFloatVal
      };
