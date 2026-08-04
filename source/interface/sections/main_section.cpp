@@ -33,6 +33,30 @@ MainSection::MainSection(const juce::ValueTree& v, juce::UndoManager &um, OpenGl
     effects_section_2 = std::make_unique<EffectModuleSection>(modulation_manager, *data->synth->effects_2,data->synth->effects_2->state,um);
     addSubSection(effects_section_2.get());
 
+    // Shared, mouse-transparent visual layer above the sibling lanes. The clip
+    // component is sized to the union of their content viewports in resized().
+    fx_drag_clip_ = std::make_unique<juce::Component>("fx_drag_content_clip");
+    fx_drag_clip_->setInterceptsMouseClicks(false, false);
+    addAndMakeVisible(fx_drag_clip_.get());
+
+    fx_drag_coordinator_ = std::make_unique<FxDragCoordinator>(*fx_drag_clip_);
+    const auto laneIdentifier = [](const EffectModuleSection& lane, int fallbackIndex) {
+        const auto persisted = lane.state.getProperty(IDs::audioNodeId).toString();
+        return LaneIdentifier { persisted.isNotEmpty()
+                                    ? persisted
+                                    : "fx-lane-" + juce::String(fallbackIndex) };
+    };
+    fx_drag_coordinator_->registerLane(*effects_section_0, laneIdentifier(*effects_section_0, 0));
+    fx_drag_coordinator_->registerLane(*effects_section_1, laneIdentifier(*effects_section_1, 1));
+    fx_drag_coordinator_->registerLane(*effects_section_2, laneIdentifier(*effects_section_2, 2));
+    fx_drag_coordinator_->onMoveRequested = [](const FxMoveIntent& intent) {
+        // Observation only. This callback deliberately performs no ValueTree,
+        // EffectList, processor-ownership, or DSP mutation.
+        DBG("Gated FxMoveIntent: " + intent.moduleAudioNodeId + " "
+            + intent.sourceLane.value + " -> " + intent.targetLane.value
+            + " @ " + juce::String(intent.targetEffectIndex));
+    };
+
     master_voice_envelope_section = std::make_unique<MasterVoiceEnvelopeSection>(v, um, open_gl, data,std::move(data->synth->getEngine()->MasterVoiceEnvelopeProcessor->createEditor()));
     master_voice_envelope_section->mod_button->addListener(modulation_manager);
     modulation_interface->setVCAModulationSection(master_voice_envelope_section.get(),
@@ -49,6 +73,17 @@ MainSection::MainSection(const juce::ValueTree& v, juce::UndoManager &um, OpenGl
 //    test_ = std::make_unique<TestSection>();
 //    addSubSection(test_.get());
     setSkinOverride(Skin::kNone);
+}
+
+void MainSection::renderOpenGlComponents(OpenGlWrapper& open_gl, bool animate) {
+    SynthSection::renderOpenGlComponents(open_gl, animate);
+
+    // The source lane suppresses its normal render while externally hosted. Its
+    // visual wrapper is temporarily parented to fx_drag_clip_, then this renders
+    // that same subtree once after all lanes. Model/processor ownership never moves.
+    if (fx_drag_coordinator_ != nullptr)
+        if (auto* hosted = fx_drag_coordinator_->getExternallyHostedModule())
+            hosted->renderAsExternalVisual(open_gl, animate);
 }
 
 void MainSection::paintBackground(juce::Graphics& g) {
@@ -82,6 +117,10 @@ void MainSection::resized() {
     effects_section_2->setBounds(effects_section_1->getRight() + padding, content_y,
                                  std::max(0, content_x + content_width - effects_section_1->getRight() - padding),
                                  content_height);
+
+    const int fx_header_height = static_cast<int>(effects_section_0->getTitleWidth());
+    fx_drag_clip_->setBounds(fx_x, content_y + fx_header_height, fx_total_width,
+                             std::max(0, content_height - fx_header_height - 2));
 
 }
 

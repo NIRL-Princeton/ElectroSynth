@@ -44,6 +44,8 @@ class OpenGlSliderQuad : public OpenGlQuad {
 
 class OpenGlSlider : public juce::Slider {
   public:
+    static constexpr float kDefaultKnobSizeScale = 1.0f;
+
     void setHorizontalTrackPadding(float paddingPixels) {
         horizontal_track_padding_ = paddingPixels;
     }
@@ -53,7 +55,7 @@ class OpenGlSlider : public juce::Slider {
     OpenGlSlider(juce::String name) : juce::Slider(name), parent_(nullptr), modulation_knob_(false), modulation_amount_(0.0f),
                                 paint_to_image_(false), active_(true), bipolar_(false), slider_quad_(new OpenGlSliderQuad(this,name)),
                                 image_component_(new OpenGlImageComponent(name)),
-                                knob_size_scale_(1.0f) {
+                                knob_size_scale_(kDefaultKnobSizeScale) {
       slider_quad_->setTargetComponent(this);
       // slider_quad_->setScissor(true);
       setMaxArc(kRotaryAngle);

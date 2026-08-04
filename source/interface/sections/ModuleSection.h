@@ -5,6 +5,7 @@
 #ifndef ELECTROSYNTH_MODULESECTION_H
 #define ELECTROSYNTH_MODULESECTION_H
 #include "synth_section.h"
+#include <atomic>
 #include "PluginStateImpl_.h"
 #include "ParameterView/ParametersView.h"
 #include <juce_gui_basics/juce_gui_basics.h>
@@ -35,9 +36,20 @@ public:
     void setAreaSkinOverride(Skin::SectionOverride skin_override);
     void setDragVisual(DragVisual visual);
     void setDragAccentColor(Skin::ColorId color_id) { drag_accent_color_id_ = color_id; }
+    void resetDragObservation() noexcept { isDragging = false; }
+    void setHorizontalDragOwnedExternally(bool externallyOwned) noexcept {
+        horizontalDragOwnedExternally_ = externallyOwned;
+    }
 
     void renderOpenGlComponents(OpenGlWrapper &open_gl, bool animate) override {
-        SynthSection::renderOpenGlComponents(open_gl,animate);
+        if (!externallyVisualHosted_.load(std::memory_order_acquire))
+            SynthSection::renderOpenGlComponents(open_gl, animate);
+    }
+    void renderAsExternalVisual(OpenGlWrapper& open_gl, bool animate) {
+        SynthSection::renderOpenGlComponents(open_gl, animate);
+    }
+    void setExternallyVisualHosted(bool hosted) noexcept {
+        externallyVisualHosted_.store(hosted, std::memory_order_release);
     }
 
     void resized() override;
@@ -59,20 +71,27 @@ public:
         dragStartY = e.getEventRelativeTo(getParentComponent()).position.getY();
         originalBounds = getBounds();
         toFront(true);
+        if (onDragStart)
+            onDragStart(this, e.source.getScreenPosition().roundToInt());
     }
 
     void mouseDrag(const juce::MouseEvent& e) override {
         if (e.mods.isPopupMenu())
             return;
         int deltaY = e.getEventRelativeTo(getParentComponent()).position.getY() - dragStartY;
-        setTopLeftPosition(originalBounds.getX(), originalBounds.getY() + deltaY);
+        // Once cross-lane intent owns horizontal placement, do not race the
+        // coordinator by snapping X back to the source column on every mouse event.
+        const int drag_x = horizontalDragOwnedExternally_ ? getX() : originalBounds.getX();
+        setTopLeftPosition(drag_x, originalBounds.getY() + deltaY);
 
         isDragging = true;
-        if (onDragMove) onDragMove(this, getBounds());
+        if (onDragMove)
+            onDragMove(this, getBounds(), e.source.getScreenPosition().roundToInt());
     }
 
-    void mouseUp(const juce::MouseEvent&) override {
-        if (isDragging && onDragEnd) onDragEnd(this, getBounds());
+    void mouseUp(const juce::MouseEvent& e) override {
+        if (isDragging && onDragEnd)
+            onDragEnd(this, getBounds(), e.source.getScreenPosition().roundToInt());
         isDragging = false;
     }
 
@@ -91,8 +110,9 @@ public:
     std::shared_ptr<OpenGlQuad> bottom_separator_;
     void addListener(Listener* listener) { listeners_.push_back(listener); }
 
-    std::function<void(ModuleSection*, juce::Rectangle<int>)> onDragMove;
-    std::function<void(ModuleSection*, juce::Rectangle<int>)> onDragEnd;
+    std::function<void(ModuleSection*, juce::Point<int>)> onDragStart;
+    std::function<void(ModuleSection*, juce::Rectangle<int>, juce::Point<int>)> onDragMove;
+    std::function<void(ModuleSection*, juce::Rectangle<int>, juce::Point<int>)> onDragEnd;
     std::function<void(const juce::MouseEvent&)> onPopupMenu;
 
     int dragStartY = 0;
@@ -110,6 +130,8 @@ public:
 
 private:
     bool isDragging = false;
+    bool horizontalDragOwnedExternally_ = false;
+    std::atomic_bool externallyVisualHosted_ { false };
     bool draw_bottom_separator_ = true;
     DragVisual drag_visual_ = DragVisual::kNormal;
     Skin::ColorId drag_accent_color_id_ = Skin::kWidgetPrimary1;

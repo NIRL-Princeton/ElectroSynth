@@ -164,10 +164,9 @@ void SoundModuleSection::setEffectPositions() {
     if (getWidth() <= 0 || getHeight() <= 0) return;
 
     const int padding = findValue(Skin::kPadding);
-    const int large_padding = findValue(Skin::kLargePadding);
 
-    const int start_x = large_padding;
-    const int effect_width = getWidth() - 2 * large_padding;
+    const int start_x = padding;
+    const int effect_width = getWidth() - 2 * padding;
     int y = 0;
 
     const juce::Point<int> position = viewport_.getViewPosition();

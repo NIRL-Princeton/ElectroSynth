@@ -10,6 +10,7 @@
 #include "AudioChainSection.h"
 #include "ModuleList.h"
 #include "EffectsModuleSection.h"
+#include "FxDragCoordinator.h"
 class ModulationSection;
 class SoundModuleSection;
 class ModulationModuleSection;
@@ -41,6 +42,7 @@ public:
 
     void paintBackground(Graphics& g) override;
     void resized() override;
+    void renderOpenGlComponents(OpenGlWrapper& open_gl, bool animate) override;
 
     std::map<std::string, SynthSlider*> getAllSliders() override;
     std::map<std::string, ModulationButton*> getAllModulationButtons() override;
@@ -58,6 +60,8 @@ private:
     std::vector<Listener*> listeners_;
     std::unique_ptr<ModulationModuleSection> modulation_interface;
     std::unique_ptr<MasterVoiceEnvelopeSection> master_voice_envelope_section;
+    std::unique_ptr<juce::Component> fx_drag_clip_;
+    std::unique_ptr<FxDragCoordinator> fx_drag_coordinator_;
 
 };
 

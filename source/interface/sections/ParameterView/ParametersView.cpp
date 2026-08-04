@@ -20,11 +20,9 @@ class NoPopupSynthSlider : public SynthSlider {
 public:
     using SynthSlider::SynthSlider;
     bool shouldShowPopup() override { return false; }
-    // Hide both arc segments; thumb indicator (kRotaryHand) still renders.
-    juce::Colour getSelectedColor()   const override { return juce::Colours::transparentBlack; }
-    juce::Colour getUnselectedColor() const override { return juce::Colours::transparentBlack; }
-    // Halve indicator and suppress hover-boost by pre-dividing when dragging.
-    // redoImage() multiplies kKnobArcThickness by 1.4 on hover; dividing here cancels that.
+    // Keep the normal selected/unselected colors: Mix and PostGain use LinearBar
+    // style, whose bar body would disappear if the old rotary-only transparent
+    // color overrides were retained.
     float findValue(Skin::ValueId value_id) const override {
         float base = SynthSlider::findValue(value_id);
         if (value_id == Skin::kKnobArcThickness)
@@ -423,16 +421,16 @@ FxModuleTemplateView::FxModuleTemplateView(chowdsp::PluginState& pluginState,
 
     // Mix / PostGain are intended visible FX controls. NOTE: they are currently
     // UI-only (no chowdsp parameter attachment) and are NOT wired to DSP yet.
-    // No greyed-out placeholder knobs are created for empty slots.
+    // They use a dedicated utility layout below the real rotary parameters.
     mix_knob_ = std::make_unique<NoPopupSynthSlider>("Mix");
-    mix_knob_->setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
+    mix_knob_->setSliderStyle(juce::Slider::LinearBar);
     mix_knob_->setScrollWheelEnabled(false);
     mix_knob_->setKnobSizeScale(1.0f);
     addSlider(mix_knob_.get(), true);
     mix_knob_->parentHierarchyChanged();
 
     postgain_knob_ = std::make_unique<NoPopupSynthSlider>("PostGain");
-    postgain_knob_->setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
+    postgain_knob_->setSliderStyle(juce::Slider::LinearBar);
     postgain_knob_->setScrollWheelEnabled(false);
     postgain_knob_->setKnobSizeScale(1.0f);
     addSlider(postgain_knob_.get(), true);
@@ -468,29 +466,32 @@ FxModuleTemplateView::FxModuleTemplateView(chowdsp::PluginState& pluginState,
 
 FxModuleTemplateView::~FxModuleTemplateView() = default;
 
-// FX-local layout constants. These shrink the FX knob/tick-arc footprint and tune
-// vertical spacing for the narrow FX panel ONLY. They do not touch global skin
-// values or shared SynthSlider rendering constants.
+// FX-local layout constants. FX rotaries intentionally use the same shared default
+// scale as oscillator controls; spacing remains local to the narrow FX panel.
 namespace {
-    constexpr float kFxKnobScale       = 0.7225f; // 0.85 * 0.85 — FX knob/tick-arc footprint
+    constexpr float kFxKnobScale       = OpenGlSlider::kDefaultKnobSizeScale;
     constexpr int   kFxLabelHeight     = 18;      // tall enough to avoid clipping descenders
     constexpr int   kFxLabelToArcGap   = 2;       // label bottom -> top of tick arc
     constexpr int   kFxRowTopPad       = 10;      // padding above the first row
     constexpr int   kFxRowBottomPad    = 2;       // padding below the last row
-    constexpr int   kFxRowGap          = 16;      // breathing room between stacked rows
+    constexpr int   kFxRowGap          = 10;      // breathing room between stacked rows
     constexpr int   kFxMinKnobCellWidth = 76;     // min horizontal cell per knob (drives knobs-per-row)
     constexpr int   kFxSideInset       = 1;       // side inset = border thickness (paintBorder draws 1px)
     constexpr int   kFxModulationBoxGap = 4;
     constexpr int   kFxModulationBoxWidth = 120;
+    constexpr int   kFxUtilityTopGap = 20;
+    constexpr int   kFxUtilityLabelWidth = 60;
+    constexpr int   kFxUtilitySideInset = 20;
+    constexpr int   kFxUtilitySliderHeight = 20;
+    constexpr int   kFxUtilityRowGap = 10;
+    // ModuleSection draws the audio-port arrows over its bottom content area.
+    constexpr int   kFxAudioPortReserve = 30;
     // Filter type dropdown: doubled top gap hosts the control; height matches the lane
     // header's routing dropdown (kRoutingControlHeight in EffectsModuleSection).
     constexpr int   kFxTypeComboHeight = 14;
 }
 
 juce::Colour FxModuleTemplateView::getLabelColor(const juce::Component* control) const {
-    if (control == mix_knob_.get() || control == postgain_knob_.get())
-        return ShaderColors::kSoundModuleTextColor;
-
     return ShaderColors::kEffectTextColor;
 }
 
@@ -533,8 +534,9 @@ void FxModuleTemplateView::updateLabels() {
             continue;
 
         const auto b = slider->getBounds();
-        it->second->setBounds(b.getX(), b.getY() - kFxLabelHeight - kFxLabelToArcGap,
-                              b.getWidth(), kFxLabelHeight);
+        if (slider != mix_knob_.get() && slider != postgain_knob_.get())
+            it->second->setBounds(b.getX(), b.getY() - kFxLabelHeight - kFxLabelToArcGap,
+                                  b.getWidth(), kFxLabelHeight);
         it->second->setText(slider->getName());
         it->second->setTextSize(getLabelFont().getHeight());
         it->second->setColor(getLabelColor(slider));
@@ -549,22 +551,24 @@ int FxModuleTemplateView::getPreferredHeight() const {
     // Filter modules double the title-to-first-label gap to host the type dropdown.
     const int top_pad = filter_type_combo_ != nullptr ? 2 * kFxRowTopPad : kFxRowTopPad;
 
-    const int n = (int) comps.size() + (mix_knob_ != nullptr ? 1 : 0)
-                                     + (postgain_knob_ != nullptr ? 1 : 0);
-    if (n <= 0)
-        return top_pad + kFxRowBottomPad;
+    const int n = static_cast<int>(comps.size());
 
     const int knobPx = std::max(1, (int) std::ceil(
         kFxKnobScale * 2.0f * (findValue(Skin::kKnobArcSize)
                                + findValue(Skin::kKnobArcThickness))));
 
-    const int perRow  = std::max(1, std::min(getWidth() / kFxMinKnobCellWidth, n));
-    const int numRows = (n + perRow - 1) / perRow; // matches resized()'s grouping row count
+    const int perRow = std::max(1, std::min(getWidth() / kFxMinKnobCellWidth,
+                                            std::max(1, n)));
+    const int numRows = n > 0 ? (n + perRow - 1) / perRow : 0;
     const int rowContentH = kFxLabelHeight + kFxLabelToArcGap + knobPx
                             + kFxModulationBoxGap + ModulationSlots::kHeight;
+    const int parameter_height = numRows > 0
+        ? numRows * rowContentH + (numRows - 1) * kFxRowGap
+        : 0;
+    const int utility_height = kFxUtilityTopGap + 2 * kFxUtilitySliderHeight
+                             + kFxUtilityRowGap + kFxAudioPortReserve;
 
-    return top_pad + numRows * rowContentH
-         + (numRows - 1) * kFxRowGap + kFxRowBottomPad;
+    return top_pad + parameter_height + kFxRowBottomPad + utility_height;
 }
 
 void FxModuleTemplateView::resized() {
@@ -574,7 +578,8 @@ void FxModuleTemplateView::resized() {
     // 2. Shrink the FX knob/tick-arc footprint locally (raster + GL rotary). Does NOT
     // change global skin values or shared SynthSlider constants.
     for (auto* slider : all_sliders_v)
-        if (auto* ss = dynamic_cast<SynthSlider*>(slider))
+        if (auto* ss = dynamic_cast<SynthSlider*>(slider);
+            ss != nullptr && ss != mix_knob_.get() && ss != postgain_knob_.get())
             ss->setKnobSizeScale(kFxKnobScale);
 
     // 3. Rendered knob box, matched to the FX-scaled arc.
@@ -582,29 +587,25 @@ void FxModuleTemplateView::resized() {
         kFxKnobScale * 2.0f * (findValue(Skin::kKnobArcSize)
                                + findValue(Skin::kKnobArcThickness))));
 
-    // 4. Visible controls in order: real params, then Mix, then PostGain. No placeholders.
+    // 4. Real parameter controls remain rotary. Mix and PostGain are laid out
+    // separately as utility bars below them.
     std::vector<juce::Component*> controls;
-    controls.reserve(comps.size() + 2);
+    controls.reserve(comps.size());
     for (auto& c : comps)
         controls.push_back(c.get());
-    if (mix_knob_ != nullptr)
-        controls.push_back(mix_knob_.get());
-    if (postgain_knob_ != nullptr)
-        controls.push_back(postgain_knob_.get());
 
     // 5. Knobs per row = as many as fit the lane width, clamped to [1, n].
     const int n = (int) controls.size();
-    if (n == 0) {
-        SynthSection::resized();
-        return;
-    }
     // perRow ignores the side inset; the inset only trims the row area used for centering.
-    const int perRow = std::max(1, std::min(w / kFxMinKnobCellWidth, n));
+    const int perRow = std::max(1, std::min(w / kFxMinKnobCellWidth,
+                                            std::max(1, n)));
 
     // 6. Row sizes. remainder becomes a smaller FIRST row so every later row (incl. the
     // final Mix/PostGain row) is full; single-per-row when only one fits.
     std::vector<int> rows;
-    if (perRow <= 1) {
+    if (n == 0) {
+        rows.clear();
+    } else if (perRow <= 1) {
         rows.assign(n, 1);
     } else {
         const int leftover = n % perRow;
@@ -642,6 +643,26 @@ void FxModuleTemplateView::resized() {
         }
         y += rowContentH + kFxRowGap;
     }
+
+    const int parameter_bottom = rows.empty() ? top_pad : y - kFxRowGap;
+    const int utility_y = parameter_bottom + kFxRowBottomPad + kFxUtilityTopGap;
+    const int utility_width = std::max(0, w - 2 * kFxUtilitySideInset);
+
+    auto layoutUtilitySlider = [this, utility_width](SynthSlider& slider, int row_y) {
+        auto row = juce::Rectangle<int>(kFxUtilitySideInset, row_y, utility_width,
+                                        kFxUtilitySliderHeight);
+        const auto label_bounds = row.removeFromLeft(
+            std::min(kFxUtilityLabelWidth, row.getWidth()));
+        slider.setBounds(row);
+        slider.redoImage();
+
+        if (auto label = slider_labels_.find(&slider); label != slider_labels_.end())
+            label->second->setBounds(label_bounds);
+    };
+
+    layoutUtilitySlider(*mix_knob_, utility_y);
+    layoutUtilitySlider(*postgain_knob_,
+                        utility_y + kFxUtilitySliderHeight + kFxUtilityRowGap);
 
     // 8. Redo slider images + labels.
     for (auto* slider : all_sliders_v)

@@ -102,7 +102,10 @@ void ModuleSection::setAreaSkinOverride(Skin::SectionOverride skin_override) {
 }
 
 int ModuleSection::getPreferredHeight() const {
-    return (_view != nullptr ? _view->getPreferredHeight() : 0) + kHeaderHeight; // + kContentBottomPadding;
+    // resized() reserves both the header and bottom audio-port area outside the
+    // editor view, so the wrapper's sizing contract must advertise both regions.
+    return (_view != nullptr ? _view->getPreferredHeight() : 0)
+         + kHeaderHeight + kContentBottomPadding;
 }
 
 int ModuleSection::refreshHeight() {

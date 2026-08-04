@@ -32,8 +32,6 @@ AudioChainSection::AudioChainSection(ChainList<ProcessorBase> &chains, Modulatio
     chains_.addListener(this);
 
     scroll_bar_ = std::make_unique<OpenGlScrollBar>();
-    addAndMakeVisible(scroll_bar_.get());
-    addOpenGlComponent(scroll_bar_->getGlComponent());
     scroll_bar_->addListener(this);
     viewport_.setScrollBarPosition(true, false); //use this to determine viewport scroll type in effectsviewport
     viewport_.setScrollBarsShown(false, false, true, false);
@@ -77,20 +75,13 @@ void AudioChainSection::redoBackgroundImage() {
 
 void AudioChainSection::resized() {
 
-    static constexpr int kScrollBarInset = 0;
-    static constexpr int kScrollBarWidth = 5;
     ScopedLock lock(open_gl_critical_section_);
-
-    int large_padding = findValue(Skin::kLargePadding);
-    int shadow_width = getComponentShadowWidth();
 
     viewport_.setBounds(0, 0, getWidth(), getHeight());
 
     setEffectPositions();
-    const int scroll_bar_height = std::max(0, static_cast<int>(getHeight() - getTitleWidth() - (large_padding + 2 * shadow_width)));
-    scroll_bar_->setBounds((kScrollBarInset + kScrollBarWidth/2), getTitleWidth() + large_padding, kScrollBarWidth, scroll_bar_height);
-    scroll_bar_->setColor(findColour(Skin::kWidgetPrimary1, true));
-    scroll_bar_->setVisible(container_->getHeight() > viewport_.getHeight());
+    // Keep the external scrollbar model synchronized without adding its JUCE/OpenGL
+    // components. Viewport wheel and trackpad scrolling remain active.
 
     SynthSection::resized();
 }
@@ -172,7 +163,6 @@ void AudioChainSection::setEffectPositions() {
         return;
 
     int padding = getPadding();
-    int large_padding = findValue(Skin::kLargePadding);
     int effect_width = getWidth();
     int knob_section_height = getKnobSectionHeight();
     int widget_margin = findValue(Skin::kWidgetMargin);
