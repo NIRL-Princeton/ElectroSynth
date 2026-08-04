@@ -103,9 +103,11 @@ void DefaultLookAndFeel::drawComboBox(Graphics& g, int width, int height, const 
     g.setColour(box.findColour(Skin::kBackground, true));
     g.fillRect(bounds);
 
-    // thin border
-    g.setColour(box.findColour(Skin::kBorder, true));
-    // g.drawRect(bounds, 1);
+    // Individual selectors can opt into an outline without changing every combo box.
+    if (box.isColourSpecified(juce::ComboBox::outlineColourId)) {
+        g.setColour(box.findColour(juce::ComboBox::outlineColourId));
+        g.drawRoundedRectangle(bounds.toFloat().reduced(0.5f), 3.0f, 1.0f);
+    }
 
     // dropdown arrow
     Path path = Paths::downTriangle();

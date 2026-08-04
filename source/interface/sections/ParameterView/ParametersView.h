@@ -51,11 +51,14 @@ namespace electrosynth {
         void ensureSliderLabels();
         void ensureModulationSlots(SynthSlider& slider);
         void updateSliderLabels();
+        juce::String getSliderLabel(const juce::Component& slider) const;
 //        struct Pimpl;
 //        std::unique_ptr<Pimpl> pimpl;
         std::vector<std::unique_ptr<juce::Component>> comps;
         std::map<juce::Component*, std::shared_ptr<PlainTextComponent>> slider_labels_;
         std::map<SynthSlider*, std::unique_ptr<ModulationSlots>> modulation_slot_strips_;
+        std::function<void(juce::Rectangle<int>)> filter_type_layout_;
+        int filter_type_index_ = 0;
         bool vertically_center_knobs_ = false;
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ParametersView)
     };
