@@ -286,6 +286,8 @@ PopupItems SynthSlider::createPopupMenu() {
 void SynthSlider::mouseDown(const juce::MouseEvent& e) {
 //  SynthBase* synth = synth_interface_->getSynth();
 
+  command_text_entry_candidate_ = false;
+
   if (e.mods.isAltDown()) {
     showTextEntry();
     return;
@@ -296,6 +298,7 @@ void SynthSlider::mouseDown(const juce::MouseEvent& e) {
     parent_->showPopupSelector(this, e.getPosition(), options, [=](int selection) { handlePopupResult(selection); });
   }
   else {
+    command_text_entry_candidate_ = e.mods.isCommandDown();
     if (isRotary())
       setMouseDragSensitivity(kDefaultRotaryDragLength / sensitivity_);
     else {
@@ -314,6 +317,9 @@ void SynthSlider::mouseDown(const juce::MouseEvent& e) {
 }
 
 void SynthSlider::mouseDrag(const juce::MouseEvent& e) {
+
+  if (e.mouseWasDraggedSinceMouseDown())
+    command_text_entry_candidate_ = false;
 
   float multiply = 1.0f;
 
@@ -338,11 +344,17 @@ void SynthSlider::mouseUp(const juce::MouseEvent& e) {
   if (e.mods.isPopupMenu() || e.mods.isAltDown())
     return;
 
+  const bool show_text_entry = command_text_entry_candidate_ && !e.mouseWasDraggedSinceMouseDown();
+  command_text_entry_candidate_ = false;
+
   //setDefaultRange();
   OpenGlSlider::mouseUp(e);
 
   for (SliderListener* listener : slider_listeners_)
     listener->mouseUp(this);
+
+  if (show_text_entry)
+    showTextEntry();
 
 //  synth_interface_->getSynth()->endChangeGesture(getName().toStdString());
 }
@@ -547,17 +559,18 @@ double SynthSlider::snapValue(double attempted_value, DragMode drag_mode) {
 }
 
 void SynthSlider::textEditorReturnKeyPressed(juce::TextEditor& editor) {
-  setSliderPositionFromText();
+  setSliderPositionFromText(editor.getText());
 }
 
 void SynthSlider::textEditorFocusLost(juce::TextEditor& editor) {
-  setSliderPositionFromText();
+  setSliderPositionFromText(editor.getText());
 }
 
-void SynthSlider::setSliderPositionFromText() {
-  if (text_entry_ && !text_entry_->getText().isEmpty())
-    setValue(getValueFromText(text_entry_->getText()));
-  text_entry_->setVisible(false);
+void SynthSlider::setSliderPositionFromText(const juce::String& text) {
+  if (!text.isEmpty())
+    setValue(getValueFromText(text));
+  if (text_entry_)
+    text_entry_->setVisible(false);
 
   for (SliderListener* listener : slider_listeners_)
     listener->menuFinished(this);
@@ -565,21 +578,21 @@ void SynthSlider::setSliderPositionFromText() {
 
 void SynthSlider::showTextEntry() {
 #if !defined(NO_TEXT_ENTRY)
-  text_entry_->setColour(juce::CaretComponent::caretColourId, findColour(Skin::kTextEditorCaret, true));
-  text_entry_->setColour(juce::TextEditor::textColourId, findColour(Skin::kBodyText, true));
-  text_entry_->setColour(juce::TextEditor::highlightedTextColourId, findColour(Skin::kBodyText, true));
-  text_entry_->setColour(juce::TextEditor::highlightColourId, findColour(Skin::kTextEditorSelection, true));
-  if (isRotary())
-    setRotaryTextEntryBounds();
-  else
-    setLinearTextEntryBounds();
-  text_entry_->setVisible(true);
+  if (!parent_)
+    return;
 
-  text_entry_->redoImage();
-  text_entry_->setText(getRawTextFromValue(getValue()));
-  text_entry_->selectAll();
-  if (text_entry_->isShowing())
-    text_entry_->grabKeyboardFocus();
+  juce::Component::SafePointer<SynthSlider> safe_this(this);
+  parent_->showPopupTextEntry(
+      this, getTextFromValue(getValue()).toStdString(), getRawTextFromValue(getValue()), popup_placement_,
+      [safe_this](const juce::String& text) {
+        if (safe_this != nullptr)
+          safe_this->setSliderPositionFromText(text);
+      },
+      [safe_this]() {
+        if (safe_this != nullptr)
+          for (SliderListener* listener : safe_this->slider_listeners_)
+            listener->menuFinished(safe_this.getComponent());
+      });
 #endif
 }
 

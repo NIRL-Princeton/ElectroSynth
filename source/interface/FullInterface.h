@@ -84,6 +84,9 @@ public :
 
     void popupDisplay(juce::Component* source, const std::string& text,
         juce::BubbleComponent::BubblePlacement placement, bool primary);
+    void popupTextEntry(juce::Component* source, const std::string& display_text,
+        const juce::String& editable_text, juce::BubbleComponent::BubblePlacement placement,
+        std::function<void(const juce::String&)> commit, std::function<void()> cancel);
 
     //void prepDisplay(PreparationSection* source);
     std::unique_ptr<SinglePopupSelector> popup_selector_;

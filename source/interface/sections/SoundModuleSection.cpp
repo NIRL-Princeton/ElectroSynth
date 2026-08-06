@@ -164,7 +164,6 @@ void SoundModuleSection::setEffectPositions() {
     if (getWidth() <= 0 || getHeight() <= 0) return;
 
     const int padding = findValue(Skin::kPadding);
-    const int large_padding = findValue(Skin::kLargePadding);
 
     const int start_x = padding;
     const int effect_width = getWidth() - 2 * padding;

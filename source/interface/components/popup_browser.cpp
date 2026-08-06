@@ -64,11 +64,27 @@ namespace {
 
 PopupDisplay::PopupDisplay() : SynthSection("Popup Display"), text_(new PlainTextComponent("Popup Text", "")),
                                body_(new OpenGlQuad(Shaders::kRoundedRectangleFragment)),
-                               border_(new OpenGlQuad(Shaders::kRoundedRectangleBorderFragment))
+                               border_(new OpenGlQuad(Shaders::kRoundedRectangleBorderFragment)),
+                               text_editor_(std::make_unique<OpenGlTextEditor>("Popup Value Editor"))
 {
     addOpenGlComponent(body_);
     addOpenGlComponent(border_);
     addOpenGlComponent(text_);
+    addOpenGlComponent(text_editor_->getImageComponent());
+
+    text_editor_->setMultiLine(false);
+    text_editor_->setScrollToShowCursor(false);
+    text_editor_->setSelectAllWhenFocused(true);
+    text_editor_->setKeyboardType(juce::TextEditor::numericKeyboard);
+    text_editor_->setJustification(juce::Justification::centred);
+    text_editor_->setAlwaysOnTop(true);
+    text_editor_->getImageComponent()->setAlwaysOnTop(true);
+    // The editor remains a real focus/input target, but its rasterized JUCE
+    // appearance is not rendered. Editable text is drawn by text_, exactly as
+    // it is for the ordinary slider value popup.
+    text_editor_->getImageComponent()->setActive(false);
+    text_editor_->addListener(this);
+    addChildComponent(text_editor_.get());
 
     text_->setJustification(juce::Justification::centred);
     text_->setFontType(PlainTextComponent::kLight);
@@ -91,6 +107,21 @@ void PopupDisplay::resized() {
 
     text_->setBounds(bounds);
     text_->setColor(findColour(Skin::kBodyText, true));
+
+    text_editor_->setBounds(bounds);
+    text_editor_->setColour(juce::TextEditor::backgroundColourId, juce::Colours::transparentBlack);
+    text_editor_->setColour(juce::TextEditor::outlineColourId, juce::Colours::transparentBlack);
+    text_editor_->setColour(juce::TextEditor::focusedOutlineColourId, juce::Colours::transparentBlack);
+    text_editor_->setColour(juce::CaretComponent::caretColourId, findColour(Skin::kTextEditorCaret, true));
+    text_editor_->setColour(juce::TextEditor::textColourId, findColour(Skin::kBodyText, true));
+    text_editor_->setColour(juce::TextEditor::highlightedTextColourId, findColour(Skin::kBodyText, true));
+    text_editor_->setColour(juce::TextEditor::highlightColourId, findColour(Skin::kTextEditorSelection, true));
+}
+
+void PopupDisplay::visibilityChanged() {
+    SynthSection::visibilityChanged();
+    if (editing_ && isShowing())
+        text_editor_->grabKeyboardFocus();
 }
 
 void PopupDisplay::setContent(const std::string& text, juce::Rectangle<int> bounds,
@@ -123,6 +154,70 @@ void PopupDisplay::setContent(const std::string& text, juce::Rectangle<int> boun
     text_->setText(text);
     text_->setTextSize(height * 0.5f);
     // DBG("PopupDisplay shown, body = " << findColour(Skin::kBody, true).toDisplayString(true));
+}
+
+void PopupDisplay::setEditableContent(const std::string& display_text, const juce::String& editable_text,
+                                      juce::Rectangle<int> bounds,
+                                      juce::BubbleComponent::BubblePlacement placement,
+                                      std::function<void(const juce::String&)> commit,
+                                      std::function<void()> cancel) {
+    setContent(display_text, bounds, placement);
+    commit_ = std::move(commit);
+    cancel_ = std::move(cancel);
+    editing_ = true;
+    text_->setVisible(true);
+    text_editor_->setVisible(true);
+    text_editor_->setText(editable_text, false);
+    text_->setText(editable_text);
+    text_editor_->selectAll();
+    if (text_editor_->isShowing())
+        text_editor_->grabKeyboardFocus();
+}
+
+void PopupDisplay::dismiss() {
+    // Slider hover/drag cleanup also calls hideDisplay(). Once editing begins,
+    // the editor owns dismissal through Return, Escape, or focus loss.
+    if (!editing_)
+        setVisible(false);
+}
+
+void PopupDisplay::textEditorTextChanged(juce::TextEditor& editor) {
+    text_->setText(editor.getText());
+}
+
+void PopupDisplay::textEditorReturnKeyPressed(juce::TextEditor&) {
+    finishEditing(true);
+}
+
+void PopupDisplay::textEditorEscapeKeyPressed(juce::TextEditor&) {
+    finishEditing(false);
+}
+
+void PopupDisplay::textEditorFocusLost(juce::TextEditor&) {
+    finishEditing(true);
+}
+
+void PopupDisplay::finishEditing(bool commit) {
+    if (!editing_)
+        return;
+
+    editing_ = false;
+    const auto entered_text = text_editor_->getText();
+    auto commit_callback = std::move(commit_);
+    auto cancel_callback = std::move(cancel_);
+    commit_ = {};
+    cancel_ = {};
+    text_editor_->setVisible(false);
+    text_->setVisible(true);
+    setVisible(false);
+
+    if (commit) {
+        if (commit_callback)
+            commit_callback(entered_text);
+    }
+    else if (cancel_callback) {
+        cancel_callback();
+    }
 }
 
 PopupList::PopupList() : SynthSection("Popup List"),
@@ -1074,4 +1169,3 @@ void DualPopupSelector::newSelection(PopupList* list, int id, int index) {
     else
         callback_(id);
 }
-

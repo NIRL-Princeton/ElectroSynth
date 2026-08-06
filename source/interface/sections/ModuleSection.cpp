@@ -6,7 +6,6 @@
 // editor view (ParametersView) and gives it a header, border/background, exit button, draft behavior, and a height.
 
 #include "ModuleSection.h"
-
 #include "ParameterView/FxModuleTemplateView.h"
 #include "SoundModuleSection.h"
 #include "mapping_manager.h"
@@ -137,7 +136,13 @@ void ModuleSection::setAreaSkinOverride(Skin::SectionOverride skin_override) {
 }
 
 int ModuleSection::getPreferredHeight() const {
-    return (_view != nullptr ? _view->getPreferredHeight() : 0) + kHeaderHeight;
+    // first is callista's
+    //return (_view != nullptr ? _view->getPreferredHeight() : 0) + kHeaderHeight;
+    // resized() reserves both the header and bottom audio-port area outside the
+    // editor view, so the wrapper's sizing contract must advertise both regions.
+    // Gabe's
+    return (_view != nullptr ? _view->getPreferredHeight() : 0)
+         + kHeaderHeight + kContentBottomPadding;
 }
 
 int ModuleSection::refreshHeight() {

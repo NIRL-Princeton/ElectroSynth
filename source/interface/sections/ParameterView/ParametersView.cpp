@@ -60,16 +60,27 @@ public:
         public:
             ChoiceParameterComponent(chowdsp::ChoiceParameter &param, chowdsp::PluginState& listeners,SynthSection &parent)
                     : attachment(param, listeners, box) {
+                setComponentID(param.paramID);
                 addAndMakeVisible(box);
                 parent.addChildComponent (box);
                 parent.addOpenGlComponent (box.getImageComponent());
             }
 
-            void resized() override {
-                auto area = getBoundsInParent();
-                area.removeFromLeft(8);
-                box.setBounds(area.reduced(0, 10));
+            void setControlBounds(juce::Rectangle<int> bounds) {
+                setBounds(bounds);
+                box.setBounds(bounds);
             }
+
+            void configureFilterSelector(std::function<void(int)> selection_changed) {
+                box.setColour(juce::ComboBox::outlineColourId, juce::Colours::white);
+                box.getImageComponent()->setRenderScale(2.0f);
+                box.onChange = [this, callback = std::move(selection_changed)] {
+                    callback(box.getSelectedItemIndex());
+                };
+                box.redoImage();
+            }
+
+            int getSelectedItemIndex() const { return box.getSelectedItemIndex(); }
 
         private:
             OpenGLComboBox box;
@@ -211,7 +222,20 @@ public:
         params.doForAllParameterContainers(
             [this, &pluginState](auto &paramVec) {
                     for (auto &param: paramVec) {
-                        comps.push_back(parameters_view_detail::createParameterComp(pluginState, param, *this));
+                        auto component = parameters_view_detail::createParameterComp(pluginState, param, *this);
+                        if (param->paramID == "filterType") {
+                            if (auto* choice = dynamic_cast<parameters_view_detail::ChoiceParameterComponent*>(component.get())) {
+                                filter_type_layout_ = [choice](juce::Rectangle<int> bounds) {
+                                    choice->setControlBounds(bounds);
+                                };
+                                filter_type_index_ = choice->getSelectedItemIndex();
+                                choice->configureFilterSelector([this](int index) {
+                                    filter_type_index_ = index;
+                                    updateSliderLabels();
+                                });
+                            }
+                        }
+                        comps.push_back(std::move(component));
                     }
                 },
                 [this, &pluginState](auto &paramHolder) {
@@ -263,11 +287,28 @@ public:
     }
 
     int ParametersView::getPreferredHeight() const {
-        return getKnobRowCount() * kModuleHeightPerKnobRow;
+        constexpr int kFilterTypeRowHeight = 28;
+        return getKnobRowCount() * kModuleHeightPerKnobRow
+               + (filter_type_layout_ ? kFilterTypeRowHeight : 0);
     }
 
     juce::Colour ParametersView::getSliderLabelColor() const {
         return findColour(Skin::kBodyText, true);
+    }
+
+    juce::String ParametersView::getSliderLabel(const juce::Component& slider) const {
+        if (!filter_type_layout_)
+            return slider.getName();
+
+        const bool peak = filter_type_index_ == 4;
+        const bool shelf = filter_type_index_ == 5 || filter_type_index_ == 6;
+        if (slider.getName().equalsIgnoreCase("Cutoff"))
+            return peak || shelf ? "Frequency" : "Cutoff";
+        if (slider.getName().equalsIgnoreCase("Q"))
+            return peak ? "Bandwidth" : "Resonance";
+        if (slider.getName().equalsIgnoreCase("Amp"))
+            return peak || shelf ? "Gain" : "Output";
+        return slider.getName();
     }
 
     void ParametersView::paint(juce::Graphics &g) {
@@ -319,7 +360,7 @@ public:
             it->second->setBounds(bounds.getX(),
                                   bounds.getY() - kKnobLabelGap - kKnobLabelHeight,
                                   bounds.getWidth(),kKnobLabelHeight);
-            it->second->setText(slider->getName());
+            it->second->setText(getSliderLabel(*slider));
             it->second->setTextSize(getLabelFont().getHeight());
             it->second->setColor(getSliderLabelColor());
         }
@@ -335,7 +376,16 @@ public:
         const int knobs_per_row = getKnobsPerRow();
         const int num_rows = getKnobRowCount();
         const int widget_margin = findValue(Skin::kWidgetMargin);
-        const int row_height = getHeight() / num_rows;
+        constexpr int kFilterTypeRowHeight = 28;
+        constexpr int kFilterTypeHeight = 20;
+        const int content_top = filter_type_layout_ ? kFilterTypeRowHeight : 0;
+        if (filter_type_layout_) {
+            const int combo_width = juce::jlimit(120, 220, getWidth() / 3);
+            filter_type_layout_(juce::Rectangle<int>((getWidth() - combo_width) / 2,
+                                                      (kFilterTypeRowHeight - kFilterTypeHeight) / 2,
+                                                      combo_width, kFilterTypeHeight));
+        }
+        const int row_height = std::max(1, (getHeight() - content_top) / num_rows);
 
         for (int row = 0; row < num_rows; ++row) {
             const int first = row * knobs_per_row;
@@ -344,7 +394,8 @@ public:
             if (count <= 0)
                 continue;
 
-            juce::Rectangle<int> row_area(0, row * row_height, getWidth(), row_height);
+            juce::Rectangle<int> row_area(0, content_top + row * row_height,
+                                          getWidth(), row_height);
             const float component_width = (row_area.getWidth() - (count + 1) * widget_margin) / static_cast<float>(count);
             float x = row_area.getX() + widget_margin;
             int top = row_area.getY() + kKnobLabelHeight + kKnobLabelGap;
@@ -412,6 +463,24 @@ FxModuleTemplateView::FxModuleTemplateView(chowdsp::PluginState& pluginState, ch
 
         params.doForAllParameterContainers([this, &pluginState](auto& paramVec) {
             for (auto& param : paramVec) {
+                if (auto* choice = dynamic_cast<chowdsp::ChoiceParameter*>(param.get());
+                    choice != nullptr && param->paramID == "filterType") {
+                    filter_type_combo_ = std::make_unique<OpenGLComboBox>();
+                    filter_type_combo_->setColour(juce::ComboBox::outlineColourId,
+                                                  juce::Colours::white);
+                    filter_type_combo_->getImageComponent()->setRenderScale(2.0f);
+                    addAndMakeVisible(filter_type_combo_.get());
+                    addOpenGlComponent(filter_type_combo_->getImageComponent());
+                    filter_type_attachment_ = std::make_unique<chowdsp::ComboBoxAttachment>(
+                        *choice, pluginState, *filter_type_combo_);
+                    filter_type_index_ = filter_type_combo_->getSelectedItemIndex();
+                    filter_type_combo_->onChange = [this] {
+                        filter_type_index_ = filter_type_combo_->getSelectedItemIndex();
+                        updateLabels();
+                    };
+                    continue;
+                }
+
                 if ((int)comps.size() < kMaxEffectSlots)
                     comps.push_back(parameters_view_detail::createParameterComp(pluginState, param, *this));
             }
@@ -422,6 +491,9 @@ FxModuleTemplateView::FxModuleTemplateView(chowdsp::PluginState& pluginState, ch
     // No greyed-out placeholder knobs are created for empty slots.
     mix_knob_ = std::make_unique<NoPopupSynthSlider>("Mix");
     mix_knob_->setSliderStyle(juce::Slider::LinearBar);
+    // They use a dedicated utility layout below the real rotary parameters.
+    // mix_knob_ = std::make_unique<SynthSlider>("Mix");
+    // mix_knob_->setSliderStyle(juce::Slider::LinearBar);
     mix_knob_->setScrollWheelEnabled(false);
     mix_knob_->setKnobSizeScale(1.0f);
     addSlider(mix_knob_.get(), true);
@@ -429,46 +501,25 @@ FxModuleTemplateView::FxModuleTemplateView(chowdsp::PluginState& pluginState, ch
 
     postgain_knob_ = std::make_unique<NoPopupSynthSlider>("PostGain");
     postgain_knob_->setSliderStyle(juce::Slider::LinearBar);
+    // postgain_knob_ = std::make_unique<SynthSlider>("PostGain");
+    // postgain_knob_->setSliderStyle(juce::Slider::LinearBar);
     postgain_knob_->setScrollWheelEnabled(false);
     postgain_knob_->setKnobSizeScale(1.0f);
     addSlider(postgain_knob_.get(), true);
     postgain_knob_->parentHierarchyChanged();
 
-    // Filter modules get a placeholder type dropdown between the module title and the
-    // first control row. Same presentation-only pattern as the lane header's routing
-    // dropdown: one item, rejects clicks, no keyboard focus. The editor name is
-    // "<type><uuid>" (see FilterModuleProcessor::createEditor), so a "filt" prefix
-    // identifies the filter view.
-    if (name.startsWith("filt")) {
-        filter_type_combo_ = std::make_unique<OpenGLComboBox>();
-        filter_type_combo_->addItem("Lowpass", 1);
-        filter_type_combo_->setSelectedId(1, juce::dontSendNotification);
-        filter_type_combo_->setInterceptsMouseClicks(false, false);
-        filter_type_combo_->setWantsKeyboardFocus(false);
-        addAndMakeVisible(filter_type_combo_.get());
-        addOpenGlComponent(filter_type_combo_->getImageComponent());
-
-        // The combo's fill matches the module body; a live white border quad provides
-        // the visual separation (this view's paintBackground is never baked in FX).
-        filter_type_combo_border_ = std::make_shared<OpenGlQuad>(
-            Shaders::kRoundedRectangleBorderFragment, "filter_type_combo_border");
-        filter_type_combo_border_->setInterceptsMouseClicks(false, false);
-        filter_type_combo_border_->setColor(juce::Colours::white);
-        addOpenGlComponent(filter_type_combo_border_);
-    }
-
     setLookAndFeel(DefaultLookAndFeel::instance());
     setOpaque(false);
     ensureLabels();
+    updateLabels();
 }
 
 FxModuleTemplateView::~FxModuleTemplateView() = default;
 
-// FX-local layout constants. These shrink the FX knob/tick-arc footprint and tune
-// vertical spacing for the narrow FX panel ONLY. They do not touch global skin
-// values or shared SynthSlider rendering constants.
+// FX-local layout constants. FX rotaries intentionally use the same shared default
+// scale as oscillator controls; spacing remains local to the narrow FX panel.
 namespace {
-    constexpr float kFxKnobScale       = 0.7225f; // 0.85 * 0.85 — FX knob/tick-arc footprint
+    constexpr float kFxKnobScale       = OpenGlSlider::kDefaultKnobSizeScale;
     constexpr int   kFxLabelHeight     = 18;      // tall enough to avoid clipping descenders
     constexpr int   kFxLabelToArcGap   = 2;       // label bottom -> top of tick arc
     constexpr int   kFxRowTopPad       = 10;      // padding above the first row
@@ -478,6 +529,13 @@ namespace {
     constexpr int   kFxSideInset       = 1;       // side inset = border thickness (paintBorder draws 1px)
     constexpr int   kFxModulationBoxGap = 4;
     constexpr int   kFxModulationBoxWidth = 120;
+    constexpr int   kFxUtilityTopGap = 20;
+    constexpr int   kFxUtilityLabelWidth = 60;
+    constexpr int   kFxUtilitySideInset = 20;
+    constexpr int   kFxUtilitySliderHeight = 20;
+    constexpr int   kFxUtilityRowGap = 10;
+    // ModuleSection draws the audio-port arrows over its bottom content area.
+    constexpr int   kFxAudioPortReserve = 30;
     // Filter type dropdown: doubled top gap hosts the control; height matches the lane
     // header's routing dropdown (kRoutingControlHeight in EffectsModuleSection).
     constexpr int   kFxTypeComboHeight = 14;
@@ -485,6 +543,21 @@ namespace {
 
 juce::Colour FxModuleTemplateView::getLabelColor(const juce::Component* control) const {
     return ShaderColors::kEffectTextColor;
+}
+
+juce::String FxModuleTemplateView::getControlLabel(const juce::Component& control) const {
+    if (filter_type_combo_ == nullptr)
+        return control.getName();
+
+    const bool peak = filter_type_index_ == 4;
+    const bool shelf = filter_type_index_ == 5 || filter_type_index_ == 6;
+    if (control.getName().equalsIgnoreCase("Cutoff"))
+        return peak || shelf ? "Frequency" : "Cutoff";
+    if (control.getName().equalsIgnoreCase("Q"))
+        return peak ? "Bandwidth" : "Resonance";
+    if (control.getName().equalsIgnoreCase("Amp"))
+        return peak || shelf ? "Gain" : "Output";
+    return control.getName();
 }
 
 void FxModuleTemplateView::ensureLabels() {
@@ -526,9 +599,10 @@ void FxModuleTemplateView::updateLabels() {
             continue;
 
         const auto b = slider->getBounds();
-        it->second->setBounds(b.getX(), b.getY() - kFxLabelHeight - kFxLabelToArcGap,
-                              b.getWidth(), kFxLabelHeight);
-        it->second->setText(slider->getName());
+        if (slider != mix_knob_.get() && slider != postgain_knob_.get())
+            it->second->setBounds(b.getX(), b.getY() - kFxLabelHeight - kFxLabelToArcGap,
+                                  b.getWidth(), kFxLabelHeight);
+        it->second->setText(getControlLabel(*slider));
         it->second->setTextSize(getLabelFont().getHeight());
         it->second->setColor(getLabelColor(slider));
         it->second->setVisible(slider->isEnabled());
@@ -544,17 +618,29 @@ int FxModuleTemplateView::getPreferredHeight() const {
     constexpr int footerTopGap = 20;
     constexpr int footerHeight = 2 * 20 + 6;
 
-    const int n = static_cast<int> (comps.size());
-    if (n <= 0)
-        return top_pad + kFxRowBottomPad;
+    const int n = static_cast<int>(comps.size());
+    // const int n = static_cast<int> (comps.size());
+    // if (n <= 0)
+    //     return top_pad + kFxRowBottomPad;
 
     const int knobPx = std::max(1, (int) std::ceil(kFxKnobScale * 2.0f * (findValue(Skin::kKnobArcSize) + findValue(Skin::kKnobArcThickness))));
 
     const int perRow  = std::max(1, std::min(getWidth() / kFxMinKnobCellWidth, n));
     const int numRows = (n + perRow - 1) / perRow; // matches resized()'s grouping row count
     const int rowContentH = kFxLabelHeight + kFxLabelToArcGap + knobPx + kFxModulationBoxGap + ConnectionSlots::kSlotHeight;
+    // const int perRow = std::max(1, std::min(getWidth() / kFxMinKnobCellWidth,
+    //                                         std::max(1, n)));
+    // const int numRows = n > 0 ? (n + perRow - 1) / perRow : 0;
+    // const int rowContentH = kFxLabelHeight + kFxLabelToArcGap + knobPx
+    //                         + kFxModulationBoxGap + ModulationSlots::kHeight;
+    // const int parameter_height = numRows > 0
+    //     ? numRows * rowContentH + (numRows - 1) * kFxRowGap
+    //     : 0;
+    // const int utility_height = kFxUtilityTopGap + 2 * kFxUtilitySliderHeight
+    //                          + kFxUtilityRowGap + kFxAudioPortReserve;
 
     return top_pad + numRows * rowContentH + (numRows - 1) * kFxRowGap + kFxRowBottomPad + footerHeight + footerTopGap;
+    //return top_pad + parameter_height + kFxRowBottomPad + utility_height;
 }
 
 void FxModuleTemplateView::resized() {
@@ -563,7 +649,8 @@ void FxModuleTemplateView::resized() {
     // 2. Shrink the FX knob/tick-arc footprint locally (raster + GL rotary). Does NOT
     // change global skin values or shared SynthSlider constants.
     for (auto* slider : all_sliders_v)
-        if (auto* ss = dynamic_cast<SynthSlider*>(slider))
+        if (auto* ss = dynamic_cast<SynthSlider*>(slider);
+            ss != nullptr && ss != mix_knob_.get() && ss != postgain_knob_.get())
             ss->setKnobSizeScale(kFxKnobScale);
 
     // 3. Rendered knob box, matched to the FX-scaled arc.
@@ -571,25 +658,30 @@ void FxModuleTemplateView::resized() {
         kFxKnobScale * 2.0f * (findValue(Skin::kKnobArcSize)
                                + findValue(Skin::kKnobArcThickness))));
 
-    // 4. Visible controls in order: real params, then Mix
+    // 4. Real parameter controls remain rotary. Mix and PostGain are laid out
+    // separately as utility bars below them.
     std::vector<juce::Component*> controls;
-    controls.reserve(comps.size() + 2);
+    controls.reserve(comps.size()); // + 2 before
     for (auto& c : comps)
         controls.push_back(c.get());
 
     // 5. Knobs per row = as many as fit the lane width, clamped to [1, n].
-    const int n = static_cast<int> (controls.size());
-    if (n == 0) {
-        SynthSection::resized();
-        return;
-    }
+    const int n = (int) controls.size();
+    // const int n = static_cast<int> (controls.size());
+    // if (n == 0) {
+    //     SynthSection::resized();
+    //     return;
+    // }
     // perRow ignores the side inset; the inset only trims the row area used for centering.
-    const int perRow = std::max(1, std::min(w / kFxMinKnobCellWidth, n));
+    const int perRow = std::max(1, std::min(w / kFxMinKnobCellWidth,
+                                            std::max(1, n)));
 
     // 6. Row sizes. remainder becomes a smaller FIRST row so every later row (incl. the
     // final Mix/PostGain row) is full; single-per-row when only one fits.
     std::vector<int> rows;
-    if (perRow <= 1) {
+    if (n == 0) {
+        rows.clear();
+    } else if (perRow <= 1) {
         rows.assign(n, 1);
     } else {
         const int leftover = n % perRow;
@@ -608,9 +700,6 @@ void FxModuleTemplateView::resized() {
         const int combo_w = std::max(60, w / 2);
         filter_type_combo_->setBounds((w - combo_w) / 2, (top_pad - combo_h) / 2,
                                       combo_w, combo_h);
-        filter_type_combo_border_->setBounds(filter_type_combo_->getBounds().expanded(1));
-        filter_type_combo_border_->setRounding(3.0f);
-        filter_type_combo_border_->setThickness(1.0f, true);
     }
 
     const int rowContentH = kFxLabelHeight + kFxLabelToArcGap + knobPx + kFxModulationBoxGap + ConnectionSlots::kSlotHeight;
@@ -627,26 +716,46 @@ void FxModuleTemplateView::resized() {
         y += rowContentH + kFxRowGap;
     }
 
-    updateLabels();
-    constexpr int arrow_height = 30;
-    constexpr int sliderHeight = 20;
-    constexpr int sideInset = 20;
-    const int footerHeight = 2 * sliderHeight + kFxRowGap + arrow_height;
-    const int footerY = getPreferredHeight() - footerHeight;
+    const int parameter_bottom = rows.empty() ? top_pad : y - kFxRowGap;
+    const int utility_y = parameter_bottom + kFxRowBottomPad + kFxUtilityTopGap;
+    const int utility_width = std::max(0, w - 2 * kFxUtilitySideInset);
 
-    auto layoutLinearSlider = [&] (SynthSlider& slider, int y) {
-        auto row = juce::Rectangle<int>(sideInset, y, getWidth() - 2 * sideInset, sliderHeight);
-        auto labelBounds = row.removeFromLeft(60);
+    auto layoutUtilitySlider = [this, utility_width](SynthSlider& slider, int row_y) {
+        auto row = juce::Rectangle<int>(kFxUtilitySideInset, row_y, utility_width,
+                                        kFxUtilitySliderHeight);
+        const auto label_bounds = row.removeFromLeft(
+            std::min(kFxUtilityLabelWidth, row.getWidth()));
         slider.setBounds(row);
         slider.redoImage();
 
-        if (auto label = slider_labels_.find(&slider);
-            label != slider_labels_.end())
-            label->second->setBounds(labelBounds);
+        if (auto label = slider_labels_.find(&slider); label != slider_labels_.end())
+            label->second->setBounds(label_bounds);
     };
 
-    layoutLinearSlider(*mix_knob_, footerY);
-    layoutLinearSlider(*postgain_knob_, footerY + sliderHeight + kFxRowGap);
+    layoutUtilitySlider(*mix_knob_, utility_y);
+    layoutUtilitySlider(*postgain_knob_,
+                        utility_y + kFxUtilitySliderHeight + kFxUtilityRowGap);
+
+    updateLabels();
+    // constexpr int arrow_height = 30;
+    // constexpr int sliderHeight = 20;
+    // constexpr int sideInset = 20;
+    // const int footerHeight = 2 * sliderHeight + kFxRowGap + arrow_height;
+    // const int footerY = getPreferredHeight() - footerHeight;
+    //
+    // auto layoutLinearSlider = [&] (SynthSlider& slider, int y) {
+    //     auto row = juce::Rectangle<int>(sideInset, y, getWidth() - 2 * sideInset, sliderHeight);
+    //     auto labelBounds = row.removeFromLeft(60);
+    //     slider.setBounds(row);
+    //     slider.redoImage();
+    //
+    //     if (auto label = slider_labels_.find(&slider);
+    //         label != slider_labels_.end())
+    //         label->second->setBounds(labelBounds);
+    // };
+    //
+    // layoutLinearSlider(*mix_knob_, footerY);
+    // layoutLinearSlider(*postgain_knob_, footerY + sliderHeight + kFxRowGap);
 
     // 8. Redo slider images + labels.
     for (auto* slider : all_sliders_v)
@@ -672,7 +781,7 @@ void FxModuleTemplateView::paintBackground(juce::Graphics& g) {
 
     // NOTE: this function is not invoked in the FX lane path — ModuleSection::
     // paintBackground() is intentionally empty and never paints its child view, so the
-    // combo outline below is a live GL quad (filter_type_combo_border_), not baked here.
+    // combo outline is part of the combo's own high-resolution OpenGL image.
 
     // FX modulation boxes are hidden for now, but the layout still reserves their space
     // to preserve row spacing (see mod_boxes_ / kFxModBoxHeight in resized()). The old

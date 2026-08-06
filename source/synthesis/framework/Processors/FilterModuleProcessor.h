@@ -23,7 +23,7 @@ namespace electrosynth{
 // creating the parameters associated with a filter module [cutoff, Q, and amp]
 struct FilterParams : public LEAFParams<_tFiltModule > {
     FilterParams(LEAF* leaf) : LEAFParams<_tFiltModule>(leaf) {
-        add(cutoff,Q, amp);
+        add(cutoff,Q, amp, filterType);
     }
     //add env watch param so that it isn't null
     chowdsp::FloatParameter::Ptr envwatchparam {
@@ -49,7 +49,6 @@ struct FilterParams : public LEAFParams<_tFiltModule > {
         [this](float val)
         {
             for (auto mod: modules) tFiltModule_setParameter(mod,FiltCutoff,val);
-            DBG("Filt [0 - 1]" + juce::String(val) + " .. .  Filt actual Val" + juce::String(modules[0]->cutoffKnob));
         }
     };
 
@@ -80,6 +79,16 @@ struct FilterParams : public LEAFParams<_tFiltModule > {
             for (auto mod: modules) tFiltModule_setParameter(mod,FiltGain,val);
         },
     };
+
+    chowdsp::ChoiceParameter::Ptr filterType {
+        juce::ParameterID { "filterType", 100 },
+        "Filter Type",
+        all_params[FiltParams::FiltType],
+        [](float) {},
+        juce::StringArray { "Lowpass", "Highpass", "Bandpass", "Diode Lowpass",
+                            "Peak", "High Shelf", "Low Shelf", "Notch", "Ladder Lowpass" },
+        FiltTypeLowpass
+    };
 };
 
 class FilterModuleProcessor : public ProcessorStateBase<PluginStateImpl_<FilterParams>> {
@@ -90,7 +99,12 @@ public:
     }
     void getNextAudioBlock (const juce::AudioSourceChannelInfo &bufferToFill) override {}
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
-    void prepareToPlay (int samplesPerBlock, double sampleRate ) override {};
+    void prepareToPlay (int samplesPerBlock, double sampleRate ) override {
+        filterTransitionSamples_ = juce::jmax(
+            1, juce::roundToInt(sampleRate * kFilterTypeTransitionSeconds));
+        for (auto* module : state_.params.modules)
+            tFiltModule_setSampleRate(module, (float)sampleRate);
+    };
     void releaseResources() override {}
     std::unique_ptr<SynthSection> createEditor() override {
         auto name = state.getProperty(IDs::type).toString() + state.getProperty(IDs::uuid).toString();
@@ -100,6 +114,11 @@ public:
             return std::make_unique<electrosynth::ParametersView>(state_, state_.params, name);
         return std::make_unique<electrosynth::FxModuleTemplateView>(state_, state_.params, name);
     }
+
+private:
+    static constexpr double kFilterTypeTransitionSeconds = 0.005;
+    int currentFilterType_ = FiltTypeLowpass;
+    int filterTransitionSamples_ = 220;
 };
 
 #endif //ELECTROSYNTH_OSCILLATORMODULEPROCESSOR_H
