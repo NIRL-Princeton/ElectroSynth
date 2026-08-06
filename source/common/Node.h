@@ -17,24 +17,11 @@ namespace electrosynth::audio
         Sink
     };
 
-    enum class PortDirection // describes direction
-    {
-        Input,
-        Output
-    };
-
     enum class AudioDomain // describes buffer format
     {
         PerVoiceStereo
     };
 
-    struct PortDescriptor // defines one specific kind of connection to a node, such as audio_in
-    {
-        juce::String Id;
-        juce::String displayName;
-        PortDirection direction = PortDirection::Input;
-        AudioDomain domain = AudioDomain::PerVoiceStereo;
-    };
 
     struct NodeDescriptor // defines one component's complete routing capabilities, will later contain multiple port adresses
     {
@@ -81,33 +68,21 @@ namespace electrosynth::audio
         };
     }
 
-    inline juce::String createAudioNodeId() {
+    inline juce::String createNodeId() {
         return juce::Uuid().toString();
     }
 
-    inline void ensureAudioNodeId(juce::ValueTree state, juce::UndoManager* undo_manager = nullptr) {
+    inline void ensureNodeId(juce::ValueTree state, juce::UndoManager* undo_manager = nullptr) {
         if (!state.isValid()) {
             jassertfalse;
             return;
         }
 
-        const auto existingId = state.getProperty (IDs::audioNodeId).toString();
-        if (existingId.isEmpty()) {
-            state.setProperty(IDs::audioNodeId, createAudioNodeId(), undo_manager);
-        }
+        auto nodeId = state.getProperty (IDs::nodeID).toString();
+        if (nodeId.isEmpty()) nodeId = state.getProperty(IDs::audioNodeId).toString();
+        if (nodeId.isEmpty()) nodeId = createNodeId();
+
+        state.setProperty(IDs::nodeID, nodeId, undo_manager);
     }
-
-    // one port belonging to one specific node
-    struct AudioPortAddress {
-        juce::String nodeId;
-        juce::String portId;
-        PortDirection direction = PortDirection::Input;
-        AudioDomain domain = AudioDomain::PerVoiceStereo;
-
-        bool isValid() const noexcept {
-            return nodeId.isNotEmpty() && portId.isNotEmpty();
-        }
-    };
-
 
 }

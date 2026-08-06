@@ -22,14 +22,12 @@
 #include <set>
 #include <string>
 #include "midi_manager.h"
-#include <set>
-#include <string>
 #include "leaf.h"
 #include "ModulationWrapper.h"
 #include "ModulationConnection.h"
 #include "circular_queue.h"
-#include "ModulationConnection.h"
 #include "ModuleList.h"
+#include "ConnectionRecord.h"
 class RoutingProcessor;
 class ProcessorBase;
 class ModulatorBase;
@@ -62,16 +60,16 @@ public:
 
     void presetChangedThroughMidi(juce::File preset) override;
 
-    std::vector<electrosynth::ModulationConnection *> getSourceConnections(const std::string &source);
+    std::vector<electrosynth::Connection *> getSourceConnections(const std::string &source);
 
-    std::vector<electrosynth::ModulationConnection *> getDestinationConnections(const std::string &destination);
+    std::vector<electrosynth::Connection *> getDestinationConnections(const std::string &destination);
 
-    electrosynth::ModulationConnection *getConnection(const std::string &source, const std::string &destination,
+    electrosynth::Connection *getConnection(const std::string &source, const std::string &destination,
                                                       int destination_slot = -1);
 
     bool loadFromFile(File preset, std::string &error);
 
-    std::unique_ptr<electrosynth::ModulationConnection>
+    std::unique_ptr<electrosynth::Connection>
     createConnection(const std::string &from, const std::string &to);
 
     bool hasSourceDestinationConnection(const std::string &source, const std::string &destination) const;
@@ -79,13 +77,15 @@ public:
     bool connectModulation(const std::string &source, const std::string &destination,
                            int destination_slot = -1);
 
-    void connectModulation(electrosynth::ModulationConnection *connection);
+    bool connect(const electrosynth::ConnectionRecord& connection);
+
+    void connectModulation(electrosynth::Connection *connection);
 
     int getSampleRate();
 
     void initEngine();
 
-    electrosynth::ModulationConnectionBank &getModulationBank();
+    electrosynth::ConnectionBank &getModulationBank();
 
     void setPresetName(const juce::String &preset_name);
 
@@ -177,10 +177,10 @@ public:
 
     void clearActiveFile() { active_file_ = File(); }
     File getActiveFile() { return active_file_; }
-    electrosynth::CircularQueue<electrosynth::ModulationConnection *> mod_connections_;
+    electrosynth::CircularQueue<electrosynth::Connection *> mod_connections_;
     moodycamel::ConcurrentQueue<electrosynth::mapping_change> modulation_change_queue_;
 
-    void disconnectModulation(electrosynth::ModulationConnection *connection);
+    void disconnectModulation(electrosynth::Connection *connection);
 
     void disconnectModulation(const std::string &source, const std::string &destination);
 
@@ -203,15 +203,27 @@ public:
     void valueTreePropertyChanged(ValueTree &treeWhosePropertyHasChanged, const Identifier &property) override;
 
 protected:
-    electrosynth::mapping_change createMappingChange(electrosynth::ModulationConnection *mod);
+    electrosynth::mapping_change createMappingChange(electrosynth::Connection *mod);
 
     bool isInvalidConnection(const electrosynth::mapping_change& change) {
-        return change.mapping == nullptr
-               || change.connection == nullptr
-               || change._source == nullptr
-               || change._dest == nullptr
-               || change.dest_param_index < 0
-               || change.dest_param_index >= MAX_NUM_PARAMS;
+        if (change.mapping == nullptr
+            || change.connection == nullptr
+            || change._source == nullptr
+            || change._dest == nullptr
+            || change.dest_param_index < 0
+            || change.dest_param_index >= MAX_NUM_PARAMS)
+            return true;
+
+        for (int voice = 0; voice < MAX_NUM_VOICES; ++voice) {
+            const auto* source = change._source->at(voice);
+            const auto* destination = change._dest->at(voice);
+            if (source == nullptr
+                || destination == nullptr
+                || destination->params[change.dest_param_index] == nullptr)
+                return true;
+        }
+
+        return false;
     }
 
 

@@ -56,7 +56,7 @@ SynthBase::SynthBase(AudioDeviceManager *deviceManager) : tree(ValueTree(IDs::EL
 
     engine_ = std::make_unique<electrosynth::SoundEngine>(um);
 
-    mod_connections_.reserve(electrosynth::kMaxModulationConnections);
+    mod_connections_.reserve(electrosynth::kMaxConnections);
 
     keyboard_state_ = std::make_unique<MidiKeyboardState>();
     ValueTree v;
@@ -139,7 +139,7 @@ void SynthBase::presetChangedThroughMidi(File preset) {
 
 int SynthBase::getNumModulations(const std::string &destination) {
     int connections = 0;
-    for (electrosynth::ModulationConnection *connection: mod_connections_) {
+    for (electrosynth::Connection *connection: mod_connections_) {
         if (connection->destination_name == destination)
             connections++;
     }
@@ -628,12 +628,12 @@ juce::UndoManager &SynthBase::getUndoManager() {
 
 /////////////////////// begin modulation and processor queue processing /////////
 
-electrosynth::ModulationConnectionBank &SynthBase::getModulationBank() {
+electrosynth::ConnectionBank &SynthBase::getModulationBank() {
     return engine_->getModulationBank();
 }
 
 //this function does not set if it is disconnecting or not. you must do that outside this function
-electrosynth::mapping_change SynthBase::createMappingChange(electrosynth::ModulationConnection *connection) {
+electrosynth::mapping_change SynthBase::createMappingChange(electrosynth::Connection *connection) {
     electrosynth::mapping_change change {};
     change.connection = connection;
     if (connection == nullptr)
@@ -659,8 +659,8 @@ electrosynth::mapping_change SynthBase::createMappingChange(electrosynth::Modula
 }
 
 
-std::vector<electrosynth::ModulationConnection *> SynthBase::getSourceConnections(const std::string &source) {
-    std::vector<electrosynth::ModulationConnection *> connections;
+std::vector<electrosynth::Connection *> SynthBase::getSourceConnections(const std::string &source) {
+    std::vector<electrosynth::Connection *> connections;
     for (auto &connection: mod_connections_) {
         if (connection->source_name == source)
             connections.push_back(connection);
@@ -668,8 +668,8 @@ std::vector<electrosynth::ModulationConnection *> SynthBase::getSourceConnection
     return connections;
 }
 
-std::vector<electrosynth::ModulationConnection *> SynthBase::getDestinationConnections(const std::string &destination) {
-    std::vector<electrosynth::ModulationConnection *> connections;
+std::vector<electrosynth::Connection *> SynthBase::getDestinationConnections(const std::string &destination) {
+    std::vector<electrosynth::Connection *> connections;
     for (auto &connection: mod_connections_) {
         if (connection->destination_name == destination)
             connections.push_back(connection);
@@ -677,7 +677,7 @@ std::vector<electrosynth::ModulationConnection *> SynthBase::getDestinationConne
     return connections;
 }
 
-electrosynth::ModulationConnection *SynthBase::getConnection(const std::string &source,
+electrosynth::Connection *SynthBase::getConnection(const std::string &source,
     const std::string &destination, int destination_slot) {
     for (auto &connection: mod_connections_) {
         if (connection->source_name == source
@@ -698,9 +698,26 @@ bool SynthBase::hasSourceDestinationConnection(const std::string &source, const 
     return false;
 }
 
+bool SynthBase::connect(const electrosynth::ConnectionRecord& connection) {
+    if (!connection.isValid())
+        return false;
+
+    switch (connection.type) {
+        case electrosynth::ConnectionType::Modulation:
+            return connectModulation(connection.source.endpointId.toStdString(),
+                                     connection.destination.endpointId.toStdString(),
+                                     connection.destinationSlot);
+
+        case electrosynth::ConnectionType::Audio:
+            return true;
+    }
+
+    return false;
+}
+
 bool SynthBase::connectModulation(const std::string &source, const std::string &destination, int destination_slot) {
 
-    electrosynth::ModulationConnection *connection = getConnection(source, destination, destination_slot);
+    electrosynth::Connection *connection = getConnection(source, destination, destination_slot);
     bool create = connection == nullptr;
     if (create && !hasSourceDestinationConnection (source, destination)) {
         if (destination_slot >= 0) {
@@ -723,7 +740,7 @@ bool SynthBase::connectModulation(const std::string &source, const std::string &
            && !connection->destination_name.empty();
 }
 
-void SynthBase::connectModulation(electrosynth::ModulationConnection *connection) {
+void SynthBase::connectModulation(electrosynth::Connection *connection) {
     electrosynth::mapping_change change = createMappingChange(connection);
     if (isInvalidConnection(change)) {
         if (connection->state.getParent().isValid())
@@ -739,7 +756,7 @@ void SynthBase::connectModulation(electrosynth::ModulationConnection *connection
 }
 
 
-void SynthBase::disconnectModulation(electrosynth::ModulationConnection *connection) {
+void SynthBase::disconnectModulation(electrosynth::Connection *connection) {
     if (mod_connections_.count(connection) == 0)
         return;
 
@@ -754,7 +771,7 @@ void SynthBase::disconnectModulation(electrosynth::ModulationConnection *connect
 }
 
 void SynthBase::disconnectModulation(const std::string &source, const std::string &destination) {
-    electrosynth::ModulationConnection *connection = getConnection(source, destination);
+    electrosynth::Connection *connection = getConnection(source, destination);
     if (connection)
         disconnectModulation(connection);
 }
@@ -762,7 +779,7 @@ void SynthBase::disconnectModulation(const std::string &source, const std::strin
 // if a filter is deleted, disconnect all modulation connections it is the source of
 void SynthBase::disconnectModulationsForDestinationProcessor(const std::string& processor_name) {
     const std::string dest_prefix = processor_name + "_";
-    std::vector<electrosynth::ModulationConnection*> connections_to_remove;
+    std::vector<electrosynth::Connection*> connections_to_remove;
 
     for (auto* connection : mod_connections_) {
         if (connection == nullptr) continue;

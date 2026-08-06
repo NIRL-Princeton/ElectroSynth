@@ -3,12 +3,11 @@
 //
 
 #include "MasterEnvelopeSection.h"
+#include "connection_button.h"
 #include "main_section.h"
-#include "modulation_button.h"
-
 
 MasterVoiceEnvelopeSection:: MasterVoiceEnvelopeSection(const juce::ValueTree& v, juce::UndoManager &um, OpenGlWrapper &open_gl,
-                                                        SynthGuiData * data, std::unique_ptr<SynthSection>&& view) : SynthSection("MasterEnv"), mod_button(std::make_unique<ModulationButton>("mod_masterenv")), master_voice_envelope(std::move(view)) {
+                                                        SynthGuiData * data, std::unique_ptr<SynthSection>&& view) : SynthSection("MasterEnv"), mod_button(std::make_unique<ConnectionButton>("mod_masterenv")), master_voice_envelope(std::move(view)) {
     setName("Master Voice Envelope");
     setSkinOverride(Skin::kMasterEnv);
     setSidewaysHeading(false);

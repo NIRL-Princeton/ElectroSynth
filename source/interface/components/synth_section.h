@@ -27,7 +27,7 @@
 #include <map>
 #include <set>
 
-class ModulationButton;
+class ConnectionButton;
 class OpenGlComponent;
 class PresetSelector;
 class SynthSlider;
@@ -303,7 +303,7 @@ class SynthSection : public Component, public Slider::Listener,
 
     virtual std::map<std::string, SynthSlider*> getAllSliders() { return all_sliders_; }
     std::map<std::string, ToggleButton*> getAllButtons() { return all_buttons_; }
-    virtual std::map<std::string, ModulationButton*> getAllModulationButtons() {
+    virtual std::map<std::string, ConnectionButton*> getAllModulationButtons() {
         return all_modulation_buttons_;
     }
 
@@ -311,7 +311,7 @@ class SynthSection : public Component, public Slider::Listener,
     bool isActive() const { return active_; }
     virtual void animate(bool animate);
 
-    void addModulationButton(std::shared_ptr<ModulationButton> button, bool show = true);
+    void addModulationButton(std::shared_ptr<ConnectionButton> button, bool show = true);
     void addSubSection(SynthSection* section, bool show = true);
     void removeSubSection(SynthSection* section);
     virtual void setScrollWheelEnabled(bool enabled);
@@ -387,11 +387,11 @@ protected:
     std::unique_ptr<OpenGlBackground> background_;
     std::map<std::string, SynthSlider*> slider_lookup_;
     std::map<std::string, Button*> button_lookup_;
-    std::map<std::string, ModulationButton*> modulation_buttons_;
+    std::map<std::string, ConnectionButton*> modulation_buttons_;
 
     // std::map<std::string, SynthSlider*> all_sliders_;
     std::map<std::string, ToggleButton*> all_buttons_;
-    std::map<std::string, ModulationButton*> all_modulation_buttons_;
+    std::map<std::string, ConnectionButton*> all_modulation_buttons_;
     std::map<Skin::ValueId, float> value_lookup_;
 
     const SynthSection* parent_;

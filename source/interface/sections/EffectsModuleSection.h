@@ -5,15 +5,15 @@
 #pragma once
 #include "modules_interface.h"
 #include "open_gl_combobox.h"
+#include "ModuleList.h"
 class ModuleSection;
 class ProcessorBase;
-class ModulationManager;
-#include "ModuleList.h"
+class MappingManager;
 class EffectList;
-class EffectModuleSection : public ModulesInterface<ProcessorBase>
-{
+
+class EffectModuleSection : public ModulesInterface<ProcessorBase> {
 public:
-    explicit EffectModuleSection( ModulationManager* m, EffectList &,const juce::ValueTree &, juce::UndoManager& um);
+    explicit EffectModuleSection( MappingManager* m,EffectList &,const juce::ValueTree &, juce::UndoManager& um);
     virtual ~EffectModuleSection();
 
     void setEffectPositions() override;
@@ -49,6 +49,7 @@ public:
 
     juce::ValueTree state;
     juce::UndoManager& undo;
+    MappingManager* mapping_manager_ = nullptr;
 
 private:
     // Drag-reorder session. UI order previews live in module_sections; the ValueTree
@@ -68,4 +69,10 @@ private:
     // adjacent non-dragged modules (boundaries touching the insertion gap are
     // covered by insertion_region_ itself).
     std::shared_ptr<OpenGlMultiQuad> drag_boundary_bands_;
+
+    std::shared_ptr<EndpointArrowComponent> lane_input_port_;
+    std::shared_ptr<EndpointArrowComponent> lane_output_port_;
+
+    std::unique_ptr<ConnectionSlots> lane_input_slots_;
+    std::unique_ptr<ConnectionSlots> lane_output_slots_;
 };

@@ -16,14 +16,14 @@
 
 #include "synth_section.h"
 
-#include "look_and_feel/skin.h"
-#include "look_and_feel/fonts.h"
 #include "FullInterface.h"
+#include "connection_button.h"
+#include "look_and_feel/fonts.h"
+#include "look_and_feel/skin.h"
 #include "open_gl_background.h"
 #include "open_gl_component.h"
 #include "synth_gui_interface.h"
 #include "synth_slider.h"
-#include "modulation_button.h"
 SynthSection::SynthSection(const String& name) : Component(name), parent_(nullptr), activator_(nullptr),
                                                  preset_selector_(nullptr), preset_selector_half_width_(false),
                                                  skin_override_(Skin::kNone), size_ratio_(1.0f),
@@ -514,7 +514,7 @@ void SynthSection::addSubSection(SynthSection* sub_section, bool show) {
     std::map<std::string, ToggleButton*> sub_buttons = sub_section->getAllButtons();
     all_buttons_.insert(sub_buttons.begin(), sub_buttons.end());
 
-    std::map<std::string, ModulationButton*> sub_mod_buttons = sub_section->getAllModulationButtons();
+    std::map<std::string, ConnectionButton*> sub_mod_buttons = sub_section->getAllModulationButtons();
     all_modulation_buttons_.insert(sub_mod_buttons.begin(), sub_mod_buttons.end());
 }
 
@@ -728,7 +728,7 @@ float SynthSection::getPadding() {
 //  return (getKnobSectionHeight() - getTextComponentHeight()) / 2.0f;
 //}
 
-void SynthSection::addModulationButton(std::shared_ptr<ModulationButton> button, bool show) {
+void SynthSection::addModulationButton(std::shared_ptr<ConnectionButton> button, bool show) {
     button->setComponentID(this->getComponentID().toStdString() + "_" + button->getComponentID().toStdString());
     modulation_buttons_[button->getComponentID().toStdString()] = button.get();
     all_modulation_buttons_[button->getComponentID().toStdString()] = button.get();

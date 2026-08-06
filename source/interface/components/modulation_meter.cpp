@@ -42,7 +42,7 @@ ModulationMeter::~ModulationMeter() { }
 void ModulationMeter::resized() {
   SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
   if (parent) {
-    std::vector<electrosynth::ModulationConnection*> connections;
+    std::vector<electrosynth::Connection*> connections;
 //    connections = parent->getSynth()->getSourceConnections(getName().toStdString());
 //    setModulated(!connections.empty());
   }

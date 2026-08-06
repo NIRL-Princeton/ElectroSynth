@@ -4,14 +4,16 @@
 
 #ifndef ELECTROSYNTH_MODULESECTION_H
 #define ELECTROSYNTH_MODULESECTION_H
-#include "synth_section.h"
-#include "PluginStateImpl_.h"
-#include "ParameterView/ParametersView.h"
 #include <juce_gui_basics/juce_gui_basics.h>
+#include "ParameterView/ParametersView.h"
+#include "PluginStateImpl_.h"
+#include "ProcessorBase.h"
+#include "connection_slots.h"
 #include "open_gl_background.h"
 #include "open_gl_image_component.h"
-#include "ProcessorBase.h"
-#include "audio_port_component.h"
+#include "synth_section.h"
+
+class MappingManager;
 
 class ModuleSection : public SynthSection {
 public:
@@ -27,7 +29,9 @@ public:
         kDimmed
     };
 
-    ModuleSection(const juce::ValueTree &, electrosynth::audio::NodeDescriptor, std::unique_ptr<SynthSection> editor, juce::UndoManager& um);
+    ModuleSection(const juce::ValueTree &, electrosynth::audio::NodeDescriptor,
+                  std::unique_ptr<SynthSection> editor, juce::UndoManager& um,
+                  MappingManager* mapping_manager);
 
     virtual ~ModuleSection();
     int getPreferredHeight() const override;
@@ -100,11 +104,8 @@ public:
     bool hover_;
     int height = 100;
 
-    const electrosynth::audio::NodeDescriptor getAudioNodeDescriptor() const noexcept {
-        return audioNodeDescriptor_;
-    }
-    juce::String getAudioNodeId() const {
-        return state.getProperty(IDs::audioNodeId).toString();
+    juce::String getNodeId() const {
+        return state.getProperty(IDs::nodeID).toString();
     }
 
 
@@ -120,9 +121,16 @@ private:
     std::unique_ptr<SynthSection> _view;
     std::vector<Listener*> listeners_;
     juce::UndoManager& undo;
+
+    MappingManager* mapping_manager_ = nullptr;
     electrosynth::audio::NodeDescriptor audioNodeDescriptor_;
-    std::shared_ptr<AudioPortComponent> output_port_;
-    std::shared_ptr<AudioPortComponent> input_port_;
+
+    std::shared_ptr<EndpointArrowComponent> output_port_;
+    std::shared_ptr<EndpointArrowComponent> input_port_;
+
+    std::unique_ptr<ConnectionSlots> output_connection_slots_;
+    std::unique_ptr<ConnectionSlots> input_connection_slots_;
 };
+
 
 #endif //ELECTROSYNTH_MODULESECTION_H

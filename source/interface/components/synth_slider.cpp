@@ -81,8 +81,10 @@ void OpenGlSlider::setSliderDisplayValues() {
 }
 
 void OpenGlSlider:: redoImage(bool skip_image) {
-  static constexpr float kRoundingMult = 0.4f;
-  static constexpr float kRotaryHoverBoost = 1.2f;
+    static constexpr float kRoundingMult = 0.4f;
+    static constexpr float kRotaryHoverBoost = 1.2f;
+    static constexpr float kLinearHoverBoost = 1.15f;
+
   if (getWidth() <= 0 || getHeight() <= 0)
     return;
 
@@ -148,8 +150,7 @@ void OpenGlSlider:: redoImage(bool skip_image) {
     float slider_width = getLinearSliderWidth();
     float handle_width = SynthSlider::kLinearHandlePercent * total_width;
     if (isMouseOverOrDragging()) {
-      int boost = std::round(slider_width / 8.0f) + 1.0f;
-      slider_quad_->setThickness(slider_width + 2 * boost);
+      slider_quad_->setThickness(slider_width + 2 * kLinearHoverBoost);
     }
     else
       slider_quad_->setThickness(slider_width);
@@ -742,12 +743,12 @@ void SynthSlider::setLinearTextEntryBounds() {
 
 void SynthSlider::notifyModulationAmountChanged() {
   for (SynthSlider::SliderListener* listener : slider_listeners_)
-    listener->modulationAmountChanged(this);
+    listener->connectionAmountChanged(this);
 }
 
 void SynthSlider::notifyModulationRemoved() {
   for (SynthSlider::SliderListener* listener : slider_listeners_)
-    listener->modulationRemoved(this);
+    listener->connectionRemoved(this);
 }
 
 void SynthSlider::notifyModulationsChanged() {

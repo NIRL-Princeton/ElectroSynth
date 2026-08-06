@@ -125,8 +125,8 @@ namespace electrosynth {
       void sostenutoOffRange(int sample, int from_channel, int to_channel);
       force_inline int getOversamplingAmount() const { return last_oversampling_amount_; }
 
-        ModulationConnectionBank modulation_bank_;
-        ModulationConnectionBank& getModulationBank() { return modulation_bank_; }
+        ConnectionBank modulation_bank_;
+        ConnectionBank& getModulationBank() { return modulation_bank_; }
         void checkOversampling();
 
         std::array<ModuleHeader*, MAX_NUM_VOICES>*  getLEAFProcessor(const std::string&);
