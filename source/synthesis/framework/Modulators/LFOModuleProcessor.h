@@ -32,7 +32,7 @@ struct LFOParamHolder : public LEAFParams<_tLFOModule>
     chowdsp::FreqHzParameter::Ptr rateParam {
         juce::ParameterID { "rate", 100 },
         "Rate",
-        chowdsp::ParamUtils::createNormalisableRange (0.0f,30.f,2.f),
+        chowdsp::ParamUtils::createNormalisableRange (0.0f,30.0f,2.f),
         2.0f,
         all_params[LFOParams::LFORateParam],
         [this] (float val) {
