@@ -15,7 +15,9 @@ void LFOModuleProcessor::process() {
     for (int i = 0; i < engine->voiceHandler.numVoicesActive; i++) {
         if (!engine->voiceHandler.voiceIsSounding[i] && state_.params.modules[i]->syncNoteOn == 1)
         {
-            tLFOModule_setPhase(state_.params.modules[i], state_.params.modules[i]->phase);
+            //tLFOModule_setPhase(state_.params.modules[i], state_.params.modules[i]->phase);
+            //tLFOModule_setParameter(state_.params.modules[i], LFOPhaseParam, state_.params.modules[i]->phase);
+            //printf("SettingPHASE!\n");
         }
 
         tLFOModule_tick(state_.params.modules[i]);
