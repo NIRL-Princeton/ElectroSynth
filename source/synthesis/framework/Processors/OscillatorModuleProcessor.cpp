@@ -26,9 +26,6 @@ juce::String electrosynth::utils::harmonicValToString(float harmonic)
         return juce::String(round(harmonic + 1.f));
 }
 
-
-
-
 OscillatorModuleProcessor::OscillatorModuleProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree &v, LEAF *leaf,juce::UndoManager* um) :ProcessorStateBase(engine,leaf,v,um)
 
 
@@ -49,9 +46,6 @@ OscillatorModuleProcessor::OscillatorModuleProcessor(electrosynth::SoundEngine* 
 
    //tOscModule_init(static_cast<void*>(module), {0, 0}, id, leaf)
     //tOscModule_processorInit(state_.params.module, &processor);
-    // tStack_create(&leaf->mempool, (tStack**)&activeModules);
-    // tStack_init(leaf, &activeModules);
-    // tStack_setCapacity(&activeModules, MAX_NUM_VOICES);
 
 }
 
@@ -61,14 +55,7 @@ void OscillatorModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     int numSamples = buffer.getNumSamples();
     //buffer.clear();
 
-    // uint8_t leadVoice = tStack_first(engine->voiceHandler.voiceOrder);
-    // if (leadVoice != leadingVoice && leadVoice <= 11)
-    // {
-    //     leadingVoice = leadVoice;
-    //     tOscModule_setGlideOrigin(state_.params.modules[leadingVoice], state_.params.modules[leadingVoice]->pitchSmooth.curr);
-    // }
-
-    float glideOrigin = state_.params.modules[tStack_first(engine->voiceHandler.voiceOrder)]->pitchSmooth.curr;
+    float glideOrigin = state_.params.modules[tStack_first(engine->voiceHandler.voiceOrder)]->pitchSmooth->curr;
 
     //    auto* samplesL = buffer.getReadPointer(0);
     int counter = 0;
@@ -85,7 +72,7 @@ void OscillatorModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
 
         if (noVoicesSounding == 1 && state_.params.modules[v]->portaType < 0.5f)
         {
-            tOscModule_setGlideOrigin(state_.params.modules[v], state_.params.modules[v]->pitchSmooth.dest);
+            tOscModule_setGlideOrigin(state_.params.modules[v], state_.params.modules[v]->pitchSmooth->dest);
             //state_.params.modules[v]->pitchSmooth.curr = state_.params.modules[v]->pitchSmooth.dest;
             noVoicesSounding = 0;
         }
