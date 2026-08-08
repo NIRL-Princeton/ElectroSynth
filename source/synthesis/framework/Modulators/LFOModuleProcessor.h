@@ -12,7 +12,7 @@ struct LFOParamHolder : public LEAFParams<_tLFOModule>
 {
     LFOParamHolder(LEAF* leaf) : LEAFParams(leaf)
     {
-        add(rateParam);
+        add(rateParam, shapeParam, phaseParam, typeParam, syncNoteOnParam);
     }
 
     //add env watch param so that it isnt null
@@ -28,19 +28,19 @@ struct LFOParamHolder : public LEAFParams<_tLFOModule>
         &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal
     };
-    // Release param
+    // rate param
     chowdsp::FreqHzParameter::Ptr rateParam {
         juce::ParameterID { "rate", 100 },
         "Rate",
-        chowdsp::ParamUtils::createNormalisableRange (0.0f,30.f,15.f),
-        15.0f,
+        chowdsp::ParamUtils::createNormalisableRange (0.0f,30.f,2.f),
+        2.0f,
         all_params[LFOParams::LFORateParam],
         [this] (float val) {
             for (auto mod: modules) tLFOModule_setParameter(mod,LFOParams::LFORateParam,val);
         }
     };
 
-    // Release param
+    // shape param
     chowdsp::FloatParameter::Ptr shapeParam {
         juce::ParameterID { "shape", 100 },
         "Shape",
@@ -53,7 +53,7 @@ struct LFOParamHolder : public LEAFParams<_tLFOModule>
         &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal
     };
-    // Release param
+    // phase param
     chowdsp::FloatParameter::Ptr phaseParam {
         juce::ParameterID { "phase", 100 },
         "Phase",
@@ -62,6 +62,33 @@ struct LFOParamHolder : public LEAFParams<_tLFOModule>
         all_params[LFOParams::LFOPhaseParam],
         [this] (float val) {
             for (auto mod: modules) tLFOModule_setParameter(mod,LFOParams::LFOPhaseParam,val);
+        },
+        &chowdsp::ParamUtils::floatValToString,
+        &chowdsp::ParamUtils::stringToFloatVal
+    };
+    // Release param
+    chowdsp::FloatParameter::Ptr typeParam {
+        juce::ParameterID { "oscType", 100 },
+        "OscType",
+        chowdsp::ParamUtils::createNormalisableRange (0.0f,5.f,2.5f, 1.f),
+        0.f,
+        all_params[LFOParams::LFOType],
+        [this] (float val) {
+            for (auto mod: modules) tLFOModule_setParameter(mod,LFOParams::LFOType,val);
+        },
+        &chowdsp::ParamUtils::floatValToString,
+        &chowdsp::ParamUtils::stringToFloatVal
+    };
+
+    // sync to note on param
+    chowdsp::FloatParameter::Ptr syncNoteOnParam {
+        juce::ParameterID { "syncToNoteOn", 100 },
+        "Sync To Note On",
+        chowdsp::ParamUtils::createNormalisableRange (0.0f,1.f,0.5f, 1.f),
+        0.f,
+        all_params[LFOParams::LFOSyncNoteOnParam],
+        [this] (float val) {
+            for (auto mod: modules) tLFOModule_setParameter(mod,LFOParams::LFOSyncNoteOnParam,val);
         },
         &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal

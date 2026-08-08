@@ -16,7 +16,7 @@
 //
 // } ModuleType;
 // Keep this array in exactly the same order as ModuleType in defs.h.
-const std::array<std::vector<std::string>, 11> paramsAllArray =
+const std::array<std::vector<std::string>, 12> paramsAllArray =
 {
     {
         // oscillator
@@ -35,6 +35,7 @@ const std::array<std::vector<std::string>, 11> paramsAllArray =
             "", // OscSyncMode (undefined / not modulatable )
             "", // OscSyncIn (undefined / not modulaatblae )
             "oscType", // OscType
+            "portaType" // OscPortaType (always or not always)
             "" // OscNumParams (typically represents the count, no corresponding parameter)
         },
 
@@ -44,8 +45,8 @@ const std::array<std::vector<std::string>, 11> paramsAllArray =
             "rate",
             "shape",
             "phase",
-            "",
-            ""},
+            "type",
+            "syncNoteOn"},
 
         // envelope
         {
@@ -134,7 +135,14 @@ const std::array<std::vector<std::string>, 11> paramsAllArray =
             "gain",
             "rate",
             "energy"
-        }
+        },
+
+        // sine
+        {
+            "eventWatch",
+            "pitch",
+            "gain"
+        },
     }
 
 };

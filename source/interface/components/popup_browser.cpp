@@ -359,6 +359,9 @@ void PopupList::redoImage() {
     int row_height = getRowHeight() * mult*2/juce::Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds())->scale;
     int image_width = getWidth() * mult;
 
+    // DBG("PopupList::redoImage - Row Height: " << row_height);  // Debug row height
+    // DBG("PopupList::redoImage - Image Width: " << image_width);  // Debug image width
+
     juce::Colour text_color = findColour(Skin::kTextComponentText, true);
     juce::Colour lighten = findColour(Skin::kLightenScreen, true);
     int image_height = std::max(row_height * selections_.size(), getHeight());

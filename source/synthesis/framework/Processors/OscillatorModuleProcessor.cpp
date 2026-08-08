@@ -21,9 +21,9 @@ float electrosynth::utils::stringToHarmonicVal(const juce::String &s){
 juce::String electrosynth::utils::harmonicValToString(float harmonic)
 {
     if(harmonic < 0.f)
-        return "1 / " + juce::String(abs(round(harmonic)));
+        return "1 / " + juce::String(abs(round(harmonic) - 1.f)) ;
     else
-        return juce::String(round(harmonic));
+        return juce::String(round(harmonic + 1.f));
 }
 
 
@@ -49,9 +49,9 @@ OscillatorModuleProcessor::OscillatorModuleProcessor(electrosynth::SoundEngine* 
 
    //tOscModule_init(static_cast<void*>(module), {0, 0}, id, leaf)
     //tOscModule_processorInit(state_.params.module, &processor);
-    tStack_create(&leaf->mempool, (tStack**)&activeModules);
-    tStack_init(leaf, &activeModules);
-    tStack_setCapacity(&activeModules, MAX_NUM_VOICES);
+    // tStack_create(&leaf->mempool, (tStack**)&activeModules);
+    // tStack_init(leaf, &activeModules);
+    // tStack_setCapacity(&activeModules, MAX_NUM_VOICES);
 
 }
 
@@ -61,16 +61,34 @@ void OscillatorModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     int numSamples = buffer.getNumSamples();
     //buffer.clear();
 
-    float glideOrigin = state_.params.modules[tStack_first(engine->voiceHandler.voiceOrder)]->pitchSmoother.curr;
+    // uint8_t leadVoice = tStack_first(engine->voiceHandler.voiceOrder);
+    // if (leadVoice != leadingVoice && leadVoice <= 11)
+    // {
+    //     leadingVoice = leadVoice;
+    //     tOscModule_setGlideOrigin(state_.params.modules[leadingVoice], state_.params.modules[leadingVoice]->pitchSmooth.curr);
+    // }
+
+    float glideOrigin = state_.params.modules[tStack_first(engine->voiceHandler.voiceOrder)]->pitchSmooth.curr;
 
     //    auto* samplesL = buffer.getReadPointer(0);
+    int counter = 0;
     for (int v = 0; v < engine->voiceHandler.numVoicesActive; v++) {
+
         if (!engine->voiceHandler.voiceIsSounding[v])
         {
+            counter++;
             tOscModule_setGlideOrigin(state_.params.modules[v], glideOrigin);
             continue;
         }
+
         tOscModule_setParameter(state_.params.modules[v], OscMidiPitch,engine->voiceHandler.voiceNote[v]/127.f );
+
+        if (noVoicesSounding == 1 && state_.params.modules[v]->portaType < 0.5f)
+        {
+            tOscModule_setGlideOrigin(state_.params.modules[v], state_.params.modules[v]->pitchSmooth.dest);
+            //state_.params.modules[v]->pitchSmooth.curr = state_.params.modules[v]->pitchSmooth.dest;
+            noVoicesSounding = 0;
+        }
         auto* L = buffer.getWritePointer(v*2);
         auto* R = buffer.getWritePointer(v*2+1);
         for (int i = 0; i < numSamples; i++)
@@ -79,6 +97,14 @@ void OscillatorModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
             L[i] += state_.params.modules[v]->header.outputs[0];
             R[i] = L[i];
         }
+    }
+
+    if (counter == 12)
+    {
+        noVoicesSounding = 1;
+    } else
+    {
+        noVoicesSounding = 0;
     }
     // ProcessorBase::processBlock(buffer,midi);
 }

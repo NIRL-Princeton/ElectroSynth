@@ -134,6 +134,11 @@ void SoundModuleSection::handlePopupResult(int result) {
         t.setProperty(IDs::type, "noise", nullptr);
         undo.beginNewTransaction();
         list.appendChild(t, &undo);
+    } else if (result == 6) {
+        juce::ValueTree t(IDs::SOUNDMODULE);
+        t.setProperty(IDs::type, "sine", nullptr);
+        undo.beginNewTransaction();
+        list.appendChild(t, &undo);
     }
 
     //    if (result == kArmMidiLearn)
@@ -175,6 +180,7 @@ void SoundModuleSection::setEffectPositions() {
     int filter_index = 1;
     int soft_clip_index = 1;
     int noise_index = 1;
+    int sine_index = 1;
     for (size_t index = 0; index < module_sections.size(); ++index) {
         auto& section = module_sections[index];
         const auto type = section->state.getProperty(IDs::type).toString();
@@ -188,6 +194,8 @@ void SoundModuleSection::setEffectPositions() {
             section->setName("Soft Clip " + juce::String(sound_module_index_) + "." + juce::String(soft_clip_index++));
         else if (type == "noise")
             section->setName("Noise " + juce::String(sound_module_index_) + "." + juce::String(noise_index++));
+        else if (type == "sine")
+            section->setName("Sine " + juce::String(sound_module_index_) + "." + juce::String(sine_index++));
 
         const int section_height = section->refreshHeight(); // refresh height before positioning each module
         section->setDrawBottomSeparator(true);  //setDrawBottomSeparator(index + 1 < module_sections.size()); // add line separating modules
@@ -212,6 +220,7 @@ PopupItems SoundModuleSection::createPopupMenu() {
     options.addItem(3, "add string");
     options.addItem(4, "add soft clip");
     options.addItem(5, "add noise");
+    options.addItem(6, "add sine");
     return options;
 }
 

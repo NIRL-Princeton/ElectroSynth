@@ -277,6 +277,7 @@ PopupItems AudioChainSection::createPopupMenu() {
     options.addItem(1, "add oscillator");
     options.addItem(2, "add string");
     options.addItem(3, "add noise");
+    options.addItem(4, "add sine");
     return options;
 }
 
@@ -298,6 +299,13 @@ void AudioChainSection::handlePopupResult(int result) {
     } else if (result == 3) {
         juce::ValueTree t(IDs::SOUNDMODULE);
         t.setProperty(IDs::type, "noise", nullptr);
+        juce::ValueTree v(IDs::CHAIN);
+        undo.beginNewTransaction();
+        v.appendChild(t, &undo);
+        chains_.appendChild(v, &undo);
+    } else if (result == 4) {
+        juce::ValueTree t(IDs::SOUNDMODULE);
+        t.setProperty(IDs::type, "sine", nullptr);
         juce::ValueTree v(IDs::CHAIN);
         undo.beginNewTransaction();
         v.appendChild(t, &undo);

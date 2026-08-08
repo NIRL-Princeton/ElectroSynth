@@ -9,6 +9,7 @@
 #include "Modulators/LFOModuleProcessor.h"
 #include "Modulators/PerlinNoiseModuleProcessor.h"
 #include "Modulators/SimpleNoiseModuleProcessor.h"
+#include "Processors/SineModuleProcessor.h"
 #include "Node.h"
 #include "NoiseModuleProcessor.h"
 #include "OscillatorModuleProcessor.h"
@@ -21,12 +22,13 @@ template <typename T>
 ModuleList<T>::ModuleList(SynthBase *synth,const ValueTree& v) : tracktion::engine::ValueTreeObjectList<T>(v),synth_(synth),state(v){
     if constexpr (std::is_same_v<T, ProcessorBase>)
     {
-       factory.template registerType<OscillatorModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*, juce::UndoManager*>("osc");
-       factory.template registerType<FilterModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*,juce::UndoManager*>("filt");
+        factory.template registerType<OscillatorModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*, juce::UndoManager*>("osc");
+        factory.template registerType<FilterModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*,juce::UndoManager*>("filt");
         factory.template registerType<StringModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*, juce::UndoManager*>("string");
         factory.template registerType<SoftClipModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*, juce::UndoManager*>("softclip");
         factory.template registerType<DelayModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*, juce::UndoManager*>("delay");
         factory.template registerType<NoiseModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*, juce::UndoManager*>("noise");
+        factory.template registerType<SineModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*, juce::UndoManager*>("sine");
     }
     else if constexpr (std::is_same_v<T, ModulatorBase>)
     {

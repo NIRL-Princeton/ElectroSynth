@@ -13,6 +13,11 @@ LFOModuleProcessor::LFOModuleProcessor(electrosynth::SoundEngine* engine,juce::V
 
 void LFOModuleProcessor::process() {
     for (int i = 0; i < engine->voiceHandler.numVoicesActive; i++) {
+        if (!engine->voiceHandler.voiceIsSounding[i] && state_.params.modules[i]->syncNoteOn == 1)
+        {
+            tLFOModule_setPhase(state_.params.modules[i], state_.params.modules[i]->phase);
+        }
+
         tLFOModule_tick(state_.params.modules[i]);
     }
 }
