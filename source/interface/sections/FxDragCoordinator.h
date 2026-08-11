@@ -96,6 +96,7 @@ private:
     void enterTargetVerticalDrag(juce::Point<int> pointerScreen);
     void updateTargetPreview(juce::Point<int> pointerScreen);
     bool maybeArmAdjacentLane(juce::Point<int> pointerScreen);
+    void synchronizeTargetToHostedMidpoint(juce::Point<int> pointerScreen);
     void updateArmedLaneEmphasis();
     void finish(bool emitIntent, juce::Point<int> pointerScreen);
     void clearArmedLane();

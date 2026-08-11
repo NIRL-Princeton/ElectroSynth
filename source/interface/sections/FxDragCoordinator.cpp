@@ -82,15 +82,20 @@ void FxDragCoordinator::dragMoved(ModuleSection& module, juce::Point<int> pointe
         else
             updateTargetHover(pointerScreen);
     }
+
+    synchronizeTargetToHostedMidpoint(pointerScreen);
 }
 
 void FxDragCoordinator::dragEnded(ModuleSection& module, juce::Point<int> pointerScreen) {
     if (!ownsDrag(&module))
         return;
 
-    const bool valid_target = hasEnteredDestination_ && enteredTargetLane_ != nullptr
-                           && enteredTargetLane_->getContentViewportScreenBounds().contains(pointerScreen);
-    finish(valid_target, pointerScreen);
+    const bool has_target_preview = hasEnteredDestination_ && enteredTargetLane_ != nullptr
+                                 && targetInsertionIndex_ >= 0;
+    // The red insertion preview is the single source of truth for drop placement.
+    // Pointer geometry may move that preview during the drag, but mouse-up must not
+    // perform a second hit test or reinterpret the already-visible destination.
+    finish(has_target_preview, pointerScreen);
 }
 
 void FxDragCoordinator::cancelDrag() {
@@ -129,16 +134,22 @@ void FxDragCoordinator::timerCallback() {
     if (phase_ == Phase::Idle)
         return;
 
-    if (!juce::ModifierKeys::getCurrentModifiersRealtime().isAnyMouseButtonDown()
-        || (draggedModule_ != nullptr
-            && draggedModule_->isCurrentlyBlockedByAnotherModalComponent())) {
-        // A normal release is observed by the global mouse listener. Reaching this
-        // path means capture/release delivery was lost, so restore without emitting.
+    if (draggedModule_ != nullptr
+        && draggedModule_->isCurrentlyBlockedByAnotherModalComponent()) {
         cancelDrag();
         return;
     }
 
     const auto pointer = juce::Desktop::getInstance().getMainMouseSource().getScreenPosition().roundToInt();
+    if (!juce::ModifierKeys::getCurrentModifiersRealtime().isAnyMouseButtonDown()) {
+        // Realtime modifier state can observe button-up before JUCE delivers the
+        // global mouseUp callback. Complete through the normal release path so that
+        // the active red target preview remains authoritative in either event order.
+        // dragEnded() clears draggedModule_, making a later mouseUp a harmless no-op.
+        dragEnded(*draggedModule_, pointer);
+        return;
+    }
+
     if (pointer != currentPointerScreen_)
         dragMoved(*draggedModule_, pointer);
     else if (hasEnteredDestination_) {
@@ -401,6 +412,39 @@ bool FxDragCoordinator::maybeArmAdjacentLane(juce::Point<int> pointerScreen) {
     }
 
     return false;
+}
+
+void FxDragCoordinator::synchronizeTargetToHostedMidpoint(
+    juce::Point<int> pointerScreen) {
+    if (!hasEnteredDestination_ || draggedModule_ == nullptr || traversalLane_ == nullptr)
+        return;
+
+    const int traversal_index = laneIndex(traversalLane_);
+    if (traversal_index < 0)
+        return;
+
+    const int midpoint_x = draggedModule_->getScreenBounds().getCentreX();
+    for (int index = 0; index < static_cast<int>(lanes_.size()); ++index) {
+        auto* midpoint_lane = lanes_[index].lane;
+        const auto viewport = midpoint_lane->getContentViewportScreenBounds();
+        if (midpoint_x < viewport.getX() || midpoint_x >= viewport.getRight())
+            continue;
+
+        if (midpoint_lane == traversalLane_)
+            return;
+
+        // Traversal remains collection-adjacent. This fallback covers a slow or
+        // diagonal crossing whose incremental motion never armed fresh horizontal
+        // intent even though the hosted module visibly crossed the lane midpoint.
+        const int index_delta = index - traversal_index;
+        if (std::abs(index_delta) != 1)
+            return;
+
+        if (armedLane_ != midpoint_lane)
+            armLane(*midpoint_lane, index_delta < 0 ? -1 : 1);
+        enterArmedLane(pointerScreen);
+        return;
+    }
 }
 
 void FxDragCoordinator::updateArmedLaneEmphasis() {
