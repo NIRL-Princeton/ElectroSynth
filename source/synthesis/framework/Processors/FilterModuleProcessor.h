@@ -130,8 +130,8 @@ public:
     void getNextAudioBlock (const juce::AudioSourceChannelInfo &bufferToFill) override {}
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
     void prepareToPlay (int samplesPerBlock, double sampleRate ) override {
-        filterTransitionSamples_ = juce::jmax(
-            1, juce::roundToInt(sampleRate * kFilterTypeTransitionSeconds));
+        // filterTransitionSamples_ = juce::jmax(
+        //     1, juce::roundToInt(sampleRate * kFilterTypeTransitionSeconds));
         for (auto* module : state_.params.modules)
             tFiltModule_setSampleRate(module, (float)sampleRate);
     };
@@ -146,9 +146,9 @@ public:
     }
 
 private:
-    static constexpr double kFilterTypeTransitionSeconds = 0.005;
+    //static constexpr double kFilterTypeTransitionSeconds = 0.005;
     int currentFilterType_ = FiltTypeLowpass;
-    int filterTransitionSamples_ = 220;
+    //int filterTransitionSamples_ = 220;
 };
 
 #endif //ELECTROSYNTH_OSCILLATORMODULEPROCESSOR_H

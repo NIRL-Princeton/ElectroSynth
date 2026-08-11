@@ -14,7 +14,7 @@ struct NoiseParams : public LEAFParams<_tNoiseModule>
 {
     NoiseParams(LEAF* leaf) : LEAFParams<_tNoiseModule>(leaf)
     {
-        add(gain, tilt, peakGain, peakFreq, peakBandwidth);
+        add(gain, tilt, peakGain, freqKnob, peakBandwidth, keyFollow, glide, portaType);
     }
 
     //add env watch param so that it isnt null
@@ -62,7 +62,7 @@ struct NoiseParams : public LEAFParams<_tNoiseModule>
         juce::ParameterID{"peakGain", 100},
         "PeakGain",
         chowdsp::ParamUtils::createNormalisableRange(0.f, 2.0f, 1.0f),
-        1.f,
+        0.f,
         all_params[NosParams::NoisePeakGain],
         [this](float val)
         {for (auto mod: modules)    tNoiseModule_setParameter(mod,NoisePeakGain,val);
@@ -70,15 +70,15 @@ struct NoiseParams : public LEAFParams<_tNoiseModule>
     };
 
     //
-    chowdsp::FreqHzParameter::Ptr peakFreq {
+    chowdsp::FreqHzParameter::Ptr freqKnob {
         juce::ParameterID{"peakFreq" , 100},
         "PeakFreq",
         chowdsp::ParamUtils::createNormalisableRange(20.f, 20000.f, 500.f),
         500.f,
-        all_params[NosParams::NoisePeakFreq],
+        all_params[NosParams::NoiseFreqKnob],
         [this](float val)
         {
-            for (auto mod: modules) tNoiseModule_setParameter(mod,NoisePeakFreq,val);
+            for (auto mod: modules) tNoiseModule_setParameter(mod,NoiseFreqKnob,val);
             //DBG("Noise [0 - 1]" + juce::String(val) + " .. .  peakFreq actual Val" + juce::String(modules[0]->peakFreq));
         }
     };
@@ -93,8 +93,51 @@ struct NoiseParams : public LEAFParams<_tNoiseModule>
             for (auto mod: modules)
             {
                 tNoiseModule_setParameter(mod,NoisePeakBandwidth,val);
-                tNoiseModule_setParameter(mod, NoisePeakFreq, *mod->header.params[NoisePeakFreq]);
+                //tNoiseModule_setParameter(mod, NoiseFreqKnob, *mod->header.params[NoiseFreqKnob]);
             }
+        },
+        &chowdsp::ParamUtils::floatValToString,
+        &chowdsp::ParamUtils::stringToFloatVal
+    };
+
+    // keyFollow
+    chowdsp::FloatParameter::Ptr keyFollow {
+        juce::ParameterID { "keyFollow", 100 },
+        "KeyFollow",
+        chowdsp::ParamUtils::createNormalisableRange (0.f, 1.0f, .5f),
+        0.f,
+        all_params[NosParams::NoiseKeyFollow],
+        [this] (float val)
+        {for (auto mod: modules) tNoiseModule_setParameter(mod, NoiseKeyFollow,val);
+        },
+        &chowdsp::ParamUtils::floatValToString,
+        &chowdsp::ParamUtils::stringToFloatVal
+    };
+
+    chowdsp::TimeMsParameter::Ptr glide
+    {
+        juce::ParameterID{"glide" , 100},
+        "Freq Glide",
+        chowdsp::ParamUtils::createNormalisableRange(0.f, 8000.f,500.f),
+        0.0f,
+        all_params[NosParams::NoiseGlide],
+        [this]( float val)
+        {   float realVal = glide->getCurrentValue();
+            for (auto mod : modules)
+                tNoiseModule_setParameter(mod,NoiseGlide, realVal);
+            //DBG("freq [0 - 1] " + juce::String(val) + " .... glide actual Val" + juce::String(mod->glide));
+        }
+    };
+
+    // portaType
+    chowdsp::FloatParameter::Ptr portaType {
+        juce::ParameterID { "portaType", 100 },
+        "PortaType",
+        chowdsp::ParamUtils::createNormalisableRange (0.f, 1.0f, .5f, 1.f),
+        0.f,
+        all_params[NosParams::NoisePortaType],
+        [this] (float val)
+        {for (auto mod: modules) tNoiseModule_setParameter(mod, NoisePortaType,val);
         },
         &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal
@@ -125,6 +168,8 @@ public:
     }
     // juce::AudioProcessorEditor* createEditor() override {return new electrosynth::ParametersViewEditor{*this,vstate.getProperty(IDs::type).toString() + vstate.getProperty(IDs::uuid).toString()};};
     chowdsp::ScopedCallbackList callbacks;
+
+    uint8_t noVoicesSounding = 1;
 
 };
 

@@ -55,7 +55,7 @@ void OscillatorModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     int numSamples = buffer.getNumSamples();
     //buffer.clear();
 
-    float glideOrigin = state_.params.modules[tStack_first(engine->voiceHandler.voiceOrder)]->pitchSmooth->curr;
+    float glideOrigin = state_.params.modules[tStack_first(engine->voiceHandler.voiceOrder)]->pitchSmooth.curr;
 
     //    auto* samplesL = buffer.getReadPointer(0);
     int counter = 0;
@@ -72,7 +72,7 @@ void OscillatorModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
 
         if (noVoicesSounding == 1 && state_.params.modules[v]->portaType < 0.5f)
         {
-            tOscModule_setGlideOrigin(state_.params.modules[v], state_.params.modules[v]->pitchSmooth->dest);
+            tOscModule_setGlideOrigin(state_.params.modules[v], state_.params.modules[v]->pitchSmooth.dest);
             //state_.params.modules[v]->pitchSmooth.curr = state_.params.modules[v]->pitchSmooth.dest;
             noVoicesSounding = 0;
         }

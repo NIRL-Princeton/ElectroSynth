@@ -25,9 +25,26 @@ void NoiseModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     int numSamples = buffer.getNumSamples();
     //buffer.clear();
 
-    //    auto* samplesL = buffer.getReadPointer(0);
+    float glideOrigin = state_.params.modules[tStack_first(engine->voiceHandler.voiceOrder)]->pitchSmoother.curr;
+
+    int counter = 0;
     for (int v = 0; v < engine->voiceHandler.numVoicesActive; v++) {
-        if (!engine->voiceHandler.voiceIsSounding[v]) continue;
+
+        if (!engine->voiceHandler.voiceIsSounding[v])
+        {
+            counter++;
+            tNoiseModule_setGlideOrigin(state_.params.modules[v], glideOrigin);
+            continue;
+        }
+
+        tNoiseModule_setParameter(state_.params.modules[v], NoiseMIDIPitch,engine->voiceHandler.voiceNote[v]/127.f );
+
+        if (noVoicesSounding == 1 && state_.params.modules[v]->portaType < 0.5f)
+        {
+            tNoiseModule_setGlideOrigin(state_.params.modules[v], state_.params.modules[v]->pitchSmoother.dest);
+            noVoicesSounding = 0;
+        }
+
         auto* L = buffer.getWritePointer(v*2);
         auto* R = buffer.getWritePointer(v*2+1);
         for (int i = 0; i < numSamples; i++)
@@ -36,6 +53,14 @@ void NoiseModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
             L[i] += state_.params.modules[v]->header.outputs[0];
             R[i] = L[i];
         }
+    }
+
+    if (counter == 12)
+    {
+        noVoicesSounding = 1;
+    } else
+    {
+        noVoicesSounding = 0;
     }
     // ProcessorBase::processBlock(buffer,midi);
 }

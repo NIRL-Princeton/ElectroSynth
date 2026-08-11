@@ -119,8 +119,12 @@ const std::array<std::vector<std::string>, 12> paramsAllArray =
             "gain",
             "tilt",
             "peakAmt",
-            "peakFreq",
-            "peakBandwidth"
+            "freqKnob",
+            "peakBandwidth",
+            "keyFollow",
+            "glide",
+            "portaType",
+            "midiPitch"
         },
 
         // simpleNoise
