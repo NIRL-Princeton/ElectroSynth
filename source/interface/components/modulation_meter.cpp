@@ -17,12 +17,10 @@
 #include "modulation_meter.h"
 
 #include "open_gl_multi_quad.h"
-#include "synth_gui_interface.h"
 #include "shaders.h"
 #include "synth_section.h"
 #include "synth_slider.h"
 #include "text_look_and_feel.h"
-#include "ModulationConnection.h"
 ModulationMeter::ModulationMeter(const SynthSlider* slider, OpenGlMultiQuad* quads, int index) :
          destination_(slider), quads_(quads), index_(index), current_value_(0.0f), mod_percent_(0.0f),
          modulated_(false), rotary_(false), left_(0.0f), right_(0.0f), top_(0.0f), bottom_(0.0f) {
@@ -40,13 +38,6 @@ ModulationMeter::ModulationMeter(const SynthSlider* slider, OpenGlMultiQuad* qua
 ModulationMeter::~ModulationMeter() { }
 
 void ModulationMeter::resized() {
-  SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
-  if (parent) {
-    std::vector<electrosynth::Connection*> connections;
-//    connections = parent->getSynth()->getSourceConnections(getName().toStdString());
-//    setModulated(!connections.empty());
-  }
-
   if (isVisible()) setVertices();
   else collapseVertices();
 }

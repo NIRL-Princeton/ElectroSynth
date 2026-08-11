@@ -23,6 +23,7 @@ class FullInterface { };
 class AudioDeviceManager { };
 
 #endif
+
 #include <juce_data_structures/juce_data_structures.h>
 #include <juce_dsp/juce_dsp.h>
 #include <juce_audio_devices/juce_audio_devices.h>
@@ -44,6 +45,8 @@ namespace electrosynth
 {
     class Connection;
 }
+
+
 class SynthGuiInterface :  public juce::ApplicationCommandTarget {
   public:
     SynthGuiInterface(SynthBase* synth, bool use_gui = true);
@@ -87,9 +90,6 @@ class SynthGuiInterface :  public juce::ApplicationCommandTarget {
     void tryEnqueueProcessorInitQueue(juce::FixedSizeFunction<48, void()> callback);
     void addProcessor(std::unique_ptr<ProcessorBase> processor, int voice_index);
     void addModulationSource(std::unique_ptr<ModulatorBase> modSource, int voice_index);
-    bool connectModulation(std::string source, std::string destination, int destination_slot = -1);
-    void disconnectModulation(std::string source, std::string destination);
-    void disconnectModulation(electrosynth::Connection* connection);
     void notifyModulationsChanged();
     void setFocus();
     void notifyChange();
@@ -97,17 +97,29 @@ class SynthGuiInterface :  public juce::ApplicationCommandTarget {
     void openSaveDialog();
     void externalPresetLoaded(juce::File preset);
     void setGuiSize(float scale);
-  bool loadFromFile(juce::File preset, std::string &error);
+    bool loadFromFile(juce::File preset, std::string &error);
+
+    // forwarding methods
+    bool disconnectConnection(const juce::String& id) const;
+    bool updateConnection(const electrosynth::ConnectionRecord& connection) const;
+    std::vector<electrosynth::ConnectionRecord> getConnections() const;
+    std::vector<electrosynth::ConnectionRecord> getConnectionsForEndpoint(const electrosynth::EndpointAddress& endpoint) const;
+    std::vector<electrosynth::ConnectionRecord> getConnectionsTargetingConnection(const juce::String& connectionId) const;
+    const electrosynth::ConnectionRecord* findConnection(const juce::String& id) const;
+
 
     FullInterface* getGui() { return gui_.get(); }
     LEAF* getLEAF();
     OpenGlWrapper* getOpenGlWrapper();
-  std::unique_ptr<ApplicationCommandHandler> commandHandler;
-  juce::ApplicationCommandManager commandManager;
-  protected:
-  std::atomic<bool> loading;
+    std::unique_ptr<ApplicationCommandHandler> commandHandler;
+    juce::ApplicationCommandManager commandManager;
+
+
+protected:
+
+    std::atomic<bool> loading;
     SynthBase* synth_;
-  std::unique_ptr<juce::FileChooser> filechooser;
+    std::unique_ptr<juce::FileChooser> filechooser;
     std::unique_ptr<FullInterface> gui_;
   
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SynthGuiInterface)

@@ -907,6 +907,29 @@ void SynthSection::showPopupSelector(Component* source, juce::Point<int> positio
     parent->popupSelector(source, position, options, callback, cancel);
 }
 
+void SynthSection::assignModulationEndpoints(const juce::String& nodeId) {
+    for (const auto& [name, slider] : getAllSliders()) {
+        if (slider == nullptr) continue;
+
+        slider->setModulationEndpoint({
+            .address {
+                .type = electrosynth::ConnectionType::Modulation,
+                .nodeId = nodeId,
+                .endpointId = slider->getComponentID(),
+                .direction = electrosynth::EndpointDirection::Destination
+            },
+
+            .capabilities {
+                .hasAmount = true,
+                .hasBipolar = true,
+                .hasStereo = true,
+                .hasAuxiliary = true,
+                .maxIncomingConnections = SynthSlider::kNumSlots
+            }
+        });
+    }
+}
+
 
 
 //void SynthSection::setValue(const std::string& name, float value, NotificationType notification) {

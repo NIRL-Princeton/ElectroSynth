@@ -38,12 +38,10 @@ FullInterface::FullInterface(SynthGuiData* synth_data) : SynthSection("full_inte
     default_skin.copyValuesToLookAndFeel(TextLookAndFeel::instance());
     juce::LookAndFeel::setDefaultLookAndFeel(DefaultLookAndFeel::instance());
 
-    modulation_manager = std::make_unique<MappingManager>(synth_data->tree, synth_data->synth);
+    modulation_manager = std::make_unique<MappingManager>();
     modulation_manager->setOpaque(false);
     modulation_manager->setAlwaysOnTop(true);
-    modulation_manager->setConnectionAmounts();
     modulation_manager->setVisibleMeterBounds();
-    modulation_manager->hideUnusedHoverModulations();
     modulation_manager->toFront(false);
     addSubSection(modulation_manager.get());
 

@@ -23,6 +23,7 @@
 #include "open_gl_image_component.h"
 #include "open_gl_multi_quad.h"
 #include "synth_section.h"
+#include "ConnectionRecord.h"
 
 class FullInterface;
 class OpenGlSlider;
@@ -439,11 +440,23 @@ class SynthSlider : public OpenGlSlider, public juce::TextEditor::Listener {
       return OpenGlSlider::findValue(value_id);
     }
 
-
-
-
-
     std::shared_ptr<OpenGlComponent> getTextEditorComponent() { return text_entry_->getImageComponent(); }
+
+    electrosynth::EndpointDescriptor modulation_endpoint_;
+
+    void setModulationEndpoint(electrosynth::EndpointDescriptor endpoint)
+    {
+        modulation_endpoint_ = std::move(endpoint);
+    }
+    const electrosynth::EndpointDescriptor& getModulationEndpoint() const noexcept
+    {
+        return modulation_endpoint_;
+    }
+    bool hasModulationEndpoint() const noexcept
+    {
+        return modulation_endpoint_.address.isValid();
+    }
+
 
 //    void setAttachment(chowdsp::FloatParameter& param, chowdsp::PluginState& pluginState)
 //    {

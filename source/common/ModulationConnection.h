@@ -27,6 +27,14 @@ namespace electrosynth {
 
         static bool isModulationSourceDefaultBipolar(const std::string& source);
 
+        void setConnectionId(const juce::String& id) {
+            state.setProperty (IDs::connectionId, id, nullptr);
+        }
+
+        juce::String getConnectionId() const {
+            return state.getProperty(IDs::connectionId).toString();
+        }
+
         void setSource(int uuid_from) {
             state.setProperty(IDs::src, uuid_from, nullptr);
         }
@@ -56,9 +64,16 @@ namespace electrosynth {
             source_name.clear();
             destination_name.clear();
             destination_slot = -1;
+
+            state.removeProperty (IDs::connectionId, nullptr);
+            state.removeProperty(IDs::modAmt, nullptr);
             state.removeProperty(IDs::src, nullptr);
             state.removeProperty(IDs::dest, nullptr);
             state.removeProperty(IDs::destIdx, nullptr);
+            state.removeProperty(IDs::isBipolar, nullptr);
+            state.removeProperty (IDs::bypass, nullptr);
+            state.removeProperty (IDs::stereo, nullptr);
+
         }
 
         float getScaledAmountForMapping(float val) const {

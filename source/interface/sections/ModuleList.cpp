@@ -54,16 +54,6 @@ template<typename T>
 void ModuleList<T>::deleteObject(T* processor_base) {
     DBG("deleteObject");
 
-    if constexpr (std::is_same_v<T, ModulatorBase>) {
-        const auto processor_name = processor_base->name.toStdString();
-        auto connections = synth_->getSourceConnections(processor_name);
-        auto button_connections = synth_->getSourceConnections(processor_name + "_mod");
-        connections.insert(connections.end(), button_connections.begin(), button_connections.end());
-
-        for (auto* connection : connections)
-            synth_->disconnectModulation(connection);
-    }
-
     synth_->removeProcessor(processor_base);
 
     for (auto listener: listeners_)

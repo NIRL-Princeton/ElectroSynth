@@ -34,23 +34,50 @@ bool SynthGuiInterface::connect(const electrosynth::ConnectionRecord& connection
     return synth_ != nullptr && synth_->connect(connection);
 }
 
+// forwarding methods
+
+bool SynthGuiInterface::disconnectConnection (const juce::String& id) const
+{
+    return synth_ != nullptr && synth_->disconnectConnection(id);
+}
+
+bool SynthGuiInterface::updateConnection (const electrosynth::ConnectionRecord& connection) const {
+    return synth_ != nullptr && synth_->updateConnection(connection);
+}
+
+std::vector<electrosynth::ConnectionRecord> SynthGuiInterface::getConnections() const {
+    return synth_ != nullptr ? synth_->getConnections() : std::vector<electrosynth::ConnectionRecord>{};
+}
+
+std::vector<electrosynth::ConnectionRecord> SynthGuiInterface::getConnectionsForEndpoint (const electrosynth::EndpointAddress& endpoint) const {
+    if (synth_ == nullptr)
+        return {};
+    return synth_->getConnectionsForEndpoint(endpoint);
+}
+
+std::vector<electrosynth::ConnectionRecord> SynthGuiInterface::getConnectionsTargetingConnection(const juce::String& connectionId) const {
+    return synth_ != nullptr
+        ? synth_->getConnectionsTargetingConnection(connectionId)
+        : std::vector<electrosynth::ConnectionRecord>{};
+}
+
+const electrosynth::ConnectionRecord* SynthGuiInterface::findConnection(const juce::String& id) const {
+    return synth_ != nullptr ? synth_->findConnection(id) : nullptr;
+}
+
 #if HEADLESS
 
 SynthGuiInterface::SynthGuiInterface(SynthBase* synth, bool use_gui) : synth_(synth) { }
 SynthGuiInterface::~SynthGuiInterface() { }
 void SynthGuiInterface::updateFullGui() { }
 void SynthGuiInterface::updateGuiControl(const std::string& name, float value) { }
-bool SynthGuiInterface::connectModulation(std::string source, std::string destination, int destination_slot) {
-    return false;
-}
-void SynthGuiInterface::disconnectModulation(std::string source, std::string destination) { }
-void SynthGuiInterface::disconnectModulation(electrosynth::Connection* connection) { }
 void SynthGuiInterface::setFocus() { }
 void SynthGuiInterface::notifyChange() { }
 void SynthGuiInterface::notifyFresh() { }
 void SynthGuiInterface::openSaveDialog() { }
 void SynthGuiInterface::externalPresetLoaded(File preset) { }
 void SynthGuiInterface::setGuiSize(float scale) { }
+
 
 #else
 
@@ -61,15 +88,16 @@ void SynthGuiInterface::setGuiSize(float scale) { }
 
 
 SynthGuiInterface::SynthGuiInterface(SynthBase* synth, bool use_gui) : synth_(synth) {
-  if (use_gui) {
-    SynthGuiData synth_data(synth_);
-    gui_ = std::make_unique<FullInterface>(&synth_data);
-    // for registering hotkeys etc.
-    commandHandler = std::make_unique<ApplicationCommandHandler>(this);
-    commandManager.registerAllCommandsForTarget(commandHandler.get());
-  }
 
+    if (use_gui) {
 
+        SynthGuiData synth_data(synth_);
+        gui_ = std::make_unique<FullInterface>(&synth_data);
+
+        // for registering hotkeys etc.
+        commandHandler = std::make_unique<ApplicationCommandHandler>(this);
+        commandManager.registerAllCommandsForTarget(commandHandler.get());
+    }
 }
 
 SynthGuiInterface::~SynthGuiInterface() { }
@@ -233,25 +261,6 @@ void SynthGuiInterface::addModulationSource (std::unique_ptr<ModulatorBase> modS
 {
     synth_->addModulationSource(std::move(modSource),voice_index);
 }
-bool SynthGuiInterface::connectModulation(std::string source, std::string destination, int destination_slot)
-{
-    bool created = synth_->connectModulation(source, destination, destination_slot);
-//    if (created)
-//        return;
-        //initModulationValues(source, destination);
-    notifyModulationsChanged();
-    return created;
-}
-
-void SynthGuiInterface::disconnectModulation(std::string source, std::string destination) {
-    synth_->disconnectModulation(source, destination);
-    notifyModulationsChanged();
-}
-
-void SynthGuiInterface::disconnectModulation(electrosynth::Connection* connection) {
-    synth_->disconnectModulation(connection);
-    notifyModulationsChanged();
-}
 void SynthGuiInterface::notifyModulationsChanged() {
     if (gui_ != nullptr)
         gui_->modulationChanged();
@@ -314,4 +323,6 @@ void SynthGuiInterface::setGuiSize(float scale) {
   gui_->getParentComponent()->setBounds(bounds);
   gui_->redoBackground();
 }
+
+
 #endif

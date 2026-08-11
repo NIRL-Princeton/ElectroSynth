@@ -45,10 +45,10 @@ namespace electrosynth {
         using ClickCallback = std::function<void(int, const juce::MouseEvent&)>;
         using AmountCallback = std::function<void(int, float)>;
 
-        SlotComponent(juce::String componentId, int slotIndex,
-                      std::function<void()> onChange,
-                      ClickCallback onClick,
-                      AmountCallback onAmountChanged);
+        using HoverCallback = std::function<void(int, bool)>;
+
+        SlotComponent(juce::String componentId, int slotIndex, std::function<void()> onChange,
+                      ClickCallback onClick, AmountCallback onAmountChanged, HoverCallback hoverCallback );
 
         void paint(juce::Graphics& g) override;
         int getSlotIndex() const { return slot_index_; }
@@ -60,6 +60,9 @@ namespace electrosynth {
 
         void mouseDown(const juce::MouseEvent& event) override;
         void mouseDrag(const juce::MouseEvent& event) override;
+
+        void mouseEnter(const juce::MouseEvent& event) override;
+        void mouseExit(const juce::MouseEvent& event) override;
 
 
     private:
@@ -82,6 +85,8 @@ namespace electrosynth {
         bool hovering_;
         bool current_source_;
 
+        HoverCallback on_hover_;
+
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SlotComponent)
     };
 }
@@ -97,6 +102,9 @@ public:
         virtual void connectionSlotClicked(const ConnectionSlotData& connection, const juce::MouseEvent& event) = 0;
         virtual void connectionAmountChanged(const ConnectionSlotData& connection, float amount) = 0;
     };
+
+    void addListener(Listener* listener);
+    void removeListener(Listener* listener);
 
     static constexpr int kMaxVisibleSlots = 4;
     static constexpr int kSlotWidth = 44;
@@ -114,8 +122,8 @@ public:
     void resized() override;
     void paintBackground(Graphics&) override {}
 
-    void addListener(Listener* listener);
-    void removeListener(Listener* listener);
+    void slotHoverChanged(int index, bool hovering);
+    void showSlotPopup(int index);
 
 private:
     struct SlotVisual {
@@ -128,7 +136,7 @@ private:
         std::shared_ptr<PlainTextComponent> aux_label;
     };
 
-
+    int hovered_slot_ = -1;
     std::vector<Listener*> listeners_;
 
     void initialiseSlot(int index, const juce::String& prefix);

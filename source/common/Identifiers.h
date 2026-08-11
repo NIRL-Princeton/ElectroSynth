@@ -47,6 +47,16 @@ namespace IDs
     DECLARE_ID (chIdx)
     DECLARE_ID (modAmt)
     DECLARE_ID (isBipolar)
+    DECLARE_ID (bypass)
+    DECLARE_ID (stereo)
+    DECLARE_ID (connectionId)
+    DECLARE_ID (connectionType)
+    DECLARE_ID (sourceNodeId)
+    DECLARE_ID (sourceEndpointId)
+    DECLARE_ID (destinationNodeId)
+    DECLARE_ID (destinationEndpointId)
+    DECLARE_ID (audioDomain)
+    DECLARE_ID (targetConnectionId)
   //type
   //
 

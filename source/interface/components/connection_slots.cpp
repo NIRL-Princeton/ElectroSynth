@@ -31,12 +31,11 @@ namespace {
 }
 
 namespace electrosynth {
-    SlotComponent::SlotComponent(juce::String componentId, int slotIndex,
-                                 std::function<void()> onChange,
-                                 ClickCallback onClick,
-                                 AmountCallback onAmountChanged) :
-        slot_index_(slotIndex), on_change_(std::move(onChange)),
-        on_click_(std::move(onClick)), on_amount_changed_(std::move(onAmountChanged)) {
+    SlotComponent::SlotComponent(juce::String componentId, int slotIndex, std::function<void()> onChange, ClickCallback onClick,
+        AmountCallback onAmountChanged, HoverCallback onHover) :
+
+        slot_index_(slotIndex), on_change_(std::move(onChange)), on_click_(std::move(onClick)),
+        on_amount_changed_(std::move(onAmountChanged)), on_hover_ (std::move(onHover)) {
 
         setComponentID(std::move(componentId));
         setInterceptsMouseClicks(true, false);
@@ -99,6 +98,21 @@ namespace electrosynth {
         if (on_amount_changed_)
             on_amount_changed_(slot_index_, amount);
     }
+
+    void SlotComponent::mouseEnter (const juce::MouseEvent& event) {
+
+        juce::Component::mouseEnter(event);
+
+        if (connection_ && on_hover_)
+            on_hover_(slot_index_, true);
+    }
+
+    void SlotComponent::mouseExit (const juce::MouseEvent& event) {
+        juce::Component::mouseExit(event);
+
+        if (on_hover_)
+            on_hover_(slot_index_, false);
+    }
 }
 
 void ConnectionSlots::initialiseSlot(int index, const juce::String& prefix) {
@@ -142,6 +156,9 @@ void ConnectionSlots::initialiseSlot(int index, const juce::String& prefix) {
         },
         [this](int slotIndex, float amount) {
             slotAmountChanged(slotIndex, amount);
+        },
+        [this](int slotIndex, bool hovering) {
+            slotHoverChanged(slotIndex, hovering);
         });
 
     auto* slot_component = slot.get();
@@ -168,7 +185,9 @@ ConnectionSlots::ConnectionSlots(EndpointArrowComponent& endpoint_arrow)
     arrow_->setConnectionSlots(this);
 }
 
-ConnectionSlots::ConnectionSlots (SynthSlider& destination) : SynthSection(destination.getComponentID() + "_connection_slots"), destination_(&destination) {
+ConnectionSlots::ConnectionSlots (SynthSlider& destination) :
+    SynthSection(destination.getComponentID() + "_connection_slots"), destination_(&destination) {
+
     setInterceptsMouseClicks(false, true);
 
     for (int index = 0; index < SynthSlider::kNumSlots; ++index) {
@@ -348,6 +367,9 @@ void ConnectionSlots::slotAmountChanged(int index, float amount) {
 
     for (auto* listener : listeners_)
         listener->connectionAmountChanged(*connection, amount);
+
+    if (hovered_slot_ == index)
+        showSlotPopup(index);
 }
 
 void ConnectionSlots::addListener(Listener* listener) {
@@ -358,4 +380,34 @@ void ConnectionSlots::addListener(Listener* listener) {
 
 void ConnectionSlots::removeListener(Listener* listener) {
     std::erase(listeners_, listener);
+}
+
+void ConnectionSlots::slotHoverChanged (int index, bool hovering) {
+    const auto* connection = slot_components_[index]->getConnection();
+    if (connection == nullptr || !connection->hasAmount)
+        return;
+    
+    if (!hovering) {
+        if (hovered_slot_ == index)
+            hovered_slot_ = -1;
+        hidePopupDisplay (true);
+        return;
+    }
+    hovered_slot_ = index;
+    showSlotPopup (index);
+}
+
+void ConnectionSlots::showSlotPopup (int index) {
+    const auto* connection = slot_components_[index]->getConnection();
+    if (connection == nullptr)
+        return;
+
+    const auto text = connection->label + ": " +
+        juce::String(juce::roundToInt(connection->amount * 100.0f)) + "%";
+
+    showPopupDisplay(
+        slot_components_[index].get(),
+        text.toStdString(),
+        juce::BubbleComponent::above,
+        true);
 }

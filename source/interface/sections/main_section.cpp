@@ -94,7 +94,8 @@ MainSection::MainSection(const juce::ValueTree& v, juce::UndoManager &um, OpenGl
     };
 
     master_voice_envelope_section = std::make_unique<MasterVoiceEnvelopeSection>(v, um, open_gl, data,std::move(data->synth->getEngine()->MasterVoiceEnvelopeProcessor->createEditor()));
-    master_voice_envelope_section->mod_button->addListener(modulation_manager);
+    if (modulation_manager != nullptr)
+        modulation_manager->registerEndpoint(*master_voice_envelope_section->mod_button);
     modulation_interface->setVCAModulationSection(master_voice_envelope_section.get(),
                                                       master_voice_envelope_section->mod_button);
 

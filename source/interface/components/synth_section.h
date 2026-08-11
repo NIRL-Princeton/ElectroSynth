@@ -355,6 +355,8 @@ class SynthSection : public Component, public Slider::Listener,
     void setScissorComponent(juce::Component *scissor_component);
     std::vector<SynthSection*> sub_sections_;
 
+    void assignModulationEndpoints(const juce::String& nodeId);
+
 protected:
     void setSliderHasHzAlternateDisplay(SynthSlider* slider);
     void setSidewaysHeading(bool sideways) { sideways_heading_ = sideways; }

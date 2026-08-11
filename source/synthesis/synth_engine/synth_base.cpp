@@ -16,8 +16,9 @@
 #include "RoutingProcessor.h"
 
 #include "synth_base.h"
-#include "synth_gui_interface.h"
+
 #include "melatonin_audio_sparklines/melatonin_audio_sparklines.h"
+#include "synth_gui_interface.h"
 
 #include "startup.h"
 #include "../synthesis/synth_engine/sound_engine.h"
@@ -142,16 +143,6 @@ void SynthBase::presetChangedThroughMidi(File preset) {
 //}
 
 
-int SynthBase::getNumModulations(const std::string &destination) {
-    int connections = 0;
-    for (electrosynth::Connection *connection: mod_connections_) {
-        if (connection->destination_name == destination)
-            connections++;
-    }
-    return connections;
-}
-
-
 void SynthBase::initEngine() {
     checkOversampling();
 }
@@ -166,7 +157,7 @@ void SynthBase::removeEffect(ProcessorBase *processor, int lane) {
     if (lane < 0 || lane >= static_cast<int>(engine_->effects.size()))
         return; // invalid lane index
 
-    disconnectModulationsForDestinationProcessor(processor->name.toStdString()); // disconnect modulation connections from this FX
+    disconnectConnectionsForNode(processor->getNodeId());
 
     auto& effectLane = engine_->effects[lane];
     auto it = std::find_if(effectLane.begin(), effectLane.end(),
@@ -193,6 +184,8 @@ void SynthBase::removeEffect(ProcessorBase *processor, int lane) {
 }
 void SynthBase::removeProcessor(ProcessorBase *processor) {
     if (engine_ == nullptr) return;
+    if (processor != nullptr)
+        disconnectConnectionsForNode(processor->getNodeId());
     for (auto &chain: engine_->processors) {
         auto it = std::find_if(chain.begin(), chain.end(),
                                [&](const std::unique_ptr<ProcessorBase> &proc) {
@@ -233,6 +226,9 @@ void SynthBase::removeProcessor(ProcessorBase *processor) {
 }
 
 void SynthBase::removeProcessor(ModulatorBase *processor) {
+    if (processor != nullptr)
+        disconnectConnectionsForNode(processor->getNodeId());
+
     for (auto &chain: engine_->modSources) {
         auto it = std::find_if(chain.begin(), chain.end(),
                                [&](const std::unique_ptr<ModulatorBase> &proc) {
@@ -276,6 +272,8 @@ void SynthBase::removeProcessor(ModulatorBase *processor) {
 void SynthBase::removeChainRouting(RoutingProcessor *processor) {
 
     if (engine_ == nullptr) return;
+    if (processor != nullptr)
+        disconnectConnectionsForNode(processor->getNodeId());
 
     auto& post = engine_->chainPostGain;
     auto it = std::find_if(post.begin(), post.end(),
@@ -519,9 +517,30 @@ void SynthBase::addModulationSource(std::unique_ptr<ModulatorBase> modulationSou
 }
 
 bool SynthBase::loadFromValueTree(const ValueTree &state) {
+    const auto savedState = state.createCopy();
     pauseProcessing(true);
     engine_->allSoundsOff();
-    tree.copyPropertiesAndChildrenFrom(state, nullptr);
+
+    const auto existingConnections = connection_records_;
+    for (const auto& connection : existingConnections)
+        disconnectConnection(connection.id);
+    processMappingChanges();
+
+    tree.copyPropertiesAndChildrenFrom(savedState, nullptr);
+
+    // Connection records are recreated through connect(), so the copied state never
+    // bypasses backend validation or creates a second source of truth.
+    for (int index = tree.getNumChildren(); --index >= 0;) {
+        const auto child = tree.getChild(index);
+        if (child.hasType(IDs::MODULATION) || child.hasType(IDs::CONNECTION))
+            tree.removeChild(index, nullptr);
+    }
+
+    AudioThreadAction action;
+    while (processorInitQueue.try_dequeue(action))
+        action();
+
+    restoreConnectionRecords(savedState);
     pauseProcessing(false);
     //DBG("unpause processing");
     if (tree.isValid())
@@ -582,10 +601,10 @@ bool SynthBase::saveToFile(File preset) {
     if (gui_interface)
         gui_interface->notifyFresh();
 
-    //    if (preset.replaceWithText(saveToJson().dump())) {
-    //        active_file_ = preset;
-    //        return true;
-    //    }
+    if (auto xml = tree.createXml(); xml != nullptr && preset.replaceWithText(xml->toString())) {
+        active_file_ = preset;
+        return true;
+    }
     return false;
 }
 
@@ -795,6 +814,131 @@ juce::UndoManager &SynthBase::getUndoManager() {
 
 /////////////////////// begin modulation and processor queue processing /////////
 
+
+const electrosynth::ConnectionRecord* SynthBase::findConnection(const juce::String& connectionId) const {
+    const auto found = std::find_if(connection_records_.begin(), connection_records_.end(), [&connectionId](const auto& connection) {
+        return connection.id == connectionId;
+    });
+
+    return found == connection_records_.end() ? nullptr : &*found;
+}
+
+std::vector<electrosynth::ConnectionRecord> SynthBase::getConnections() const {
+    return connection_records_;
+}
+
+std::vector<electrosynth::ConnectionRecord> SynthBase::getConnectionsForEndpoint(const electrosynth::EndpointAddress& endpoint) const {
+    std::vector<electrosynth::ConnectionRecord> result;
+
+    for (const auto& connection : connection_records_) {
+        if (connection.source.matches(endpoint) || connection.destination.matches(endpoint))
+            result.push_back(connection);
+    }
+    return result;
+}
+
+std::vector<electrosynth::ConnectionRecord> SynthBase::getConnectionsTargetingConnection(
+    const juce::String& connectionId) const {
+    std::vector<electrosynth::ConnectionRecord> result;
+    for (const auto& connection : connection_records_) {
+        if (connection.targetConnectionId == connectionId)
+            result.push_back(connection);
+    }
+    return result;
+}
+
+juce::ValueTree SynthBase::findPersistedConnectionState(const juce::String& connectionId) const {
+    for (const auto& child : tree) {
+        if ((child.hasType(IDs::MODULATION) || child.hasType(IDs::CONNECTION))
+            && child.getProperty(IDs::connectionId).toString() == connectionId)
+            return child;
+    }
+    return {};
+}
+
+void SynthBase::persistConnectionRecord(const electrosynth::ConnectionRecord& record, juce::ValueTree state) {
+    if (!state.isValid())
+        state = findPersistedConnectionState(record.id);
+
+    if (!state.isValid()) {
+        state = juce::ValueTree(IDs::CONNECTION);
+        tree.appendChild(state, nullptr);
+    }
+
+    electrosynth::writeConnectionRecordToTree(record, state);
+}
+
+juce::String SynthBase::findNodeIdForEndpointName(const juce::String& endpointName) const {
+    const auto processorName = endpointName.upToFirstOccurrenceOf("_", false, false);
+
+    const auto findInTree = [&processorName](const auto& self, const juce::ValueTree& parent) -> juce::String {
+        const auto nodeId = parent.getProperty(IDs::nodeID).toString();
+        const auto runtimeName = parent.getProperty(IDs::type).toString()
+            + parent.getProperty(IDs::uuid).toString();
+        if (nodeId.isNotEmpty() && runtimeName == processorName)
+            return nodeId;
+        if (nodeId.isNotEmpty() && processorName.equalsIgnoreCase("VCA")
+            && parent.getProperty(IDs::name).toString() == "master_voice")
+            return nodeId;
+
+        for (const auto& child : parent) {
+            if (auto found = self(self, child); found.isNotEmpty())
+                return found;
+        }
+        return {};
+    };
+
+    return findInTree(findInTree, tree);
+}
+
+void SynthBase::restoreConnectionRecords(const juce::ValueTree& savedState) {
+    std::vector<electrosynth::ConnectionRecord> records;
+    for (const auto& child : savedState) {
+        if (child.hasType(IDs::MODULATION) || child.hasType(IDs::CONNECTION))
+            records.push_back(electrosynth::readConnectionRecordFromTree(child));
+    }
+
+    // Primary records must exist before records targeting their amount can be restored.
+    std::stable_sort(records.begin(), records.end(), [](const auto& first, const auto& second) {
+        return first.targetConnectionId.isEmpty() && second.targetConnectionId.isNotEmpty();
+    });
+
+    for (auto& record : records) {
+        if (record.source.nodeId.isEmpty())
+            record.source.nodeId = findNodeIdForEndpointName(record.source.endpointId);
+        if (record.destination.nodeId.isEmpty())
+            record.destination.nodeId = findNodeIdForEndpointName(record.destination.endpointId);
+
+        if (!connect(record))
+            DBG("Could not restore connection " + record.id);
+    }
+}
+
+// for legacy runtime object with persistent ID
+electrosynth::Connection* SynthBase::findModulationRuntimeConnection(const juce::String& connectionId) const {
+    auto& bank = const_cast<SynthBase*>(this)->getModulationBank();
+
+    for (int index = 0; index < electrosynth::kMaxConnections; ++index) {
+        auto* connection = bank.atIndex(index);
+        if (connection != nullptr && connection->getConnectionId() == connectionId)
+            return connection;
+    }
+    return nullptr;
+}
+
+void SynthBase::applyModulationConnectionState(electrosynth::Connection& runtime, const electrosynth::ConnectionRecord& record) {
+    runtime.setBipolar (record.bipolar);
+    runtime.setStereo(record.stereo);
+    runtime.setBypass(record.bypass);
+    runtime.setScalingValue(record.amount);
+
+    runtime.setModulationAmount(record.amount);
+    runtime.setPolarity(record.bipolar);
+    runtime.state.setProperty (IDs::bypass, record.bypass, nullptr);
+    runtime.state.setProperty (IDs::stereo, record.stereo, nullptr);
+}
+
+
 electrosynth::ConnectionBank &SynthBase::getModulationBank() {
     return engine_->getModulationBank();
 }
@@ -826,24 +970,6 @@ electrosynth::mapping_change SynthBase::createMappingChange(electrosynth::Connec
 }
 
 
-std::vector<electrosynth::Connection *> SynthBase::getSourceConnections(const std::string &source) {
-    std::vector<electrosynth::Connection *> connections;
-    for (auto &connection: mod_connections_) {
-        if (connection->source_name == source)
-            connections.push_back(connection);
-    }
-    return connections;
-}
-
-std::vector<electrosynth::Connection *> SynthBase::getDestinationConnections(const std::string &destination) {
-    std::vector<electrosynth::Connection *> connections;
-    for (auto &connection: mod_connections_) {
-        if (connection->destination_name == destination)
-            connections.push_back(connection);
-    }
-    return connections;
-}
-
 electrosynth::Connection *SynthBase::getConnection(const std::string &source,
     const std::string &destination, int destination_slot) {
     for (auto &connection: mod_connections_) {
@@ -865,22 +991,164 @@ bool SynthBase::hasSourceDestinationConnection(const std::string &source, const 
     return false;
 }
 
-bool SynthBase::connect(const electrosynth::ConnectionRecord& connection) {
-    if (!connection.isValid())
+bool SynthBase::connect(const electrosynth::ConnectionRecord& record) {
+    if (!record.isValid())
+        return false;
+    if (findConnection(record.id) != nullptr)
         return false;
 
-    switch (connection.type) {
-        case electrosynth::ConnectionType::Modulation:
-            return connectModulation(connection.source.endpointId.toStdString(),
-                                     connection.destination.endpointId.toStdString(),
-                                     connection.destinationSlot);
+    const auto duplicate = std::find_if(connection_records_.begin(), connection_records_.end(), [&record](const auto& existing) {
+        return existing.source.matches(record.source) && existing.destination.matches(record.destination)
+            && existing.destinationSlot == record.destinationSlot
+            && existing.targetConnectionId == record.targetConnectionId;
+    });
 
-        case electrosynth::ConnectionType::Audio:
-            return true;
+    if (duplicate != connection_records_.end())
+        return false;
+
+    if (record.targetConnectionId.isNotEmpty()) {
+        const auto* target = findConnection(record.targetConnectionId);
+        if (record.type != electrosynth::ConnectionType::Modulation || target == nullptr
+            || target->type != electrosynth::ConnectionType::Modulation)
+            return false;
+        if (!getConnectionsTargetingConnection(record.targetConnectionId).empty())
+            return false;
+
+        connection_records_.push_back(record);
+        persistConnectionRecord(record);
+        return true;
     }
 
-    return false;
+    switch (record.type) {
+        case electrosynth::ConnectionType::Modulation:
+        {
+            const auto source = record.source.endpointId.toStdString();
+            const auto destination = record.destination.endpointId.toStdString();
+            if (!connectModulation(source, destination, record.destinationSlot))
+                return false;
+
+            auto* runtime = getConnection(source, destination, record.destinationSlot);
+            if (runtime == nullptr)
+                return false;
+
+            runtime->setConnectionId (record.id);
+            applyModulationConnectionState (*runtime, record);
+            persistConnectionRecord(record, runtime->state);
+            break;
+        }
+
+        case electrosynth::ConnectionType::Audio:
+        {
+            // Audio routing is not connected to the DSP engine yet. For now this is
+            // only the shared connection state used by the existing routing UI.
+            persistConnectionRecord(record);
+            break;
+        }
+
+        default:
+            return false;
+    }
+
+    connection_records_.push_back(record);
+    return true;
 }
+
+bool SynthBase::disconnectConnection(const juce::String& connectionId) {
+    auto found = std::find_if(connection_records_.begin(), connection_records_.end(), [&connectionId](const auto& existing) {
+        return connectionId == existing.id;
+    });
+
+    if (found == connection_records_.end())
+        return false;
+
+    const auto dependants = getConnectionsTargetingConnection(connectionId);
+    for (const auto& dependant : dependants)
+        disconnectConnection(dependant.id);
+
+    found = std::find_if(connection_records_.begin(), connection_records_.end(), [&connectionId](const auto& existing) {
+        return connectionId == existing.id;
+    });
+    if (found == connection_records_.end())
+        return false;
+
+    if (found->targetConnectionId.isNotEmpty()) {
+        if (auto state = findPersistedConnectionState(connectionId); state.isValid())
+            tree.removeChild(state, nullptr);
+        connection_records_.erase(found);
+        return true;
+    }
+
+    switch (found->type)
+    {
+        case electrosynth::ConnectionType::Modulation:
+        {
+            auto* runtime = findModulationRuntimeConnection (connectionId);
+            if (runtime == nullptr)
+                return false;
+            disconnectModulation(runtime);
+            break;
+        }
+
+        case electrosynth::ConnectionType::Audio:
+        {
+            if (auto state = findPersistedConnectionState(connectionId); state.isValid())
+                tree.removeChild(state, nullptr);
+            break;
+        }
+
+        default:
+            return false;
+    }
+
+    connection_records_.erase(found);
+    return true;
+}
+
+bool SynthBase::updateConnection(const electrosynth::ConnectionRecord& updated) {
+    if (!updated.isValid())
+        return false;
+
+    auto found = std::find_if(connection_records_.begin(), connection_records_.end(), [&updated](const auto& existing) {
+        return existing.id == updated.id;
+    });
+    if (found == connection_records_.end())
+        return false;
+
+    if (found->type != updated.type || !found->source.matches(updated.source) || !found->destination.matches(updated.destination) || found->destinationSlot != updated.destinationSlot)
+        return false;
+
+    if (found->targetConnectionId != updated.targetConnectionId)
+        return false;
+
+    if (updated.targetConnectionId.isNotEmpty()) {
+        persistConnectionRecord(updated);
+        *found = updated;
+        return true;
+    }
+
+    switch (updated.type)
+    {
+        case electrosynth::ConnectionType::Modulation:
+        {
+            auto* runtime = findModulationRuntimeConnection (updated.id);
+            if (runtime == nullptr)
+                return false;
+            applyModulationConnectionState (*runtime, updated);
+            break;
+        }
+
+        case electrosynth::ConnectionType::Audio:
+        {
+            break;
+        }
+        default:
+            return false;
+    }
+    persistConnectionRecord(updated);
+    *found = updated;
+    return true;
+}
+
 
 bool SynthBase::connectModulation(const std::string &source, const std::string &destination, int destination_slot) {
 
@@ -937,29 +1205,18 @@ void SynthBase::disconnectModulation(electrosynth::Connection *connection) {
     modulation_change_queue_.enqueue(change);
 }
 
-void SynthBase::disconnectModulation(const std::string &source, const std::string &destination) {
-    electrosynth::Connection *connection = getConnection(source, destination);
-    if (connection)
-        disconnectModulation(connection);
-}
+void SynthBase::disconnectConnectionsForNode(const juce::String& nodeId) {
+    if (nodeId.isEmpty())
+        return;
 
-// if a filter is deleted, disconnect all modulation connections it is the source of
-void SynthBase::disconnectModulationsForDestinationProcessor(const std::string& processor_name) {
-    const std::string dest_prefix = processor_name + "_";
-    std::vector<electrosynth::Connection*> connections_to_remove;
-
-    for (auto* connection : mod_connections_) {
-        if (connection == nullptr) continue;
-        const auto destination = connection->destination_name;
-
-        if (destination.size() >= dest_prefix.size() && destination.starts_with(dest_prefix)) {
-            connections_to_remove.push_back(connection);
-        }
+    std::vector<juce::String> connectionsToRemove;
+    for (const auto& connection : connection_records_) {
+        if (connection.source.nodeId == nodeId || connection.destination.nodeId == nodeId)
+            connectionsToRemove.push_back(connection.id);
     }
 
-    for (auto* connection : connections_to_remove) {
-        disconnectModulation(connection);
-    }
+    for (const auto& connectionId : connectionsToRemove)
+        disconnectConnection(connectionId);
 }
 
 

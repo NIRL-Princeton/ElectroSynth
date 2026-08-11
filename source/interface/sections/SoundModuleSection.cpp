@@ -63,6 +63,8 @@ SoundModuleSection::SoundModuleSection(MappingManager *m,  ModuleList<ProcessorB
     routing_view_ = std::unique_ptr<RoutingView>(static_cast<RoutingView*>(baseEditor.release()));
     addSubSection(routing_view_.get());
     routing_view_->setAlwaysOnTop(true);
+
+    routing_view_->assignModulationEndpoints(module_list.router_->getNodeId());
 }
 
 SoundModuleSection::~SoundModuleSection() {
@@ -141,27 +143,6 @@ void SoundModuleSection::handlePopupResult(int result) {
         list.appendChild(t, &undo);
     }
 
-    //    if (result == kArmMidiLearn)
-    //        synth->armMidiLearn(getName().toStdString());
-    //    else if (result == kClearMidiLearn)
-    //        synth->clearMidiLearn(getName().toStdString());
-    //    else if (result == kDefaultValue)
-    //        setValue(getDoubleClickReturnValue());
-    //    else if (result == kManualEntry)
-    //        showTextEntry();
-    //    else if (result == kClearModulations) {
-    //        for (vital::ModulationConnection* connection : connections) {
-    //            std::string source = connection->source_name;
-    //            synth_interface_->disconnectModulation(connection);
-    //        }
-    //        notifyModulationsChanged();
-    //    }
-    //    else if (result >= kModulationList) {
-    //        int connection_index = result - kModulationList;
-    //        std::string source = connections[connection_index]->source_name;
-    //        synth_interface_->disconnectModulation(connections[connection_index]);
-    //        notifyModulationsChanged();
-    //    }
 }
 
 

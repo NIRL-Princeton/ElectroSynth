@@ -17,7 +17,6 @@
 #include "mapping_manager.h"
 
 #include "FullInterface.h"
-#include "ModulationConnection.h"
 #include "ParameterView/ParametersView.h"
 #include "connection_slots.h"
 #include "midi_manager.h"
@@ -76,76 +75,6 @@ namespace {
         return ShaderColors::kNoise;
     }
 }
-
-// custom UI class inheriting from OpenGlToggleButton. When a modulation source has too many connections, instead of displaying
-// each one individually next to the button, this appears instead and acts as a collapsed popup
-class ExpandConnectionButton : public OpenGlToggleButton {
-  public:
-    ExpandConnectionButton() : OpenGlToggleButton("expand connection"),
-                               num_sliders_(0), amount_quad_(Shaders::kRingFragment) {
-        setLightenButton();
-        setTriggeredOnMouseDown(true);
-        setMouseClickGrabsKeyboardFocus(false);
-        amount_quad_.setTargetComponent(this);
-        amount_quad_.setThickness(2.0f);
-    }
-
-    int getNumColumns(int num_sliders) {
-        float height_width_ratio = getHeight() * 1.0f / getWidth();
-        int columns = 1;
-        while (columns * static_cast<int> (height_width_ratio * columns) < num_sliders)
-            columns++;
-
-        return columns;
-    }
-
-    void setSliders(std::vector<ModulationAmountKnob*> sliders) {
-        sliders_ = sliders;
-        for (int i = 0; i < sliders.size(); ++i)
-            colors_[i] = sliders_[i]->findColour(Skin::kRotaryArc, true);
-        num_sliders_ = static_cast<int>(sliders_.size());
-    }
-
-    std::vector<ModulationAmountKnob*> getSliders() {
-        return sliders_;
-    }
-
-    void renderSliderQuads(OpenGlWrapper& open_gl, bool animate) {
-        int num_sliders = num_sliders_;
-        float width = getWidth();
-        float height = getHeight();
-        int columns = getNumColumns(num_sliders);
-        int rows = (num_sliders + columns - 1) / columns;
-
-        float cell_width = width / columns;
-        int y_offset = (height - (rows * cell_width)) / 2;
-        float gl_width = 2.0f * cell_width / width;
-        float gl_height = 2.0f * cell_width / height;
-
-        int row = 0;
-        int column = 0;
-        for (int i = 0; i < num_sliders; ++i) {
-            float x = column * cell_width;
-            float y = height - y_offset - (row + 1) * cell_width;
-            amount_quad_.setColor(colors_[i]);
-            amount_quad_.setAltColor(colors_[i].withMultipliedAlpha(0.5f));
-            amount_quad_.setQuad(0, 2.0f * x / width - 1.0f, 1.0f - 2.0f * y / height - gl_height, gl_width, gl_height);
-            amount_quad_.render(open_gl, animate);
-            column++;
-            if (column >= columns) {
-                row++;
-                column = 0;
-            }
-        }
-    }
-
-private:
-    std::vector<ModulationAmountKnob*> sliders_;
-    int num_sliders_;
-    juce::Colour colors_[electrosynth::kMaxConnections];
-    OpenGlQuad amount_quad_;
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ExpandConnectionButton)
-};
 
 // represents (wraps) a synthslider, tracks whether it is active/already modulated, computes the visual bounds for the
 // drag-over highlight, stores the OpenGl quad index used when drawing destination overlays, handles the three small boxes
@@ -232,79 +161,13 @@ class ConnectionDestination : public juce::Component {
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ConnectionDestination)
 };
 
-// creates the UI knob that controls how much modulation is applied to another slider
-ModulationAmountKnob::ModulationAmountKnob(juce::String name, int index, const ValueTree &v) :
-SynthSlider(name), color_component_(nullptr), index_(index) {
-  setModulationKnob(); // set the knob-type as a modulation knob
-  bypass_ = false;
-  stereo_ = false;
-  bipolar_ = false;
-  draw_background_ = false;
-  name_ = name;
-  editing_ = false;
-
-  setShowPopupOnHover(true);
-  setTextEntrySizePercent(2.0f, 1.0f);
-  setDoubleClickReturnValue(false, 0.0f);
-  setWantsKeyboardFocus(false);
-  showing_ = true;
-  hovering_ = false;
-  current_source_ = false;
-  setRange(-1.f,1.f,0.f);
-}
-
-
-
-void ModulationAmountKnob::makeVisible(bool visible) {
-    if (visible == showing_)
-        return;
-    showing_ = visible;
-    setVisible(visible);
-    setAlpha((showing_ || hovering_) ? 1.0f : 0.0f);
-}
-
-void ModulationAmountKnob::hideImmediately() {
-    setAlpha(0.0f, true);
-    showing_ = false;
-    hovering_ = false;
-    setVisible(false);
-}
-
-void ModulationAmountKnob::setCurrentSource(bool current) {
-    if (current_source_ == current)
-        return;
-
-    setColour(Skin::kRotaryArc, findColour(Skin::kModulationMeterControl, true));
-    current_source_ = current;
-}
-
-void ModulationAmountKnob::setSource(const std::string& name) {
-    source_name_ = name;
-    const auto color = getSourceColor();
-    setColour(Skin::kRotaryArc, color);
-    setColour(Skin::kRotaryArcUnselected, color.withMultipliedAlpha(0.25f));
-    setColour(Skin::kRotaryHand, color);
-    setColour(Skin::kModulationMeterControl, color);
-    setPopupPrefix(getSourceLabel() + ": ");
-    redoImage();
-}
-
-juce::String ModulationAmountKnob::getSourceLabel() const {
-  return getConnectionSourceLabel(source_name_);
-}
-
-juce::Colour ModulationAmountKnob::getSourceColor() const {
-  return getConnectionSourceColor(source_name_);
-}
-
-MappingManager::MappingManager(ValueTree &tree, SynthBase* base) :
+MappingManager::MappingManager() :
         SynthSection("modulation_manager"), drag_quad_(Shaders::kRingFragment), drag_icon_("modulation_drag_icon"),
         current_quad_(Shaders::kRoundedRectangleBorderFragment),
         mapping_mode_dim_quad_(Shaders::kColorFragment, "modulation_mapping_mode_dim"),
         editing_rotary_amount_quad_(Shaders::kRotaryModulationFragment),
         editing_linear_amount_quad_(Shaders::kLinearModulationFragment), modifying_(false), dragging_(false),
-        changing_hover_(false),component_update_pending_(false), current_modulator_(nullptr),
-        expansion_box_(std::make_shared<SlotExpansionBox>()), state_(tree) {
+        changing_hover_(false),component_update_pending_(false), current_modulator_(nullptr) {
 
     current_quad_.setQuad(0, -1.0f, -1.0f, 2.0f, 2.0f);
     drag_quad_.setTargetComponent(this);
@@ -323,19 +186,11 @@ MappingManager::MappingManager(ValueTree &tree, SynthBase* base) :
     editing_linear_amount_quad_.setActive(false);
     editing_linear_amount_quad_.setQuad(0, -1.0f, -1.0f, 2.0f, 2.0f);
 
-    addOpenGlComponent(expansion_box_);
-    expansion_box_->setVisible(false);
-    expansion_box_->setWantsKeyboardFocus(true);
-    expansion_box_->addListener(this);
-    expansion_box_->setAlwaysOnTop(true);
-
     setSkinOverride(Skin::kModulationDragDrop);
 
     current_source_ = nullptr;
-    current_expanded_ = nullptr;
     temporarily_set_destination_ = nullptr;
     temporarily_set_synth_slider_ = nullptr;
-    temporarily_set_hover_slider_ = nullptr;
     temporarily_set_slot_ = -1;
     temporarily_set_bipolar_ = false;
     setInterceptsMouseClicks(false, true);
@@ -349,22 +204,6 @@ MappingManager::MappingManager(ValueTree &tree, SynthBase* base) :
     mapping_mode_dim_quad_.setAlpha(0.0f);
     mapping_mode_dim_quad_.setQuad(0, -1.0f, -1.0f, 2.0f, 2.0f);
 
-/*
-    electrosynth::ConnectionBank & bank = base->getModulationBank();
-    for (int i = 0; i < electrosynth::kMaxConnections; ++i) {
-        std::string name = "modulation_" + std::to_string(i + 1) + "_amount";
-
-        // modulation key under slider
-        modulation_icon_[i] = std::make_unique<ModulationAmountKnob>(name, i, bank.atIndex(i)->state);
-        modulation_icon_[i]->setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
-        addSlider(modulation_icon_[i].get(),true,true);
-        modulation_icon_[i]->setAlpha(0.0f, true);
-        modulation_icon_[i]->addSliderListener(this);
-        modulation_icon_[i]->addModulationAmountListener(this);
-        modulation_icon_[i]->setDrawWhenNotVisible(true);
-
-  }
-  */
 }
 
 // Endpoint organization and maintenance methods *****************************************************************  Endpoint organization and maintenance methods
@@ -423,9 +262,6 @@ void MappingManager::unregisterEndpoint(const electrosynth::EndpointAddress& add
         component->removeMouseListener(this);
 
     mapping_endpoints_.erase(found);
-    std::erase_if(connection_records_, [&address](const auto& connection) {
-        return connection.source.matches(address) || connection.destination.matches(address);
-    });
     updateConnectionSlots();
 }
 
@@ -576,7 +412,8 @@ void MappingManager::mouseUp(const juce::MouseEvent& event) {
 }
 
 // Making connection helpers  ************************************************************************************************************ Making connection helpers
-bool MappingManager::endpointsAreCompatible(const electrosynth::EndpointAddress& source, const electrosynth::EndpointAddress& destination) const {
+bool MappingManager::endpointsAreCompatible(const electrosynth::EndpointAddress& source, const electrosynth::EndpointAddress& destination)
+{
     if (!source.isValid() || !destination.isValid())
         return false;
 
@@ -592,24 +429,6 @@ bool MappingManager::endpointsAreCompatible(const electrosynth::EndpointAddress&
     }
 
     return true;
-}
-
-// centralized UUID lookup
-electrosynth::Connection* MappingManager::findModulationConnection(const juce::String& connectionId) const {
-    auto* gui = findParentComponentOfClass<SynthGuiInterface>();
-    if (gui == nullptr)
-        return nullptr;
-
-    auto& bank = gui->getSynth()->getModulationBank();
-
-    for (int i = 0; i < electrosynth::kMaxConnections; ++i) {
-        auto* connection = bank.atIndex(i);
-
-        if (connection != nullptr &&
-            juce::String(connection->uuid) == connectionId)
-            return connection;
-    }
-    return nullptr;
 }
 
 RegisteredMappingEndpoint* MappingManager::findEndpointAt(juce::Point<int> managerPosition) {
@@ -638,22 +457,19 @@ bool MappingManager::connectEndpoints (const electrosynth::EndpointAddress& sour
     auto* destination_component = destinationEndpoint->component.getComponent();
     if (destination_component == nullptr) return false;
 
+    auto* parent = findParentComponentOfClass<SynthGuiInterface>();
+    if (parent == nullptr) return false;
+
+    const auto existingConnections = parent->getConnectionsForEndpoint(destination);
+
+    const auto duplicate = std::find_if(existingConnections.begin(), existingConnections.end(),
+       [&source, &destination](const auto& record) {
+           return record.source.matches(source) && record.destination.matches(destination);
+       });
+    if (duplicate != existingConnections.end()) return true;
+
     const int capacity = destination_component->getEndpoint().capabilities.maxIncomingConnections;
-    const auto connectionsToDestination = [&] (const electrosynth::ConnectionRecord& record) {
-        return record.destination.matches(destination);
-    };
-
-    // does this connection already exist?
-    const auto duplicate = std::find_if(connection_records_.begin(),connection_records_.end(),
-        [&](const auto& record) {
-            return record.source.matches(source) && record.destination.matches(destination);
-        });
-    if (duplicate != connection_records_.end()) return true;
-
-    const int existingConnectionsCount = static_cast<int>(std::count_if(connection_records_.begin(), connection_records_.end(),
-        connectionsToDestination));
-
-    if (capacity <= 0 || existingConnectionsCount >= capacity) {
+    if (capacity <= 0 || static_cast<int>(existingConnections.size()) >= capacity) {
         return false;
     }
 
@@ -664,17 +480,15 @@ bool MappingManager::connectEndpoints (const electrosynth::EndpointAddress& sour
         .destination = destination
     };
 
-    auto* parent = findParentComponentOfClass<SynthGuiInterface>();
-    if (parent == nullptr || !parent->connect(connection))
+    if (!parent->connect(connection))
         return false;
 
-    connection_records_.push_back(std::move(connection));
     updateConnectionSlots();
     return true;
 }
 
-void MappingManager::updateConnectionSlots()
-{
+void MappingManager::updateConnectionSlots() {
+
     const auto get_label = [](const juce::String& label) {
         const auto abbreviate = [&label](const juce::String& full_label, const juce::String& new_label) -> std::optional<juce::String> {
             if (!label.startsWithIgnoreCase (full_label)) return std::nullopt;
@@ -691,6 +505,9 @@ void MappingManager::updateConnectionSlots()
         return label;
     };
 
+    auto* parent = findParentComponentOfClass<SynthGuiInterface>();
+    if (parent == nullptr) return;
+
     for (auto& [key, registered_endpoint] : mapping_endpoints_) {
         auto* port = registered_endpoint.component.getComponent();
         if (port == nullptr) continue;
@@ -699,13 +516,17 @@ void MappingManager::updateConnectionSlots()
         if (address.type != electrosynth::ConnectionType::Audio) continue;
 
         std::vector<ConnectionSlotData> slots_for_port;
-        for (const auto& connection : connection_records_) {
+        const auto endpointConnections = parent->getConnectionsForEndpoint(address);
+        for (const auto& connection : endpointConnections) {
             if (connection.type != electrosynth::ConnectionType::Audio) continue;
+
             const auto& endpoint = address.direction == electrosynth::EndpointDirection::Destination ? connection.destination : connection.source;
             if (!endpoint.matches(address)) continue;
+
             const auto& peer_address = address.direction == electrosynth::EndpointDirection::Destination ? connection.source : connection.destination;
             auto* peer_endpoint = getRegisteredMappingEndpoint(peer_address);
             if (peer_endpoint == nullptr) continue;
+
             auto* peer = peer_endpoint->component.getComponent();
             if (peer == nullptr) continue;
 
@@ -822,158 +643,71 @@ void MappingManager::handleConnectionMenuResult(const juce::String& connectionId
         return;
     }
 
-    auto audioConnectionRecord = std::find_if(connection_records_.begin(), connection_records_.end(),
-        [&connectionId](const electrosynth::ConnectionRecord& connection) {
-            return connection.id == connectionId;
-        });
+    auto* parent = findParentComponentOfClass<SynthGuiInterface>();
+    if (parent == nullptr) return;
 
-    if (audioConnectionRecord != connection_records_.end()) {
-        switch (result)
-        {
-            case kToggleConnectionBypass:
-                audioConnectionRecord->bypass = !audioConnectionRecord->bypass;
-                break;
+    const auto* stored = parent->findConnection(connectionId);
 
-            case kToggleConnectionBipolar:
-                audioConnectionRecord->bipolar = !audioConnectionRecord->bipolar;
-                break;
-
-            case kToggleConnectionStereo:
-                audioConnectionRecord->stereo = !audioConnectionRecord->stereo;
-                break;
-
-            default:
-                return;
-        }
-
-        updateConnectionSlots();
+    if (stored == nullptr)
         return;
+
+    auto updated = *stored;
+    switch (result) {
+        case kToggleConnectionBypass:
+            updated.bypass = !updated.bypass;
+            break;
+        case kToggleConnectionBipolar:
+            updated.bipolar = !updated.bipolar;
+            break;
+        case kToggleConnectionStereo:
+            updated.stereo = !updated.stereo;
+            break;
+        default:
+            return;
     }
 
-    auto* parent = findParentComponentOfClass<SynthGuiInterface>();
-    if (parent == nullptr)
-        return;
-
-
-    for (int index = 0; index < electrosynth::kMaxConnections; ++index) {
-
-        auto* modulationConnection = findModulationConnection(connectionId);
-
-        if (modulationConnection == nullptr
-            || juce::String(modulationConnection->uuid) != connectionId)
-            continue;
-
-        bool bipolar = modulationConnection->isBipolar();
-        bool stereo = modulationConnection->isStereo();
-        bool bypass = modulationConnection->isBypass();
-
-        switch (result) {
-            case kToggleConnectionBypass:
-                bypass = !bypass;
-                // toggleBypass();
-                break;
-            case kToggleConnectionBipolar:
-                bipolar = !bipolar;
-                //for (Listener* listener : listeners_)
-                    //listener->setConnectionBipolar(this, bipolar_);
-                break;
-            case kToggleConnectionStereo:
-                stereo = !stereo;
-                //for (Listener* listener : listeners_)
-                    //listener->setConnectionStereo(this, stereo_);
-                break;
-            default:
-                return;
-        }
-
-        setConnectionValues(modulationConnection->source_name,
-                            modulationConnection->destination_name,
-                            modulationConnection->getCurrentBaseValue(),
-                            bipolar, stereo, bypass,
-                            modulationConnection->destination_slot);
-        return;
+    if (parent->updateConnection(updated)) {
+        updateConnectionSlots();
+        updateSlotVisuals();
     }
 }
 
-void MappingManager::removeConnectionRecord(const juce::String& connectionId)
-{
-    const auto removed = std::erase_if(connection_records_, [&connectionId](const auto& connection) {
-        return connection.id == connectionId;
-    });
-
-    if (removed > 0) {
-        updateConnectionSlots();
-        return;
-    }
+void MappingManager::removeConnectionRecord(const juce::String& connectionId) {
 
     auto* parent = findParentComponentOfClass<SynthGuiInterface>();
     if (parent == nullptr) return;
 
-    auto& modulation_bank = parent->getSynth()->getModulationBank();
-    for (int index = 0; index < electrosynth::kMaxConnections; ++index){
-
-        auto* connection = findModulationConnection(connectionId);
-
-        if (connection == nullptr || juce::String(connection->uuid) != connectionId) continue;
-
-        const auto source = connection->source_name;
-        const auto destination = connection->destination_name;
-        const int destination_slot = connection->destination_slot;
-
-        removeMapping(source, destination, destination_slot);
+    const auto* connection = parent->findConnection(connectionId);
+    if (connection == nullptr)
         return;
+
+    const auto destination = connection->destination.endpointId.toStdString();
+    const auto type = connection->type;
+    if (parent->disconnectConnection(connectionId)) {
+        updateConnectionSlots();
+        updateSlotVisuals();
+        if (type == electrosynth::ConnectionType::Modulation)
+            modulationsChanged(destination);
     }
 }
 
 void MappingManager::connectionAmountChanged(const ConnectionSlotData& connection, float amount)  {
-    // audio connections first
-    auto found_audio = std::find_if(connection_records_.begin(), connection_records_.end(),
-        [&connection](const auto& record) {
-            return record.id == connection.connectionId;
-        });
 
-    if (found_audio != connection_records_.end()) {
-        found_audio->amount = amount;
-        updateConnectionSlots();
-        return;
-    }
-
-    // now onto modulation connection
-    auto* parent = findParentComponentOfClass<SynthGuiInterface>();
+    auto* parent =findParentComponentOfClass<SynthGuiInterface>();
     if (parent == nullptr)
         return;
 
-    for (int index = 0; index < electrosynth::kMaxConnections; ++index) {
+    if (const auto* stored = parent->findConnection(connection.connectionId)) {
+        auto updated = *stored;
+        updated.amount = amount;
 
-        auto* current_connection = findModulationConnection(connection.connectionId);
-        if (current_connection == nullptr || juce::String(current_connection->uuid) != connection.connectionId) {
-            continue;
+        if (parent->updateConnection(updated)) {
+            updateConnectionSlots();
+            updateSlotVisuals();
         }
-
-        setConnectionValues(
-            current_connection->source_name,
-            current_connection->destination_name,
-            amount,
-            current_connection->isBipolar(),
-            current_connection->isStereo(),
-            current_connection->isBypass(),
-            current_connection->destination_slot);
-
-        showConnectionAmountOverlay(connection.connectionId);
-
-        return;
     }
+
 }
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1058,7 +792,6 @@ void MappingManager::resized() {
   drag_quad_.setAltColor(findColour(Skin::kWidgetBackground, true));
 
 
-    expansion_box_->setColor(findColour(Skin::kBody, true));
     // set destination map colors
   juce::Colour lighten_screen = findColour(Skin::kLightenScreen, true);
   float rounding = parent_->findValue(Skin::kLabelBackgroundRounding);
@@ -1084,7 +817,14 @@ void MappingManager::updateMappingMeterLocations() {
       meter.second->setBounds(getLocalArea(model, model->getModulationMeterBounds()));
 
     if (parent) {
-      int num_modulations = parent->getSynth()->getNumModulations(meter.first);
+      int num_modulations = 0;
+      if (model != nullptr && model->hasModulationEndpoint()) {
+        const auto connections = parent->getConnectionsForEndpoint(model->getModulationEndpoint().address);
+        num_modulations = static_cast<int>(std::count_if(connections.begin(), connections.end(), [](const auto& connection) {
+          return connection.type == electrosynth::ConnectionType::Modulation
+              && connection.targetConnectionId.isEmpty();
+        }));
+      }
       meter.second->setModulated(num_modulations);
       meter.second->setVisible(num_modulations);
     }
@@ -1092,47 +832,70 @@ void MappingManager::updateMappingMeterLocations() {
 }
 
 void MappingManager::connectionAmountChanged(SynthSlider* slider) {
-  std::string slider_name = slider->getComponentID().toStdString();
-  std::string source_name = current_modulator_->getComponentID().toStdString();
-  setConnectionValues(source_name, slider_name,
-                      slider->getModulationAmount(), slider->isModulationBipolar(),
-                      slider->isModulationStereo(), slider->isModulationBypassed());
-  modulation_buttons_[source_name]->repaint();
+  if (slider == nullptr || current_modulator_ == nullptr || !slider->hasModulationEndpoint()
+      || !current_modulator_->hasEndpoint())
+    return;
+
+  auto* parent = findParentComponentOfClass<SynthGuiInterface>();
+  if (parent == nullptr)
+    return;
+
+  for (const auto& connection : parent->getConnectionsForEndpoint(slider->getModulationEndpoint().address)) {
+    if (!connection.source.matches(current_modulator_->getEndpoint().address)
+        || connection.targetConnectionId.isNotEmpty())
+      continue;
+
+    auto updated = connection;
+    updated.amount = slider->getModulationAmount();
+    updated.bipolar = slider->isModulationBipolar();
+    updated.stereo = slider->isModulationStereo();
+    updated.bypass = slider->isModulationBypassed();
+    parent->updateConnection(updated);
+    updateSlotVisuals();
+    current_modulator_->repaint();
+    return;
+  }
 }
 
 void MappingManager::connectionRemoved(SynthSlider* slider) {
-  std::string slider_name = slider->getComponentID().toStdString();
-  std::string source_name = current_modulator_->getComponentID().toStdString();
+  if (slider == nullptr || current_modulator_ == nullptr || !slider->hasModulationEndpoint()
+      || !current_modulator_->hasEndpoint())
+    return;
 
-  removeMapping(source_name, slider_name);
-  modulation_buttons_[source_name]->repaint();
+  auto* parent = findParentComponentOfClass<SynthGuiInterface>();
+  if (parent == nullptr)
+    return;
+
+  for (const auto& connection : parent->getConnectionsForEndpoint(slider->getModulationEndpoint().address)) {
+    if (connection.source.matches(current_modulator_->getEndpoint().address)
+        && connection.targetConnectionId.isEmpty()) {
+      parent->disconnectConnection(connection.id);
+      modulationsChanged(slider->getComponentID().toStdString());
+      current_modulator_->repaint();
+      return;
+    }
+  }
 }
 
 void MappingManager::connectionSelected(ConnectionButton* source) {
 
   current_modulator_ = source;
-    /*
-  for (auto& hover_slider : modulation_icon_)
-    hover_slider->makeVisible(false);
-    */
-  makeCurrentConnectionAmountsVisible();
-  setConnectionAmounts();
 }
 
 void MappingManager::connectionClicked(ConnectionButton* source) {
-  hideUnusedHoverModulations();
+  juce::ignoreUnused(source);
 }
 
 bool MappingManager::hasFreeConnection() {
   SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
-  electrosynth::ConnectionBank& bank = parent->getSynth()->getModulationBank();
-  for (int i = 0; i < electrosynth::kMaxConnections; ++i) {
-    electrosynth::Connection* connection = bank.atIndex(i);
-    if (connection->source_name.empty() && connection->destination_name.empty())
-      return true;
-  }
+  if (parent == nullptr)
+    return false;
 
-  return false;
+  const auto connections = parent->getConnections();
+  return std::count_if(connections.begin(), connections.end(), [](const auto& connection) {
+    return connection.type == electrosynth::ConnectionType::Modulation
+        && connection.targetConnectionId.isEmpty();
+  }) < electrosynth::kMaxConnections;
 }
 
 void MappingManager::scheduleComponentUpdate()
@@ -1228,16 +991,12 @@ void MappingManager::componentAdded() {
 
         if (!contains_current_modulator(current_source_))
             current_source_ = nullptr;
-        current_expanded_ = nullptr;
-        expansion_box_->setVisible(false);
-
-
         dragging_ = false;
         current_source_ = nullptr;
         current_modulator_ = nullptr;
         temporarily_set_destination_ = nullptr;
         temporarily_set_synth_slider_ = nullptr;
-        temporarily_set_hover_slider_ = nullptr;
+        temporarily_set_connection_id_.clear();
         temporarily_set_slot_ = -1;
         destinations_->setVisible(false);
 
@@ -1249,7 +1008,6 @@ void MappingManager::componentAdded() {
         destination_lookup_.clear();
         all_destinations_.clear();
         modulation_buttons_.clear();
-        callout_buttons_.clear();
         meter_lookup_.clear();
         num_linear_meters.clear();
         num_rotary_meters.clear();
@@ -1258,10 +1016,6 @@ void MappingManager::componentAdded() {
             if (!modulation_button.second->hasEndpoint()) {
                 modulation_button.second->addListener(this);
             }
-            callout_buttons_[modulation_button.first] = std::make_unique<ExpandConnectionButton>();
-            addChildComponent(callout_buttons_[modulation_button.first].get());
-            // addOpenGlComponent(modulation_callout_buttons_[modulation_button.first]->getGlComponent());
-            callout_buttons_[modulation_button.first]->addListener(this);
         }
 
         slider_model_lookup_.clear();
@@ -1398,11 +1152,11 @@ void MappingManager::startDestinationMap(ConnectionButton* source, const juce::M
     linear_indices[linear_destination_group.first] = 0;
 
   SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
-  std::string source_name = source->getComponentID().toStdString();
   std::set<std::string> active_destinations;
-  std::vector<electrosynth::Connection*> connections = parent->getSynth()->getSourceConnections(source_name);
-  for (electrosynth::Connection* connection : connections)
-    active_destinations.insert(connection->destination_name);
+  if (parent != nullptr && source->hasEndpoint()) {
+    for (const auto& connection : parent->getConnectionsForEndpoint(source->getEndpoint().address))
+      active_destinations.insert(connection.destination.endpointId.toStdString());
+  }
 
     for (auto& destination : destination_lookup_) {
 
@@ -1514,8 +1268,15 @@ bool MappingManager::isSlotOccupied(const std::string& destination, int destinat
   if (parent == nullptr)
     return false;
 
-  for (auto* connection : parent->getSynth()->getDestinationConnections(destination)) {
-    if (connection->destination_slot == destination_slot)
+  const auto slider = slider_model_lookup_.find(destination);
+  if (slider == slider_model_lookup_.end() || slider->second == nullptr
+      || !slider->second->hasModulationEndpoint())
+    return false;
+
+  for (const auto& connection : parent->getConnectionsForEndpoint(
+           slider->second->getModulationEndpoint().address)) {
+    if (connection.targetConnectionId.isEmpty()
+        && connection.destinationSlot == destination_slot)
       return true;
   }
 
@@ -1528,71 +1289,76 @@ void MappingManager::updateSlotVisuals() {
 
     std::vector<electrosynth::SlotComponent*> active_slots;
 
-    auto get_display_label = [this](const std::string& source_name) {
-        auto button = modulation_buttons_.find(source_name);
+    auto get_display_label = [this](const juce::String& source_name) {
+        auto button = modulation_buttons_.find(source_name.toStdString());
         if (button != modulation_buttons_.end() && button->second != nullptr
                 && button->second->getDisplayLabel().isNotEmpty())
             return button->second->getDisplayLabel();
 
-        return getConnectionSourceLabel(source_name);
+        return getConnectionSourceLabel(source_name.toStdString());
     };
 
-	auto& bank = parent->getSynth()->getModulationBank();
-	for (int index = 0; index < electrosynth::kMaxConnections; ++index) {
-		auto* connection = bank.atIndex(index);
-        if (connection == nullptr || connection->destination_name.empty()
-                || !juce::isPositiveAndBelow(connection->destination_slot, SynthSlider::kNumSlots))
+    for (const auto& [name, slider] : slider_model_lookup_) {
+        if (slider == nullptr || !slider->hasModulationEndpoint())
             continue;
 
-        auto slider = slider_model_lookup_.find(connection->destination_name);
-        if (slider == slider_model_lookup_.end() || slider->second == nullptr) continue;
+        for (const auto& connection : parent->getConnectionsForEndpoint(
+                 slider->getModulationEndpoint().address)) {
+            if (connection.type != electrosynth::ConnectionType::Modulation
+                || connection.targetConnectionId.isNotEmpty()
+                || !juce::isPositiveAndBelow(connection.destinationSlot, SynthSlider::kNumSlots))
+                continue;
 
-	    auto* target = slider->second->getExtraModulationTarget(connection->destination_slot);
-	    if (auto* slot = dynamic_cast<electrosynth::SlotComponent*>(target)) {
-	        if (auto* slots = dynamic_cast<ConnectionSlots*>(slot->getParentComponent())) {
-	            slots->addListener(this);
-        }
+            auto* target = slider->getExtraModulationTarget(connection.destinationSlot);
+            auto* slot = dynamic_cast<electrosynth::SlotComponent*>(target);
+            if (slot == nullptr)
+                continue;
+
+            if (auto* slots = dynamic_cast<ConnectionSlots*>(slot->getParentComponent()))
+                slots->addListener(this);
             active_slots.push_back(slot);
 
-            const auto source_button = modulation_buttons_.find(connection->source_name);
-            const auto source_colour = source_button != modulation_buttons_.end()
-                    && source_button->second != nullptr
-                ? source_button->second->getSourceColor()
-                : getConnectionSourceColor(connection->source_name);
+            const auto sourceName = connection.source.endpointId;
+            const auto sourceButton = modulation_buttons_.find(sourceName.toStdString());
+            const auto sourceColour = sourceButton != modulation_buttons_.end()
+                    && sourceButton->second != nullptr
+                ? sourceButton->second->getSourceColor()
+                : getConnectionSourceColor(sourceName.toStdString());
 
-	        ConnectionSlotData data {
-	            .connectionId = juce::String(connection->uuid),
-                .peer = {}, // resolve from registered modulation endpoint later
-                .label = get_display_label(connection->source_name),
-                .colour = source_colour,
+            ConnectionSlotData data {
+                .connectionId = connection.id,
+                .peer = connection.source,
+                .label = get_display_label(sourceName),
+                .colour = sourceColour,
                 .hasAmount = true,
                 .hasBipolar = true,
-	            .hasStereo = true,
-                .amount = connection->getCurrentBaseValue(),
-                .bipolar = connection->isBipolar(),
-                .bypass = connection->isBypass(),
-                .stereo = connection->isStereo()
+                .hasStereo = true,
+                .amount = connection.amount,
+                .bipolar = connection.bipolar,
+                .bypass = connection.bypass,
+                .stereo = connection.stereo
             };
-	        auto aux = aux_connections_to_from_.find(connection->index_in_all_mods); // iterator of all aux connections
-            if (aux != aux_connections_to_from_.end()) {
-                auto* aux_connection = bank.atIndex(aux->second);
-                if (aux_connection != nullptr && !aux_connection->source_name.empty()) {
-                    auto button = modulation_buttons_.find(aux_connection->source_name);
-                    const auto colour = button != modulation_buttons_.end() && button->second != nullptr ?
-                    button->second->getSourceColor() : getConnectionSourceColor(aux_connection->source_name);
 
-                    data.auxiliary = ConnectionSlotData::Auxiliary {
-                        .connectionId = juce::String(aux_connection->uuid),
-                        .peer = {},
-                        .label = get_display_label(aux_connection->source_name),
-                        .colour = colour
-                    };
-                }
+            const auto auxiliaryConnections = parent->getConnectionsTargetingConnection(connection.id);
+            if (!auxiliaryConnections.empty()) {
+                const auto& auxiliary = auxiliaryConnections.front();
+                const auto auxiliaryName = auxiliary.source.endpointId;
+                const auto button = modulation_buttons_.find(auxiliaryName.toStdString());
+                const auto colour = button != modulation_buttons_.end() && button->second != nullptr
+                    ? button->second->getSourceColor()
+                    : getConnectionSourceColor(auxiliaryName.toStdString());
+
+                data.auxiliary = ConnectionSlotData::Auxiliary {
+                    .connectionId = auxiliary.id,
+                    .peer = auxiliary.source,
+                    .label = get_display_label(auxiliaryName),
+                    .colour = colour
+                };
             }
-	        slot->setConnection(std::move(data));
 
-	    }
-	}
+            slot->setConnection(std::move(data));
+        }
+    }
 
     for (const auto& [name, slider] : slider_model_lookup_) {
         if (slider == nullptr) continue;
@@ -1615,33 +1381,8 @@ void MappingManager::updateSlotVisuals() {
         full->redoBackground();
 }
 
-// creates an auxiliary modulation connection to an existing modulation connection
-void MappingManager::makeAuxilaryConnection(ModulationAmountKnob* hover_slider) {
-    if (hover_slider->isCurrentModulator() || hover_slider->hasAux() || current_modulator_ == nullptr)
-        return;
-
-    std::string name = hover_slider->getOriginalName().toStdString();
-    std::string source_name = current_modulator_->getComponentID().toStdString();
-    electrosynth::Connection* connection = getConnection(source_name, name);
-    if (connection == nullptr) {
-        float value = hover_slider->getValue() * 0.5f;
-        hover_slider->setValue(0.0f, sendNotificationSync);
-        temporarily_set_hover_slider_ = hover_slider;
-
-        if (!connectMapping(source_name, name)) return;
-
-        setConnectionValues(source_name, name, value, false, false, false);
-        connection = getConnection(source_name, name);
-        if (connection == nullptr) return;
-
-        int new_index = connection->index_in_all_mods;
-        addAuxConnection(new_index, hover_slider->index());
-        setConnectionSliderValues(new_index, value);
-    }
-}
-
 void MappingManager::draggedToComponent(juce::Component* component, bool bipolar) {
-    if (component == nullptr || current_modulator_ == nullptr)
+    if (component == nullptr || current_modulator_ == nullptr || !current_modulator_->hasEndpoint())
         return;
 
     std::string destination_name = component->getComponentID().toStdString();
@@ -1651,7 +1392,7 @@ void MappingManager::draggedToComponent(juce::Component* component, bool bipolar
 
     ConnectionDestination* destination = destination_iter->second;
     SynthSlider* slider = destination->getDestinationSlider();
-    if (slider == nullptr)
+    if (slider == nullptr || !slider->hasModulationEndpoint())
         return;
 
     if (!isPointInsideDestinationDropArea(slider, mouse_drag_position_)) {
@@ -1659,10 +1400,20 @@ void MappingManager::draggedToComponent(juce::Component* component, bool bipolar
             clearTemporaryConnection();
         return;
     }
-    auto const source_name = current_modulator_->getComponentID().toStdString();
+    auto* parent = findParentComponentOfClass<SynthGuiInterface>();
+    if (parent == nullptr)
+        return;
 
-    if (getConnection(source_name, destination_name) != nullptr)
-        return; // already connected, no preview creation
+    const auto sourceAddress = current_modulator_->getEndpoint().address;
+    const auto destinationAddress = slider->getModulationEndpoint().address;
+    const auto existingConnections = parent->getConnectionsForEndpoint(destinationAddress);
+    const auto duplicate = std::find_if(existingConnections.begin(), existingConnections.end(),
+        [&sourceAddress](const auto& connection) {
+            return connection.targetConnectionId.isEmpty()
+                && connection.source.matches(sourceAddress);
+        });
+    if (duplicate != existingConnections.end())
+        return;
 
     const int destination_slot = findSlotForNewConnection(slider);
     if (isSlotOccupied(destination_name, destination_slot)) return; // if slot is taken, return
@@ -1678,29 +1429,34 @@ void MappingManager::draggedToComponent(juce::Component* component, bool bipolar
     if (bipolar) modulation_amount = std::min(modulation_amount, percent) * 2.0f;
     modulation_amount = std::max(modulation_amount, kDefaultModulationRatio);
 
-    if (!connectMapping(source_name, destination_name, destination_slot)) return;
+    electrosynth::ConnectionRecord connection {
+        .id = electrosynth::createConnectionRecordId(),
+        .type = electrosynth::ConnectionType::Modulation,
+        .source = sourceAddress,
+        .destination = destinationAddress,
+        .destinationSlot = destination_slot,
+        .amount = modulation_amount,
+        .bipolar = bipolar
+    };
+
+    modifying_ = true;
+    const bool connected = parent->connect(connection);
+    modifying_ = false;
+    if (!connected)
+        return;
 
     temporarily_set_destination_ = destination;
     temporarily_set_synth_slider_ = slider_model_lookup_[destination_name];
+    temporarily_set_connection_id_ = connection.id;
     temporarily_set_slot_ = destination_slot;
+    temporarily_set_bipolar_ = bipolar;
     updateSlotVisuals();
-    setConnectionValues(source_name, destination_name, modulation_amount, bipolar, false, false, destination_slot);
+    modulationsChanged(destination_name);
     destination->setActive(true);
     setDestinationQuadBounds(destination);
-
-    SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
-    std::vector<electrosynth::Connection*> connections = parent->getSynth()->getDestinationConnections(destination_name);
-
-    for (electrosynth::Connection* connection : connections) {
-      if (connection->source_name == source_name
-          && connection->destination_name == destination_name
-          && connection->destination_slot == destination_slot) {
-        showConnectionAmountOverlay(juce::String(connection->uuid));
-      }
-    }
+    showConnectionAmountOverlay(temporarily_set_connection_id_);
 
     setVisibleMeterBounds();
-    makeConnectionsVisible(slider, true);
     DBG("modconnecte4d");
 }
 
@@ -1708,7 +1464,6 @@ void MappingManager::setTemporaryConnectionBipolar(juce::Component* component, b
   if (current_modulator_ == nullptr || component != temporarily_set_destination_ || component == nullptr)
     return;
 
-  std::string source_name = current_modulator_->getComponentID().toStdString();
   std::string name = component->getComponentID().toStdString();
   ConnectionDestination* destination = destination_lookup_[name];
   SynthSlider* slider = destination->getDestinationSlider();
@@ -1719,36 +1474,41 @@ void MappingManager::setTemporaryConnectionBipolar(juce::Component* component, b
     modulation_amount = std::min(modulation_amount, percent) * 2.0f;
   modulation_amount = std::max(modulation_amount, kDefaultModulationRatio);
 
-  setConnectionValues(source_name, name, modulation_amount, bipolar, false, false, temporarily_set_slot_);
+  auto* parent = findParentComponentOfClass<SynthGuiInterface>();
+  if (parent == nullptr)
+    return;
+
+  const auto* stored = parent->findConnection(temporarily_set_connection_id_);
+  if (stored == nullptr)
+    return;
+
+  auto updated = *stored;
+  updated.amount = modulation_amount;
+  updated.bipolar = bipolar;
+  if (!parent->updateConnection(updated))
+    return;
+
   temporarily_set_bipolar_ = bipolar;
-  if (auto* connection = getConnection(source_name, name, temporarily_set_slot_))
-    showConnectionAmountOverlay(juce::String(connection->uuid));
+  updateSlotVisuals();
+  showConnectionAmountOverlay(temporarily_set_connection_id_);
 }
 
 void MappingManager::clearTemporaryConnection() {
   if (temporarily_set_destination_ && current_modulator_) {
     auto* destination = temporarily_set_destination_;
+    const auto destinationName = destination->getComponentID().toStdString();
     destination->setActive(false);
-    std::string source_name = current_modulator_->getComponentID().toStdString();
-    removeMapping(source_name, temporarily_set_synth_slider_->getComponentID().toStdString(),
-                     temporarily_set_slot_);
+    if (auto* parent = findParentComponentOfClass<SynthGuiInterface>())
+      parent->disconnectConnection(temporarily_set_connection_id_);
     setDestinationQuadBounds(destination);
     temporarily_set_destination_ = nullptr;
     temporarily_set_synth_slider_ = nullptr;
+    temporarily_set_connection_id_.clear();
     temporarily_set_slot_ = -1;
     updateSlotVisuals();
+    modulationsChanged(destinationName);
 
     hideConnectionAmountOverlay();
-  }
-}
-
-void MappingManager::clearTemporaryHoverConnection() {
-  if (temporarily_set_hover_slider_ && current_modulator_) {
-    std::string name = temporarily_set_hover_slider_->getOriginalName().toStdString();
-
-    std::string source_name = current_modulator_->getComponentID().toStdString();
-    removeMapping(source_name, temporarily_set_hover_slider_->getOriginalName().toStdString());
-    temporarily_set_hover_slider_ = nullptr;
   }
 }
 
@@ -1775,55 +1535,26 @@ void MappingManager::mappingDragged(const juce::MouseEvent& e) {
   if (component == nullptr)
     component = getComponentAt(mouse_drag_position_.x, mouse_drag_position_.y);
 
-  ModulationAmountKnob* hover_knob = nullptr;
-    /*
-  for (int i = 0; i < electrosynth::kMaxConnections; ++i) {
-    if (modulation_icon_[i].get() == component)
-      hover_knob = modulation_icon_[i].get();
-  }
-*/
-  if (hover_knob && hover_knob->isCurrentModulator())
-    return;
-
   bool bipolar = e.mods.isAnyModifierKeyDown();
   if (temporarily_set_destination_ && temporarily_set_destination_ != component)
     clearTemporaryConnection();
-  if (temporarily_set_hover_slider_ && temporarily_set_hover_slider_ != component)
-    clearTemporaryHoverConnection();
-
   else if (temporarily_set_synth_slider_ && temporarily_set_bipolar_ != bipolar)
     setTemporaryConnectionBipolar(component, bipolar);
 
-  if (hover_knob)
-    makeAuxilaryConnection(hover_knob);
-  else
-    draggedToComponent(component, bipolar);
+  draggedToComponent(component, bipolar);
 }
 
 void MappingManager::connectionWheelMoved(const juce::MouseEvent& e, const juce::MouseWheelDetails& wheel) {
-  if (!dragging_ || current_modulator_ == nullptr || temporarily_set_destination_ == nullptr)
-    return;
-
-  juce::MouseEvent new_event(e.source, e.position, juce::ModifierKeys(), e.pressure, e.orientation, e.rotation,
-                       e.tiltX, e.tiltY, e.eventComponent, e.originalComponent, e.eventTime, e.mouseDownPosition,
-                       e.mouseDownTime, e.getNumberOfClicks(), e.mouseWasDraggedSinceMouseDown());
-  std::string source_name = current_modulator_->getComponentID().toStdString();
-  std::string destination_name = temporarily_set_destination_->getComponentID().toStdString();
-  int index = getModulationIndex(source_name, destination_name, temporarily_set_slot_);
-    /*
-  if (index >= 0)
-    modulation_icon_[index]->mouseWheelMove(new_event, wheel);
-    */
+  juce::ignoreUnused(e, wheel);
 }
 
 void MappingManager::endDestinationMap() {
   temporarily_set_destination_ = nullptr;
   temporarily_set_synth_slider_ = nullptr;
-  temporarily_set_hover_slider_ = nullptr;
+  temporarily_set_connection_id_.clear();
   temporarily_set_slot_ = -1;
   dragging_ = false;
 
-  setConnectionAmounts();
   current_source_ = nullptr;
   for (auto& rotary_destination_group : rotary_destinations_)
     rotary_destination_group.second->setAlpha(0.0f);
@@ -1843,79 +1574,10 @@ void MappingManager::mappingLostFocus(ConnectionButton* source) {
 }
 
 void MappingManager::clearConnectionSource() {
-  if (current_modulator_) {
-      /*
-    for (auto& selected_slider : modulation_icon_)
-      selected_slider->makeVisible(false);
-      */
-  }
   current_modulator_ = nullptr;
-  setConnectionAmounts();
 }
 
-void MappingManager::disconnectConnection(ModulationAmountKnob* modulation_knob) {
-
-  electrosynth::Connection* connection = getConnectionForSlider(modulation_knob);
-  while (connection && !connection->source_name.empty() && !connection->destination_name.empty()) {
-    removeMapping(connection->source_name, connection->destination_name, connection->destination_slot);
-    connection = getConnectionForSlider(modulation_knob);
-  }
-
-  setConnectionAmounts();
-}
-
-void MappingManager::setConnectionSettings(ModulationAmountKnob* modulation_knob) {
-  electrosynth::Connection* connection = getConnectionForSlider(modulation_knob);
-  float value = modulation_knob->getValue();
-  bool bipolar = modulation_knob->isBipolar();
-  bool stereo = modulation_knob->isStereo();
-  bool bypass = modulation_knob->isBypass();
-
-  int index = modulation_knob->index();
-    /*
-  modulation_icon_[index]->setBipolar(bipolar);
-  modulation_icon_[index]->setStereo(stereo);
-  modulation_icon_[index]->setBypass(bypass);
-  */
-
-  setConnectionValues(connection->source_name, connection->destination_name, value, bipolar, stereo, bypass,
-                      connection->destination_slot);
-}
-
-void MappingManager::setConnectionBypass(ModulationAmountKnob* modulation_knob, bool bypass) {
-  setConnectionSettings(modulation_knob);
-}
-
-void MappingManager::setConnectionBipolar(ModulationAmountKnob* modulation_knob, bool bipolar) {
-  setConnectionSettings(modulation_knob);
-}
-
-void MappingManager::setConnectionStereo(ModulationAmountKnob* modulation_knob, bool stereo) {
-  setConnectionSettings(modulation_knob);
-}
-
-void MappingManager::initOpenGlComponents(OpenGlWrapper& open_gl) {
-    drag_quad_.init(open_gl);
-    drag_icon_.init(open_gl);
-    mapping_mode_dim_quad_.init(open_gl);
-    expansion_box_->init(open_gl);
-
-    for (auto& rotary_destination_group : rotary_destinations_)
-        rotary_destination_group.second->init(open_gl);
-
-    for (auto& linear_destination_group : linear_destinations_)
-        linear_destination_group.second->init(open_gl);
-
-    for (auto& rotary_meter_group : rotary_meters_)
-        rotary_meter_group.second->init(open_gl);
-
-    for (auto& linear_meter_group : linear_meters_)
-        linear_meter_group.second->init(open_gl);
-
-    SynthSection::initOpenGlComponents(open_gl);
-}
-
-void MappingManager::drawDestinations(OpenGlWrapper& open_gl) {
+void MappingManager::drawDestinations(OpenGlWrapper& open_gl) const {
     const bool mapping_mode = isMappingMode();
     auto destination_color = findColour(Skin::kLightenScreen, true).brighter (1.0);
     if (mapping_mode)
@@ -1973,11 +1635,31 @@ void MappingManager::drawDraggingSource(OpenGlWrapper& open_gl) {
         return;
     }
 
-    if (current_source_ == nullptr || temporarily_set_destination_ || temporarily_set_hover_slider_)
+    if (current_source_ == nullptr || temporarily_set_destination_)
         return;
 
     drag_icon_.setActive(true);
     drag_icon_.render(open_gl, true);
+}
+
+void MappingManager::initOpenGlComponents(OpenGlWrapper& open_gl) {
+    drag_quad_.init(open_gl);
+    drag_icon_.init(open_gl);
+    mapping_mode_dim_quad_.init(open_gl);
+
+    for (auto& rotary_destination_group : rotary_destinations_)
+        rotary_destination_group.second->init(open_gl);
+
+    for (auto& linear_destination_group : linear_destinations_)
+        linear_destination_group.second->init(open_gl);
+
+    for (auto& rotary_meter_group : rotary_meters_)
+        rotary_meter_group.second->init(open_gl);
+
+    for (auto& linear_meter_group : linear_meters_)
+        linear_meter_group.second->init(open_gl);
+
+    SynthSection::initOpenGlComponents(open_gl);
 }
 
 void MappingManager::renderOpenGlComponents(OpenGlWrapper& open_gl, bool animate) {
@@ -1990,23 +1672,36 @@ void MappingManager::renderOpenGlComponents(OpenGlWrapper& open_gl, bool animate
     SynthSection::renderOpenGlComponents(open_gl, animate); // render existing child/open-gl components
     OpenGlComponent::setViewPort(this, open_gl);
 
-
-    for (auto& callout_button : callout_buttons_) {
-        if (callout_button.second->isVisible() && !callout_button.second->isInit())
-            callout_button.second->renderSliderQuads(open_gl, animate);
-    }
-
-
     editing_rotary_amount_quad_.render(open_gl, animate);
     editing_linear_amount_quad_.render(open_gl, animate);
-
 
     drawDestinations(open_gl);
     drawEndpointDestinations(open_gl); // valid destination arrows
 
     drawCurrentSource(open_gl);
-
     drawDraggingSource(open_gl); // draw active drag icon
+}
+
+void MappingManager::destroyOpenGlComponents(juce::OpenGLContext& open_gl) {
+    SynthSection::destroyOpenGlComponents(open_gl);
+
+    drag_quad_.destroy(open_gl);
+    drag_icon_.destroy(open_gl);
+    mapping_mode_dim_quad_.destroy(open_gl);
+    current_quad_.destroy(open_gl);
+
+
+    for (auto& rotary_destination_group : rotary_destinations_)
+        rotary_destination_group.second->destroy(open_gl);
+
+    for (auto& linear_destination_group : linear_destinations_)
+        linear_destination_group.second->destroy(open_gl);
+
+    for (auto& rotary_meter_group : rotary_meters_)
+        rotary_meter_group.second->destroy(open_gl);
+
+    for (auto& linear_meter_group : linear_meters_)
+        linear_meter_group.second->destroy(open_gl);
 }
 
 void MappingManager::renderMeters(OpenGlWrapper& open_gl, bool animate) {
@@ -2042,13 +1737,19 @@ void MappingManager::renderMeters(OpenGlWrapper& open_gl, bool animate) {
                 float range = slider->getMaximum() - slider->getMinimum();
                 float display_value = slider->getValue();
 
-                for (auto* connection : parent->getSynth()->getDestinationConnections(meter.first)) {
-                    if (connection != nullptr && !connection->isBypass()) {
-                        display_value += connection->getCurrentBaseValue() * range;
-                        float amount = connection->getCurrentBaseValue();
-                        if (connection->isBipolar())
+                const auto sliderIt = slider_model_lookup_.find(meter.first);
+                const auto connections = sliderIt != slider_model_lookup_.end() && sliderIt->second != nullptr
+                        && sliderIt->second->hasModulationEndpoint()
+                    ? parent->getConnectionsForEndpoint(sliderIt->second->getModulationEndpoint().address)
+                    : std::vector<electrosynth::ConnectionRecord>{};
+
+                for (const auto& connection : connections) {
+                    if (connection.targetConnectionId.isEmpty() && !connection.bypass) {
+                        display_value += connection.amount * range;
+                        float amount = connection.amount;
+                        if (connection.bipolar)
                             amount *= 2.0f;
-                        meter.second->setStaticModulationAmount(amount, connection->isBipolar());
+                        meter.second->setStaticModulationAmount(amount, connection.bipolar);
                     }
                 }
                 meter.second->setCurrentValue(display_value);
@@ -2065,37 +1766,17 @@ void MappingManager::renderMeters(OpenGlWrapper& open_gl, bool animate) {
         linear_meter_group.second->render(open_gl, animate);
 }
 
-
-
-void MappingManager::destroyOpenGlComponents(juce::OpenGLContext& open_gl) {
-  SynthSection::destroyOpenGlComponents(open_gl);
-
-    drag_quad_.destroy(open_gl);
-    drag_icon_.destroy(open_gl);
-    expansion_box_->destroy(open_gl);
-    mapping_mode_dim_quad_.destroy(open_gl);
-    current_quad_.destroy(open_gl);
-
-
-    for (auto& rotary_destination_group : rotary_destinations_)
-        rotary_destination_group.second->destroy(open_gl);
-
-    for (auto& linear_destination_group : linear_destinations_)
-        linear_destination_group.second->destroy(open_gl);
-
-    for (auto& rotary_meter_group : rotary_meters_)
-        rotary_meter_group.second->destroy(open_gl);
-
-    for (auto& linear_meter_group : linear_meters_)
-        linear_meter_group.second->destroy(open_gl);
-}
-
 void MappingManager::showConnectionAmountOverlay(const juce::String& connectionId) {
-  auto* connection = findModulationConnection(connectionId);
-  if (connection == nullptr || !meter_lookup_.contains (connection->destination_name))
+  auto* parent = findParentComponentOfClass<SynthGuiInterface>();
+  if (parent == nullptr)
     return;
 
-  ModulationMeter* meter = meter_lookup_[connection->destination_name].get();
+  const auto* connection = parent->findConnection(connectionId);
+  if (connection == nullptr || connection->type != electrosynth::ConnectionType::Modulation
+      || !meter_lookup_.contains(connection->destination.endpointId.toStdString()))
+    return;
+
+  ModulationMeter* meter = meter_lookup_[connection->destination.endpointId.toStdString()].get();
   if (!meter->destination()->isShowing())
     return;
 
@@ -2104,8 +1785,7 @@ void MappingManager::showConnectionAmountOverlay(const juce::String& connectionI
       editing_rotary_amount_quad_.setAdditive(false);
       meter->setAmountQuadVertices(editing_rotary_amount_quad_);
       meter->setModulationAmountQuad(editing_rotary_amount_quad_,
-                                     connection->getCurrentBaseValue(),
-                                     connection->isBipolar());
+                                     connection->amount, connection->bipolar);
 
       editing_rotary_amount_quad_.setThickness(2.0f);
       editing_rotary_amount_quad_.setAlpha(1.0f);
@@ -2117,8 +1797,7 @@ void MappingManager::showConnectionAmountOverlay(const juce::String& connectionI
       editing_linear_amount_quad_.setAdditive(false);
       meter->setAmountQuadVertices(editing_linear_amount_quad_);
       meter->setModulationAmountQuad(editing_linear_amount_quad_,
-                                     connection->getCurrentBaseValue(),
-                                     connection->isBipolar());
+                                     connection->amount, connection->bipolar);
 
       editing_linear_amount_quad_.setAlpha(1.0f);
       editing_linear_amount_quad_.setActive(true);
@@ -2136,9 +1815,6 @@ void MappingManager::hideConnectionAmountOverlay() {
 void MappingManager::hoverStarted(SynthSlider* slider) {
   if (changing_hover_)
     return;
-
-  if (!enteringHoverValue())
-    makeConnectionsVisible(slider, true);
 
   hideConnectionAmountOverlay();
 }
@@ -2160,13 +1836,8 @@ void MappingManager::menuFinished(SynthSlider* slider) {
 void MappingManager::modulationsChanged(const std::string& destination) {
   SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
 
-  hideUnusedHoverModulations();
   updateSlotVisuals();
   SynthSlider* slider = slider_model_lookup_[destination];
-  if (current_modulator_)
-    makeCurrentConnectionAmountsVisible();
-  else if (slider)
-    makeConnectionsVisible(slider, slider->isShowing());
 
   if (parent == nullptr)
     return;
@@ -2174,306 +1845,32 @@ void MappingManager::modulationsChanged(const std::string& destination) {
   if (!meter_lookup_.contains (destination))
     return;
 
-  int num_modulations = parent->getSynth()->getNumModulations(destination);
+  int num_modulations = 0;
+  if (slider != nullptr && slider->hasModulationEndpoint()) {
+    const auto connections = parent->getConnectionsForEndpoint(slider->getModulationEndpoint().address);
+    num_modulations = static_cast<int>(std::count_if(connections.begin(), connections.end(), [](const auto& connection) {
+      return connection.type == electrosynth::ConnectionType::Modulation
+          && connection.targetConnectionId.isEmpty();
+    }));
+  }
   meter_lookup_[destination]->setModulated(num_modulations);
   meter_lookup_[destination]->setVisible(num_modulations);
 }
 
-int MappingManager::getModulationIndex(std::string source, std::string destination, int destination_slot) {
-  SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
-  std::vector<electrosynth::Connection*> connections = parent->getSynth()->getDestinationConnections(destination);
-
-  for (electrosynth::Connection* connection : connections) {
-    if (connection->source_name == source
-        && (destination_slot < 0 || connection->destination_slot == destination_slot))
-      return connection->index_in_all_mods;
-  }
-
-  return -1;
-}
-
-int MappingManager::getIndexForModulationSlider(juce::Slider* slider) {
-  ModulationAmountKnob* amount_knob = dynamic_cast<ModulationAmountKnob*>(slider);
-  if (amount_knob)
-    return amount_knob->index();
-  return -1;
-}
-
-electrosynth::Connection* MappingManager::getConnectionForSlider(juce::Slider* slider) {
-  int index = getIndexForModulationSlider(slider);
-  if (index < 0)
-    return nullptr;
-
-  while (aux_connections_to_from_.count(index))
-    index = aux_connections_to_from_[index];
-
-  return getConnection(index);
-}
-
-electrosynth::Connection* MappingManager::getConnection(int index) {
-  SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
-  if (parent == nullptr)
-    return nullptr;
-
-  return parent->getSynth()->getModulationBank().atIndex(index);
-}
-
-electrosynth::Connection* MappingManager::getConnection(const std::string& source, const std::string& dest,
-                                                                     int destination_slot) {
-  SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
-  if (parent == nullptr)
-    return nullptr;
-
-  std::vector<electrosynth::Connection*> connections = parent->getSynth()->getSourceConnections(source);
-  for (electrosynth::Connection* connection : connections) {
-    if (connection->destination_name == dest
-        && (destination_slot < 0 || connection->destination_slot == destination_slot))
-      return connection;
-  }
-
-  return nullptr;
-}
-
 void MappingManager::mouseDown(SynthSlider* slider) {
-    // ignore clicks on modulation amount knobs (the sliders under the synth knobs)
-    /*
-  for (auto& amount_knob : modulation_icon_) {
-    if (slider == amount_knob.get())
-      return;
-  }
-
-  if (expansion_box_->isVisible())
-    return;
-
-    // if there is modulation connected to this slider, select that modulation source
-  electrosynth::Connection* connection = getConnectionForSlider(slider);
-  if (connection && !connection->source_name.empty() && !connection->destination_name.empty())
-    connectionSelected(modulation_buttons_[connection->source_name]);
-  else {
-    clearConnectionSource();
-    hideConnectionAmountOverlay();
-    makeConnectionsVisible(slider, true);
-  }
-  */
+  juce::ignoreUnused(slider);
 }
 
 void MappingManager::mouseUp(SynthSlider* slider) {
-    /*
-  if (current_modulator_ && current_modulator_->isVisible())
-    current_modulator_->grabKeyboardFocus();
-*/
 }
 
 void MappingManager::doubleClick(SynthSlider* slider) {
+  juce::ignoreUnused(slider);
   changing_hover_ = false;
-  electrosynth::Connection* connection = getConnectionForSlider(slider);
-//  if (connection)
-//    removeModulation(connection->source_name, connection->destination_name);
-//  setModulationAmounts();
-//
-//  if (current_modulator_ && current_modulator_->isVisible())
-//    current_modulator_->grabKeyboardFocus();
 }
-
-
 
 void MappingManager::sliderValueChanged(juce::Slider* slider) {
-  ModulationAmountKnob* amount_knob = dynamic_cast<ModulationAmountKnob*>(slider);
-  if (amount_knob == nullptr)
-    return;
-
-  float value = slider->getValue();
-  int index = getIndexForModulationSlider(slider);
-  float scale = getAuxMultiplier(index);
-  float scaled_value = value * scale;
-  while (aux_connections_to_from_.count(index))
-    index = aux_connections_to_from_[index];
-
-	  electrosynth::Connection* connection = getConnection(index);
-  if (connection == nullptr)
-    return;
-
-  bool bipolar = connection->isBipolar();
-	  bool stereo = connection->isStereo();
-	  bool bypass = connection->isBypass();
-  connection->setScalingValue(value);
-
-  setConnectionValues(connection->source_name, connection->destination_name, scaled_value, bipolar, stereo, bypass,
-                      connection->destination_slot);
-	  updateSlotVisuals();
-  showConnectionAmountOverlay(juce::String(connection->uuid));
-
- //  SynthSection::sliderValueChanged(modulation_icon_[index].get());
-}
-
-void MappingManager::buttonClicked(juce::Button* button) {
-    for (auto& callout_button : callout_buttons_) {
-        if (button == callout_button.second.get()) {
-            bool new_button = button != current_expanded_;
-            hideConnectionAmountCallout();
-            if (new_button) showConnectionAmountCallout(callout_button.first);
-            return;
-        }
-}
-
-  SynthSection::buttonClicked(button);
-}
-
-bool MappingManager::connectMapping(
-    std::string source, std::string destination, int destination_slot) {
-    SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
-    if (parent == nullptr || source.empty() || destination.empty())
-        return false;
-
-    modifying_ = true;
-    const bool connected = parent->connectModulation(source, destination, destination_slot);
-    modifying_ = false;
-
-    if (connected)
-        modulationsChanged(destination);
-
-    return connected;
-}
-
-void MappingManager::removeMapping(std::string source, std::string destination, int destination_slot) {
-  SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
-  if (parent == nullptr || source.empty() || destination.empty())
-    return;
-
-  electrosynth::Connection* connection = getConnection(source, destination, destination_slot);
-  if (connection == nullptr) {
-    return;
-  }
-
-  int index = connection->index_in_all_mods;
-  if (aux_connections_from_to_.count(index)) {
-    float current_value = 0.5; //connection->modulation_processor->currentBaseValue();
-    int dest_index = aux_connections_from_to_[index];
-    // ModulationAmountKnob* modulation_amount = modulation_icon_[dest_index].get();
-    removeAuxSourceConnection(index);
-    float reset_value = current_value == 0.0f ? 1.0f : -current_value;
-    //modulation_amount->setValue(reset_value, dontSendNotification);
-   // modulation_amount->setValue(current_value * 2.0f, sendNotificationSync);
-  }
-  else
-    removeAuxSourceConnection(index);
-
-  modifying_ = true;
-  parent->disconnectModulation(connection);
-  updateSlotVisuals();
-  modulationsChanged(destination);
-  modifying_ = false;
-}
-
-void MappingManager::setConnectionSliderValue(int index, float value) {
-    /*
-  modulation_icon_[index]->setValue(value, dontSendNotification);
-  modulation_icon_[index]->redoImage();
-  */
-}
-
-void MappingManager::setConnectionSliderBipolar(int index, bool bipolar) {
-  //modulation_icon_[index]->setBipolar(bipolar);
-}
-
-void MappingManager::setConnectionSliderValues(int index, float value) {
-  setConnectionSliderValue(index, value);
-  float from_value = value;
-  int from_index = index;
-  while (aux_connections_from_to_.count(from_index)) {
-    from_index = aux_connections_from_to_[from_index];
-    from_value *= 2.0f;
-    setConnectionSliderValue(from_index, from_value);
-  }
-
-  float to_value = value;
-  int to_index = index;
-  while (aux_connections_to_from_.count(to_index)) {
-    to_index = aux_connections_to_from_[to_index];
-    to_value *= 0.5f;
-    setConnectionSliderValue(to_index, to_value);
-  }
-
-  setConnectionSliderScale(index);
-}
-
-void MappingManager::setConnectionSliderScale(int index) {
-  int end_index = index;
-  float scale = 1.0f;
-  while (aux_connections_from_to_.count(end_index)) {
-    end_index = aux_connections_from_to_[end_index];
-    scale *= 2.0f;
-  }
-
-  SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
-  if (parent == nullptr)
-    return;
-
-//  electrosynth::ModulationConnectionBank& bank = parent->getSynth()->getModulationBank();
-//  electrosynth::ModulationConnection* connection = bank.atIndex(end_index);
-//  if (!connection->destination_name.empty()) {
-//    electrosynth::ValueDetails details = electrosynth::juce::Parameters::getDetails(connection->destination_name);
-//    if (details.value_scale == electrosynth::ValueDetails::kLinear || details.value_scale == electrosynth::ValueDetails::kIndexed) {
-//      float display_multiply = scale * (details.max - details.min);
-//      modulation_icon_[index]->setDisplayMultiply(display_multiply);
-//      return;
-//    }
-//  }
-
- // modulation_icon_[index]->setDisplayMultiply(1.0f);
-}
-
-void MappingManager::setConnectionValues(std::string source, std::string destination,
-                                            float amount, bool bipolar, bool stereo, bool bypass,
-                                            int destination_slot) {
-  SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
-  if (parent == nullptr || source.empty() || destination.empty())
-    return;
-
-  modifying_ = true;
-//  parent->setModulationValues(source, destination, amount, bipolar, stereo, bypass);
-  int index = getModulationIndex(source, destination, destination_slot);
-//  parent->notifyModulationValueChanged(index);
-  if (juce::isPositiveAndBelow(index, electrosynth::kMaxConnections)) {
-    electrosynth::Connection* connection = getConnection(index);
-    if (connection != nullptr) {
-      connection->setBipolar(bipolar);
-      connection->setStereo(stereo);
-      connection->setBypass(bypass);
-      connection->setScalingValue(amount);
-    }
-    setConnectionSliderValues(index, amount);
-    setConnectionSliderBipolar(index, bipolar);
-  }
-  updateSlotVisuals();
-//
-  modifying_ = false;
-}
-
-void MappingManager::initAuxConnections() {
-  SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
-  if (parent == nullptr)
-    return;
-
-    /*
-  for (int i = 0; i < electrosynth::kMaxConnections; ++i) {
-    modulation_icon_[i]->removeAux();
-  }
-  */
-
-  aux_connections_from_to_.clear();
-  aux_connections_to_from_.clear();
-//
-  electrosynth::ConnectionBank& bank = parent->getSynth()->getModulationBank();
-  for (int i = 0; i < electrosynth::kMaxConnections; ++i) {
-    electrosynth::Connection* connection = bank.atIndex(i);
-    int index = connection->index_in_all_mods;
-
-    if (modulation_amount_lookup_.count(connection->destination_name)) {
-      int modulation_index = modulation_amount_lookup_[connection->destination_name]->index();
-      addAuxConnection(index, modulation_index);
-    }
-  }
+  SynthSection::sliderValueChanged(slider);
 }
 
 void MappingManager::reset() {
@@ -2481,305 +1878,9 @@ void MappingManager::reset() {
   if (parent == nullptr || modifying_)
     return;
 
-  for (auto& meter : meter_lookup_) {
-    int num_modulations = parent->getSynth()->getNumModulations(meter.first);
-    meter.second->setModulated(num_modulations);
-    meter.second->setVisible(num_modulations);
-  }
-
-  setConnectionAmounts();
-  initAuxConnections();
+  for (const auto& meter : meter_lookup_)
+    modulationsChanged(meter.first);
   updateSlotVisuals();
-}
-
-void MappingManager::hideUnusedHoverModulations() {
-    /*
-  SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
-  if (parent == nullptr || changing_hover_)
-    return;
-
-  electrosynth::ConnectionBank& bank = parent->getSynth()->getModulationBank();
-  for (int i = 0; i < electrosynth::kMaxConnections; ++i) {
-    electrosynth::Connection* connection = bank.atIndex(i);
-    int index = connection->index_in_all_mods;
-    if (connection->source_name.empty() || connection->destination_name.empty())
-      modulation_icon_[index]->hideImmediately();
-    else {
-      SynthSlider* slider = slider_model_lookup_[connection->destination_name];
-      if (slider == nullptr || !slider->isShowing())
-        modulation_icon_[index]->hideImmediately();
-    }
-  }
-  */
-}
-
-float MappingManager::getAuxMultiplier(int index) {
-  float mult = 1.0f;
-  while (aux_connections_to_from_.count(index)) {
-    index = aux_connections_to_from_[index];
-    mult *= 0.5f;
-  }
-
-  return mult;
-}
-
-void MappingManager::addAuxConnection(int from_index, int to_index) {
-  if (from_index == to_index)
-    return;
-
-  aux_connections_to_from_[to_index] = from_index;
-  aux_connections_from_to_[from_index] = to_index;
-  std::string aux_name = "modulation_" + std::to_string(from_index + 1) + "_amount";
-  // modulation_icon_[to_index]->setAux(aux_name);
-  updateSlotVisuals();
-
-}
-
-void MappingManager::removeAuxSourceConnection(int from_index) {
-  if (aux_connections_from_to_.count(from_index) == 0)
-    return;
-
-  int to_index = aux_connections_from_to_[from_index];
-  // modulation_icon_[to_index]->removeAux();
-  aux_connections_from_to_.erase(from_index);
-  aux_connections_to_from_.erase(to_index);
-  updateSlotVisuals();
-}
-
-void MappingManager::removeAuxDestinationConnection(int to_index) {
-  if (aux_connections_to_from_.count(to_index) == 0)
-    return;
-
-  //modulation_icon_[to_index]->removeAux();
-  aux_connections_from_to_.erase(aux_connections_to_from_[to_index]);
-  aux_connections_to_from_.erase(to_index);
-  updateSlotVisuals();
-}
-
-void MappingManager::makeCurrentConnectionAmountsVisible() {
-    /*
-    for (auto& selected_slider : modulation_icon_)
-        selected_slider->makeVisible(false);
-
-    positionConnectionAmountSliders();
-    */
-}
-
-/*
-ModulationAmountKnob* MappingManager::getConnectionAmountControl(const electrosynth::Connection* connection) const {
-    if (connection == nullptr
-        || !juce::isPositiveAndBelow(connection->index_in_all_mods, electrosynth::kMaxConnections))
-        return nullptr;
-
-    return modulation_icon_[connection->index_in_all_mods].get();
-}
-*/
-
-void MappingManager::syncConnectionAmountControl(electrosynth::Connection* connection,
-    ModulationAmountKnob* amount_knob) {
-    if (connection == nullptr || amount_knob == nullptr)
-        return;
-
-    if (!amount_knob->hasAux()) {
-        amount_knob->setValue(connection->getCurrentBaseValue(), dontSendNotification);
-        amount_knob->redoImage();
-    }
-
-    amount_knob->setSource(connection->source_name);
-    amount_knob->setBipolar(connection->isBipolar());
-    amount_knob->setStereo(connection->isStereo());
-    amount_knob->setBypass(connection->isBypass());
-}
-
-bool MappingManager::placeConnectionAmountInSlot(SynthSlider* destination,
-    const electrosynth::Connection* connection, ModulationAmountKnob* amount_knob) {
-    if (destination == nullptr || connection == nullptr || amount_knob == nullptr
-      || !juce::isPositiveAndBelow(connection->destination_slot, SynthSlider::kNumSlots))
-        return false;
-
-    return dynamic_cast<electrosynth::SlotComponent*>(destination->getExtraModulationTarget(
-            connection->destination_slot)) != nullptr;
-}
-
-void MappingManager::makeConnectionsVisible(SynthSlider* destination, bool visible) {
-
-    SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
-    if (destination == nullptr || parent == nullptr || changing_hover_)
-        return;
-
-    std::string name = destination->getComponentID().toStdString();
-    auto slider_iter = slider_model_lookup_.find(name);
-    if (slider_iter == slider_model_lookup_.end() || slider_iter->second != destination)
-        return;
-
-
-    std::vector<electrosynth::Connection*> connections = parent->getSynth()->getDestinationConnections(name);
-    int num_amount_controls = 0;
-
-    /*
-    for (electrosynth::Connection* connection : connections) {
-        auto* amount_knob = getConnectionAmountControl(connection);
-        if (amount_knob == nullptr) continue;
-        syncConnectionAmountControl(connection, amount_knob);
-        if (!placeConnectionAmountInSlot(destination, connection, amount_knob))
-            ++num_amount_controls;
-    }
-    */
-
-  int amount_control_width = size_ratio_ * 24.0f;
-  juce::Rectangle<int> destination_bounds = getLocalArea(destination, destination->getLocalBounds());
-  int x = destination_bounds.getRight();
-  int y = destination_bounds.getBottom();
-  int beginning_offset = amount_control_width * num_amount_controls / 2;
-  int delta_x = 0;
-  int delta_y = 0;
-
-  juce::BubbleComponent::BubblePlacement placement = destination->getModulationPlacement();
-  if (placement == juce::BubbleComponent::below) {
-    x = destination_bounds.getCentreX() - beginning_offset;
-    delta_x = amount_control_width;
-  }
-  else if (placement == juce::BubbleComponent::above) {
-    x = destination_bounds.getCentreX() - beginning_offset;
-    y = destination_bounds.getY() - amount_control_width;
-    delta_x = amount_control_width;
-  }
-  else if (placement == juce::BubbleComponent::left) {
-    x = destination_bounds.getX() - amount_control_width;
-    y = destination_bounds.getCentreY() - beginning_offset;
-    delta_y = amount_control_width;
-  }
-  else {
-    y = destination_bounds.getCentreY() - beginning_offset;
-    delta_y = amount_control_width;
-  }
-
-    /*
-  for (electrosynth::Connection* connection : connections) {
-    auto* amount_knob = getConnectionAmountControl(connection);
-    if (amount_knob == nullptr)
-      continue;
-
-    const bool placed_in_slot = placeConnectionAmountInSlot(destination, connection, amount_knob);
-    if (placed_in_slot) {
-        amount_knob->makeVisible(false);
-        amount_knob->setInterceptsMouseClicks(false, false);
-        continue;
-    }
-
-    amount_knob->setInterceptsMouseClicks(true, true);
-    amount_knob->setPopupPlacement(placement);
-    amount_knob->setBounds(x, y, amount_control_width, amount_control_width);
-    amount_knob->setAlwaysOnTop(false);
-    amount_knob->getQuadComponent()->setAlwaysOnTop(false);
-    amount_knob->getImageComponent()->setAlwaysOnTop(false);
-    amount_knob->getQuadComponent()->setVisible(true);
-    amount_knob->getImageComponent()->setVisible(true);
-    amount_knob->makeVisible(visible && allVisible(destination));
-    amount_knob->setAlpha(1.0f, true);
-    amount_knob->redoImage();
-
-    x += delta_x;
-    y += delta_y;
-  }
-  */
-}
-
-void MappingManager::positionConnectionAmountSliders() {
-  for (const auto& [name, slider] : slider_model_lookup_)
-    makeConnectionsVisible(slider, slider != nullptr && slider->isShowing());
-}
-
-void MappingManager::showConnectionAmountCallout(const std::string& source) {
-  static constexpr int kSliderWidth = 30;
-  static constexpr int kPadding = 5;
-
-  ConnectionButton* modulation_button = modulation_buttons_[source];
-  current_expanded_ = callout_buttons_[source].get();
-  std::vector<ModulationAmountKnob*> amount_controls = current_expanded_->getSliders();
-
-  int num_sliders = static_cast<int>(amount_controls.size());
-  int columns = current_expanded_->getNumColumns(num_sliders);
-  int rows = (num_sliders + columns - 1) / columns;
-  int width = kSliderWidth * columns + 2 * kPadding;
-  int height = kSliderWidth * rows + 2 * kPadding;
-  juce::Rectangle<int> top_level_modulation_bounds = getLocalArea(modulation_button, modulation_button->getLocalBounds());
-  int start_x = top_level_modulation_bounds.getX() + (modulation_button->getWidth() - width) / 2;
-  start_x = std::min(getWidth() - width, std::max(0, start_x));
-  int start_y = top_level_modulation_bounds.getBottom();
-  start_y = std::min(getHeight() - height, start_y);
-
-  expansion_box_->setVisible(true);
-  expansion_box_->setAmountControls(amount_controls);
-  expansion_box_->setBounds(start_x, start_y, width, height);
-  expansion_box_->setRounding(findValue(Skin::kBodyRounding));
-  expansion_box_->grabKeyboardFocus();
-
-  int row = 0;
-  int column = 0;
-  for (ModulationAmountKnob* slider : amount_controls) {
-    int x = column * kSliderWidth + kPadding;
-    int y = height - (row + 1) * kSliderWidth - kPadding;
-    slider->setBounds(start_x + x, start_y + y, kSliderWidth, kSliderWidth);
-    slider->setVisible(true);
-    slider->setMouseClickGrabsKeyboardFocus(false);
-    slider->redoImage();
-    slider->getQuadComponent()->setAlwaysOnTop(true);
-
-    column++;
-    if (column >= columns) {
-      column = 0;
-      row++;
-    }
-  }
-}
-
-void MappingManager::hideConnectionAmountCallout() {
-  if (current_expanded_ == nullptr)
-    return;
-
-  std::vector<ModulationAmountKnob*> amount_controls = current_expanded_->getSliders();
-  for (ModulationAmountKnob* slider : amount_controls) {
-    slider->setVisible(false);
-    slider->getQuadComponent()->setAlwaysOnTop(false);
-  }
-
-  expansion_box_->setVisible(false);
-  current_expanded_ = nullptr;
-}
-
-
-bool MappingManager::enteringHoverValue() {
-    /*
-  for (int i = 0; i < electrosynth::kMaxConnections; ++i) {
-    if (modulation_icon_[i] && modulation_icon_[i]->enteringValue())
-      return true;
-  }
-  */
-  return false;
-}
-
-void MappingManager::setConnectionAmounts() {
-  SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
-  if (parent == nullptr || modifying_)
-    return;
-
-  electrosynth::ConnectionBank& bank = parent->getSynth()->getModulationBank();
-  for (int i = 0; i < electrosynth::kMaxConnections; ++i) {
-    electrosynth::Connection* connection = bank.atIndex(i);
-    if (aux_connections_to_from_.count(i) == 0)
-      setConnectionSliderValues(i, connection->getCurrentBaseValue());
-
-    bool bipolar = connection->isBipolar();
-    bool stereo = connection->isStereo();
-    bool bypass = connection->isBypass();
-
-      /*
-    modulation_icon_[i]->setBipolar(bipolar);
-    modulation_icon_[i]->setStereo(stereo);
-    modulation_icon_[i]->setBypass(bypass);
-    */
-  }
 }
 
 void MappingManager::setVisibleMeterBounds() {

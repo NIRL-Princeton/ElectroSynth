@@ -706,30 +706,7 @@ juce::Rectangle<int> SynthSlider::getModulationMeterBounds() const {
 
 
 void SynthSlider::handlePopupResult(int result) {
-  //SynthBase* synth = synth_interface_->getSynth();
-
-
-//  if (result == kArmMidiLearn)
-//    mainSynth->armMidiLearn(getName().toStdString());
-//  else if (result == kClearMidiLearn)
-//    mainSynth->clearMidiLearn(getName().toStdString());
-//  else if (result == kDefaultValue)
-//    setValue(getDoubleClickReturnValue());
-//  else if (result == kManualEntry)
-//    showTextEntry();
-//  else if (result == kClearModulations) {
-//    for (electrosynth::ModulationConnection* connection : connections) {
-//      std::string source = connection->source_name;
-//      synth_interface_->disconnectModulation(connection);
-//    }
-//    notifyModulationsChanged();
-//  }
-//  else if (result >= kModulationList) {
-//    int connection_index = result - kModulationList;
-//    std::string source = connections[connection_index]->source_name;
-//    synth_interface_->disconnectModulation(connections[connection_index]);
-//    notifyModulationsChanged();
-//  }
+  juce::ignoreUnused(result);
 }
 
 void SynthSlider::setRotaryTextEntryBounds() {

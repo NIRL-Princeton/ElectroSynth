@@ -32,6 +32,10 @@ ModuleSection::ModuleSection(const juce::ValueTree &v, electrosynth::audio::Node
     addSubSection(_view.get());
     _view->setAlwaysOnTop(true);
 
+    // assign endpoint descriptors to modules
+    _view->assignModulationEndpoints (getNodeId());
+
+
     title_text_ = std::make_shared<PlainTextComponent>("module_title", getName());
     title_text_->setFontType(PlainTextComponent::kRegular);
     title_text_->setJustification(juce::Justification::centred);

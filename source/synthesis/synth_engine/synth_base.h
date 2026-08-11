@@ -19,14 +19,13 @@
 
 #include <chowdsp_dsp_data_structures/chowdsp_dsp_data_structures.h>
 #include <juce_dsp/juce_dsp.h>
+#include <string>
+#include <type_traits>
+#include <vector>
 #include <atomic>
 #include <cstdint>
 #include <deque>
 #include <optional>
-#include <set>
-#include <string>
-#include <type_traits>
-#include <vector>
 #include "midi_manager.h"
 #include "leaf.h"
 #include "ModulationWrapper.h"
@@ -34,6 +33,9 @@
 #include "circular_queue.h"
 #include "ModuleList.h"
 #include "ConnectionRecord.h"
+
+
+
 class RoutingProcessor;
 class ProcessorBase;
 class ModulatorBase;
@@ -66,26 +68,17 @@ public:
 
     void presetChangedThroughMidi(juce::File preset) override;
 
-    std::vector<electrosynth::Connection *> getSourceConnections(const std::string &source);
-
-    std::vector<electrosynth::Connection *> getDestinationConnections(const std::string &destination);
-
-    electrosynth::Connection *getConnection(const std::string &source, const std::string &destination,
-                                                      int destination_slot = -1);
+    // new connection logic
+    bool connect(const electrosynth::ConnectionRecord& record);
+    bool disconnectConnection(const juce::String& connectionId);
+    bool updateConnection(const electrosynth::ConnectionRecord& connection);
+    const electrosynth::ConnectionRecord* findConnection(const juce::String& connectionId) const;
+    std::vector<electrosynth::ConnectionRecord> getConnections() const;
+    std::vector<electrosynth::ConnectionRecord> getConnectionsForEndpoint(const electrosynth::EndpointAddress& endpoint) const;
+    std::vector<electrosynth::ConnectionRecord> getConnectionsTargetingConnection(const juce::String& connectionId) const;
+    // new connection logic
 
     bool loadFromFile(File preset, std::string &error);
-
-    std::unique_ptr<electrosynth::Connection>
-    createConnection(const std::string &from, const std::string &to);
-
-    bool hasSourceDestinationConnection(const std::string &source, const std::string &destination) const;
-
-    bool connectModulation(const std::string &source, const std::string &destination,
-                           int destination_slot = -1);
-
-    bool connect(const electrosynth::ConnectionRecord& connection);
-
-    void connectModulation(electrosynth::Connection *connection);
 
     int getSampleRate();
 
@@ -209,15 +202,10 @@ public:
     electrosynth::CircularQueue<electrosynth::Connection *> mod_connections_;
     moodycamel::ConcurrentQueue<electrosynth::mapping_change> modulation_change_queue_;
 
-    void disconnectModulation(electrosynth::Connection *connection);
-
-    void disconnectModulation(const std::string &source, const std::string &destination);
-
-    void disconnectModulationsForDestinationProcessor(const std::string& processor_name);
+    void disconnectConnectionsForNode(const juce::String& nodeId);
 
     void processMappingChanges();
 
-    int getNumModulations(const std::string &destination);
 
     void timerCallback() override;
 
@@ -253,6 +241,14 @@ public:
     void valueTreePropertyChanged(ValueTree &treeWhosePropertyHasChanged, const Identifier &property) override;
 
 protected:
+    electrosynth::Connection* getConnection(const std::string& source, const std::string& destination,
+                                             int destinationSlot = -1);
+    bool hasSourceDestinationConnection(const std::string& source, const std::string& destination) const;
+    bool connectModulation(const std::string& source, const std::string& destination,
+                           int destinationSlot = -1);
+    void connectModulation(electrosynth::Connection* connection);
+    void disconnectModulation(electrosynth::Connection* connection);
+
     electrosynth::mapping_change createMappingChange(electrosynth::Connection *mod);
 
     bool isInvalidConnection(const electrosynth::mapping_change& change) {
@@ -307,6 +303,14 @@ protected:
 
     void updateMemoryOutput(int samples, const float *audio);
 
+    electrosynth::Connection* findModulationRuntimeConnection(const juce::String& connectionId) const;
+    void applyModulationConnectionState(electrosynth::Connection& runtimeConnection, const electrosynth::ConnectionRecord& record);
+    juce::ValueTree findPersistedConnectionState(const juce::String& connectionId) const;
+    void persistConnectionRecord(const electrosynth::ConnectionRecord& record, juce::ValueTree state = {});
+    juce::String findNodeIdForEndpointName(const juce::String& endpointName) const;
+    void restoreConnectionRecords(const juce::ValueTree& savedState);
+    std::vector<electrosynth::ConnectionRecord> connection_records_;
+
     std::unique_ptr<electrosynth::SoundEngine> engine_;
     std::unique_ptr<MidiManager> midi_manager_;
     std::unique_ptr<juce::MidiKeyboardState> keyboard_state_;
@@ -323,7 +327,6 @@ protected:
 
 
     std::map<std::string, String> save_info_;
-
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SynthBase)
 };
 

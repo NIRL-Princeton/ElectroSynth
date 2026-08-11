@@ -3,11 +3,15 @@
 //
 
 #include "MasterEnvelopeSection.h"
+#include "Modulators/EnvModuleProcessor.h"
 #include "connection_button.h"
 #include "main_section.h"
+#include "sound_engine.h"
+#include "synth_base.h"
+#include "synth_gui_interface.h"
 
 MasterVoiceEnvelopeSection:: MasterVoiceEnvelopeSection(const juce::ValueTree& v, juce::UndoManager &um, OpenGlWrapper &open_gl,
-                                                        SynthGuiData * data, std::unique_ptr<SynthSection>&& view) : SynthSection("MasterEnv"), mod_button(std::make_unique<ConnectionButton>("mod_masterenv")), master_voice_envelope(std::move(view)) {
+                                                        SynthGuiData * data, std::unique_ptr<SynthSection>&& view) : SynthSection("MasterEnv"), master_voice_envelope(std::move(view)) {
     setName("Master Voice Envelope");
     setSkinOverride(Skin::kMasterEnv);
     setSidewaysHeading(false);
@@ -27,6 +31,20 @@ MasterVoiceEnvelopeSection:: MasterVoiceEnvelopeSection(const juce::ValueTree& v
     addSubSection(master_voice_envelope.get());
     if (auto* parameters = dynamic_cast<electrosynth::ParametersView*>(master_voice_envelope.get()))
         parameters->setVerticallyCenterKnobs(true);
+
+    master_voice_envelope->assignModulationEndpoints (data->synth->getEngine()->MasterVoiceEnvelopeProcessor->getNodeId());
+
+    electrosynth::EndpointDescriptor sourceEndpoint {
+        .address {
+            .type = electrosynth::ConnectionType::Modulation,
+            .nodeId = data->synth->getEngine()->MasterVoiceEnvelopeProcessor->getNodeId(),
+            .endpointId = getComponentID() + "_mod_masterenv",
+            .direction = electrosynth::EndpointDirection::Source
+        },
+        .capabilities { .maxIncomingConnections = 0 }
+    };
+    mod_button = std::make_shared<ConnectionButton>("mod_masterenv", std::move(sourceEndpoint));
+
     addModulationButton(mod_button, false);
     mod_button->setAlwaysOnTop(true);
 }
