@@ -2,72 +2,22 @@
 // Created by Davis Polito on 2/1/24.
 //
 #include "main_section.h"
+#include "EffectList.h"
+#include "FullInterface.h"
+#include "ModulationModuleSection.h"
+#include "ModulationSection.h"
+#include "Modulators/EnvModuleProcessor.h"
+#include "SoundModuleSection.h"
+#include "connection_button.h"
+#include "mapping_manager.h"
+#include "sound_engine.h"
+#include "synth_base.h"
 #include "synth_gui_interface.h"
 #include "synth_slider.h"
-#include "SoundModuleSection.h"
-#include "ModulationModuleSection.h"
-#include "synth_base.h"
-#include "ModulationSection.h"
-#include "modulation_button.h"
-#include "sound_engine.h"
-#include "sound_engine.h"
-#include "sound_engine.h"
-#include "Modulators/EnvModuleProcessor.h"
-#include "EffectList.h"
-#include "modulation_manager.h"
-#include "FullInterface.h"
-MasterVoiceEnvelopeSection:: MasterVoiceEnvelopeSection(const juce::ValueTree& v, juce::UndoManager &um, OpenGlWrapper &open_gl,
-                                                        SynthGuiData * data, std::unique_ptr<SynthSection>&& view) : SynthSection("MasterEnv"), mod_button(std::make_unique<ModulationButton>("mod_masterenv")), master_voice_envelope(std::move(view)) {
-    setName("Master Voice Envelope");
-    setSkinOverride(Skin::kMasterEnv);
-    setSidewaysHeading(false);
-    header_body_ = std::make_shared<OpenGlQuad>(Shaders::kColorFragment, "master_voice_envelope_header");
-    header_body_->setInterceptsMouseClicks(false, false);
-    addOpenGlComponent(header_body_, true);
 
-    header_title_ = std::make_shared<PlainTextComponent>("master_voice_envelope_title", getName());
-    header_title_->setFontType(PlainTextComponent::kLight);
-    header_title_->setJustification(juce::Justification::centred);
-    header_title_->setInterceptsMouseClicks(false, false);
-    addOpenGlComponent(header_title_);
-
-    master_voice_envelope->setName("VCA");
-    setComponentID(master_voice_envelope->getName());
-    master_voice_envelope->setSkinOverride(Skin::kMasterEnv);
-    addSubSection(master_voice_envelope.get());
-    if (auto* parameters = dynamic_cast<electrosynth::ParametersView*>(master_voice_envelope.get()))
-        parameters->setVerticallyCenterKnobs(true);
-    addModulationButton(mod_button);
-    addAndMakeVisible(mod_button.get());
-    mod_button->setAlwaysOnTop(true);
-}
-
-void MasterVoiceEnvelopeSection::resized() {
-    const int title_width = static_cast<int>(getTitleWidth());
-    const int content_height =
-        std::max(0, getHeight() - title_width - ModulationModuleSection::kTabStripHeight);
-    master_voice_envelope->setBounds(0, title_width, getWidth(), content_height);
-    mod_button->setBounds(0, title_width, 40, 40);
-    SynthSection::resized();
-
-    header_body_->setBounds(0, 0, getWidth(), title_width);
-    header_body_->setColor(findColour(Skin::kBodyHeading, true));
-    header_title_->setBounds(0, 0, getWidth(), title_width);
-    header_title_->setText(getName());
-    header_title_->setTextSize(size_ratio_ * 14.0f);
-    header_title_->setColor(findColour(Skin::kHeadingText, true));
-}
-
-void MasterVoiceEnvelopeSection::paintBackground(Graphics &g) {
-    paintContainer(g);
-    paintKnobShadows(g);
-    paintChildrenBackgrounds(g);
-    g.setColour(findColour(Skin::kBorder, true));
-    paintBorder(g);
-}
-
-MainSection::MainSection(const juce::ValueTree& v, juce::UndoManager &um, OpenGlWrapper & open_gl,
-    SynthGuiData* data, ModulationManager* modulation_manager) : SynthSection("main_section"), v(v), um(um) {
+MainSection::MainSection(const juce::ValueTree& v, juce::UndoManager &um, OpenGlWrapper & open_gl, SynthGuiData* data,
+    MappingManager* modulation_manager) : SynthSection("main_section"),
+    v(v), um(um) {
 
     sound_interface = std::make_unique<AudioChainSection>( *data->synth->processors_,modulation_manager, um);
     addSubSection(sound_interface.get());
@@ -75,16 +25,78 @@ MainSection::MainSection(const juce::ValueTree& v, juce::UndoManager &um, OpenGl
     modulation_interface = std::make_unique<ModulationModuleSection>(modulation_manager,*data->synth->modulators_, um);
     addSubSection(modulation_interface.get());
 
-    effects_section_0 = std::make_unique<EffectModuleSection>(modulation_manager, *data->synth->effects_0,data->synth->effects_0->state,um);
+    effects_section_0 = std::make_unique<EffectModuleSection>(modulation_manager,  *data->synth->effects_0,data->synth->effects_0->state,um);
     addSubSection(effects_section_0.get());
     effects_section_1 = std::make_unique<EffectModuleSection>(modulation_manager, *data->synth->effects_1,data->synth->effects_1->state,um);
     addSubSection(effects_section_1.get());
     effects_section_2 = std::make_unique<EffectModuleSection>(modulation_manager, *data->synth->effects_2,data->synth->effects_2->state,um);
     addSubSection(effects_section_2.get());
 
+    // Shared, mouse-transparent visual layer above the sibling lanes. The clip
+    // component is sized to the union of their content viewports in resized().
+    fx_drag_clip_ = std::make_unique<juce::Component>("fx_drag_content_clip");
+    fx_drag_clip_->setInterceptsMouseClicks(false, false);
+    addAndMakeVisible(fx_drag_clip_.get());
+
+    fx_drag_coordinator_ = std::make_unique<FxDragCoordinator>(*fx_drag_clip_);
+    const auto laneIdentifier = [](const EffectModuleSection& lane, int fallbackIndex) {
+        const auto persisted = lane.state.getProperty(IDs::audioNodeId).toString();
+        return LaneIdentifier { persisted.isNotEmpty()
+                                    ? persisted
+                                    : "fx-lane-" + juce::String(fallbackIndex) };
+    };
+    const auto lane0Id = laneIdentifier(*effects_section_0, 0);
+    const auto lane1Id = laneIdentifier(*effects_section_1, 1);
+    const auto lane2Id = laneIdentifier(*effects_section_2, 2);
+    fx_drag_coordinator_->registerLane(*effects_section_0, lane0Id);
+    fx_drag_coordinator_->registerLane(*effects_section_1, lane1Id);
+    fx_drag_coordinator_->registerLane(*effects_section_2, lane2Id);
+
+    auto* list0 = data->synth->effects_0.get();
+    auto* list1 = data->synth->effects_1.get();
+    auto* list2 = data->synth->effects_2.get();
+    effect_lists_ = { list0, list1, list2 };
+    list0->onUiTransferRequested = [this, list1](ProcessorBase* processor, EffectList& target, int index) {
+        auto* targetSection = &target == list1 ? effects_section_1.get()
+                            : &target == effect_lists_[2] ? effects_section_2.get() : nullptr;
+        if (targetSection == nullptr)
+            return false;
+        return effects_section_0->transferModuleTo(*targetSection, processor, index);
+    };
+    list1->onUiTransferRequested = [this, list0](ProcessorBase* processor, EffectList& target, int index) {
+        auto* targetSection = &target == list0 ? effects_section_0.get()
+                            : &target == effect_lists_[2] ? effects_section_2.get() : nullptr;
+        if (targetSection == nullptr)
+            return false;
+        return effects_section_1->transferModuleTo(*targetSection, processor, index);
+    };
+    list2->onUiTransferRequested = [this, list0](ProcessorBase* processor, EffectList& target, int index) {
+        auto* targetSection = &target == list0 ? effects_section_0.get()
+                            : &target == effect_lists_[1] ? effects_section_1.get() : nullptr;
+        if (targetSection == nullptr)
+            return false;
+        return effects_section_2->transferModuleTo(*targetSection, processor, index);
+    };
+
+    fx_drag_coordinator_->onMoveRequested = [this, list0, list1, list2,
+                                              lane0Id, lane1Id, lane2Id](const FxMoveIntent& intent) {
+        EffectList* source = intent.sourceLane == lane0Id ? list0
+                           : intent.sourceLane == lane1Id ? list1
+                           : intent.sourceLane == lane2Id ? list2 : nullptr;
+        EffectList* target = intent.targetLane == lane0Id ? list0
+                           : intent.targetLane == lane1Id ? list1
+                           : intent.targetLane == lane2Id ? list2 : nullptr;
+        if (source == nullptr || target == nullptr)
+            return false;
+        this->um.beginNewTransaction("Move effect between lanes");
+        return source->moveEffectTo(*target, intent.moduleAudioNodeId,
+                                    intent.targetEffectIndex, this->um);
+    };
+
     master_voice_envelope_section = std::make_unique<MasterVoiceEnvelopeSection>(v, um, open_gl, data,std::move(data->synth->getEngine()->MasterVoiceEnvelopeProcessor->createEditor()));
-    addSubSection(master_voice_envelope_section.get());
     master_voice_envelope_section->mod_button->addListener(modulation_manager);
+    modulation_interface->setVCAModulationSection(master_voice_envelope_section.get(),
+                                                      master_voice_envelope_section->mod_button);
 
     modulation_interface->onExpandChanged = [this]{resized();};
     //addAndMakeVisible(constructionPort);
@@ -99,50 +111,80 @@ MainSection::MainSection(const juce::ValueTree& v, juce::UndoManager &um, OpenGl
     setSkinOverride(Skin::kNone);
 }
 
+MainSection::~MainSection() {
+    for (auto* list : effect_lists_)
+        if (list != nullptr)
+            list->onUiTransferRequested = nullptr;
+}
+
+void MainSection::renderOpenGlComponents(OpenGlWrapper& open_gl, bool animate) {
+    SynthSection::renderOpenGlComponents(open_gl, animate);
+
+    // The source lane suppresses its normal render while externally hosted. Its
+    // visual wrapper is temporarily parented to fx_drag_clip_, then this renders
+    // that same subtree once after all lanes. Model/processor ownership never moves.
+    if (fx_drag_coordinator_ != nullptr)
+        if (auto* hosted = fx_drag_coordinator_->getExternallyHostedModule())
+            hosted->renderAsExternalVisual(open_gl, animate);
+}
+
 void MainSection::paintBackground(juce::Graphics& g) {
     paintBody(g);
-    // paintChildBackground(g,master_voice_envelope_section.get());
     paintChildrenBackgrounds(g);
-    // paintKnobShadows(g);
 }
 
 void MainSection::resized() {
 
-    int height = getHeight();
-    int width = getWidth();
-    int padding = getPadding()*size_ratio_;
-
-
+    const int height = getHeight();
+    const int width = getWidth();
+    const int padding = static_cast<int>(getPadding() * size_ratio_);
     const int bottom_row_height = static_cast<int>(size_ratio_ * 200);
-    const int bottom_row_y = height - bottom_row_height;
-    const int master_envelope_width = bottom_row_height + 265;
-    const int master_envelope_x = width - master_envelope_width ;
-    const int top_section_height = std::max(0, bottom_row_y - padding);
+    const int content_x = padding;
+    const int content_y = padding;
+    const int content_width = std::max(0, width - 2 * padding);
+    const int content_height = std::max(0, height - 2 * padding);
+    const int modulation_y = height - padding - bottom_row_height;
+    const int top_left_height = std::max(0, modulation_y - content_y - padding);
 
-    int sound_interface_width = 2*width/3- padding*2;
-    int all_effects_width = getWidth() - sound_interface_width;
-    sound_interface->setBounds(padding, padding, sound_interface_width, top_section_height);
-    effects_section_0->setBounds(sound_interface->getRight() + padding, padding, (all_effects_width-3*padding)/3, top_section_height);
-    effects_section_1->setBounds(effects_section_0->getRight() + padding, padding, (all_effects_width-3*padding)/3, top_section_height);
-    effects_section_2->setBounds(effects_section_1->getRight() + padding, padding, (all_effects_width-3*padding)/3, top_section_height);
+    const int left_column_width = std::max(0, (content_width - 2 * padding) / 2 - 100);
+    const int fx_x = content_x + left_column_width + padding;
+    const int fx_total_width = std::max(0, content_width - left_column_width - padding);
+    const int fx_width = std::max(0, (fx_total_width - 2 * padding) / 3);
 
-    modulation_interface->setBounds(padding, bottom_row_y, master_envelope_x - 4 * padding, bottom_row_height);
-    master_voice_envelope_section->setBounds(master_envelope_x, bottom_row_y, master_envelope_width - 2 * padding, bottom_row_height);
+    sound_interface->setBounds(content_x, content_y, left_column_width, top_left_height);
+    modulation_interface->setBounds(content_x, modulation_y, left_column_width, bottom_row_height);
+
+    effects_section_0->setBounds(fx_x, content_y, fx_width, content_height);
+    effects_section_1->setBounds(effects_section_0->getRight() + padding, content_y, fx_width, content_height);
+    effects_section_2->setBounds(effects_section_1->getRight() + padding, content_y,
+                                 std::max(0, content_x + content_width - effects_section_1->getRight() - padding),
+                                 content_height);
+
+    const int fx_header_height = static_cast<int>(effects_section_0->getTitleWidth());
+    fx_drag_clip_->setBounds(fx_x, content_y + fx_header_height, fx_total_width,
+                             std::max(0, content_height - fx_header_height - 2));
 
 }
 
 
 std::map<std::string, SynthSlider*> MainSection::getAllSliders() {
-    std::map<std::string, SynthSlider*> result = sound_interface->getAllSliders();
 
-    const auto& extraSliders = master_voice_envelope_section->getAllSliders();
-    result.insert(extraSliders.begin(), extraSliders.end());
+    std::map<std::string, SynthSlider*> result = sound_interface->getAllSliders();
+    const auto& masterSliders = master_voice_envelope_section->getAllSliders();
+    const auto& fx_1 = effects_section_0->getAllSliders();
+    const auto& fx_2 = effects_section_1->getAllSliders();
+    const auto& fx_3 = effects_section_2->getAllSliders();
+
+    result.insert(masterSliders.begin(), masterSliders.end());
+    result.insert(fx_1.begin(), fx_1.end());
+    result.insert(fx_2.begin(), fx_2.end());
+    result.insert(fx_3.begin(), fx_3.end());
 
     return result;
 }
-std::map<std::string, ModulationButton*> MainSection::getAllModulationButtons()
+std::map<std::string, ConnectionButton*> MainSection::getAllModulationButtons()
 {
-    std::map<std::string, ModulationButton*> result = modulation_interface->getAllModulationButtons();
+    std::map<std::string, ConnectionButton*> result = modulation_interface->getAllModulationButtons();
 
     const auto& extraButtons = master_voice_envelope_section->getAllModulationButtons();
     result.insert(extraButtons.begin(), extraButtons.end());

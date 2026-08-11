@@ -15,13 +15,12 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
 {
     EnvParamHolder(LEAF* leaf) : LEAFParams<_tEnvModule>(leaf)
     {
-        add(decayParam,
+        add(attackParam,
+            decayParam,
             sustainParam,
             releaseParam,
-            attackParam,
             leakParam,
             shapeParam
-
 
             );
     }
@@ -61,8 +60,6 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
                 for (auto mod: modules)tEnvModule_setParameter(mod,EnvAttack,val);
             }
     };
-
-
 
 
 

@@ -6,16 +6,18 @@
 // editor view (ParametersView) and gives it a header, border/background, exit button, draft behavior, and a height.
 
 #include "ModuleSection.h"
-#include "SoundModuleSection.h"
 #include "ParameterView/FxModuleTemplateView.h"
+#include "SoundModuleSection.h"
+#include "mapping_manager.h"
 
 namespace {
     constexpr int kExitButtonSize = 25;
     constexpr int kExitButtonRightOffset = 50;
 }
 
-ModuleSection::ModuleSection(const juce::ValueTree &v, std::unique_ptr<SynthSection> editor, juce::UndoManager& um)
-    : SynthSection(editor->getName()), state(v), _view(std::move(editor)), undo(um) {
+ModuleSection::ModuleSection(const juce::ValueTree &v, electrosynth::audio::NodeDescriptor node_descriptor, std::unique_ptr<SynthSection> editor,
+    juce::UndoManager& um, MappingManager* map_manager) : SynthSection(editor->getName()), audioNodeDescriptor_ (std::move(node_descriptor)),
+    state(v), _view(std::move(editor)), undo(um), mapping_manager_(map_manager) {
 
     // The module's body fill is normally baked into the owning lane's scroll image and
     // does not follow a live-moving wrapper. While dragged, this quad supplies an opaque
@@ -64,9 +66,68 @@ ModuleSection::ModuleSection(const juce::ValueTree &v, std::unique_ptr<SynthSect
     highlight_border_->setInterceptsMouseClicks(false, false);
     highlight_border_->setAlpha(0.0f, true);
     addOpenGlComponent(highlight_border_);
+
+    if (audioNodeDescriptor_.hasOutput) { // if this module supports outputs...
+        electrosynth::EndpointDescriptor output {
+            .address {
+                .type = electrosynth::ConnectionType::Audio,
+                .nodeId = getNodeId(),
+                .endpointId = audioNodeDescriptor_.outputPortId,
+                .direction = electrosynth::EndpointDirection::Source,
+                .audioDomain = audioNodeDescriptor_.domain
+            },
+            .capabilities {
+                .maxIncomingConnections = 0
+            }
+        };
+        // make an output arrow belonging to this output port
+        output_port_ = std::make_shared<EndpointArrowComponent>( "audio_output", std::move(output));
+        addOpenGlComponent(output_port_);
+
+        output_connection_slots_ = std::make_unique<ConnectionSlots>(*output_port_);
+        addSubSection(output_connection_slots_.get());
+        output_connection_slots_->setConnections({});
+    }
+
+    if (audioNodeDescriptor_.hasInput) { // if this module supports inputs...
+        electrosynth::EndpointDescriptor input { // give it an output audio port address
+            .address {
+                .type = electrosynth::ConnectionType::Audio,
+                .nodeId = getNodeId(),
+                .endpointId = audioNodeDescriptor_.inputPortId,
+                .direction = electrosynth::EndpointDirection::Destination,
+                .audioDomain = audioNodeDescriptor_.domain
+            },
+            .capabilities {
+                .hasAmount = true,
+                .maxIncomingConnections = 64
+            }
+        };
+
+        input_port_ = std::make_shared<EndpointArrowComponent>("audio_input", std::move(input));
+        addOpenGlComponent(input_port_);
+
+        input_connection_slots_ = std::make_unique<ConnectionSlots>(*input_port_);
+        addSubSection(input_connection_slots_.get());
+        input_connection_slots_->setConnections({});
+    }
+
+    if (mapping_manager_ != nullptr) {
+        if (output_port_ != nullptr)
+            mapping_manager_->registerEndpoint(*output_port_);
+
+        if (input_port_ != nullptr)
+            mapping_manager_->registerEndpoint(*input_port_);
+    }
 }
 
-ModuleSection::~ModuleSection() = default;
+ModuleSection::~ModuleSection() {
+    if (mapping_manager_ != nullptr) {
+        if (output_port_) mapping_manager_->unregisterEndpoint(*output_port_);
+        if (input_port_) mapping_manager_->unregisterEndpoint(*input_port_);
+    }
+
+}
 
 void ModuleSection::setAreaSkinOverride(Skin::SectionOverride skin_override) {
     setSkinOverride(skin_override);
@@ -75,9 +136,13 @@ void ModuleSection::setAreaSkinOverride(Skin::SectionOverride skin_override) {
 }
 
 int ModuleSection::getPreferredHeight() const {
+    // first is callista's
+    //return (_view != nullptr ? _view->getPreferredHeight() : 0) + kHeaderHeight;
+    // resized() reserves both the header and bottom audio-port area outside the
+    // editor view, so the wrapper's sizing contract must advertise both regions.
+    // Gabe's
     return (_view != nullptr ? _view->getPreferredHeight() : 0)
-           + kHeaderHeight
-           + kContentBottomPadding;
+         + kHeaderHeight + kContentBottomPadding;
 }
 
 int ModuleSection::refreshHeight() {
@@ -86,6 +151,12 @@ int ModuleSection::refreshHeight() {
 }
 
 void ModuleSection::resized() {
+    static constexpr int kAudioPortPanelWidth = 5;
+    static constexpr int kAudioPortSize = 24;
+    static constexpr int kAudioPortY = 5;
+    static constexpr int kWidthOffset = 23;
+    static constexpr int kConnectionSlotSpacing = 2;
+
     auto local = getLocalBounds();
     local.removeFromTop(kHeaderHeight);
     local.removeFromBottom(kContentBottomPadding);
@@ -96,6 +167,7 @@ void ModuleSection::resized() {
     title_text_->setText(getName());
     title_text_->setTextSize(static_cast<float>(kHeaderHeight) * 0.4f);
     title_text_->setColor(findColour(Skin::kHeadingText, true));
+
 
     int exit_x = getLocalBounds().getRight() - kExitButtonRightOffset;
     if (auto* fx_view = dynamic_cast<electrosynth::FxModuleTemplateView*>(_view.get())) {
@@ -114,9 +186,40 @@ void ModuleSection::resized() {
     }
     exit_button_->setBounds(exit_x, (kHeaderHeight - kExitButtonSize) / 2, kExitButtonSize, kExitButtonSize);
 
+    if (output_port_) {
+        output_port_->setBounds(getWidth() - kAudioPortPanelWidth - kWidthOffset, getHeight() - kAudioPortSize - kAudioPortY,
+            kAudioPortSize, kAudioPortSize);
+        output_port_->setColor(findColour(Skin::kWidgetPrimary1, true));
+        output_port_->resized();
+
+        if (output_connection_slots_) {
+            output_connection_slots_->setBounds(
+                output_port_->getX()
+                    - kConnectionSlotSpacing
+                    - ConnectionSlots::kPreferredWidth,
+                output_port_->getY(),
+                ConnectionSlots::kPreferredWidth,
+                output_port_->getHeight());
+        }
+    }
+    if (input_port_) {
+        input_port_->setBounds(kAudioPortPanelWidth, getHeight() - kAudioPortSize - kAudioPortY,
+            kAudioPortSize, kAudioPortSize);
+        input_port_->setColor(findColour(Skin::kWidgetPrimary1, true));
+        input_port_->resized();
+
+        if (input_connection_slots_) {
+            input_connection_slots_->setBounds(
+                input_port_->getRight() + kConnectionSlotSpacing,
+                input_port_->getY(),
+                ConnectionSlots::kPreferredWidth,
+                input_port_->getHeight());
+        }
+    }
+
     bottom_separator_->setBounds(0, std::max(0, getHeight() - 1), getWidth(), 2);
-    bottom_separator_->setColor(findColour(Skin::kBodyHeading, true));
-    bottom_separator_->setVisible(draw_bottom_separator_);
+    bottom_separator_->setColor(findColour(Skin::kWidgetAccent1, true));
+    bottom_separator_->setVisible(true); // setVisible(draw_bottom_separator_);
 
     body_fill_->setBounds(getLocalBounds());
     body_fill_->setRounding(findValue(Skin::kBodyRounding));
@@ -138,7 +241,7 @@ void ModuleSection::setDragVisual(DragVisual visual) {
 
     // During a drag session the boundary/insertion accents replace the grey
     // separator, so hide it rather than layering red over grey.
-    bottom_separator_->setVisible(draw_bottom_separator_ && visual == DragVisual::kNormal);
+   bottom_separator_->setVisible(draw_bottom_separator_ && visual == DragVisual::kNormal);
 
     if (visual == DragVisual::kDimmed) {
         // Same dim treatment as ModulationManager's mapping-mode overlay.
@@ -178,8 +281,7 @@ void ModuleSection::buttonClicked(juce::Button *button) {
 
 void ModuleSection::paintBackground(juce::Graphics &g) {
     //paintContainer(g);
-    // g.setColour(findColour(Skin::kBorder, true));
-    //paintBorder(g);
+    paintBorder(g);
     //paintKnobShadows(g);
     // paintChildrenBackgrounds(g);
 }

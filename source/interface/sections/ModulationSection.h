@@ -10,8 +10,8 @@
     #include "PluginStateImpl_.h"
     #include "ParameterView/ParametersView.h"
     #include <juce_gui_basics/juce_gui_basics.h>
-class ModulationButton;
-class ModulationManager;
+class ConnectionButton;
+class MappingManager;
 class ModulationSection : public SynthSection
 {
 public:
@@ -29,16 +29,16 @@ public:
     //void setAllValues(vital::control_map& controls) override;
     //void setFilterActive(bool active);
     juce::ValueTree state;
-    void addModButtonListener(ModulationManager*);
+    void addModButtonListener(MappingManager*) const;
     void buttonClicked(juce::Button* clicked_button) override;
 
-    ModulationButton* getModulationButton() const { return mod_button.get(); }
-    std::shared_ptr<ModulationButton> getModulationButtonPtr() const { return mod_button; }
+    ConnectionButton* getModulationButton() const { return mod_button.get(); }
+    std::shared_ptr<ConnectionButton> getModulationButtonPtr() const { return mod_button; }
 
 private:
 
     std::unique_ptr<SynthSection> _view;
-    std::shared_ptr<ModulationButton> mod_button;
+    std::shared_ptr<ConnectionButton> mod_button;
     std::shared_ptr<OpenGlShapeButton> exit_button_;
     juce::UndoManager& undo;
 };

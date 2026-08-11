@@ -9,17 +9,17 @@
 // 4) Forwards listener events when modules are moved, added, or removed
 // 5) Assigns top-level display numbers.
 
-
 #include "AudioChainSection.h"
-#include "synth_gui_interface.h"
-#include "synth_base.h"
-#include "about_section.h"
-#include "modulation_manager.h"
 #include "FullInterface.h"
+#include "about_section.h"
+#include "mapping_manager.h"
+#include "synth_base.h"
+#include "synth_gui_interface.h"
 
-AudioChainSection::AudioChainSection(ChainList<ProcessorBase> &chains, ModulationManager *m, juce::UndoManager& um) : SynthSection("chains"),
-    chains_(chains), modulation_manager_(m), undo(um) {
+AudioChainSection::AudioChainSection(ChainList<ProcessorBase> &chains, MappingManager *m, juce::UndoManager& um) :
+    SynthSection("chains"), chains_(chains), modulation_manager_(m), undo(um) {
 
+    setSkinOverride(Skin::kSoundModule);
     container_ = std::make_unique<ModulesListContainer>("container");
 
     addAndMakeVisible(viewport_);
@@ -31,8 +31,8 @@ AudioChainSection::AudioChainSection(ChainList<ProcessorBase> &chains, Modulatio
     chains_.addListener(this);
 
     scroll_bar_ = std::make_unique<OpenGlScrollBar>();
-    addAndMakeVisible(scroll_bar_.get());
-    addOpenGlComponent(scroll_bar_->getGlComponent());
+    // addAndMakeVisible(scroll_bar_.get());
+    // addOpenGlComponent(scroll_bar_->getGlComponent());
     scroll_bar_->addListener(this);
     viewport_.setScrollBarPosition(true, false); //use this to determine viewport scroll type in effectsviewport
     viewport_.setScrollBarsShown(false, false, true, false);
@@ -48,7 +48,6 @@ AudioChainSection::AudioChainSection(ChainList<ProcessorBase> &chains, Modulatio
         default_chain.appendChild(oscillator, nullptr);
         chains_.appendChild(default_chain, nullptr);
     }
-
 }
 
 AudioChainSection::~AudioChainSection() {
@@ -56,18 +55,9 @@ AudioChainSection::~AudioChainSection() {
 }
 
 void AudioChainSection::paintBackground(juce::Graphics &g) {
-    {
-        static constexpr float kAudioChainBorderWidth = 20.0f;
-
-        g.setColour(findColour(Skin::kBody, true));
-        g.fillRoundedRectangle(getLocalBounds().toFloat(), findValue(Skin::kBodyRounding));
-        g.setColour(findColour(Skin::kBorder, true));
-
-        g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(kAudioChainBorderWidth * 0.5f),
-                               findValue(Skin::kBodyRounding), kAudioChainBorderWidth);
-
-        redoBackgroundImage();
-    }
+    paintBody(g);
+    paintBorder(g);
+    redoBackgroundImage();
 }
 
 void AudioChainSection::redoBackgroundImage() {
@@ -85,21 +75,14 @@ void AudioChainSection::redoBackgroundImage() {
 }
 
 void AudioChainSection::resized() {
-    static constexpr float kEffectOrderWidthPercent = 0.2f;
-    static constexpr int kScrollBarInset = 5;
-    static constexpr int kScrollBarWidth = 7;
-    ScopedLock lock(open_gl_critical_section_);
 
-    int large_padding = findValue(Skin::kLargePadding);
-    int shadow_width = getComponentShadowWidth();
+    ScopedLock lock(open_gl_critical_section_);
 
     viewport_.setBounds(0, 0, getWidth(), getHeight());
 
     setEffectPositions();
-    const int scroll_bar_height = std::max(0, static_cast<int>(getHeight() - getTitleWidth() - (large_padding + 2 * shadow_width)));
-    scroll_bar_->setBounds(getWidth() - kScrollBarInset - kScrollBarWidth, getTitleWidth() + large_padding, kScrollBarWidth, scroll_bar_height);
-    scroll_bar_->setColor(findColour(Skin::kWidgetPrimary1, true));
-    scroll_bar_->setVisible(container_->getHeight() > viewport_.getHeight());
+    // Keep the external scrollbar model synchronized without adding its JUCE/OpenGL
+    // components. Viewport wheel and trackpad scrolling remain active.
 
     SynthSection::resized();
 }
@@ -181,18 +164,14 @@ void AudioChainSection::setEffectPositions() {
         return;
 
     int padding = getPadding();
-    int large_padding = findValue(Skin::kLargePadding);
-    int shadow_width = getComponentShadowWidth();
-    int start_x = large_padding - shadow_width;
-    int effect_width = getWidth() - start_x - large_padding;
+    int effect_width = getWidth();
     int knob_section_height = getKnobSectionHeight();
     int widget_margin = findValue(Skin::kWidgetMargin);
     int effect_height =  knob_section_height + getTitleWidth()*4 - widget_margin;
     int y = 0;
 
     juce::Point<int> position = viewport_.getViewPosition();
-    // DBG("position viewport: x: " + juce::String(position.getX()) + "y: " + juce::String(position.getY()));
-    //DBG("shadwo width: " + String(shadow_width));
+
 
     int sound_module_index = 1;
     for (auto &section: sound_module_sections) {

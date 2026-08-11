@@ -7,7 +7,8 @@
 #include "mapping.h"
 #include "sound_engine.h"
 
-RoutingProcessor::RoutingProcessor(electrosynth::SoundEngine *engine, const juce::ValueTree &v, LEAF *leaf,juce::UndoManager * um) : ProcessorStateBase(engine,leaf,v,um){
+RoutingProcessor::RoutingProcessor(electrosynth::SoundEngine *engine, const juce::ValueTree &v, LEAF *leaf,juce::UndoManager * um)
+: ProcessorStateBase(engine,leaf,v,um) {
 
         callbacks += {
                 state_.addParameterListener (*state_.params.routing, chowdsp::ParameterListenerThread::AudioThread,
@@ -27,19 +28,15 @@ RoutingProcessor::RoutingProcessor(electrosynth::SoundEngine *engine, const juce
                 })
             };
     audio_out = &this->engine->temp_fx_buffers[0];
-
 }
 
 std::unique_ptr<SynthSection> RoutingProcessor::createEditor() {
-
-
-        return std::make_unique<RoutingView>(state_, state_.params, state.getProperty(IDs::type).toString() + state.getProperty(IDs::uuid).toString());
-
+    return std::make_unique<RoutingView>(state_, state_.params,
+        state.getProperty(IDs::type).toString() + state.getProperty(IDs::uuid).toString());
 }
 
 void RoutingProcessor::processBlock(juce::AudioBuffer<float> & buffer, juce::MidiBuffer &) {
     state_.getParameterListeners().callAudioThreadBroadcasters();
-
     int numSamples = buffer.getNumSamples();
     //buffer.clear();
 

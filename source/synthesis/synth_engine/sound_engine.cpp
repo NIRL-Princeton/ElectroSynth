@@ -87,6 +87,11 @@ namespace electrosynth
         {
             modSource.reserve (10);
         }
+        // Inter-lane moves happen at the fade-to-silence boundary on the audio
+        // thread. Reserve normal UI capacity up front so vector insertion does not
+        // allocate during that transaction.
+        for (auto& effectLane : effects)
+            effectLane.reserve(64);
 
         MasterVoiceEnvelopeProcessor = std::make_unique<EnvModuleProcessor> (
             this, juce::ValueTree (IDs::MODULATOR).setProperty (IDs::type, "env", nullptr), &leaf, &undo);
@@ -156,12 +161,48 @@ namespace electrosynth
         last_sample_rate_ = sample_rate;
     }
 
+    void SoundEngine::beginEffectLaneFadeOut(int lane) noexcept
+    {
+        if (juce::isPositiveAndBelow(lane, static_cast<int>(effectLaneTransitions_.size())))
+            effectLaneTransitions_[static_cast<std::size_t>(lane)].beginFadeOut();
+    }
+
+    void SoundEngine::beginEffectLaneFadeIn(int lane) noexcept
+    {
+        if (juce::isPositiveAndBelow(lane, static_cast<int>(effectLaneTransitions_.size())))
+            effectLaneTransitions_[static_cast<std::size_t>(lane)].beginFadeIn();
+    }
+
+    bool SoundEngine::isEffectLaneSilent(int lane) const noexcept
+    {
+        return juce::isPositiveAndBelow(lane, static_cast<int>(effectLaneTransitions_.size()))
+               && effectLaneTransitions_[static_cast<std::size_t>(lane)].isSilent();
+    }
+
     void SoundEngine::processMappings()
     {
         for (auto mapping : mappings)
         {
-            for (int i = 0; i < MAX_NUM_VOICES; i++)
-                processMapping (&mapping->mapping_[i]);
+            if (mapping == nullptr)
+                continue;
+
+            for (int i = 0; i < MAX_NUM_VOICES; i++) {
+                auto* voice_mapping = &mapping->mapping_[i];
+                if (voice_mapping->initialVal == nullptr || voice_mapping->destObject == nullptr)
+                    continue;
+
+                bool valid_sources = true;
+                for (int source = 0; source < voice_mapping->numUsedSources; ++source) {
+                    if (voice_mapping->inSources[source] == nullptr
+                        || voice_mapping->scalingValues[source] == nullptr) {
+                        valid_sources = false;
+                        break;
+                    }
+                }
+
+                if (valid_sources)
+                    processMapping (voice_mapping);
+            }
         }
     }
 
@@ -280,8 +321,14 @@ namespace electrosynth
                         // audio_buffer.addSample(0, i, temp_voice_buffer.getSample(v*2, 0));
                         // audio_buffer.addSample(1, i, temp_voice_buffer.getSample(v*2+1, 0));
                         temp_voice_buffer.setSample (
-                            v * 2, 0, amp_vals->getSample (v * 2, 0) * temp_voice_buffer.getSample (v * 2, 0));
-                        temp_voice_buffer.setSample (v * 2 + 1, 0, amp_vals->getSample (v * 2 + 1, 0) * temp_voice_buffer.getSample (v * 2 + 1, 0));
+                            v * 2,
+                            0,
+                            amp_vals->getSample (v * 2, 0) * temp_voice_buffer.getSample (v * 2, 0)
+                            );
+                        temp_voice_buffer.setSample (
+                            v * 2 + 1,
+                            0,
+                            amp_vals->getSample (v * 2 + 1, 0) * temp_voice_buffer.getSample (v * 2 + 1, 0));
                     }
                     //writes out to fx_buffers
                     chainPostGain[chainIndex]->processBlock (temp_voice_buffer, empty);
@@ -297,18 +344,21 @@ namespace electrosynth
                 audio_buffer.addSample (0, i, temp_fx_buffers[0].getSample (v * 2, 0));
                 audio_buffer.addSample (1, i, temp_fx_buffers[0].getSample (v * 2 + 1, 0));
             }
+            std::size_t effectLaneIndex = 0;
             for (auto& fx_lane : effects)
             {
+                const auto laneGain = effectLaneTransitions_[effectLaneIndex].advance();
                 for (auto& fx : fx_lane)
                 {
                     fx->processBlock (temp_fx_buffers[index], empty);
                 }
                 for (int v = 0; v < voiceHandler.numVoicesActive; ++v)
                 {
-                    audio_buffer.addSample (0, i, temp_fx_buffers[index].getSample (v * 2, 0));
-                    audio_buffer.addSample (1, i, temp_fx_buffers[index].getSample (v * 2 + 1, 0));
+                    audio_buffer.addSample (0, i, laneGain * temp_fx_buffers[index].getSample (v * 2, 0));
+                    audio_buffer.addSample (1, i, laneGain * temp_fx_buffers[index].getSample (v * 2 + 1, 0));
                 }
                 index++;
+                effectLaneIndex++;
             }
 
             for (auto& fx : temp_fx_buffers)
@@ -554,8 +604,8 @@ namespace electrosynth
         //    voice_handler_->sostenutoOffRange(sample, from_channel, to_channel);
     }
 
-    std::array<ModuleHeader*, MAX_NUM_VOICES>* SoundEngine::getLEAFProcessor (const std::string& proc_string)
-    {
+    std::array<ModuleHeader*, MAX_NUM_VOICES>* SoundEngine::getLEAFProcessor (const std::string& proc_string) {
+        /*
         // Use find_if to search the outermost vector
         auto outerIt = std::find_if (processors.begin(), processors.end(), [&] (const auto& innerVec) {
             // Use find_if on the inner vector to look for the processor with the target name
@@ -576,8 +626,26 @@ namespace electrosynth
             // Here you can cast the processor to leaf::Processor* if needed
             return (innerIt->get()->procArray);
         }
-        if (proc_string == "VCA"
-            || (MasterVoiceEnvelopeProcessor != nullptr
+        */
+
+        auto findProcessor = [&proc_string](auto& lanes) -> ProcessorBase* {
+            for (auto& lane : lanes) {
+                for (auto& processor : lane) {
+                    if (processor != nullptr && processor->name == juce::String(proc_string)) {
+                        return processor.get();
+                    }
+                }
+            }
+            return nullptr;
+        };
+
+        if (auto* processor = findProcessor(processors))
+            return processor->procArray;
+
+        if (auto* effect = findProcessor(effects))
+            return effect->procArray;
+
+        if (proc_string == "VCA" || (MasterVoiceEnvelopeProcessor != nullptr
                 && MasterVoiceEnvelopeProcessor->name == juce::String (proc_string)))
             return MasterVoiceEnvelopeProcessor->procArray;
 
@@ -659,12 +727,12 @@ namespace electrosynth
 
     void SoundEngine::connectMapping (const electrosynth::mapping_change& change)
     {
-        //check for mapping alread exists
+        //check for mapping already exists
         for (auto modulation : mappings)
         {
             if (change.mapping == modulation)
             {
-                DBG ("adding modualtion:" + juce::String (change.source) + " to " + juce::String (modulation->dest_));
+                DBG ("adding modulation:" + juce::String (change.source) + " to " + juce::String (modulation->dest_));
                 int sourceIndex = 0;
                 auto it = std::find (change.mapping->all_connections_.begin(), change.mapping->all_connections_.end(), change.connection);
                 if (it != change.mapping->all_connections_.end())
@@ -725,7 +793,7 @@ namespace electrosynth
 
         mappings.push_back (change.mapping);
         change.mapping->addConnection(change.connection);
-        DBG ("added new modulatino");
+        DBG ("added new modulation");
     }
 
     //returns true if the mapping should be completely removd from process mappings

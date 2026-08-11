@@ -35,6 +35,7 @@ namespace IDs
     DECLARE_ID (numIns)
     DECLARE_ID (numOuts)
     DECLARE_ID (nodeID)
+    DECLARE_ID (audioNodeId)
 
     DECLARE_ID (CONNECTION)
     DECLARE_ID (src)

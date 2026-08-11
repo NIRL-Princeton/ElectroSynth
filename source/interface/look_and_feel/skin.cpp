@@ -30,6 +30,7 @@ namespace {
 	      "Envelope",
 	      "LFO",
 	      "Master Env",
+          "Noise",
       "Overlays",
       "Popup Browser",
       "Preset Browser",
@@ -81,6 +82,7 @@ namespace {
       "Wavetable Draw Width",
       "Wavetable Draw Height",
       "Wavetable Y Offset",
+      "Add Button Size",
   };
 
   const std::string kColorNames[Skin::kNumColors] = {

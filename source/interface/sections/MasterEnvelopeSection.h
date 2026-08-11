@@ -7,11 +7,11 @@
 #include "synth_section.h"
 
 struct SynthGuiData ;
-class ModulationManager;
+class MappingManager;
 class MasterEnvelopeSection : public SynthSection {
 
 public:
-    MasterEnvelopeSection(juce::ValueTree v, juce::UndoManager &um, OpenGlWrapper &open_gl, SynthGuiData * data, ModulationManager*) : SynthSection("MasterEnvelope") {
+    MasterEnvelopeSection(juce::ValueTree v, juce::UndoManager &um, OpenGlWrapper &open_gl, SynthGuiData * data, MappingManager*) : SynthSection("MasterEnvelope") {
         setComponentID("MasterEnvelope");
     }
 

@@ -108,14 +108,33 @@ struct FilterParams : public LEAFParams<_tFiltModule > {
         &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal
     };
+
+    // presumably from Gabe below
+    // chowdsp::ChoiceParameter::Ptr filterType {
+    //     juce::ParameterID { "filterType", 100 },
+    //     "Filter Type",
+    //     all_params[FiltParams::FiltType],
+    //     [](float) {},
+    //     juce::StringArray { "Lowpass", "Highpass", "Bandpass", "Diode Lowpass",
+    //                         "Peak", "High Shelf", "Low Shelf", "Notch", "Ladder Lowpass" },
+    //     FiltTypeLowpass
+    // };
 };
 
 class FilterModuleProcessor : public ProcessorStateBase<PluginStateImpl_<FilterParams>> {
 public:
     FilterModuleProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree&, LEAF* leaf,juce::UndoManager*);
+    electrosynth::audio::NodeDescriptor getAudioNodeDescriptor() const noexcept override {
+        return electrosynth::audio::makeProcessorDescriptor();
+    }
     void getNextAudioBlock (const juce::AudioSourceChannelInfo &bufferToFill) override {}
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
-    void prepareToPlay (int samplesPerBlock, double sampleRate ) override {};
+    void prepareToPlay (int samplesPerBlock, double sampleRate ) override {
+        filterTransitionSamples_ = juce::jmax(
+            1, juce::roundToInt(sampleRate * kFilterTypeTransitionSeconds));
+        for (auto* module : state_.params.modules)
+            tFiltModule_setSampleRate(module, (float)sampleRate);
+    };
     void releaseResources() override {}
     std::unique_ptr<SynthSection> createEditor() override {
         auto name = state.getProperty(IDs::type).toString() + state.getProperty(IDs::uuid).toString();
@@ -125,6 +144,11 @@ public:
             return std::make_unique<electrosynth::ParametersView>(state_, state_.params, name);
         return std::make_unique<electrosynth::FxModuleTemplateView>(state_, state_.params, name);
     }
+
+private:
+    static constexpr double kFilterTypeTransitionSeconds = 0.005;
+    int currentFilterType_ = FiltTypeLowpass;
+    int filterTransitionSamples_ = 220;
 };
 
 #endif //ELECTROSYNTH_OSCILLATORMODULEPROCESSOR_H

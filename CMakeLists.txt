@@ -90,6 +90,7 @@ juce_add_plugin("${PROJECT_NAME}"
 add_library(SharedCode INTERFACE
         source/synthesis/framework/Processors/SoftClipModuleProcessor.cpp
         source/synthesis/framework/Processors/SoftClipModuleProcessor.h
+        source/common/Node.h
         source/synthesis/framework/Processors/NoiseModuleProcessor.cpp
         source/synthesis/framework/Processors/NoiseModuleProcessor.h
         source/synthesis/framework/Modulators/SimpleNoiseModuleProcessor.cpp
@@ -98,6 +99,12 @@ add_library(SharedCode INTERFACE
         source/synthesis/framework/Modulators/PerlinNoiseModuleProcessor.h
         source/synthesis/framework/Processors/SineModuleProcessor.cpp
         source/synthesis/framework/Processors/SineModuleProcessor.h
+        source/interface/components/endpoint_arrow_component.h
+        source/interface/components/endpoint_arrow_component.cpp
+        source/interface/components/connection_slots.cpp
+        source/interface/components/connection_slots.h
+        source/common/ConnectionRecord.h
+
 
 
 )
@@ -293,4 +300,3 @@ if(APPLE)
         )
     endif()
 endif()
-

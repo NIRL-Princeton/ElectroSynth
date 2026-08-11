@@ -18,21 +18,22 @@ class AboutSection;
 struct SynthGuiData;
 class HeaderSection;
 class MainSection;
-class ModulationManager;
+class MappingManager;
+
 namespace electrosynth{
     constexpr int kMinWindowWidth = 350;
     constexpr int kMinWindowHeight = 205;
     constexpr int kDefaultWindowWidth = 1400;
     constexpr int kDefaultWindowHeight = 820;
 }
+
 class FullInterface : public SynthSection, public juce::OpenGLRenderer, public HeaderSection::Listener,
-                      public MainSection::Listener, juce::DragAndDropContainer, private juce::Timer
-{
+                      public MainSection::Listener, juce::DragAndDropContainer, private juce::Timer {
 
 public :
     static constexpr double kMinOpenGlVersion = 1.4;
     FullInterface(SynthGuiData *synth_gui_data);
-     ~FullInterface() override;
+    ~FullInterface() override;
 
      void paintBackground(juce::Graphics& g) override;
 
@@ -83,6 +84,9 @@ public :
 
     void popupDisplay(juce::Component* source, const std::string& text,
         juce::BubbleComponent::BubblePlacement placement, bool primary);
+    void popupTextEntry(juce::Component* source, const std::string& display_text,
+        const juce::String& editable_text, juce::BubbleComponent::BubblePlacement placement,
+        std::function<void(const juce::String&)> commit, std::function<void()> cancel);
 
     //void prepDisplay(PreparationSection* source);
     std::unique_ptr<SinglePopupSelector> popup_selector_;
@@ -95,14 +99,18 @@ public :
     juce::CriticalSection open_gl_critical_section_;
     OpenGlWrapper open_gl_;
     std::map<std::string, SynthSlider*> getAllSliders() override;
-    std::map<std::string, ModulationButton*> getAllModulationButtons() override;
+    std::map<std::string, ConnectionButton*> getAllModulationButtons() override;
     void modulationChanged();
     juce::ScopedPointer<ValueTreeDebugger> valueTreeDebugger;
+
 private :
+
     std::unique_ptr<AboutSection> about_section_;
+    std::unique_ptr<MappingManager> modulation_manager;
     std::unique_ptr<MainSection> main_;
     std::unique_ptr<HeaderSection> header_;
 //std::unique_ptr<TestSection> test_;
+
     int width_;
     int resized_width_;
     bool animate_;
@@ -121,7 +129,6 @@ private :
     // std::unique_ptr<melatonin::Inspector> inspector;
     //std::unique_ptr<OpenGlToggleButton> inspectButton;
     OpenGlBackground background_;
-    std::unique_ptr<ModulationManager> modulation_manager;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FullInterface)
 };

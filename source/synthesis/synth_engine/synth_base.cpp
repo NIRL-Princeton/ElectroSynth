@@ -34,6 +34,10 @@
 #include "parameterArrays.h"
 #include "Modulators/EnvModuleProcessor.h"
 #include "EffectList.h"
+#include "EffectOrderPlacement.h"
+#include <algorithm>
+#include <iterator>
+
 SynthBase::SynthBase(AudioDeviceManager *deviceManager) : tree(ValueTree(IDs::ELECTROSYNTH)), manager(deviceManager) {
     tree.addChild(juce::ValueTree{IDs::CHAINS}, -1, nullptr);
     tree.addChild(juce::ValueTree{IDs::MODULATORS}, -1, nullptr);
@@ -56,7 +60,7 @@ SynthBase::SynthBase(AudioDeviceManager *deviceManager) : tree(ValueTree(IDs::EL
 
     engine_ = std::make_unique<electrosynth::SoundEngine>(um);
 
-    mod_connections_.reserve(electrosynth::kMaxModulationConnections);
+    mod_connections_.reserve(electrosynth::kMaxConnections);
 
     keyboard_state_ = std::make_unique<MidiKeyboardState>();
     ValueTree v;
@@ -73,6 +77,7 @@ SynthBase::SynthBase(AudioDeviceManager *deviceManager) : tree(ValueTree(IDs::EL
 }
 
 SynthBase::~SynthBase() {
+    stopTimer();
     tree.removeListener(this);
     processors_.reset();
     modulators_.reset();
@@ -139,7 +144,7 @@ void SynthBase::presetChangedThroughMidi(File preset) {
 
 int SynthBase::getNumModulations(const std::string &destination) {
     int connections = 0;
-    for (electrosynth::ModulationConnection *connection: mod_connections_) {
+    for (electrosynth::Connection *connection: mod_connections_) {
         if (connection->destination_name == destination)
             connections++;
     }
@@ -156,14 +161,16 @@ void SynthBase::setMpeEnabled(bool enabled) {
     midi_manager_->setMpeEnabled(enabled);
 }
 void SynthBase::removeEffect(ProcessorBase *processor, int lane) {
-    if (engine_ == nullptr) return;
+    if (engine_ == nullptr || processor == nullptr) return;
+
     if (lane < 0 || lane >= static_cast<int>(engine_->effects.size()))
         return; // invalid lane index
 
+    disconnectModulationsForDestinationProcessor(processor->name.toStdString()); // disconnect modulation connections from this FX
+
     auto& effectLane = engine_->effects[lane];
     auto it = std::find_if(effectLane.begin(), effectLane.end(),
-                               [processor](const auto& ptr)
-                               {
+                               [processor](const auto& ptr){
                                    return ptr.get() == processor;
                                });
         if (it != effectLane.end()) {
@@ -336,6 +343,166 @@ void SynthBase::addEffect(std::unique_ptr<ProcessorBase> processor, int lane) {
     engine_->voiceHandler.eventEmitter.numListeners++;
     engine_->effects[lane].push_back(std::move(processor));
 }
+
+void SynthBase::submitEffectOrder(int lane, ProcessorBase* movedProcessor, ProcessorBase* nextProcessor) {
+    if (movedProcessor == nullptr)
+        return;
+
+    EffectOrderCommand command {
+        lane,
+        -1,
+        movedProcessor,
+        nextProcessor,
+        nextEffectOrderGeneration_++
+    };
+
+    if (!pendingEffectOrderCommands_.empty() || !effectOrderQueue_.try_enqueue(command))
+        pendingEffectOrderCommands_.push_back(command);
+}
+
+void SynthBase::submitEffectMove(int sourceLane, int targetLane,
+                                 ProcessorBase* movedProcessor,
+                                 ProcessorBase* nextProcessor) {
+    if (movedProcessor == nullptr || sourceLane == targetLane)
+        return;
+
+    EffectOrderCommand command {
+        sourceLane,
+        targetLane,
+        movedProcessor,
+        nextProcessor,
+        nextEffectOrderGeneration_++
+    };
+    if (!pendingEffectOrderCommands_.empty() || !effectOrderQueue_.try_enqueue(command))
+        pendingEffectOrderCommands_.push_back(command);
+}
+
+void SynthBase::registerEffectList(EffectList* effectList) {
+    if (effectList == nullptr)
+        return;
+
+    if (std::find(registeredEffectLists_.begin(), registeredEffectLists_.end(), effectList) == registeredEffectLists_.end())
+        registeredEffectLists_.push_back(effectList);
+}
+
+void SynthBase::unregisterEffectList(EffectList* effectList) {
+    registeredEffectLists_.erase(
+        std::remove(registeredEffectLists_.begin(), registeredEffectLists_.end(), effectList),
+        registeredEffectLists_.end());
+}
+
+void SynthBase::flushPendingEffectOrderCommands() {
+    while (!pendingEffectOrderCommands_.empty()) {
+        if (!effectOrderQueue_.try_enqueue(pendingEffectOrderCommands_.front()))
+            break;
+        pendingEffectOrderCommands_.pop_front();
+    }
+}
+
+void SynthBase::reconcileEffectOrders() {
+    for (auto* effectList : registeredEffectLists_)
+        if (effectList != nullptr)
+            effectList->publishCurrentOrder();
+}
+
+bool SynthBase::applyEffectOrderCommand(const EffectOrderCommand& command) {
+    if (engine_ == nullptr || command.lane < 0 || command.lane >= static_cast<int>(engine_->effects.size()))
+        return false;
+
+    auto& effectLane = engine_->effects[static_cast<std::size_t>(command.lane)];
+    if (command.targetLane >= 0) {
+        if (command.targetLane >= static_cast<int>(engine_->effects.size())
+            || command.targetLane == command.lane)
+            return false;
+
+        auto moved = std::find_if(effectLane.begin(), effectLane.end(),
+                                  [&command](const auto& processor) {
+                                      return processor.get() == command.movedProcessor;
+                                  });
+        auto& targetLane = engine_->effects[static_cast<std::size_t>(command.targetLane)];
+        auto insertion = command.nextProcessor == nullptr
+                           ? targetLane.end()
+                           : std::find_if(targetLane.begin(), targetLane.end(),
+                                          [&command](const auto& processor) {
+                                              return processor.get() == command.nextProcessor;
+                                          });
+        if (moved == effectLane.end()
+            || (command.nextProcessor != nullptr && insertion == targetLane.end()))
+            return false;
+
+        auto ownedProcessor = std::move(*moved);
+        effectLane.erase(moved);
+        targetLane.insert(insertion, std::move(ownedProcessor));
+        return true;
+    }
+
+    return electrosynth::effect_order::placeBefore(
+               effectLane, command.movedProcessor, command.nextProcessor)
+           == electrosynth::effect_order::PlacementResult::applied;
+}
+
+void SynthBase::completeEffectOrderCommand(const EffectOrderCommand& command) {
+    const auto applied = applyEffectOrderCommand(command);
+    if (applied) {
+        lastAdoptedEffectOrderGeneration_.store(command.generation, std::memory_order_release);
+    } else {
+        rejectedEffectOrderCommandCount_.fetch_add(1, std::memory_order_relaxed);
+        effectOrderReconciliationRequested_.store(true, std::memory_order_release);
+    }
+}
+
+void SynthBase::drainEffectOrderQueue() {
+    if (engine_ == nullptr)
+        return;
+
+    if (!activeEffectOrderCommand_.has_value()) {
+        EffectOrderCommand nextCommand;
+        if (deferredEffectOrderCommand_.has_value()) {
+            nextCommand = *deferredEffectOrderCommand_;
+            deferredEffectOrderCommand_.reset();
+        } else if (!effectOrderQueue_.try_dequeue(nextCommand)) {
+            return;
+        }
+
+        if (nextCommand.lane < 0
+            || nextCommand.lane >= static_cast<int>(engine_->effects.size())) {
+            completeEffectOrderCommand(nextCommand);
+            return;
+        }
+
+        activeEffectOrderCommand_ = nextCommand;
+        engine_->beginEffectLaneFadeOut(nextCommand.lane);
+        if (nextCommand.targetLane >= 0)
+            engine_->beginEffectLaneFadeOut(nextCommand.targetLane);
+        return;
+    }
+
+    const auto transitionLane = activeEffectOrderCommand_->lane;
+    const int targetTransitionLane = activeEffectOrderCommand_->targetLane;
+    if (!engine_->isEffectLaneSilent(transitionLane)
+        || (targetTransitionLane >= 0
+            && !engine_->isEffectLaneSilent(targetTransitionLane)))
+        return;
+
+    completeEffectOrderCommand(*activeEffectOrderCommand_);
+
+    EffectOrderCommand nextCommand;
+    if (targetTransitionLane < 0) {
+        while (effectOrderQueue_.try_dequeue(nextCommand)) {
+            if (nextCommand.lane != transitionLane || nextCommand.targetLane >= 0) {
+                deferredEffectOrderCommand_ = nextCommand;
+                break;
+            }
+            completeEffectOrderCommand(nextCommand);
+        }
+    }
+
+    activeEffectOrderCommand_.reset();
+    engine_->beginEffectLaneFadeIn(transitionLane);
+    if (targetTransitionLane >= 0)
+        engine_->beginEffectLaneFadeIn(targetTransitionLane);
+}
+
 void SynthBase::addModulationSource(std::unique_ptr<ModulatorBase> modulationSource, int voice_index) {
     modulationSource->prepareToPlay(engine_->getBufferSize(), engine_->getSampleRate());
 
@@ -434,6 +601,7 @@ void SynthBase::processAudio(AudioSampleBuffer *buffer, int channels, int sample
     AudioThreadAction action;
     while (processorInitQueue.try_dequeue(action))
         action();
+    drainEffectOrderQueue();
     processMappingChanges();
     engine_->process(*buffer, channels, samples, offset);
     //writeAudio(buffer, channels, samples, offset);
@@ -445,6 +613,7 @@ void SynthBase::processAudioAndMidi(juce::AudioBuffer<float> &audio_buffer, juce
     AudioThreadAction action;
     while (processorInitQueue.try_dequeue(action))
         action();
+    drainEffectOrderQueue();
     processMappingChanges();
 
     engine_->process(audio_buffer, midi_buffer);
@@ -626,12 +795,12 @@ juce::UndoManager &SynthBase::getUndoManager() {
 
 /////////////////////// begin modulation and processor queue processing /////////
 
-electrosynth::ModulationConnectionBank &SynthBase::getModulationBank() {
+electrosynth::ConnectionBank &SynthBase::getModulationBank() {
     return engine_->getModulationBank();
 }
 
 //this function does not set if it is disconnecting or not. you must do that outside this function
-electrosynth::mapping_change SynthBase::createMappingChange(electrosynth::ModulationConnection *connection) {
+electrosynth::mapping_change SynthBase::createMappingChange(electrosynth::Connection *connection) {
     electrosynth::mapping_change change {};
     change.connection = connection;
     if (connection == nullptr)
@@ -657,8 +826,8 @@ electrosynth::mapping_change SynthBase::createMappingChange(electrosynth::Modula
 }
 
 
-std::vector<electrosynth::ModulationConnection *> SynthBase::getSourceConnections(const std::string &source) {
-    std::vector<electrosynth::ModulationConnection *> connections;
+std::vector<electrosynth::Connection *> SynthBase::getSourceConnections(const std::string &source) {
+    std::vector<electrosynth::Connection *> connections;
     for (auto &connection: mod_connections_) {
         if (connection->source_name == source)
             connections.push_back(connection);
@@ -666,8 +835,8 @@ std::vector<electrosynth::ModulationConnection *> SynthBase::getSourceConnection
     return connections;
 }
 
-std::vector<electrosynth::ModulationConnection *> SynthBase::getDestinationConnections(const std::string &destination) {
-    std::vector<electrosynth::ModulationConnection *> connections;
+std::vector<electrosynth::Connection *> SynthBase::getDestinationConnections(const std::string &destination) {
+    std::vector<electrosynth::Connection *> connections;
     for (auto &connection: mod_connections_) {
         if (connection->destination_name == destination)
             connections.push_back(connection);
@@ -675,8 +844,8 @@ std::vector<electrosynth::ModulationConnection *> SynthBase::getDestinationConne
     return connections;
 }
 
-electrosynth::ModulationConnection *
-SynthBase::getConnection(const std::string &source, const std::string &destination, int destination_slot) {
+electrosynth::Connection *SynthBase::getConnection(const std::string &source,
+    const std::string &destination, int destination_slot) {
     for (auto &connection: mod_connections_) {
         if (connection->source_name == source
             && connection->destination_name == destination
@@ -696,9 +865,26 @@ bool SynthBase::hasSourceDestinationConnection(const std::string &source, const 
     return false;
 }
 
+bool SynthBase::connect(const electrosynth::ConnectionRecord& connection) {
+    if (!connection.isValid())
+        return false;
+
+    switch (connection.type) {
+        case electrosynth::ConnectionType::Modulation:
+            return connectModulation(connection.source.endpointId.toStdString(),
+                                     connection.destination.endpointId.toStdString(),
+                                     connection.destinationSlot);
+
+        case electrosynth::ConnectionType::Audio:
+            return true;
+    }
+
+    return false;
+}
+
 bool SynthBase::connectModulation(const std::string &source, const std::string &destination, int destination_slot) {
 
-    electrosynth::ModulationConnection *connection = getConnection(source, destination, destination_slot);
+    electrosynth::Connection *connection = getConnection(source, destination, destination_slot);
     bool create = connection == nullptr;
     if (create && !hasSourceDestinationConnection (source, destination)) {
         if (destination_slot >= 0) {
@@ -721,7 +907,7 @@ bool SynthBase::connectModulation(const std::string &source, const std::string &
            && !connection->destination_name.empty();
 }
 
-void SynthBase::connectModulation(electrosynth::ModulationConnection *connection) {
+void SynthBase::connectModulation(electrosynth::Connection *connection) {
     electrosynth::mapping_change change = createMappingChange(connection);
     if (isInvalidConnection(change)) {
         if (connection->state.getParent().isValid())
@@ -737,7 +923,7 @@ void SynthBase::connectModulation(electrosynth::ModulationConnection *connection
 }
 
 
-void SynthBase::disconnectModulation(electrosynth::ModulationConnection *connection) {
+void SynthBase::disconnectModulation(electrosynth::Connection *connection) {
     if (mod_connections_.count(connection) == 0)
         return;
 
@@ -752,9 +938,28 @@ void SynthBase::disconnectModulation(electrosynth::ModulationConnection *connect
 }
 
 void SynthBase::disconnectModulation(const std::string &source, const std::string &destination) {
-    electrosynth::ModulationConnection *connection = getConnection(source, destination);
+    electrosynth::Connection *connection = getConnection(source, destination);
     if (connection)
         disconnectModulation(connection);
+}
+
+// if a filter is deleted, disconnect all modulation connections it is the source of
+void SynthBase::disconnectModulationsForDestinationProcessor(const std::string& processor_name) {
+    const std::string dest_prefix = processor_name + "_";
+    std::vector<electrosynth::Connection*> connections_to_remove;
+
+    for (auto* connection : mod_connections_) {
+        if (connection == nullptr) continue;
+        const auto destination = connection->destination_name;
+
+        if (destination.size() >= dest_prefix.size() && destination.starts_with(dest_prefix)) {
+            connections_to_remove.push_back(connection);
+        }
+    }
+
+    for (auto* connection : connections_to_remove) {
+        disconnectModulation(connection);
+    }
 }
 
 
@@ -774,6 +979,11 @@ void SynthBase::timerCallback() {
     DeleteThreadAction action;
     while (processorDeleteQueue.try_dequeue(action))
         action();
+
+    if (effectOrderReconciliationRequested_.exchange(false, std::memory_order_acq_rel))
+        reconcileEffectOrders();
+    flushPendingEffectOrderCommands();
+
     // bool succeeded = true;
     // while (succeeded) {
     //     auto * front = processorDeleteQueue.peek();
