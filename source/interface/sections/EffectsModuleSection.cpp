@@ -3,22 +3,45 @@
 //
 
 #include "EffectsModuleSection.h"
-#include "ModuleSection.h"
-#include "synth_gui_interface.h"
-#include "Processors/ProcessorBase.h"
-#include "modulation_manager.h"
-#include "synth_base.h"
+
 #include "EffectList.h"
+#include "ModuleSection.h"
+#include "Processors/ProcessorBase.h"
+#include "about_section.h"
+#include "mapping_manager.h"
+#include "synth_base.h"
+#include "synth_gui_interface.h"
+#include "FxDragCoordinator.h"
 
 namespace {
 // Drag-mode boundary bands between adjacent non-dragged modules: pool size and
 // band height (centered on the shared module edge, in logical units).
 constexpr int kMaxDragBoundaryBands = 16;
 constexpr int kDragBoundaryBandHeight = 8;
+constexpr float kExternalTransferDimAlpha = 0.38f;
+constexpr float kInsertionPreviewAlpha = 0.18f;
 
-class FxAddButtonBackground final : public OpenGlImageComponent {
+juce::String getEffectTypeDisplayName(const juce::String& type) {
+    // UI labels are kept separate from persistent type tokens. Adding a future
+    // effect only requires one entry here; unknown tokens still receive a usable
+    // title rather than retaining the processor UUID-based editor name.
+    static const std::map<juce::String, juce::String> display_names {
+        { "filt", "Filter" },
+        { "delay", "Delay" },
+    };
+
+    if (const auto found = display_names.find(type); found != display_names.end())
+        return found->second;
+
+    auto fallback = type.replaceCharacters("_-", "  ").trim();
+    if (fallback.isEmpty())
+        return "Effect";
+    return fallback.substring(0, 1).toUpperCase() + fallback.substring(1);
+}
+
+class AddButtonBackground final : public OpenGlImageComponent {
 public:
-    FxAddButtonBackground() : OpenGlImageComponent("effect_add_button_background") {
+    AddButtonBackground() : OpenGlImageComponent("effect_add_button_background") {
         setInterceptsMouseClicks(false, false);
     }
 
@@ -27,6 +50,7 @@ public:
     }
 
     void paintToImage(juce::Graphics& g) override {
+
         const auto bounds = getLocalBounds().toFloat().reduced(1.0f);
         const auto base = findColour(Skin::kBorder, true);
         g.setColour(findColour(Skin::kBackground, true).withAlpha(0.45f));
@@ -36,17 +60,18 @@ public:
                                       base.darker(0.10f), 0.0f, bounds.getBottom(), false);
         g.setGradientFill(gradient);
         g.fillRoundedRectangle(bounds, 5.0f);
+
     }
 };
 }
 
-EffectModuleSection::EffectModuleSection(ModulationManager *m, EffectList &module_list,const juce::ValueTree &v, juce::UndoManager& um) :
-ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRectangleFragment)), state(v), undo(um)
+EffectModuleSection::EffectModuleSection(MappingManager *m, EffectList &module_list,const juce::ValueTree &v, juce::UndoManager& um) :
+mapping_manager_ (m),ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRectangleFragment)), state(v), undo(um)
 {
     scroll_bar_ = std::make_unique<OpenGlScrollBar>();
     addAndMakeVisible(scroll_bar_.get());
     addOpenGlComponent(scroll_bar_->getGlComponent());
-    addOpenGlComponent(footer_body);
+    container_->addOpenGlComponent(footer_body);
 
     setLookAndFeel(DefaultLookAndFeel::instance());
     scroll_bar_->addListener(this);
@@ -79,15 +104,13 @@ ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRect
     routing_combo_box_->setSelectedId(1, juce::dontSendNotification);
     routing_combo_box_->setInterceptsMouseClicks(false, false);
     routing_combo_box_->setWantsKeyboardFocus(false);
-    addAndMakeVisible(routing_combo_box_.get());
-    addOpenGlComponent(routing_combo_box_->getImageComponent());
 
-    add_effect_button_background_ = std::make_shared<FxAddButtonBackground>();
-    addOpenGlComponent(add_effect_button_background_);
+    add_effect_button_background_ = std::make_shared<AddButtonBackground>();
+    container_->addOpenGlComponent(add_effect_button_background_);
 
     add_effect_button_ = std::make_unique<OpenGlShapeButton>("Add Effect");
-    addAndMakeVisible(add_effect_button_.get());
-    addOpenGlComponent(add_effect_button_->getGlComponent());
+    container_->addAndMakeVisible(add_effect_button_.get());
+    container_->addOpenGlComponent(add_effect_button_->getGlComponent());
     add_effect_button_->addListener(this);
     add_effect_button_->addMouseListener(this, false);
     add_effect_button_->setShape(Paths::plus(150));
@@ -127,13 +150,89 @@ ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRect
     drag_boundary_bands_->setScissorComponent(&viewport_);
     container_->addOpenGlComponent(drag_boundary_bands_);
 
+    // Intent-only content overlays. They never cover the fixed header. The dim pass
+    // is added first so the armed lane's pale highlight remains readable above it.
+    external_transfer_dim_ = std::make_shared<OpenGlQuad>(
+        Shaders::kRoundedRectangleFragment, "effect_external_transfer_dim");
+    external_transfer_dim_->setInterceptsMouseClicks(false, false);
+    external_transfer_dim_->setAlwaysOnTop(true);
+    external_transfer_dim_->setColor(juce::Colours::black);
+    external_transfer_dim_->setAlpha(0.0f, true);
+    addOpenGlComponent(external_transfer_dim_);
+
+    external_transfer_highlight_ = std::make_shared<OpenGlQuad>(
+        Shaders::kRoundedRectangleFragment, "effect_external_transfer_highlight");
+    external_transfer_highlight_->setInterceptsMouseClicks(false, false);
+    external_transfer_highlight_->setAlwaysOnTop(true);
+    external_transfer_highlight_->setAlpha(0.0f, true);
+    addOpenGlComponent(external_transfer_highlight_);
+
     toggle_button_->setVisible(false);
     setInterceptsMouseClicks(true,true);
 
+    // initialize routing UI
+    if (module_list.getAudioNodeDescriptor().hasOutput) { // if this module supports outputs...
+        electrosynth::EndpointDescriptor output { // give it an output audio port address
+            .address {
+                .type = electrosynth::ConnectionType::Audio,
+                .nodeId = module_list.getNodeId(),
+                .endpointId = module_list.getAudioNodeDescriptor().outputPortId,
+                .direction = electrosynth::EndpointDirection::Source,
+                .audioDomain = module_list.getAudioNodeDescriptor().domain
+            },
+            .capabilities {
+                .maxIncomingConnections = 0
+            }
+        };
+
+        // make the UI arrow
+        lane_output_port_ = std::make_shared<EndpointArrowComponent>("audio_output", std::move(output));
+        addOpenGlComponent(lane_output_port_);
+
+        lane_output_slots_ = std::make_unique<ConnectionSlots>(*lane_output_port_);
+        addSubSection(lane_output_slots_.get());
+        lane_output_slots_->setConnections({});
+    }
+
+    if (module_list.getAudioNodeDescriptor().hasInput) { // if this module supports inputs...
+        electrosynth::EndpointDescriptor input { // give it an output audio port address
+            .address {
+                .type = electrosynth::ConnectionType::Audio,
+                .nodeId = module_list.getNodeId(),
+                .endpointId = module_list.getAudioNodeDescriptor().inputPortId,
+                .direction = electrosynth::EndpointDirection::Destination,
+                .audioDomain = module_list.getAudioNodeDescriptor().domain
+            },
+            .capabilities {
+                .hasAmount = true,
+                .maxIncomingConnections = 64
+            }
+        };
+        lane_input_port_ = std::make_shared<EndpointArrowComponent>("audio_input", std::move(input));
+        addOpenGlComponent(lane_input_port_);
+
+        lane_input_slots_ = std::make_unique<ConnectionSlots>(*lane_input_port_);
+        addSubSection(lane_input_slots_.get());
+        lane_input_slots_->setConnections({});
+    }
+
+    if (mapping_manager_ != nullptr) {
+        if (lane_output_port_)
+            mapping_manager_->registerEndpoint(*lane_output_port_);
+
+        if (lane_input_port_)
+            mapping_manager_->registerEndpoint(*lane_input_port_);
+    }
     setSkinOverride(Skin::kFx);
 }
 
 EffectModuleSection::~EffectModuleSection() {
+    if (mapping_manager_ != nullptr) {
+        if (lane_input_port_ != nullptr) mapping_manager_->unregisterEndpoint(*lane_input_port_);
+        if (lane_output_port_ != nullptr) mapping_manager_->unregisterEndpoint(*lane_output_port_);
+    }
+   if (drag_coordinator_ != nullptr)
+       drag_coordinator_->unregisterLane(*this);
    module_sections.clear();
 }
 
@@ -155,12 +254,6 @@ void EffectModuleSection::handlePopupResult(int result) {
         undo.beginNewTransaction();
         list.appendChild(t, &undo);
     }
-    // } else if (result == 3) {
-    //     juce::ValueTree t(IDs::EffectMODULE);
-    //     t.setProperty(IDs::type, "string", nullptr);
-    //     list.appendChild(t, nullptr);
-    // }
-
 }
 
 
@@ -173,72 +266,141 @@ void EffectModuleSection::setEffectPositions() {
     // (the old "preserve scroll" pattern) returned an already-clobbered value.
     const auto view_position = viewport_.getViewPosition();
 
-    // No vertical gap between stacked FX modules (FX-local; SoundModuleSection unaffected).
-    int padding = 0;
-    int start_y = 0;
+    // Keep FX modules inside the lane border and use the same skin metric between
+    // modules. All drag/drop geometry below derives from these bounds.
+    const int module_padding = std::max(0, static_cast<int>(findValue(Skin::kPadding)));
+    const int module_x = module_padding;
+    const int module_width = std::max(0, viewport_.getWidth() - 2 * module_padding);
+    int start_y = module_padding;
     juce::Rectangle<int> gap_bounds;
     // Boundaries between two adjacent non-dragged modules; edges touching the
     // insertion gap are excluded (the gap region itself marks those).
     std::vector<int> boundary_ys;
     bool previous_was_module = false;
 
+    std::map<juce::String, int> type_counts;
+    int laid_out_module_count = 0;
+    int lane_number = static_cast<int>(state.getProperty(IDs::effect_lane)) + 1;
     for (int i = 0; i < module_sections.size(); ++i) {
         ModuleSection* section = module_sections[i].get();
+        const auto type = section->state.getProperty(IDs::type).toString();
+        section->setName(getEffectTypeDisplayName(type) + " "
+                         + juce::String(lane_number) + "."
+                         + juce::String(++type_counts[type]));
 
-        // During a drag the dragged module floats at its pointer-driven position;
-        // its slot in the stack stays open as the insertion gap.
-        if (section == dragged_module_) {
-            gap_bounds = { 0, start_y, getWidth(), section->height };
-            start_y += section->height + padding;
+        // Once a destination is entered, the source wrapper contributes no height.
+        if (section == dragged_module_ && external_source_excluded_) {
             previous_was_module = false;
             continue;
         }
 
+        if (external_target_preview_active_
+            && laid_out_module_count == external_target_insertion_index_) {
+            gap_bounds = { module_x, start_y, module_width, external_target_gap_height_ };
+            start_y += external_target_gap_height_ + module_padding;
+            previous_was_module = false;
+        }
+
+        // During a same-lane drag the module floats at its pointer-driven position;
+        // its slot in the stack stays open as the insertion gap.
+        if (section == dragged_module_) {
+            gap_bounds = { module_x, start_y, module_width, section->height };
+            start_y += section->height + module_padding;
+            previous_was_module = false;
+            continue;
+        }
         if (previous_was_module)
-            boundary_ys.push_back(start_y);
+            boundary_ys.push_back(start_y - module_padding / 2);
         previous_was_module = true;
 
         // Size each FX module from its contained view's dynamic row layout instead of the
         // full viewport height. Set bounds once first so the FX view gets its width and can
         // compute a width-dependent row count, then read the preferred height and apply it.
         // (FX-local: SoundModuleSection sizes its modules separately.)
-        section->setBounds(0, start_y, getWidth(), section->height);
+        section->setBounds(module_x, start_y, module_width, section->height);
         section->height = section->getPreferredHeight();
         section->setDrawBottomSeparator(i + 1 < module_sections.size());
-        section->setBounds(0, start_y, getWidth(), section->height);
-        start_y += section->height + padding;
+        section->setBounds(module_x, start_y, module_width, section->height);
+        start_y += section->height + module_padding;
+        ++laid_out_module_count;
     }
 
-    // setSize (not setBounds): the container's origin belongs to the viewport's scroll
-    // logic; any explicit origin here was immediately overwritten by setViewPosition.
-    container_->setSize(viewport_.getWidth(), start_y);
-    viewport_.setViewPosition(view_position);
+    if (external_target_preview_active_
+        && external_target_insertion_index_ == laid_out_module_count) {
+        gap_bounds = { module_x, start_y, module_width, external_target_gap_height_ };
+        start_y += external_target_gap_height_ + module_padding;
+    }
+
+    // // Callista footer: keep the add affordance in the scrollable FX content after the
+    // // final module instead of consuming fixed header space.
+    // const int button_size = std::max(0, static_cast<int>(findValue(Skin::kAddButtonSize)));
+    // const int footer_top_gap = 10;
+    // const int footer_bottom_padding = std::max(10, module_padding);
+    // const int footer_y = start_y;
+    // const int button_y = footer_y + footer_top_gap;
+    // const int footer_height = footer_top_gap + button_size + footer_bottom_padding;
+    // const int button_x = std::max(0, (viewport_.getWidth() - button_size) / 2);
+    //
+    // footer_body->setBounds(0, footer_y, viewport_.getWidth(), footer_height);
+    // add_effect_button_->setBounds(button_x, button_y, button_size, button_size);
+    // add_effect_button_background_->setBounds(add_effect_button_->getBounds().reduced(4));
+    //
+    // // setSize (not setBounds): the container's origin belongs to the viewport's scroll
+    // // logic; any explicit origin here is overwritten by setViewPosition.
+    // container_->setSize(viewport_.getWidth(), footer_y + footer_height);
+    // viewport_.setViewPosition(view_position);
 
     if (insertion_region_ != nullptr) {
-        if (dragged_module_ != nullptr && !gap_bounds.isEmpty())
+        if ((dragged_module_ != nullptr || external_target_preview_active_) && !gap_bounds.isEmpty()) {
             insertion_region_->setBounds(gap_bounds);  // container coordinates
+            // Layout may temporarily have no gap while a source-owned wrapper is
+            // excluded and then re-entered as an external target. Reassert alpha
+            // whenever the gap is valid so a prior empty layout cannot leave the
+            // source lane's red target permanently invisible.
+            insertion_region_->setAlpha(kInsertionPreviewAlpha);
+        }
         else
             insertion_region_->setAlpha(0.0f);
     }
 
     if (drag_boundary_bands_ != nullptr) {
         const int num_bands = std::min((int)boundary_ys.size(), kMaxDragBoundaryBands);
-        if (dragged_module_ != nullptr && num_bands > 0 && start_y > 0) {
+        const bool show_same_lane_bands = dragged_module_ != nullptr
+                                       && !external_source_excluded_;
+        if ((show_same_lane_bands || external_target_preview_active_)
+            && num_bands > 0 && start_y > 0) {
             // The multi-quad spans the whole container; each band is placed in the
             // quad's normalized GL space (y up, so the component top maps to +1).
             drag_boundary_bands_->setBounds(0, 0, viewport_.getWidth(), start_y);
             drag_boundary_bands_->setNumQuads(num_bands);
             const float total_height = (float)start_y;
             const float band_height_gl = 2.0f * kDragBoundaryBandHeight / total_height;
+            const float lane_width = static_cast<float>(std::max(1, viewport_.getWidth()));
+            const float band_left_gl = -1.0f + 2.0f * module_x / lane_width;
+            const float band_width_gl = 2.0f * module_width / lane_width;
             for (int i = 0; i < num_bands; ++i) {
                 const float band_bottom = boundary_ys[i] + kDragBoundaryBandHeight / 2.0f;
-                drag_boundary_bands_->setQuad(i, -1.0f, 1.0f - 2.0f * band_bottom / total_height,
-                                              2.0f, band_height_gl);
+                drag_boundary_bands_->setQuad(i, band_left_gl,
+                                              1.0f - 2.0f * band_bottom / total_height,
+                                              band_width_gl, band_height_gl);
             }
         }
         else
             drag_boundary_bands_->setNumQuads(0);
     }
+
+    const int button_width = static_cast<int>(findValue(Skin::kAddButtonSize));
+    const int button_x = viewport_.getWidth() / 2 - button_width / 2;
+    const int button_y = start_y + 10;
+    const int footer_padding = 35;
+    const int container_height = button_y + button_width + footer_padding;
+
+    container_->setSize(viewport_.getWidth(), container_height);
+
+    footer_body->setBounds(0, button_y, viewport_.getWidth(), findValue(Skin::kLargePadding));
+    add_effect_button_->setBounds(button_x, button_y, button_width, button_width);
+    add_effect_button_background_->setBounds(add_effect_button_->getBounds().reduced(4));
+    viewport_.setViewPosition(view_position);
 }
 
 
@@ -278,20 +440,20 @@ std::map<std::string, SynthSlider *> EffectModuleSection::getAllSliders() {
 }
 
 void EffectModuleSection::moduleAdded(ProcessorBase *newModule) {
-    auto module_section = std::make_unique<ModuleSection>(newModule->state,std::move (newModule->createEditor()), undo);
+    auto module_section = std::make_unique<ModuleSection>(newModule->state, newModule->getAudioNodeDescriptor(),
+        std::move (newModule->createEditor()), undo, mapping_manager_);
+
+
     module_section->setAreaSkinOverride(Skin::kFx);
     module_section->setDragAccentColor(Skin::kFXAccent);
     module_section->height = 300;
-    module_section->onDragMove = [this](ModuleSection* dragged, juce::Rectangle<int> bounds) {
-        updateDragSession(dragged, bounds);
-    };
-    module_section->onDragEnd = [this](ModuleSection* dragged, juce::Rectangle<int>) {
-        endDragSession(dragged);
-    };
+    configureModuleSectionDragCallbacks(*module_section);
 
-    { juce::ScopedLock lock(open_gl_critical_section_);
+    {
+        juce::ScopedLock lock(open_gl_critical_section_);
         container_->addSubSection(module_section.get());
     }
+
     module_section->applySkinFromTopLevel();
     module_section->setInterceptsMouseClicks(true, true);
     parentHierarchyChanged();
@@ -308,14 +470,12 @@ void EffectModuleSection::moduleAdded(ProcessorBase *newModule) {
         listener->added();
     }
     auto interface = findParentComponentOfClass<SynthGuiInterface>();
+
     for (auto sub : sub_sections_) {
             OpenGlComponent::setScissorBounds(sub, viewport_.getLocalBounds(), *interface->getOpenGlWrapper());
             for (auto slider : sub->all_sliders_) {
                 //slider.second->setScissor(this, open_gl);
                 slider.second->setScissorComponent(&viewport_);
-            }
-            for (auto component : sub->open_gl_components_) {
-                component->setScissorComponent(&viewport_);
             }
         }
         container_->setScissorComponent(&viewport_);
@@ -334,42 +494,120 @@ void EffectModuleSection::moduleAdded(ProcessorBase *newModule) {
         }
 
 }
+
+void EffectModuleSection::configureModuleSectionDragCallbacks(ModuleSection& module) {
+    module.onDragStart = [this](ModuleSection* dragged, juce::Point<int> screen) {
+        if (drag_coordinator_ != nullptr)
+            drag_coordinator_->dragStarted(*this, *dragged, screen);
+    };
+    module.onDragMove = [this](ModuleSection* dragged, juce::Rectangle<int> bounds,
+                                        juce::Point<int> screen) {
+        if (drag_coordinator_ != nullptr)
+            drag_coordinator_->dragMoved(*dragged, screen);
+        if (drag_coordinator_ == nullptr || !drag_coordinator_->isExternalPreviewActive(dragged))
+            updateDragSession(dragged, bounds);
+    };
+    module.onDragEnd = [this](ModuleSection* dragged, juce::Rectangle<int>,
+                                       juce::Point<int> screen) {
+        if (drag_coordinator_ != nullptr && drag_coordinator_->ownsDrag(dragged))
+            drag_coordinator_->dragEnded(*dragged, screen);
+        else if (dragged_module_ == dragged)
+            endDragSession(dragged);
+    };
+}
+
+bool EffectModuleSection::transferModuleTo(EffectModuleSection& target,
+                                           ProcessorBase* processor,
+                                           int targetEffectIndex) {
+    if (processor == nullptr || &target == this)
+        return false;
+
+    const auto found = std::find_if(module_sections.begin(), module_sections.end(),
+                                    [processor](const auto& section) {
+                                        return section != nullptr
+                                            && section->state == processor->state;
+                                    });
+    if (found == module_sections.end())
+        return false;
+
+    auto transferred = std::move(*found);
+    module_sections.erase(found);
+    auto* raw = transferred.get();
+
+    {
+        juce::ScopedLock sourceLock(open_gl_critical_section_);
+        container_->setBakeExcludedChild(nullptr);
+        container_->removeSubSection(raw);
+    }
+
+    dragged_module_ = nullptr;
+    drop_target_module_ = nullptr;
+    external_source_excluded_ = false;
+    external_target_preview_active_ = false;
+    external_target_insertion_index_ = -1;
+    external_target_gap_height_ = 0;
+    external_gap_move_centre_y_ = 0;
+    external_gap_move_direction_ = 0;
+    insertion_region_->setAlpha(0.0f);
+    drag_boundary_bands_->setAlpha(0.0f);
+    drag_boundary_bands_->setNumQuads(0);
+    juce::Component::beginDragAutoRepeat(0);
+
+    target.clearExternalTargetPreview();
+    target.configureModuleSectionDragCallbacks(*raw);
+    const int insertionIndex = juce::jlimit(0,
+        static_cast<int>(target.module_sections.size()), targetEffectIndex);
+    target.module_sections.insert(target.module_sections.begin() + insertionIndex,
+                                  std::move(transferred));
+    {
+        juce::ScopedLock targetLock(target.open_gl_critical_section_);
+        target.container_->addSubSection(raw);
+    }
+    raw->setVisible(true);
+    raw->setInterceptsMouseClicks(true, true);
+    raw->setHorizontalDragOwnedExternally(false);
+    raw->setExternallyVisualHosted(false);
+    raw->setAlwaysOnTop(false);
+    raw->setDragVisual(ModuleSection::DragVisual::kNormal);
+    target.setModuleDragScissor(*raw, &target.viewport_);
+    raw->applySkinFromTopLevel();
+
+    setEffectPositions();
+    target.setEffectPositions();
+    redoBackgroundImage();
+    target.redoBackgroundImage();
+    for (auto* listener : listeners_)
+        listener->removed();
+    for (auto* listener : target.listeners_)
+        listener->added();
+    return true;
+}
 void EffectModuleSection::resized() {
     //ModulesInterface::resized();
     static constexpr float kEffectOrderWidthPercent = 0.2f;
-    static constexpr int kHeaderSidePadding = 6;
-    static constexpr int kHeaderControlGap = 4;
-    static constexpr int kRoutingControlHeight = 14;
-    static constexpr int kAddButtonSize = 34;
-    static constexpr int kHeaderControlsHeight = kAddButtonSize;
 
     ScopedLock lock(open_gl_critical_section_);
 
     const int title_width = static_cast<int>(getTitleWidth());
-    const int header_height = title_width + kHeaderControlsHeight;
+    const int header_height = title_width;
 
     int order_width = getWidth() * kEffectOrderWidthPercent;
     //    effect_order_->setBounds(0, 0, order_width, getHeight());
     //    effect_order_->setSizeRatio(size_ratio_);
-    int large_padding = findValue(Skin::kLargePadding);
-    int shadow_width = getComponentShadowWidth();
-    int viewport_x = 0 + large_padding - shadow_width;
-    int viewport_width = getWidth() - viewport_x - large_padding + 2 * shadow_width;
     auto area = getLocalBounds();
     auto header = area.removeFromTop(30);
     toggle_button_->setBounds(0,0,getTitleWidth(),getTitleWidth());
+
     if (isExpanded()) {
         viewport_.setVisible(true);
         container_->setVisible(true);
-        viewport_.setBounds(0, header_height, getWidth(), std::max(0, getHeight() - header_height - 2));
+        viewport_.setBounds(0, header_height, getWidth(),
+                            std::max(0, getHeight() - header_height - 2));
         setEffectPositions();
-        scroll_bar_->setBounds(getWidth() - large_padding, header_height + large_padding,
-                               large_padding - 2,
-                               std::max(0, getHeight() - header_height - (large_padding + 2 * shadow_width)));
-        // Match the shared audio-chain scrollbar instead of using the FX accent.
-        // The look-and-feel stores the global skin values, so this remains theme-aware
-        // without resolving through this section's red Skin::kFx override.
-        scroll_bar_->setColor(getLookAndFeel().findColour(Skin::kWidgetPrimary1));
+        // The external scrollbar remains connected to the viewport for range/state
+        // synchronization but is intentionally not added to the visible component or
+        // OpenGL trees. Wheel/trackpad scrolling continues through the viewport.
+        //scroll_bar_->setColor(getLookAndFeel().findColour(Skin::kWidgetPrimary1));
 
         // Clip every live child to the FX viewport while scrolling, matching
         // SoundModuleSection::resized(). Without this, scrolled FX child content is not
@@ -402,30 +640,32 @@ void EffectModuleSection::resized() {
 
     SynthSection::resized();
     redoBackgroundImage();
-    //ooter_body->setBounds(0,getHeight()-1, getWidth(), getTitleWidth());
+    //footer_body->setBounds(0,getHeight()-1, getWidth(), getTitleWidth());
     footer_body->setRounding(findValue(Skin::kBodyRounding));
     footer_body->setColor(findColour(Skin::kBody, true));
 
-    header_body_->setBounds(0, 0, getWidth(), header_height);
+    header_body_->setBounds(0, 0, getWidth(), title_width);
+    auto header_bounds = header_body_->getBounds();
     header_body_->setColor(findColour(Skin::kBodyHeading, true));
-    header_title_->setBounds(0, 0, getWidth(), title_width);
+
+    header_title_->setBounds(header_bounds);
     header_title_->setText(getName());
     header_title_->setTextSize(size_ratio_ * 14.0f);
     header_title_->setColor(findColour(Skin::kHeadingText, true));
 
-    const int controls_y = title_width;
-    const int controls_height = kHeaderControlsHeight;
-    const int available_width = std::max(0, getWidth() - 2 * kHeaderSidePadding);
-    const int button_size = std::min(kAddButtonSize, available_width);
-    const int gap = available_width > button_size ? kHeaderControlGap : 0;
-    const int combo_width = std::max(0, available_width - button_size - gap);
-    const int control_height = std::min(kRoutingControlHeight, controls_height);
-    const int control_y = controls_y + (controls_height - control_height) / 2;
+    external_transfer_highlight_->setBounds(viewport_.getBounds());
+    external_transfer_highlight_->setColor(findColour(Skin::kLightenScreen, true));
+    external_transfer_highlight_->setRounding(
+        std::max(0.5f, findValue(Skin::kBodyRounding)));
+    external_transfer_highlight_->setScissorComponent(&viewport_);
+    external_transfer_dim_->setBounds(viewport_.getBounds());
+    external_transfer_dim_->setRounding(
+        std::max(0.5f, findValue(Skin::kBodyRounding)));
+    external_transfer_dim_->setScissorComponent(&viewport_);
 
-    routing_combo_box_->setBounds(kHeaderSidePadding, control_y, combo_width, control_height);
-    const int button_x = getWidth() - kHeaderSidePadding - button_size;
-    const int button_y = controls_y + (controls_height - button_size) / 2;
-    add_effect_button_->setBounds(button_x, button_y, button_size, button_size);
+    routing_combo_box_->setBounds(0, 0, 0, 0);
+    // routing_combo_box_->setBounds(kHeaderSidePadding, control_y, combo_width, control_height);
+
     add_effect_button_background_->setBounds(add_effect_button_->getBounds().reduced(4));
     add_effect_button_->setColour(Skin::kIconButtonOff, findColour(Skin::kIconButtonOff, true));
     add_effect_button_->setColour(Skin::kIconButtonOffHover, findColour(Skin::kIconButtonOffHover, true));
@@ -443,7 +683,37 @@ void EffectModuleSection::resized() {
         border->setRounding(border_rounding);
         border->setThickness(1.0f, true);
     }
+
+    static constexpr int kLanePortSize = 24;
+    static constexpr int kLanePortInset = 6;
+    static constexpr int kConnectionSlotSpacing = 2;
+
+    const int port_y = (title_width - kLanePortSize) / 2;
+
+    if (lane_input_port_) {
+        lane_input_port_->setBounds(kLanePortInset, port_y, kLanePortSize, kLanePortSize);
+
+        lane_input_slots_->setBounds(
+            lane_input_port_->getRight() + kConnectionSlotSpacing,
+            lane_input_port_->getY(),
+            ConnectionSlots::kPreferredWidth,
+            lane_input_port_->getHeight());
+    }
+
+    if (lane_output_port_) {
+        lane_output_port_->setBounds(getWidth() - kLanePortInset - kLanePortSize,
+            port_y, kLanePortSize, kLanePortSize);
+
+        lane_output_slots_->setBounds(
+            lane_output_port_->getX()
+                - kConnectionSlotSpacing
+                - ConnectionSlots::kPreferredWidth,
+            lane_output_port_->getY(),
+            ConnectionSlots::kPreferredWidth,
+            lane_output_port_->getHeight());
+    }
 }
+
 void EffectModuleSection::removeModule(ProcessorBase *newModule) {
     // Find exactly the one module whose state matches. find_if (vs non-stable
     // std::partition) does not reorder the surviving modules.
@@ -463,7 +733,10 @@ void EffectModuleSection::removeModule(ProcessorBase *newModule) {
 
     // A removal mid-drag (undo/redo or external state change) must not leave stale
     // drag visuals or a dangling dragged-module pointer.
-    if (dragged_module_ != nullptr)
+    if (drag_coordinator_ != nullptr
+        && drag_coordinator_->getPhase() != FxDragCoordinator::Phase::Idle)
+        drag_coordinator_->cancelDrag();
+    else if (dragged_module_ != nullptr)
         clearDragSession();
 
     // Make invisible before any rebake: paintChildrenBackgrounds skips invisible
@@ -527,11 +800,11 @@ void EffectModuleSection::beginDragSession(ModuleSection* dragged) {
 
     insertion_region_->setColor(findColour(Skin::kFXAccent, true));
     insertion_region_->setRounding(std::max(0.5f, findValue(Skin::kBodyRounding)));
-    insertion_region_->setAlpha(0.18f);
+    insertion_region_->setAlpha(kInsertionPreviewAlpha);
 
     // Boundary bands share the insertion region's accent and translucency.
     drag_boundary_bands_->setColor(findColour(Skin::kFXAccent, true));
-    drag_boundary_bands_->setAlpha(0.18f);
+    drag_boundary_bands_->setAlpha(kInsertionPreviewAlpha);
 
     // Keep mouseDrag firing while the pointer rests near a viewport edge so
     // autoScroll continues without pointer movement.
@@ -554,28 +827,106 @@ void EffectModuleSection::updateDragSession(ModuleSection* dragged, juce::Rectan
     const auto mouse_in_viewport = viewport_.getMouseXYRelative();
     viewport_.autoScroll(mouse_in_viewport.x, mouse_in_viewport.y, 40, 8);
 
-    int index = indexOfModuleSection(dragged);
-    if (index < 0)
+    updateVerticalReorderPreview(*dragged, bounds, false);
+}
+
+ModuleSection* EffectModuleSection::externalPreviewModuleAt(int logicalIndex) const {
+    if (logicalIndex < 0)
+        return nullptr;
+
+    int current = 0;
+    for (const auto& section : module_sections) {
+        if (section.get() == dragged_module_ && external_source_excluded_)
+            continue;
+        if (current++ == logicalIndex)
+            return section.get();
+    }
+    return nullptr;
+}
+
+void EffectModuleSection::updateVerticalReorderPreview(
+    ModuleSection& dragged, juce::Rectangle<int> boundsInContainer, bool externalTarget,
+    bool useOverlapDisplacement) {
+    int gap_index = externalTarget ? external_target_insertion_index_
+                                   : indexOfModuleSection(&dragged);
+    if (gap_index < 0)
         return;
 
-    // Edge-crossing reorder: the dragged module pushes neighbors out of the way.
-    // Layout is refreshed after each swap so the next comparison uses live bounds.
-    // The margin adds hysteresis: for similar-height modules the swap-down and
-    // swap-back thresholds otherwise land on the same pixel and 1px of jitter
-    // (e.g. scroll rounding) makes neighbors flutter between slots.
+    const auto module_above = [this, externalTarget](int gap) -> ModuleSection* {
+        if (externalTarget)
+            return externalPreviewModuleAt(gap - 1);
+        return gap > 0 ? module_sections[gap - 1].get() : nullptr;
+    };
+    const auto module_below = [this, externalTarget](int gap) -> ModuleSection* {
+        if (externalTarget)
+            return externalPreviewModuleAt(gap);
+        return gap + 1 < static_cast<int>(module_sections.size())
+                 ? module_sections[gap + 1].get() : nullptr;
+    };
+
+    // This is the ordinary same-lane center-crossing rule. External target preview
+    // changes only how the gap index is stored; overlap, hysteresis, reflow, and
+    // target highlighting are shared with the established vertical drag path.
+    // Free target hover (useOverlapDisplacement) substitutes the ghost/module
+    // vertical-intersection rule for center crossing: a neighbor is displaced when
+    // the overlap reaches half the ghost's height or exceeds half of its own.
     static constexpr int kSwapHysteresis = 8;
+    static constexpr int kOverlapReversalHysteresis = 12;
+    const auto overlap_height = [&boundsInContainer](const ModuleSection* neighbor) {
+        return std::min(boundsInContainer.getBottom(), neighbor->getBounds().getBottom())
+             - std::max(boundsInContainer.getY(), neighbor->getBounds().getY());
+    };
+    const auto overlap_displaces = [&](const ModuleSection* neighbor) {
+        const int overlap = overlap_height(neighbor);
+        return 2 * overlap >= boundsInContainer.getHeight()
+            || 2 * overlap > neighbor->getHeight();
+    };
+    // direction: +1 moves the gap down, -1 moves it up (container Y grows downward).
+    const auto overlap_move_allowed = [&](int direction) {
+        if (!useOverlapDisplacement)
+            return true;
+        if (external_gap_move_direction_ == 0 || external_gap_move_direction_ == direction)
+            return true;
+        const int travel = direction
+                         * (boundsInContainer.getCentreY() - external_gap_move_centre_y_);
+        return travel >= kOverlapReversalHysteresis;
+    };
+    const auto record_overlap_move = [&](int direction) {
+        if (!useOverlapDisplacement)
+            return;
+        external_gap_move_centre_y_ = boundsInContainer.getCentreY();
+        external_gap_move_direction_ = direction;
+    };
     bool moved = false;
-    while (index + 1 < (int)module_sections.size()
-           && bounds.getBottom() > module_sections[index + 1]->getBounds().getCentreY() + kSwapHysteresis) {
-        std::swap(module_sections[index], module_sections[index + 1]);
-        ++index;
+    while (auto* below = module_below(gap_index)) {
+        if (useOverlapDisplacement
+                ? !(overlap_displaces(below) && overlap_move_allowed(1))
+                : boundsInContainer.getBottom()
+                      <= below->getBounds().getCentreY() + kSwapHysteresis)
+            break;
+        record_overlap_move(1);
+        if (externalTarget)
+            external_target_insertion_index_ = ++gap_index;
+        else {
+            std::swap(module_sections[gap_index], module_sections[gap_index + 1]);
+            ++gap_index;
+        }
         moved = true;
         setEffectPositions();
     }
-    while (index > 0
-           && bounds.getY() < module_sections[index - 1]->getBounds().getCentreY() - kSwapHysteresis) {
-        std::swap(module_sections[index], module_sections[index - 1]);
-        --index;
+    while (auto* above = module_above(gap_index)) {
+        if (useOverlapDisplacement
+                ? !(overlap_displaces(above) && overlap_move_allowed(-1))
+                : boundsInContainer.getY()
+                      >= above->getBounds().getCentreY() - kSwapHysteresis)
+            break;
+        record_overlap_move(-1);
+        if (externalTarget)
+            external_target_insertion_index_ = --gap_index;
+        else {
+            std::swap(module_sections[gap_index], module_sections[gap_index - 1]);
+            --gap_index;
+        }
         moved = true;
         setEffectPositions();
     }
@@ -585,12 +936,12 @@ void EffectModuleSection::updateDragSession(ModuleSection* dragged, juce::Rectan
     // The neighbor currently being overlapped (the next module to be displaced)
     // gets the subtle drop-target accent.
     ModuleSection* target = nullptr;
-    if (index + 1 < (int)module_sections.size()
-        && bounds.getBottom() > module_sections[index + 1]->getBounds().getY())
-        target = module_sections[index + 1].get();
-    else if (index > 0
-             && bounds.getY() < module_sections[index - 1]->getBounds().getBottom())
-        target = module_sections[index - 1].get();
+    if (auto* below = module_below(gap_index);
+        below != nullptr && boundsInContainer.getBottom() > below->getBounds().getY())
+        target = below;
+    else if (auto* above = module_above(gap_index);
+             above != nullptr && boundsInContainer.getY() < above->getBounds().getBottom())
+        target = above;
 
     if (target != drop_target_module_) {
         if (drop_target_module_ != nullptr)
@@ -602,21 +953,31 @@ void EffectModuleSection::updateDragSession(ModuleSection* dragged, juce::Rectan
 }
 
 void EffectModuleSection::endDragSession(ModuleSection* dragged) {
-    if (dragged != dragged_module_) {
+    finishSameLaneDrag(*dragged, true);
+}
+
+void EffectModuleSection::finishSameLaneDrag(ModuleSection& dragged, bool commit) {
+    if (&dragged != dragged_module_) {
         clearDragSession();
         return;
     }
 
-    const int ui_index = indexOfModuleSection(dragged);
+    const int ui_index = indexOfModuleSection(&dragged);
     clearDragSession();
+
+    if (!commit) {
+        restoreTreeDerivedOrder();
+        setEffectPositions();
+        redoBackgroundImage();
+        return;
+    }
 
     // Persist the previewed order: exactly one ValueTree move per drop, through the
     // undo manager. The resulting moduleOrderChanged() callback re-syncs
-    // module_sections to tree order (a no-op sort here, but it also serves undo/redo).
-    // NOTE: DSP processing order is intentionally not updated yet (deferred); the
-    // audible chain follows tree order again after preset/state reload.
-    juce::ValueTree parent_tree = dragged->state.getParent();
-    const int tree_index = parent_tree.indexOf(dragged->state);
+    // module_sections to tree order (a no-op sort here, but it also serves undo/redo)
+    // and publishes the identity-based DSP placement command.
+    juce::ValueTree parent_tree = dragged.state.getParent();
+    const int tree_index = parent_tree.indexOf(dragged.state);
     if (ui_index < 0 || tree_index < 0)
         return;
 
@@ -639,12 +1000,231 @@ void EffectModuleSection::endDragSession(ModuleSection* dragged) {
     }
 }
 
+void EffectModuleSection::restoreTreeDerivedOrder() {
+    juce::ScopedLock lock(open_gl_critical_section_);
+    std::stable_sort(module_sections.begin(), module_sections.end(),
+                     [](const auto& a, const auto& b) {
+                         const auto parent = a->state.getParent();
+                         return parent.indexOf(a->state) < parent.indexOf(b->state);
+                     });
+}
+
+juce::Rectangle<int> EffectModuleSection::getContentViewportScreenBounds() const {
+    return viewport_.getScreenBounds();
+}
+
+juce::Rectangle<int> EffectModuleSection::getExternalHostedModuleScreenBounds(
+    int draggedHeight, int pointerScreenY, int pointerOffsetY, int horizontalOffset) const {
+    const auto viewport_screen = getContentViewportScreenBounds();
+    const int module_padding = std::max(0, static_cast<int>(findValue(Skin::kPadding)));
+    return { viewport_screen.getX() + module_padding + horizontalOffset,
+             pointerScreenY - pointerOffsetY,
+             std::max(0, viewport_screen.getWidth() - 2 * module_padding),
+             std::max(1, draggedHeight) };
+}
+
+void EffectModuleSection::setExternalTransferHighlight(bool highlighted) {
+    // kLightenScreen already carries the skin's intended translucent alpha. Do not
+    // multiply it by another small value or the highlight becomes effectively invisible.
+    external_transfer_highlight_->setAlpha(highlighted ? 1.0f : 0.0f);
+}
+
+void EffectModuleSection::setExternalTransferDimmed(bool dimmed) {
+    external_transfer_dim_->setAlpha(dimmed ? kExternalTransferDimAlpha : 0.0f);
+}
+
+void EffectModuleSection::setModuleDragScissor(ModuleSection& module,
+                                               juce::Component* scissor) {
+    module.setScissorComponent(scissor);
+    for (auto& slider : module.all_sliders_)
+        slider.second->setScissorComponent(scissor);
+    for (auto& component : module.open_gl_components_)
+        component->setScissorComponent(scissor);
+    for (auto* view : module.sub_sections_) {
+        view->setScissorComponent(scissor);
+        for (auto& slider : view->all_sliders_)
+            slider.second->setScissorComponent(scissor);
+        for (auto& component : view->open_gl_components_)
+            component->setScissorComponent(scissor);
+    }
+}
+
+void EffectModuleSection::beginExternalVisualHosting(
+    ModuleSection& dragged, juce::Component& sharedContentClip) {
+    if (dragged_module_ != &dragged)
+        beginDragSession(&dragged);
+
+    // The JUCE visual parent must move to the
+    // shared clip: OpenGlComponent intersects visibility with every component
+    // ancestor, so leaving it under the narrow source container clips an otherwise
+    // correctly positioned external render to an empty rectangle. The source lane
+    // retains unique_ptr/model/processor ownership throughout. Source layout remains
+    // untouched until the hosted module's horizontal midpoint enters the target.
+    const auto preserved_screen_bounds = dragged.getScreenBounds();
+    dragged.setHorizontalDragOwnedExternally(true);
+    dragged.setExternallyVisualHosted(true);
+    dragged.setInterceptsMouseClicks(false, false);
+    sharedContentClip.addAndMakeVisible(&dragged);
+    dragged.setBounds(sharedContentClip.getLocalArea(nullptr, preserved_screen_bounds));
+    setModuleDragScissor(dragged, &sharedContentClip);
+}
+
+void EffectModuleSection::restoreExternalVisualHosting(ModuleSection& dragged) {
+    const auto preserved_screen_bounds = dragged.getScreenBounds();
+    dragged.setExternallyVisualHosted(false);
+    dragged.setInterceptsMouseClicks(true, true);
+    dragged.setHorizontalDragOwnedExternally(false);
+    container_->addAndMakeVisible(&dragged);
+    auto restored_bounds = container_->getLocalArea(nullptr, preserved_screen_bounds);
+    restored_bounds.setX(dragged.originalBounds.getX());
+    dragged.setBounds(restored_bounds);
+    setModuleDragScissor(dragged, &viewport_);
+}
+
+void EffectModuleSection::excludeExternalSourceFromLayout(ModuleSection& dragged) {
+    // Resolve provisional same-lane swaps without touching the tree, then close the
+    // source gap at the precise midpoint-snap transition.
+    restoreTreeDerivedOrder();
+    external_source_excluded_ = true;
+    for (auto& section : module_sections)
+        section->setDragVisual(section.get() == &dragged
+                                   ? ModuleSection::DragVisual::kDragged
+                                   : ModuleSection::DragVisual::kNormal);
+    insertion_region_->setAlpha(0.0f);
+    drag_boundary_bands_->setAlpha(0.0f);
+    drag_boundary_bands_->setNumQuads(0);
+    setEffectPositions();
+    redoBackgroundImage();
+}
+
+void EffectModuleSection::updateExternalHostedModuleBounds(
+    ModuleSection& dragged, juce::Rectangle<int> screenBounds,
+    juce::Component& sharedContentClip) {
+    setModuleDragScissor(dragged, &sharedContentClip);
+    if (auto* parent = dragged.getParentComponent())
+        dragged.setBounds(parent->getLocalArea(nullptr, screenBounds));
+}
+
+void EffectModuleSection::restoreExternalSourcePreview(ModuleSection& dragged) {
+    external_source_excluded_ = false;
+    restoreExternalVisualHosting(dragged);
+    restoreTreeDerivedOrder();
+    clearDragSession();
+}
+
+int EffectModuleSection::calculateExternalInsertionIndex(
+    juce::Rectangle<int> boundsInContainer) const {
+    // Initial gap placement only: count the laid-out modules whose centers sit
+    // above the ghost's center. Subsequent gap movement is owned by the shared
+    // overlap-displacement rule in updateVerticalReorderPreview.
+    const int ghost_centre_y = boundsInContainer.getCentreY();
+    int target_index = 0;
+    for (const auto& section : module_sections) {
+        if (section.get() == dragged_module_ && external_source_excluded_)
+            continue;
+        if (ghost_centre_y < section->getBounds().getCentreY())
+            return target_index;
+        ++target_index;
+    }
+    return target_index;
+}
+
+int EffectModuleSection::beginExternalTargetPreview(ModuleSection& dragged,
+                                                    juce::Point<int> pointerScreen) {
+    external_target_preview_active_ = true;
+    external_target_gap_height_ = std::max(1, dragged.getHeight());
+    external_gap_move_centre_y_ = 0;
+    external_gap_move_direction_ = 0;
+    insertion_region_->setColor(findColour(Skin::kFXAccent, true));
+    insertion_region_->setRounding(std::max(0.5f, findValue(Skin::kBodyRounding)));
+    insertion_region_->setAlpha(kInsertionPreviewAlpha);
+    drag_boundary_bands_->setColor(findColour(Skin::kFXAccent, true));
+    drag_boundary_bands_->setAlpha(kInsertionPreviewAlpha);
+    for (auto& section : module_sections)
+        section->setDragVisual(section.get() == dragged_module_ && external_source_excluded_
+                                   ? ModuleSection::DragVisual::kDragged
+                                   : ModuleSection::DragVisual::kDimmed);
+    drop_target_module_ = nullptr;
+
+    // Establish the stable entry gap from the hosted module's actual bounds in
+    // this container's (independently scrolled) coordinate space, not pointer Y.
+    const auto dragged_in_container = container_->getLocalArea(
+        nullptr, dragged.getScreenBounds());
+    external_target_insertion_index_ = calculateExternalInsertionIndex(dragged_in_container);
+    setEffectPositions();
+    redoBackgroundImage();
+    return updateExternalTargetHover(dragged, pointerScreen);
+}
+
+int EffectModuleSection::updateExternalTargetHover(ModuleSection& dragged,
+                                                   juce::Point<int> pointerScreen) {
+    if (!external_target_preview_active_)
+        return -1;
+
+    external_target_gap_height_ = std::max(1, dragged.getHeight());
+    const auto pointer_in_viewport = viewport_.getLocalPoint(nullptr, pointerScreen);
+    viewport_.autoScroll(pointer_in_viewport.x, pointer_in_viewport.y, 40, 8);
+
+    // Same shared reorder routine as vertical mode; only the displacement rule
+    // differs while the ghost floats free (ghost/module overlap vs center crossing).
+    const auto dragged_in_container = container_->getLocalArea(
+        nullptr, dragged.getScreenBounds());
+    updateVerticalReorderPreview(dragged, dragged_in_container, true, true);
+    return external_target_insertion_index_;
+}
+
+int EffectModuleSection::beginExternalTargetVerticalDrag(
+    ModuleSection& dragged, juce::Point<int> pointerScreen) {
+    return updateExternalTargetVerticalDrag(dragged, pointerScreen);
+}
+
+int EffectModuleSection::updateExternalTargetVerticalDrag(
+    ModuleSection& dragged, juce::Point<int> pointerScreen) {
+    if (!external_target_preview_active_)
+        return -1;
+
+    const auto pointer_in_viewport = viewport_.getLocalPoint(nullptr, pointerScreen);
+    viewport_.autoScroll(pointer_in_viewport.x, pointer_in_viewport.y, 40, 8);
+
+    const auto dragged_in_container = container_->getLocalArea(
+        nullptr, dragged.getScreenBounds());
+    updateVerticalReorderPreview(dragged, dragged_in_container, true);
+    return external_target_insertion_index_;
+}
+
+void EffectModuleSection::clearExternalTargetPreview() {
+    if (!external_target_preview_active_)
+        return;
+    external_target_preview_active_ = false;
+    external_target_insertion_index_ = -1;
+    external_target_gap_height_ = 0;
+    external_gap_move_centre_y_ = 0;
+    external_gap_move_direction_ = 0;
+    insertion_region_->setAlpha(0.0f);
+    drag_boundary_bands_->setAlpha(0.0f);
+    drag_boundary_bands_->setNumQuads(0);
+    drop_target_module_ = nullptr;
+    for (auto& section : module_sections)
+        section->setDragVisual(section.get() == dragged_module_ && external_source_excluded_
+                                   ? ModuleSection::DragVisual::kDragged
+                                   : ModuleSection::DragVisual::kNormal);
+    setEffectPositions();
+    redoBackgroundImage();
+}
+
 void EffectModuleSection::clearDragSession() {
     for (auto& section : module_sections)
         section->setDragVisual(ModuleSection::DragVisual::kNormal);
-    if (dragged_module_ != nullptr)
+    if (dragged_module_ != nullptr) {
+        if (dragged_module_->getParentComponent() != container_.get())
+            container_->addAndMakeVisible(dragged_module_);
+        dragged_module_->setHorizontalDragOwnedExternally(false);
+        dragged_module_->setExternallyVisualHosted(false);
+        dragged_module_->setInterceptsMouseClicks(true, true);
         dragged_module_->setAlwaysOnTop(false);
+    }
     container_->setBakeExcludedChild(nullptr);
+    external_source_excluded_ = false;
     dragged_module_ = nullptr;
     drop_target_module_ = nullptr;
     insertion_region_->setAlpha(0.0f);
@@ -773,16 +1353,14 @@ void EffectModuleSection::redoBackgroundImage() {
     background_graphics.fillAll(background);
     if (isExpanded())
         container_->paintBackground(background_graphics);
+    background_graphics.setColour(juce::Colours::aliceblue);
+    background_graphics.fillRect(juce::Rectangle<float>(0.0f, 0.0f, 1.0f, (float)height));
+    background_graphics.fillRect(juce::Rectangle<float>((float)width - 1.0f, 0.0f, 1.0f, (float)height));
     background_.setOwnImage(background_image);
 }
 
 void EffectModuleSection::paintBackground(Graphics &g) {
-    g.setColour(findColour(Skin::kBody, true));
-    g.fillRoundedRectangle(getLocalBounds().toFloat(), findValue(Skin::kBodyRounding));
-    g.setColour(findColour(Skin::kBorder, true));
-    g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(0.5f), findValue(Skin::kBodyRounding), 1.0f);
-
     paintBody(g);
-
+    paintBorder(g);
     redoBackgroundImage();
 }

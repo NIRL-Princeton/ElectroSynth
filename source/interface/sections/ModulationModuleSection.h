@@ -8,14 +8,14 @@
 #include "ModuleList.h"
 class ModulatorBase;
 class ModulationSection;
-class ModulationManager;
+class MappingManager;
 class ModulationModuleSection : public ModulesInterface<ModulatorBase>
 {
 public:
     static constexpr int kTabStripHeight = 34;
     static constexpr int kMaxTabs = 8;
 
-    ModulationModuleSection( ModulationManager*,ModuleList<ModulatorBase>&, juce::UndoManager& um);
+    ModulationModuleSection( MappingManager*,ModuleList<ModulatorBase>&, juce::UndoManager& um);
     virtual ~ModulationModuleSection();
 
      void effectsScrolled(int position) override {
@@ -43,9 +43,10 @@ public:
     void scrollBarMoved(ScrollBar *scrollBarThatHasMoved, double newRangeStart) override;
     void setScrollBarRange() override;
     void buttonClicked(juce::Button* button) override;
-    std::map<std::string, ModulationButton*> getAllModulationButtons() override;
+    std::map<std::string, ConnectionButton*> getAllModulationButtons() override;
+    void setVCAModulationSection(SynthSection* section, std::shared_ptr<ConnectionButton> mod_button);
 
-     ModulationManager* modulation_manager;
+     MappingManager* modulation_manager;
      std::shared_ptr<OpenGlQuad> header_body_;
      std::shared_ptr<PlainTextComponent> header_title_;
      std::vector<std::unique_ptr<ModulationSection>> module_sections;
@@ -64,7 +65,12 @@ public:
     juce::UndoManager& undo;
 private:
     void updateTabs();
-    int selected_tab_ = 0;
+    static constexpr int kDefaultTab = -1;
+    int getVisibleTabCount() const;
+    bool hasVCATab() const { return master_env_section_ != nullptr; }
+    int selected_tab_ = kDefaultTab;
+    SynthSection* master_env_section_ = nullptr;
+    std::shared_ptr<ConnectionButton> master_env_button_;
 };
 
 #endif //ELECTROSYNTH_ModulationMODULESECTION_H

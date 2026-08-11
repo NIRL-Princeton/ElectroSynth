@@ -19,17 +19,21 @@
 
 #include <chowdsp_dsp_data_structures/chowdsp_dsp_data_structures.h>
 #include <juce_dsp/juce_dsp.h>
+#include <atomic>
+#include <cstdint>
+#include <deque>
+#include <optional>
 #include <set>
 #include <string>
+#include <type_traits>
+#include <vector>
 #include "midi_manager.h"
-#include <set>
-#include <string>
 #include "leaf.h"
 #include "ModulationWrapper.h"
 #include "ModulationConnection.h"
 #include "circular_queue.h"
-#include "ModulationConnection.h"
 #include "ModuleList.h"
+#include "ConnectionRecord.h"
 class RoutingProcessor;
 class ProcessorBase;
 class ModulatorBase;
@@ -62,16 +66,16 @@ public:
 
     void presetChangedThroughMidi(juce::File preset) override;
 
-    std::vector<electrosynth::ModulationConnection *> getSourceConnections(const std::string &source);
+    std::vector<electrosynth::Connection *> getSourceConnections(const std::string &source);
 
-    std::vector<electrosynth::ModulationConnection *> getDestinationConnections(const std::string &destination);
+    std::vector<electrosynth::Connection *> getDestinationConnections(const std::string &destination);
 
-    electrosynth::ModulationConnection *getConnection(const std::string &source, const std::string &destination,
+    electrosynth::Connection *getConnection(const std::string &source, const std::string &destination,
                                                       int destination_slot = -1);
 
     bool loadFromFile(File preset, std::string &error);
 
-    std::unique_ptr<electrosynth::ModulationConnection>
+    std::unique_ptr<electrosynth::Connection>
     createConnection(const std::string &from, const std::string &to);
 
     bool hasSourceDestinationConnection(const std::string &source, const std::string &destination) const;
@@ -79,13 +83,15 @@ public:
     bool connectModulation(const std::string &source, const std::string &destination,
                            int destination_slot = -1);
 
-    void connectModulation(electrosynth::ModulationConnection *connection);
+    bool connect(const electrosynth::ConnectionRecord& connection);
+
+    void connectModulation(electrosynth::Connection *connection);
 
     int getSampleRate();
 
     void initEngine();
 
-    electrosynth::ModulationConnectionBank &getModulationBank();
+    electrosynth::ConnectionBank &getModulationBank();
 
     void setPresetName(const juce::String &preset_name);
 
@@ -159,6 +165,29 @@ public:
 
     void addEffect(std::unique_ptr<ProcessorBase> processor, int lane);
 
+    struct EffectOrderCommand {
+        int lane = -1;
+        int targetLane = -1;
+        ProcessorBase* movedProcessor = nullptr;
+        ProcessorBase* nextProcessor = nullptr;
+        std::uint64_t generation = 0;
+    };
+    static_assert(std::is_trivially_copyable_v<EffectOrderCommand>);
+
+    void submitEffectOrder(int lane, ProcessorBase* movedProcessor, ProcessorBase* nextProcessor);
+    void submitEffectMove(int sourceLane, int targetLane,
+                          ProcessorBase* movedProcessor, ProcessorBase* nextProcessor);
+    void registerEffectList(EffectList* effectList);
+    void unregisterEffectList(EffectList* effectList);
+
+    std::uint64_t getLastAdoptedEffectOrderGeneration() const noexcept {
+        return lastAdoptedEffectOrderGeneration_.load(std::memory_order_acquire);
+    }
+
+    std::uint64_t getRejectedEffectOrderCommandCount() const noexcept {
+        return rejectedEffectOrderCommandCount_.load(std::memory_order_relaxed);
+    }
+
     void addModulationSource(std::unique_ptr<ModulatorBase> processor, int voice_index);
 
     // juce::ValueTree& getValueTree();
@@ -177,18 +206,41 @@ public:
 
     void clearActiveFile() { active_file_ = File(); }
     File getActiveFile() { return active_file_; }
-    electrosynth::CircularQueue<electrosynth::ModulationConnection *> mod_connections_;
+    electrosynth::CircularQueue<electrosynth::Connection *> mod_connections_;
     moodycamel::ConcurrentQueue<electrosynth::mapping_change> modulation_change_queue_;
 
-    void disconnectModulation(electrosynth::ModulationConnection *connection);
+    void disconnectModulation(electrosynth::Connection *connection);
 
     void disconnectModulation(const std::string &source, const std::string &destination);
+
+    void disconnectModulationsForDestinationProcessor(const std::string& processor_name);
 
     void processMappingChanges();
 
     int getNumModulations(const std::string &destination);
 
     void timerCallback() override;
+
+private:
+    static constexpr std::size_t kEffectOrderQueueCapacity = 64;
+
+    void drainEffectOrderQueue();
+    void completeEffectOrderCommand(const EffectOrderCommand& command);
+    bool applyEffectOrderCommand(const EffectOrderCommand& command);
+    void flushPendingEffectOrderCommands();
+    void reconcileEffectOrders();
+
+    moodycamel::ReaderWriterQueue<EffectOrderCommand> effectOrderQueue_{kEffectOrderQueueCapacity};
+    std::deque<EffectOrderCommand> pendingEffectOrderCommands_;
+    std::optional<EffectOrderCommand> activeEffectOrderCommand_;
+    std::optional<EffectOrderCommand> deferredEffectOrderCommand_;
+    std::vector<EffectList*> registeredEffectLists_;
+    std::uint64_t nextEffectOrderGeneration_ = 1;
+    std::atomic<std::uint64_t> lastAdoptedEffectOrderGeneration_{0};
+    std::atomic<std::uint64_t> rejectedEffectOrderCommandCount_{0};
+    std::atomic<bool> effectOrderReconciliationRequested_{false};
+
+public:
 
     juce::ValueTree tree;
     juce::UndoManager um;
@@ -201,15 +253,27 @@ public:
     void valueTreePropertyChanged(ValueTree &treeWhosePropertyHasChanged, const Identifier &property) override;
 
 protected:
-    electrosynth::mapping_change createMappingChange(electrosynth::ModulationConnection *mod);
+    electrosynth::mapping_change createMappingChange(electrosynth::Connection *mod);
 
     bool isInvalidConnection(const electrosynth::mapping_change& change) {
-        return change.mapping == nullptr
-               || change.connection == nullptr
-               || change._source == nullptr
-               || change._dest == nullptr
-               || change.dest_param_index < 0
-               || change.dest_param_index >= MAX_NUM_PARAMS;
+        if (change.mapping == nullptr
+            || change.connection == nullptr
+            || change._source == nullptr
+            || change._dest == nullptr
+            || change.dest_param_index < 0
+            || change.dest_param_index >= MAX_NUM_PARAMS)
+            return true;
+
+        for (int voice = 0; voice < MAX_NUM_VOICES; ++voice) {
+            const auto* source = change._source->at(voice);
+            const auto* destination = change._dest->at(voice);
+            if (source == nullptr
+                || destination == nullptr
+                || destination->params[change.dest_param_index] == nullptr)
+                return true;
+        }
+
+        return false;
     }
 
 

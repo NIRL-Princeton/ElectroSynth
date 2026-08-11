@@ -63,7 +63,7 @@ SynthEditor::SynthEditor(bool use_gui) : SynthGuiInterface(this, use_gui) {
 
 
 
-  deviceManager.addMidiInputDeviceCallback("", static_cast<juce::MidiInputCallback*>(midi_manager_.get()));
+  deviceManager.addMidiInputDeviceCallback("", midi_manager_.get());
 
   if (use_gui) {
     setLookAndFeel(DefaultLookAndFeel::instance());

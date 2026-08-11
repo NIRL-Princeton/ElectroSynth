@@ -8,6 +8,7 @@
 #include "leaf.h"
 #include "ParameterView/ParametersView.h"
 #include "Identifiers.h"
+#include "Node.h"
 namespace electrosynth {
     class SoundEngine;
 }
@@ -19,7 +20,7 @@ public:
         leaf(leaf),
         state(tree)
     {
-
+        electrosynth::audio::ensureNodeId(state, nullptr);
     }
     ~ModulatorBase() override = default;
     LEAF* leaf;
@@ -34,6 +35,9 @@ public:
     virtual void setStateInformation (const void *data, int sizeInBytes)=0;
     virtual std::unique_ptr<SynthSection> createEditor() = 0;
     electrosynth::SoundEngine* engine;
+    juce::String getNodeId() const {
+        return state.getProperty(IDs::nodeID).toString();
+    }
 };
 
 

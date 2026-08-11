@@ -107,6 +107,10 @@ class NoiseModuleProcessor : public ProcessorStateBase<PluginStateImpl_<NoisePar
 public:
     NoiseModuleProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree&, LEAF* leaf,juce::UndoManager*);
 
+    electrosynth::audio::NodeDescriptor getAudioNodeDescriptor() const noexcept override {
+        return electrosynth::audio::makeGeneratorDescriptor();
+    }
+
     void getNextAudioBlock (const juce::AudioSourceChannelInfo &bufferToFill) override {}
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
     void prepareToPlay (int samplesPerBlock, double sampleRate ) override {};

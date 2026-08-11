@@ -62,6 +62,11 @@ public:
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
     void prepareToPlay (int samplesPerBlock, double sampleRate ) override {};
     void releaseResources() override {}
+
+    electrosynth::audio::NodeDescriptor getAudioNodeDescriptor() const noexcept override {
+        return electrosynth::audio::makeGeneratorDescriptor();
+    }
+
     //void processAudioBlock (juce::AudioBuffer<float>& buffer) override {};
 //    bool acceptsMidi() const override
 //    {

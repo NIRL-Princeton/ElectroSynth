@@ -35,7 +35,8 @@ void OpenGlImageComponent::redrawImage(bool force, bool clear) {
 
    juce::Component* component = component_ ? component_ : this;
 
-   float pixel_scale = juce::Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds())->scale;
+   float pixel_scale = juce::Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds())->scale
+                       * render_scale_;
    int width = component->getWidth() * pixel_scale;
    int height = component->getHeight() * pixel_scale;
    if (width <= 0 || height <= 0)

@@ -21,6 +21,7 @@
 #include "event_emitter.h"
 #include "ModulationConnection.h"
 #include "BenchMarkProcessBlock.h"
+#include "EffectLaneTransition.h"
 #include "VCAModule.h"
 class MappingWrapper;
 class RoutingProcessor;
@@ -59,6 +60,8 @@ namespace electrosynth {
       {
           setSampleRate(sampleRate);
           setBufferSize(samplesPerBlock);
+          for (auto& transition : effectLaneTransitions_)
+              transition.setSampleRate(sampleRate);
 
       }
 
@@ -125,8 +128,8 @@ namespace electrosynth {
       void sostenutoOffRange(int sample, int from_channel, int to_channel);
       force_inline int getOversamplingAmount() const { return last_oversampling_amount_; }
 
-        ModulationConnectionBank modulation_bank_;
-        ModulationConnectionBank& getModulationBank() { return modulation_bank_; }
+        ConnectionBank modulation_bank_;
+        ConnectionBank& getModulationBank() { return modulation_bank_; }
         void checkOversampling();
 
         std::array<ModuleHeader*, MAX_NUM_VOICES>*  getLEAFProcessor(const std::string&);
@@ -137,6 +140,9 @@ namespace electrosynth {
         std::vector<leaf::tAudioRouting*> chain_to_lane_routings;
         std::vector<std::unique_ptr<RoutingProcessor>> effectPreGain;
         std::array<std::vector<std::unique_ptr<ProcessorBase>>,3> effects;
+        void beginEffectLaneFadeOut(int lane) noexcept;
+        void beginEffectLaneFadeIn(int lane) noexcept;
+        bool isEffectLaneSilent(int lane) const noexcept;
         std::vector<std::vector<std::unique_ptr<ModulatorBase>>> modSources;
         std::vector<MappingWrapper*> mappings;
 
@@ -170,6 +176,7 @@ namespace electrosynth {
       int curr_sample_rate;
       juce::AudioBuffer<float> temp_voice_buffer{MAX_NUM_VOICES*2,1};
       std::array<juce::AudioBuffer<float>, 4> temp_fx_buffers;
+      std::array<effect_order::EffectLaneTransition, 3> effectLaneTransitions_;
 
       juce::UndoManager& undo;
       //benchmark::ProcessBlock benchmark;

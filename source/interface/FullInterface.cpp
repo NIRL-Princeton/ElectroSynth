@@ -15,39 +15,37 @@
 */
 
 #include "FullInterface.h"
-#include "text_look_and_feel.h"
 #include "Identifiers.h"
-#include "about_section.h"
-#include "synth_gui_interface.h"
-#include "SoundModuleSection.h"
 #include "ModulationModuleSection.h"
-#include "modulation_manager.h"
-#include "test_section.h"
-#include "synth_base.h"
-#include "sound_engine.h"
+#include "SoundModuleSection.h"
+#include "about_section.h"
+#include "juce_core/unit_tests/juce_UnitTestCategories.h"
+#include "mapping_manager.h"
 #include "midi_manager.h"
+#include "sound_engine.h"
+#include "synth_base.h"
+#include "synth_gui_interface.h"
+#include "test_section.h"
+#include "text_look_and_feel.h"
 
 FullInterface::FullInterface(SynthGuiData* synth_data) : SynthSection("full_interface"), width_(0), resized_width_(0),
-                                                         last_render_scale_(0.0f), display_scale_(1.0f),
-                                                         pixel_multiple_(1),unsupported_(false), animate_(true),
-                                                        enable_redo_background_(true),
-                                                         open_gl_(open_gl_context_),
-                                                          data(synth_data)
-{
+    last_render_scale_(0.0f), display_scale_(1.0f), pixel_multiple_(1),unsupported_(false), animate_(true), enable_redo_background_(true),
+    open_gl_(open_gl_context_), data(synth_data) {
+
     full_screen_section_ = nullptr;
     Skin default_skin;
     default_skin.copyValuesToLookAndFeel(DefaultLookAndFeel::instance());
     default_skin.copyValuesToLookAndFeel(TextLookAndFeel::instance());
     juce::LookAndFeel::setDefaultLookAndFeel(DefaultLookAndFeel::instance());
 
-    modulation_manager = std::make_unique<ModulationManager>(synth_data->tree, synth_data->synth);
+    modulation_manager = std::make_unique<MappingManager>(synth_data->tree, synth_data->synth);
     modulation_manager->setOpaque(false);
     modulation_manager->setAlwaysOnTop(true);
-    modulation_manager->setModulationAmounts();
+    modulation_manager->setConnectionAmounts();
     modulation_manager->setVisibleMeterBounds();
     modulation_manager->hideUnusedHoverModulations();
     modulation_manager->toFront(false);
-
+    addSubSection(modulation_manager.get());
 
     main_ = std::make_unique<MainSection>(data->tree, data->um, open_gl_, data, modulation_manager.get());
     addSubSection(main_.get());
@@ -73,15 +71,12 @@ FullInterface::FullInterface(SynthGuiData* synth_data) : SynthSection("full_inte
 //    };
 //    inspectButton->setAlwaysOnTop(true);
 
-    addSubSection(modulation_manager.get());
+
     popup_selector_ = std::make_unique<SinglePopupSelector>();
     addSubSection(popup_selector_.get());
     popup_selector_->setVisible(false);
     popup_selector_->setAlwaysOnTop(true);
     popup_selector_->setWantsKeyboardFocus(true);
-
-
-
 
     popup_display_1_ = std::make_unique<PopupDisplay>();
     addSubSection(popup_display_1_.get());
@@ -140,6 +135,7 @@ FullInterface::~FullInterface() {
 void FullInterface::paintBackground(juce::Graphics& g) {
    g.fillAll(findColour(Skin::kBackground, true));
    paintChildrenShadows(g);
+
 
    int padding = getPadding();
    int bar_width = 6 * padding;
@@ -258,73 +254,73 @@ void FullInterface::checkShouldReposition(bool resize) {
 
 void FullInterface::resized() {
     checkShouldReposition(false);
-//SynthSection::resized();
+    //SynthSection::resized();
+
     width_ = getWidth();
-   if (!enable_redo_background_)
-   {
+
+    if (!enable_redo_background_) {
       // open_gl_context_.detach();
       //juce::DocumentWindow::resized();
       // startTimer(100);
        return;
-   }
+    }
 
+    resized_width_ = getWidth();
 
-
-   resized_width_ = width_;
-
-   juce::ScopedLock lock(open_gl_critical_section_);
-   static constexpr int kTopHeight = 48;
+    juce::ScopedLock lock(open_gl_critical_section_);
+    static constexpr int kTopHeight = 48;
 
 //   if (effects_interface_ == nullptr)
 //       return;
 
-   int left = 0;
-   int top = 0;
-   int width = std::ceil(getWidth() * display_scale_);
-   int height = std::ceil(getHeight() * display_scale_);
-   juce::Rectangle<int> bounds(0, 0, width, height);
-   modulation_manager->setBounds(bounds);
-   float width_ratio = getWidth() / (1.0f * electrosynth::kDefaultWindowWidth);
-   float ratio = width_ratio * display_scale_;
-   float height_ratio = getHeight() / (1.0f * electrosynth::kDefaultWindowHeight);
-   if (width_ratio > height_ratio + 1.0f / electrosynth::kDefaultWindowHeight) {
-       ratio = height_ratio;
-       width = height_ratio * electrosynth::kDefaultWindowWidth * display_scale_;
-       left = (getWidth() - width) / 2;
-   }
-   if (height_ratio > width_ratio + 1.0f / electrosynth::kDefaultWindowHeight) {
-       ratio = width_ratio;
-       height = ratio * electrosynth::kDefaultWindowHeight * display_scale_;
-       top = (getHeight() - height) / 2;
-   }
+    int left = 0;
+    int top = 0;
+    int width = std::ceil(getWidth() * display_scale_);
+    int height = std::ceil(getHeight() * display_scale_);
+    juce::Rectangle<int> bounds(0, 0, width, height);
 
-   setSizeRatio(ratio);
+    modulation_manager->setBounds(bounds);
+
+    float width_ratio = getWidth() / (1.0f * electrosynth::kDefaultWindowWidth);
+    float ratio = width_ratio * display_scale_;
+    float height_ratio = getHeight() / (1.0f * electrosynth::kDefaultWindowHeight);
+    if (width_ratio > height_ratio + 1.0f / electrosynth::kDefaultWindowHeight) {
+        ratio = height_ratio;
+        width = height_ratio * electrosynth::kDefaultWindowWidth * display_scale_;
+        left = (getWidth() - width) / 2;
+    }
+    if (height_ratio > width_ratio + 1.0f / electrosynth::kDefaultWindowHeight) {
+        ratio = width_ratio;
+        height = ratio * electrosynth::kDefaultWindowHeight * display_scale_;
+        top = (getHeight() - height) / 2;
+    }
+
+    setSizeRatio(ratio);
 //   DBG("");
 //    DBG( "ratio: " + juce::String(ratio));
 //    DBG("display scale" + juce::String(display_scale_));
-   int padding = getPadding() * size_ratio_;
-   int voice_padding = findValue(Skin::kLargePadding);
+    int padding = getPadding() * size_ratio_;
+    int voice_padding = findValue(Skin::kLargePadding);
 
-   int main_x = left + 2 * voice_padding;
-   int top_height = kTopHeight * ratio;
-   int section_one_width = 350 * ratio;
-   int section_two_width = section_one_width;
-   int audio_width = section_one_width + section_two_width + padding;
+    int main_x = left + 2 * voice_padding;
+    int top_height = kTopHeight * ratio;
+    int section_one_width = 350 * ratio;
+    int section_two_width = section_one_width;
+    int audio_width = section_one_width + section_two_width + padding;
 
 
-   header_->setTabOffset(2 * voice_padding);
-   header_->setBounds(left, top, width,  top_height);
-   Rectangle<int> main_bounds(left,header_->getBottom(), width, height - top_height );
-   juce::Rectangle<int> new_bounds(0, 0, width, height);
-   main_->setBounds(main_bounds);
+    header_->setTabOffset(2 * voice_padding);
+    header_->setBounds(left, top, width,  top_height);
+    Rectangle<int> main_bounds(left,header_->getBottom(), width, height - top_height );
+    juce::Rectangle<int> new_bounds(0, 0, width, height);
+    main_->setBounds(main_bounds);
    //test_section->setBounds(main_bounds);
   // prep_popup->setBounds(100, 100, 700, 700);
-   about_section_->setBounds(new_bounds);
+    about_section_->setBounds(new_bounds);
    //inspectButton->setBounds(10, 0, 100, 100);
-   if (getWidth() && getHeight())
-       redoBackground();
-
-   //open_gl_context_.attachTo(*this);
+    if (getWidth() && getHeight())
+        redoBackground();
+    //open_gl_context_.attachTo(*this);
 }
 
 
@@ -381,6 +377,17 @@ void FullInterface::popupDisplay(juce::Component* source, const std::string& tex
     display->setVisible(true);
 }
 
+void FullInterface::popupTextEntry(juce::Component* source, const std::string& display_text,
+    const juce::String& editable_text, juce::BubbleComponent::BubblePlacement placement,
+    std::function<void(const juce::String&)> commit, std::function<void()> cancel) {
+    PopupDisplay* display = popup_display_1_.get();
+    display->setEditableContent(display_text, editable_text,
+                                getLocalArea(source, source->getLocalBounds()), placement,
+                                std::move(commit), std::move(cancel));
+    display->setVisible(true);
+    display->toFront(false);
+}
+
 //void FullInterface::prepDisplay(PreparationSection* prep)
 //{
 //    DBG("*********SETTING CONTENT***************");
@@ -392,7 +399,7 @@ void FullInterface::popupDisplay(juce::Component* source, const std::string& tex
 void FullInterface::hideDisplay(bool primary) {
    PopupDisplay* display = primary ? popup_display_1_.get() : popup_display_2_.get();
    if (display)
-       display->setVisible(false);
+       display->dismiss();
 }
 
 void FullInterface::popupSelector(juce::Component* source, juce::Point<int> position, const PopupItems& options,
@@ -460,8 +467,7 @@ void FullInterface::openGLContextClosing() {
 
 
 
-void FullInterface::modulationChanged()
-{
+void FullInterface::modulationChanged() {
     if (modulation_manager)
         modulation_manager->reset();
 }
@@ -538,10 +544,9 @@ std::map<std::string, SynthSlider*> FullInterface::getAllSliders(){
 }
 
 
-std::map<std::string, ModulationButton*> FullInterface::getAllModulationButtons(){
+std::map<std::string, ConnectionButton*> FullInterface::getAllModulationButtons(){
     return main_->getAllModulationButtons();
 }
-
 
 
 

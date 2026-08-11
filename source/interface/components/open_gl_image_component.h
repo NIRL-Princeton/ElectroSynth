@@ -48,6 +48,12 @@ public:
     void setScissor(bool scissor) { image_.setScissor(scissor); }
     void setUseAlpha(bool use_alpha) { image_.setUseAlpha(use_alpha); }
     void setColor(juce::Colour color) { image_.setColor(color); }
+    // Extra texture resolution for small raster-backed controls. The display scale
+    // alone is not enough to keep short controls crisp on every OpenGL setup.
+    void setRenderScale(float scale) {
+      render_scale_ = juce::jmax(1.0f, scale);
+      redrawImage(true);
+    }
     OpenGlImage& image() { return image_; }
     void setActive(bool active) { active_ = active; }
     void setStatic(bool static_image) { static_image_ = static_image; }
@@ -61,6 +67,7 @@ protected:
     bool active_;
     bool static_image_;
     bool paint_entire_component_;
+    float render_scale_ = 1.0f;
 
     OpenGlImage image_;
 

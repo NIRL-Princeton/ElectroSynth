@@ -34,6 +34,7 @@ ModulationMeter::ModulationMeter(const SynthSlider* slider, OpenGlMultiQuad* qua
 
   setInterceptsMouseClicks(false, false);
   updateDrawing(false);
+
 }
 
 ModulationMeter::~ModulationMeter() { }
@@ -41,7 +42,7 @@ ModulationMeter::~ModulationMeter() { }
 void ModulationMeter::resized() {
   SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
   if (parent) {
-    std::vector<electrosynth::ModulationConnection*> connections;
+    std::vector<electrosynth::Connection*> connections;
 //    connections = parent->getSynth()->getSourceConnections(getName().toStdString());
 //    setModulated(!connections.empty());
   }
@@ -53,6 +54,18 @@ void ModulationMeter::resized() {
 void ModulationMeter::setActive(bool active) {
   if (active) setVertices();
   else collapseVertices();
+}
+
+void ModulationMeter::setStaticModulationAmount(float amount, bool bipolar) {
+    has_static_modulation_amount_ = true;
+    static_modulation_amount_ = amount;
+    static_modulation_bipolar_ = bipolar;
+}
+
+void ModulationMeter::clearStaticModulationAmount() {
+    has_static_modulation_amount_ = false;
+    static_modulation_amount_ = 0.0f;
+    static_modulation_bipolar_ = false;
 }
 
 juce::Rectangle<float> ModulationMeter::getMeterBounds() {
@@ -143,46 +156,64 @@ void ModulationMeter::setAmountQuadVertices(OpenGlQuad& quad) {
 }
 
 void ModulationMeter::updateDrawing(bool use_poly) {
-    /*
-  if (mono_total_) {
-      current_value_ = mono_total_->trigger_value;
-    if (poly_total_ && use_poly)
-      current_value_ += poly_total_->trigger_value;
-
-  }
-  */
-
-  float range = destination_->getMaximum() - destination_->getMinimum();
-  if (range == 0.0f) {
-    collapseVertices();
-    return;
-  }
-
-  float value = (current_value_ - destination_->getMinimum()) * (1.0f / range);
-  mod_percent_ = electrosynth::utils::clamp(value, 0.0f, 1.0f);
-  float knob_percent = (destination_->getValue() - destination_->getMinimum()) / range;
-
-  float min_percent = electrosynth::utils::min(mod_percent_, knob_percent);
-  float max_percent = electrosynth::utils::max(mod_percent_, knob_percent);
-
-  quads_->setQuad(index_, left_, bottom_, right_ - left_, top_ - bottom_);
-
-  if (rotary_) {
-    if (&destination_->getLookAndFeel() == TextLookAndFeel::instance()) {
-      min_percent = electrosynth::utils::interpolate(-electrosynth::kPi, 0.0f, min_percent);
-      max_percent = electrosynth::utils::interpolate(-electrosynth::kPi, 0.0f, max_percent);
+    float range = destination_->getMaximum() - destination_->getMinimum();
+    if (range == 0.0f) {
+        collapseVertices();
+        return;
     }
-    else {
-      float angle = SynthSlider::kRotaryAngle;
-      min_percent = electrosynth::utils::interpolate(-angle, angle, min_percent);
-      max_percent = electrosynth::utils::interpolate(-angle, angle, max_percent);
-    }
-  }
 
-  quads_->setShaderValue(index_, min_percent, 0);
-  quads_->setShaderValue(index_, max_percent, 1);
-  quads_->setShaderValue(index_, min_percent, 2);
-  quads_->setShaderValue(index_, max_percent, 3);
+    if (rotary_ && has_static_modulation_amount_) { // update static modulation meter
+        float knob_percent = (destination_->getValue() - destination_->getMinimum()) / range;
+
+        float amount = static_modulation_amount_;
+        float min_percent = std::min(knob_percent + amount, knob_percent);
+        float max_percent = std::max(knob_percent + amount, knob_percent);
+
+        if (static_modulation_bipolar_) {
+            min_percent = std::min(knob_percent + amount * 0.5f, knob_percent - amount * 0.5f);
+            max_percent = std::max(knob_percent + amount * 0.5f, knob_percent - amount * 0.5f);
+        }
+
+        float angle = SynthSlider::kRotaryAngle;
+        min_percent = electrosynth::utils::interpolate(-angle, angle, min_percent);
+        max_percent = electrosynth::utils::interpolate(-angle, angle, max_percent);
+
+        min_percent = std::max(-angle, min_percent);
+        max_percent = std::min(angle, max_percent);
+
+        quads_->setQuad(index_, left_, bottom_, right_ - left_, top_ - bottom_);
+        quads_->setShaderValue(index_, min_percent, 0);
+        quads_->setShaderValue(index_, max_percent, 1);
+        quads_->setShaderValue(index_, min_percent, 2);
+        quads_->setShaderValue(index_, max_percent, 3);
+        return;
+    }
+
+    float value = (current_value_ - destination_->getMinimum()) * (1.0f / range);
+    mod_percent_ = electrosynth::utils::clamp(value, 0.0f, 1.0f);
+    float knob_percent = (destination_->getValue() - destination_->getMinimum()) / range;
+
+    float min_percent = electrosynth::utils::min(mod_percent_, knob_percent);
+    float max_percent = electrosynth::utils::max(mod_percent_, knob_percent);
+
+    quads_->setQuad(index_, left_, bottom_, right_ - left_, top_ - bottom_);
+
+    if (rotary_) {
+        if (&destination_->getLookAndFeel() == TextLookAndFeel::instance()) {
+            min_percent = electrosynth::utils::interpolate(-electrosynth::kPi, 0.0f, min_percent);
+            max_percent = electrosynth::utils::interpolate(-electrosynth::kPi, 0.0f, max_percent);
+        }
+        else {
+            float angle = SynthSlider::kRotaryAngle;
+            min_percent = electrosynth::utils::interpolate(-angle, angle, min_percent);
+            max_percent = electrosynth::utils::interpolate(-angle, angle, max_percent);
+        }
+    }
+
+    quads_->setShaderValue(index_, min_percent, 0);
+    quads_->setShaderValue(index_, max_percent, 1);
+    quads_->setShaderValue(index_, min_percent, 2);
+    quads_->setShaderValue(index_, max_percent, 3);
 }
 
 void ModulationMeter::setModulationAmountQuad(OpenGlQuad& quad, float amount, bool bipolar) {

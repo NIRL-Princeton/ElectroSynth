@@ -29,21 +29,22 @@ SynthGuiData::SynthGuiData(SynthBase* synth_base) : synth(synth_base),
 {
 
 }
+
+bool SynthGuiInterface::connect(const electrosynth::ConnectionRecord& connection) {
+    return synth_ != nullptr && synth_->connect(connection);
+}
+
 #if HEADLESS
 
 SynthGuiInterface::SynthGuiInterface(SynthBase* synth, bool use_gui) : synth_(synth) { }
 SynthGuiInterface::~SynthGuiInterface() { }
 void SynthGuiInterface::updateFullGui() { }
 void SynthGuiInterface::updateGuiControl(const std::string& name, float value) { }
-float SynthGuiInterface::getControlValue(const std::string& name) { return 0.0f; }
 bool SynthGuiInterface::connectModulation(std::string source, std::string destination, int destination_slot) {
     return false;
 }
-void SynthGuiInterface::connectModulation(electrosynth::ModulationConnection* connection) { }
-void SynthGuiInterface::setModulationValues(const std::string& source, const std::string& destination,
-                                            float amount, bool bipolar, bool stereo, bool bypass) { }
 void SynthGuiInterface::disconnectModulation(std::string source, std::string destination) { }
-void SynthGuiInterface::disconnectModulation(electrosynth::ModulationConnection* connection) { }
+void SynthGuiInterface::disconnectModulation(electrosynth::Connection* connection) { }
 void SynthGuiInterface::setFocus() { }
 void SynthGuiInterface::notifyChange() { }
 void SynthGuiInterface::notifyFresh() { }
@@ -247,37 +248,14 @@ void SynthGuiInterface::disconnectModulation(std::string source, std::string des
     notifyModulationsChanged();
 }
 
-void SynthGuiInterface::disconnectModulation(electrosynth::ModulationConnection* connection) {
+void SynthGuiInterface::disconnectModulation(electrosynth::Connection* connection) {
     synth_->disconnectModulation(connection);
     notifyModulationsChanged();
 }
 void SynthGuiInterface::notifyModulationsChanged() {
-    gui_->modulationChanged();
+    if (gui_ != nullptr)
+        gui_->modulationChanged();
 }
-//float SynthGuiInterface::getControlValue(const std::string& name) {
-//  return synth_->getControls()[name]->value();
-//}
-
-//void SynthGuiInterface::notifyModulationsChanged() {
-//  gui_->modulationChanged();
-//}
-
-//void SynthGuiInterface::notifyModulationValueChanged(int index) {
-//  gui_->modulationValueChanged(index);
-//}
-//
-//void SynthGuiInterface::connectModulation(std::string source, std::string destination) {
-//  bool created = synth_->connectModulation(source, destination);
-//  if (created)
-//    initModulationValues(source, destination);
-//  notifyModulationsChanged();
-//}
-
-//void SynthGuiInterface::connectModulation(electrosynth::ModulationConnection* connection) {
-//  synth_->connectModulation(connection);
-//  notifyModulationsChanged();
-//}
-
 OpenGlWrapper* SynthGuiInterface::getOpenGlWrapper() {
   return &gui_->open_gl_;
 }

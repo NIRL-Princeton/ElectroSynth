@@ -44,6 +44,8 @@ class OpenGlSliderQuad : public OpenGlQuad {
 
 class OpenGlSlider : public juce::Slider {
   public:
+    static constexpr float kDefaultKnobSizeScale = 1.0f;
+
     void setHorizontalTrackPadding(float paddingPixels) {
         horizontal_track_padding_ = paddingPixels;
     }
@@ -53,7 +55,7 @@ class OpenGlSlider : public juce::Slider {
     OpenGlSlider(juce::String name) : juce::Slider(name), parent_(nullptr), modulation_knob_(false), modulation_amount_(0.0f),
                                 paint_to_image_(false), active_(true), bipolar_(false), slider_quad_(new OpenGlSliderQuad(this,name)),
                                 image_component_(new OpenGlImageComponent(name)),
-                                knob_size_scale_(1.0f) {
+                                knob_size_scale_(kDefaultKnobSizeScale) {
       slider_quad_->setTargetComponent(this);
       // slider_quad_->setScissor(true);
       setMaxArc(kRotaryAngle);
@@ -285,8 +287,8 @@ class SynthSlider : public OpenGlSlider, public juce::TextEditor::Listener {
         virtual void focusLost(SynthSlider* slider) { }
         virtual void doubleClick(SynthSlider* slider) { }
         virtual void modulationsChanged(const std::string& name) { }
-        virtual void modulationAmountChanged(SynthSlider* slider) { }
-        virtual void modulationRemoved(SynthSlider* slider) { }
+        virtual void connectionAmountChanged(SynthSlider* slider) { }
+        virtual void connectionRemoved(SynthSlider* slider) { }
         virtual void guiChanged(SynthSlider* slider) { }
     };
 
@@ -318,7 +320,7 @@ class SynthSlider : public OpenGlSlider, public juce::TextEditor::Listener {
     }
     void textEditorReturnKeyPressed(juce::TextEditor& editor) override;
     void textEditorFocusLost(juce::TextEditor& editor) override;
-    void setSliderPositionFromText();
+    void setSliderPositionFromText(const juce::String& text);
 
     void showTextEntry();
     virtual bool shouldShowPopup() { return true; }
@@ -403,22 +405,22 @@ class SynthSlider : public OpenGlSlider, public juce::TextEditor::Listener {
     void setKnobSizeScale(float scale) { knob_size_scale_ = scale; }
     float getKnobSizeScale() const override { return knob_size_scale_; }
     void useSuffix(bool use) { use_suffix_ = use; }
-    static constexpr int kNumModulationSlots = 3;
+    static constexpr int kNumSlots = 3;
 
     void setExtraModulationTarget(juce::Component* component) {
       setExtraModulationTarget(0, component);
     }
     void setExtraModulationTarget(int slot, juce::Component* component) {
-      if (juce::isPositiveAndBelow(slot, kNumModulationSlots))
+      if (juce::isPositiveAndBelow(slot, kNumSlots))
         extra_modulation_targets_[slot] = component;
     }
     juce::Component* getExtraModulationTarget() { return getExtraModulationTarget(0); }
     juce::Component* getExtraModulationTarget(int slot) {
-      if (juce::isPositiveAndBelow(slot, kNumModulationSlots))
+      if (juce::isPositiveAndBelow(slot, kNumSlots))
         return extra_modulation_targets_[slot];
       return nullptr;
     }
-    const std::array<juce::Component*, kNumModulationSlots>& getExtraModulationTargets() const {
+    const std::array<juce::Component*, kNumSlots>& getExtraModulationTargets() const {
       return extra_modulation_targets_;
     }
     void setModulationBarRight(bool right) { modulation_bar_right_ = right; }
@@ -492,9 +494,10 @@ class SynthSlider : public OpenGlSlider, public juce::TextEditor::Listener {
 
     const std::string* string_lookup_;
 
-    std::array<juce::Component*, kNumModulationSlots> extra_modulation_targets_ {};
+    std::array<juce::Component*, kNumSlots> extra_modulation_targets_ {};
     SynthGuiInterface* synth_interface_;
     std::unique_ptr<OpenGlTextEditor> text_entry_;
+    bool command_text_entry_candidate_ = false;
 
     std::vector<SliderListener*> slider_listeners_;
 

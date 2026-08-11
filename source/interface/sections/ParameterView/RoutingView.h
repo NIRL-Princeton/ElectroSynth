@@ -57,24 +57,16 @@ public:
         addAndMakeVisible (routing_combo_box.get());
         addOpenGlComponent(routing_combo_box->getImageComponent());
     }
-    void paintBackground(juce::Graphics& g) override
-    {
-        // SynthSection::paintContainer(g);
-        // paintHeadingText(g);
-        // paintBorder(g);
+    void paintBackground(juce::Graphics& g) override {
+        paintBorder(g);
         paintKnobShadows(g);
-        // for (auto& slider : _sliders) {
-        //     drawLabelForComponent(g, slider->getName(), slider.get());
-        // }
-        //(dg,gain_slider.get());
         paintChildrenBackgrounds(g);
     }
 
     void resized() override {
-        auto bounds = getLocalBounds().reduced(4, 8);
-        auto slider_area = bounds.removeFromLeft(static_cast<int>(bounds.getWidth() * 0.42f));
-        bounds.removeFromLeft(8);
-        auto combo_area = bounds;
+        auto bounds = getLocalBounds().reduced(30, 8);
+        auto slider_area = bounds.removeFromLeft(static_cast<int>(bounds.getWidth() * 0.3f));
+        auto combo_area = bounds.removeFromRight(static_cast<int>(bounds.getWidth() * 0.5f));
 
         gain_slider->setBounds(slider_area);
         gain_slider->redoImage();

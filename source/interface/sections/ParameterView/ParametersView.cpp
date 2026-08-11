@@ -15,128 +15,14 @@
 
 namespace electrosynth {
 
-    namespace {
-        juce::Rectangle<float> getAuxSlotBounds(juce::Rectangle<float> slot_bounds) {
-            auto aux_bounds = slot_bounds.reduced(2.0f, 2.0f);
-            aux_bounds.setTop(slot_bounds.getCentreY());
-            return aux_bounds;
-        }
-
-        juce::Colour getBypassAdjustedColor(juce::Colour color, bool bypass) {
-            return bypass ? color.withSaturation(0.0f).withMultipliedBrightness(0.85f) : color;
-        }
-    }
-
-	ModulationSlotComponent::ModulationSlotComponent(SynthSlider& destination_slider, int slot_index)
-    : destination_slider_(destination_slider), slot_index_(slot_index) {
-
-        jassert(juce::isPositiveAndBelow(slot_index_, SynthSlider::kNumModulationSlots));
-        setComponentID(destination_slider_.getComponentID() + "_modulation_slot_" + juce::String(slot_index_));
-        setInterceptsMouseClicks(false, false);
-    }
-
-    void ModulationSlotComponent::paint(juce::Graphics& g) { DBG("fallback on ModulationSlotComponent::paint"); }
-
-    void ModulationSlotComponent::setSourceName(juce::String source_name) {
-        if (source_name_ == source_name)
-            return;
-
-        source_name_ = std::move(source_name);
-        repaint();
-        if (auto* parameters_view = findParentComponentOfClass<ParametersView>()) {
-            parameters_view->syncModulationSlotOpenGl();
-            parameters_view->repaintBackground();
-        }
-    }
-
-    void ModulationSlotComponent::setSourceDisplayLabel(juce::String display_label) {
-        if (display_label_ == display_label)
-            return;
-
-        display_label_ = std::move(display_label);
-        repaint();
-
-        if (auto* parameters_view = findParentComponentOfClass<ParametersView>()) {
-            parameters_view->syncModulationSlotOpenGl();
-            parameters_view->repaintBackground();
-        }
-    }
-
-    void ModulationSlotComponent::setModulationAmount(float amount) {
-        amount = juce::jlimit(-1.0f, 1.0f, amount);
-        if (juce::approximatelyEqual(modulation_amount_, amount))
-            return;
-
-        modulation_amount_ = amount;
-        repaint();
-        if (auto* parameters_view = findParentComponentOfClass<ParametersView>()) {
-            parameters_view->syncModulationSlotOpenGl();
-            parameters_view->repaintBackground();
-        }
-    }
-
-    void ModulationSlotComponent::setBypass(bool bypass) {
-        if (bypass_ == bypass)
-            return;
-
-        bypass_ = bypass;
-        repaint();
-        if (auto* parameters_view = findParentComponentOfClass<ParametersView>()) {
-            parameters_view->syncModulationSlotOpenGl();
-            parameters_view->repaintBackground();
-        }
-    }
-
-    juce::Colour ModulationSlotComponent::getSourceColor() const {
-        if (source_name_.startsWithIgnoreCase("env"))
-            return findColour(Skin::kEnvelopeAccent);
-        if (source_name_.startsWithIgnoreCase("lfo"))
-            return findColour(Skin::kLFOAccent);
-        if (source_name_.startsWithIgnoreCase("vca") || source_name_.containsIgnoreCase("master"))
-            return findColour(Skin::kMasterEnvelopeAccent);
-        return ShaderColors::kSoundModuleTextColor;
-    }
-
-    juce::String ModulationSlotComponent::getSourceLabel() const { // for marking connections in the boxes underneath knobs
-        if (display_label_.isNotEmpty()) return display_label_;
-
-        juce::String prefix;
-        if (source_name_.startsWithIgnoreCase("env")) prefix = "Env ";
-        else if (source_name_.startsWithIgnoreCase("lfo")) prefix = "Lfo ";
-        else if (source_name_.startsWithIgnoreCase("vca") || source_name_.containsIgnoreCase("master")) prefix = "Master ";
-        else return source_name_;
-
-        juce::String digits;
-        for (auto character : source_name_) {
-            if (juce::CharacterFunctions::isDigit(character))
-                digits += character;
-        }
-
-        return prefix + (digits.isNotEmpty() ? digits : "");
-    }
-
-    void ModulationSlotComponent::setAuxSource(juce::String source_name, juce::String display_label) {
-        if (aux_source_name_ == source_name && aux_display_label_ == display_label)
-            return;
-
-        aux_source_name_ = std::move(source_name);
-        aux_display_label_ = std::move(display_label);
-        repaint();
-        if (auto* parameters_view = findParentComponentOfClass<ParametersView>()) {
-            parameters_view->syncModulationSlotOpenGl();
-            parameters_view->repaintBackground();
-        }
-    }
-
-
 // Rotary slider that suppresses the value bubble popup on drag/hover.
 class NoPopupSynthSlider : public SynthSlider {
 public:
     using SynthSlider::SynthSlider;
     bool shouldShowPopup() override { return false; }
     // Hide both arc segments; thumb indicator (kRotaryHand) still renders.
-    juce::Colour getSelectedColor()   const override { return juce::Colours::transparentBlack; }
-    juce::Colour getUnselectedColor() const override { return juce::Colours::transparentBlack; }
+    //juce::Colour getSelectedColor()   const override { return juce::Colours::transparentBlack; }
+    //juce::Colour getUnselectedColor() const override { return juce::Colours::transparentBlack; }
     // Halve indicator and suppress hover-boost by pre-dividing when dragging.
     // redoImage() multiplies kKnobArcThickness by 1.4 on hover; dividing here cancels that.
     float findValue(Skin::ValueId value_id) const override {
@@ -174,16 +60,27 @@ public:
         public:
             ChoiceParameterComponent(chowdsp::ChoiceParameter &param, chowdsp::PluginState& listeners,SynthSection &parent)
                     : attachment(param, listeners, box) {
+                setComponentID(param.paramID);
                 addAndMakeVisible(box);
                 parent.addChildComponent (box);
                 parent.addOpenGlComponent (box.getImageComponent());
             }
 
-            void resized() override {
-                auto area = getBoundsInParent();
-                area.removeFromLeft(8);
-                box.setBounds(area.reduced(0, 10));
+            void setControlBounds(juce::Rectangle<int> bounds) {
+                setBounds(bounds);
+                box.setBounds(bounds);
             }
+
+            void configureFilterSelector(std::function<void(int)> selection_changed) {
+                box.setColour(juce::ComboBox::outlineColourId, juce::Colours::white);
+                box.getImageComponent()->setRenderScale(2.0f);
+                box.onChange = [this, callback = std::move(selection_changed)] {
+                    callback(box.getSelectedItemIndex());
+                };
+                box.redoImage();
+            }
+
+            int getSelectedItemIndex() const { return box.getSelectedItemIndex(); }
 
         private:
             OpenGLComboBox box;
@@ -325,7 +222,20 @@ public:
         params.doForAllParameterContainers(
             [this, &pluginState](auto &paramVec) {
                     for (auto &param: paramVec) {
-                        comps.push_back(parameters_view_detail::createParameterComp(pluginState, param, *this));
+                        auto component = parameters_view_detail::createParameterComp(pluginState, param, *this);
+                        if (param->paramID == "filterType") {
+                            if (auto* choice = dynamic_cast<parameters_view_detail::ChoiceParameterComponent*>(component.get())) {
+                                filter_type_layout_ = [choice](juce::Rectangle<int> bounds) {
+                                    choice->setControlBounds(bounds);
+                                };
+                                filter_type_index_ = choice->getSelectedItemIndex();
+                                choice->configureFilterSelector([this](int index) {
+                                    filter_type_index_ = index;
+                                    updateSliderLabels();
+                                });
+                            }
+                        }
+                        comps.push_back(std::move(component));
                     }
                 },
                 [this, &pluginState](auto &paramHolder) {
@@ -365,8 +275,7 @@ public:
     }
     ParametersView::~ParametersView() = default;
 
-    int ParametersView::getKnobsPerRow() const
-    {
+    int ParametersView::getKnobsPerRow() const {
         return getName().startsWithIgnoreCase("string") ? kStringKnobsPerRow : kDefaultKnobsPerRow;
     }
 
@@ -378,19 +287,35 @@ public:
     }
 
     int ParametersView::getPreferredHeight() const {
-        return getKnobRowCount() * kModuleHeightPerKnobRow;
+        constexpr int kFilterTypeRowHeight = 28;
+        return getKnobRowCount() * kModuleHeightPerKnobRow
+               + (filter_type_layout_ ? kFilterTypeRowHeight : 0);
     }
 
     juce::Colour ParametersView::getSliderLabelColor() const {
         return findColour(Skin::kBodyText, true);
     }
 
+    juce::String ParametersView::getSliderLabel(const juce::Component& slider) const {
+        if (!filter_type_layout_)
+            return slider.getName();
+
+        const bool peak = filter_type_index_ == 4;
+        const bool shelf = filter_type_index_ == 5 || filter_type_index_ == 6;
+        if (slider.getName().equalsIgnoreCase("Cutoff"))
+            return peak || shelf ? "Frequency" : "Cutoff";
+        if (slider.getName().equalsIgnoreCase("Q"))
+            return peak ? "Bandwidth" : "Resonance";
+        if (slider.getName().equalsIgnoreCase("Amp"))
+            return peak || shelf ? "Gain" : "Output";
+        return slider.getName();
+    }
+
     void ParametersView::paint(juce::Graphics &g) {
         g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
     }
 
-    void ParametersView::paintBackground(juce::Graphics& g)
-    {
+    void ParametersView::paintBackground(juce::Graphics& g) {
         SynthSection::paintContainer(g);
         paintBorder(g);
         paintKnobShadows(g);
@@ -409,76 +334,18 @@ public:
             addOpenGlComponent(label);
             slider_labels_[slider] = label;
 
-            if (auto* synth_slider = dynamic_cast<SynthSlider*>(slider)) {
-                ModulationSlots slots;
-                ModulationSlotOpenGlSet open_gl_slots;
-                for (int slot_index = 0; slot_index < SynthSlider::kNumModulationSlots; ++slot_index) {
-                    auto target = std::make_unique<ModulationSlotComponent>(*synth_slider, slot_index);
-                    addAndMakeVisible(target.get());
-                    synth_slider->setExtraModulationTarget(slot_index, target.get());
-                    slots[slot_index] = std::move(target);
-
-                    auto body = std::make_shared<OpenGlQuad>(
-                        Shaders::kColorFragment,
-                        synth_slider->getComponentID() + "_modulation_slot_body_" + juce::String(slot_index));
-                    auto amount = std::make_shared<OpenGlQuad>(
-                        Shaders::kColorFragment,
-                        synth_slider->getComponentID() + "_modulation_slot_amount_" + juce::String(slot_index));
-                    auto border = std::make_shared<OpenGlQuad>(
-                        Shaders::kRoundedRectangleBorderFragment,
-                        synth_slider->getComponentID() + "_modulation_slot_border_" + juce::String(slot_index));
-	                    auto label = std::make_shared<PlainTextComponent>(
-	                        synth_slider->getComponentID() + "_modulation_slot_label_" + juce::String(slot_index), "");
-	                    auto aux_body = std::make_shared<OpenGlQuad>(
-	                        Shaders::kColorFragment,
-	                        synth_slider->getComponentID() + "_modulation_slot_aux_body_" + juce::String(slot_index));
-	                    auto aux_border = std::make_shared<OpenGlQuad>(
-	                        Shaders::kRoundedRectangleBorderFragment,
-	                        synth_slider->getComponentID() + "_modulation_slot_aux_border_" + juce::String(slot_index));
-	                    auto aux_label = std::make_shared<PlainTextComponent>(
-	                        synth_slider->getComponentID() + "_modulation_slot_aux_label_" + juce::String(slot_index), "");
-
-	                    body->setInterceptsMouseClicks(false, false);
-	                    amount->setInterceptsMouseClicks(false, false);
-	                    border->setInterceptsMouseClicks(false, false);
-	                    label->setInterceptsMouseClicks(false, false);
-	                    aux_body->setInterceptsMouseClicks(false, false);
-	                    aux_border->setInterceptsMouseClicks(false, false);
-	                    aux_label->setInterceptsMouseClicks(false, false);
-	                    body->setAlwaysOnTop(true);
-	                    amount->setAlwaysOnTop(true);
-	                    border->setAlwaysOnTop(true);
-	                    label->setAlwaysOnTop(true);
-	                    aux_body->setAlwaysOnTop(true);
-	                    aux_border->setAlwaysOnTop(true);
-	                    aux_label->setAlwaysOnTop(true);
-	                    border->setThickness(1.0f, true);
-	                    aux_border->setThickness(1.0f, true);
-	                    label->setFontType(PlainTextComponent::kRegular);
-	                    label->setJustification(juce::Justification::centred);
-	                    aux_label->setFontType(PlainTextComponent::kRegular);
-	                    aux_label->setJustification(juce::Justification::centred);
-
-	                    addOpenGlComponent(body);
-	                    addOpenGlComponent(amount);
-	                    addOpenGlComponent(border);
-	                    addOpenGlComponent(label);
-	                    addOpenGlComponent(aux_body);
-	                    addOpenGlComponent(aux_border);
-	                    addOpenGlComponent(aux_label);
-
-	                    open_gl_slots[slot_index].body = std::move(body);
-	                    open_gl_slots[slot_index].amount = std::move(amount);
-	                    open_gl_slots[slot_index].border = std::move(border);
-	                    open_gl_slots[slot_index].label = std::move(label);
-	                    open_gl_slots[slot_index].aux_body = std::move(aux_body);
-	                    open_gl_slots[slot_index].aux_border = std::move(aux_border);
-	                    open_gl_slots[slot_index].aux_label = std::move(aux_label);
-	                }
-                modulation_box_targets_[slider] = std::move(slots);
-                modulation_box_open_gl_[slider] = std::move(open_gl_slots);
-            }
+            if (auto* synth_slider = dynamic_cast<SynthSlider*>(slider))
+                ensureModulationSlots(*synth_slider);
         }
+    }
+
+    void ParametersView::ensureModulationSlots(SynthSlider& slider) {
+        if (modulation_slot_strips_.contains(&slider))
+            return;
+
+        auto strip = std::make_unique<ConnectionSlots>(slider);
+        addSubSection(strip.get());
+        modulation_slot_strips_[&slider] = std::move(strip);
     }
 
     void ParametersView::updateSliderLabels() {
@@ -493,7 +360,7 @@ public:
             it->second->setBounds(bounds.getX(),
                                   bounds.getY() - kKnobLabelGap - kKnobLabelHeight,
                                   bounds.getWidth(),kKnobLabelHeight);
-            it->second->setText(slider->getName());
+            it->second->setText(getSliderLabel(*slider));
             it->second->setTextSize(getLabelFont().getHeight());
             it->second->setColor(getSliderLabelColor());
         }
@@ -509,7 +376,16 @@ public:
         const int knobs_per_row = getKnobsPerRow();
         const int num_rows = getKnobRowCount();
         const int widget_margin = findValue(Skin::kWidgetMargin);
-        const int row_height = getHeight() / num_rows;
+        constexpr int kFilterTypeRowHeight = 28;
+        constexpr int kFilterTypeHeight = 20;
+        const int content_top = filter_type_layout_ ? kFilterTypeRowHeight : 0;
+        if (filter_type_layout_) {
+            const int combo_width = juce::jlimit(120, 220, getWidth() / 3);
+            filter_type_layout_(juce::Rectangle<int>((getWidth() - combo_width) / 2,
+                                                      (kFilterTypeRowHeight - kFilterTypeHeight) / 2,
+                                                      combo_width, kFilterTypeHeight));
+        }
+        const int row_height = std::max(1, (getHeight() - content_top) / num_rows);
 
         for (int row = 0; row < num_rows; ++row) {
             const int first = row * knobs_per_row;
@@ -518,7 +394,8 @@ public:
             if (count <= 0)
                 continue;
 
-            juce::Rectangle<int> row_area(0, row * row_height, getWidth(), row_height);
+            juce::Rectangle<int> row_area(0, content_top + row * row_height,
+                                          getWidth(), row_height);
             const float component_width = (row_area.getWidth() - (count + 1) * widget_margin) / static_cast<float>(count);
             float x = row_area.getX() + widget_margin;
             int top = row_area.getY() + kKnobLabelHeight + kKnobLabelGap;
@@ -555,128 +432,17 @@ public:
                     const int box_x = left + ((right - left) - box_width) / 2;
                     const juce::Rectangle<int> box_bounds { box_x, slider->getBottom() + kModulationBoxGap,
                                                             box_width, kModulationBoxHeight};
-                    modulation_boxes_[slider] = box_bounds;
-
-                    auto target = modulation_box_targets_.find(slider);
-                    if (target != modulation_box_targets_.end()) {
-                        for (int slot_index = 0; slot_index < SynthSlider::kNumModulationSlots; ++slot_index) {
-                            const int slot_left = box_bounds.getX() + (slot_index * box_bounds.getWidth())
-                                                        / SynthSlider::kNumModulationSlots;
-                            const int slot_right = box_bounds.getX() + ((slot_index + 1) * box_bounds.getWidth())
-                                                        / SynthSlider::kNumModulationSlots;
-                            target->second[slot_index]->setBounds(slot_left, box_bounds.getY(),
-                                                            slot_right - slot_left, box_bounds.getHeight());
-                            target->second[slot_index]->setVisible(true);
-                        }
-                    }
-
-                    auto open_gl = modulation_box_open_gl_.find(slider);
-                    if (open_gl != modulation_box_open_gl_.end()) {
-                        for (int slot_index = 0; slot_index < SynthSlider::kNumModulationSlots; ++slot_index) {
-                            const int slot_left = box_bounds.getX() + (slot_index * box_bounds.getWidth())
-                                                        / SynthSlider::kNumModulationSlots;
-                            const int slot_right = box_bounds.getX() + ((slot_index + 1) * box_bounds.getWidth())
-                                                        / SynthSlider::kNumModulationSlots;
-                            const juce::Rectangle<int> slot_bounds(
-                                slot_left, box_bounds.getY(), slot_right - slot_left, box_bounds.getHeight());
-
-                            auto& visuals = open_gl->second[slot_index];
-	                            if (visuals.body) visuals.body->setBounds(slot_bounds);
-	                            if (visuals.border) visuals.border->setBounds(slot_bounds);
-	                            if (visuals.label) visuals.label->setBounds(slot_bounds.reduced(2, 1));
-
-	                            const auto aux_bounds = getAuxSlotBounds(slot_bounds.toFloat()).toNearestInt();
-	                            if (visuals.aux_body) visuals.aux_body->setBounds(aux_bounds);
-	                            if (visuals.aux_border) visuals.aux_border->setBounds(aux_bounds);
-	                            if (visuals.aux_label) visuals.aux_label->setBounds(aux_bounds.reduced(1, 0));
-
-	                            const int meter_height = std::max(2, static_cast<int>(slot_bounds.getHeight()));
-                            if (visuals.amount) {
-                                visuals.amount->setBounds(slot_bounds.getX() + 1,
-                                                          slot_bounds.getBottom() - meter_height - 1,
-                                                          std::max(0, slot_bounds.getWidth() - 2),
-                                                          meter_height);
-                            }
-                        }
-                    }
+                    if (auto strip = modulation_slot_strips_.find(slider);
+                        strip != modulation_slot_strips_.end())
+                        strip->second->setBounds(box_bounds);
                 }
                 x += component_width + widget_margin;
             }
         }
 
         updateSliderLabels();
-        syncModulationSlotOpenGl();
         repaintBackground();
     }
-
-    void ParametersView::syncModulationSlotOpenGl() {
-        const auto empty_border_color = juce::Colours::transparentBlack;
-
-        for (auto& [slider, slots] : modulation_box_targets_) {
-            auto visuals_iter = modulation_box_open_gl_.find(slider);
-            if (visuals_iter == modulation_box_open_gl_.end())
-                continue;
-
-            for (int slot_index = 0; slot_index < SynthSlider::kNumModulationSlots; ++slot_index) {
-                auto* slot = slots[slot_index].get();
-                auto& visuals = visuals_iter->second[slot_index];
-                if (slot == nullptr)
-                    continue;
-
-                const bool occupied = slot->isOccupied();
-                const auto source_color = occupied
-	                    ? getBypassAdjustedColor(slot->getSourceColor(), slot->isBypass())
-	                    : empty_border_color;
-                const bool has_aux = slot->hasAuxSource();
-                const auto aux_color = has_aux ? slot->getSourceColor() : empty_border_color;
-                const float amount = juce::jlimit(-1.0f, 1.0f, (slot->getModulationAmount()));
-                const auto slot_bounds = slot->getBounds();
-
-                if (visuals.body) {
-                    visuals.body->setColor(source_color.withAlpha(0.28f));
-                    visuals.body->setVisible(occupied);
-                }
-
-                if (visuals.amount) {
-                    visuals.amount->setColor(source_color.withAlpha(0.2f));
-                    visuals.amount->setVisible(occupied && amount > -1.f);
-                    auto amount_bounds = visuals.amount->getBounds();
-                    amount_bounds.setWidth(std::max(0, static_cast<int>(
-                        std::round((slot_bounds.getWidth() - 2) * (amount+1)/2))) );
-                    visuals.amount->setBounds(amount_bounds);
-                }
-
-                if (visuals.border) {
-                    visuals.border->setColor(source_color);
-                    visuals.border->setVisible(true);
-                }
-
-	                if (visuals.label) {
-	                    visuals.label->setText(occupied ? slot->getSourceLabel() : "");
-	                    visuals.label->setTextSize(std::max(9.0f, slot_bounds.getHeight() * 0.45f));
-	                    visuals.label->setColor(source_color);
-	                    visuals.label->setVisible(occupied);
-	                }
-
-	                if (visuals.aux_body) {
-	                    visuals.aux_body->setColor(aux_color.withAlpha(0.32f));
-	                    visuals.aux_body->setVisible(occupied && has_aux);
-	                }
-
-	                if (visuals.aux_border) {
-	                    visuals.aux_border->setColor(aux_color);
-	                    visuals.aux_border->setVisible(occupied && has_aux);
-	                }
-
-	                if (visuals.aux_label) {
-	                    visuals.aux_label->setText(has_aux ? slot->getSourceLabel() : "");
-	                    visuals.aux_label->setTextSize(std::max(7.0f, slot_bounds.getHeight() * 0.28f));
-	                    visuals.aux_label->setColor(aux_color);
-	                    visuals.aux_label->setVisible(occupied && has_aux);
-	                }
-	            }
-	        }
-	    }
 
     void ParametersView::init_() {
 //        pimpl->view.setRootItem(&pimpl->groupItem);
@@ -689,92 +455,109 @@ public:
 // ============================================================
 // FxModuleTemplateView
 // ============================================================
-FxModuleTemplateView::FxModuleTemplateView(chowdsp::PluginState& pluginState,
-                                           chowdsp::ParamHolder& params,
-                                           juce::String name)
-    : SynthSection(name)
-{
-    setComponentID(name);
-    setInterceptsMouseClicks(false, true);
+FxModuleTemplateView::FxModuleTemplateView(chowdsp::PluginState& pluginState, chowdsp::ParamHolder& params, juce::String name)
+    : SynthSection(name) {
 
-    params.doForAllParameterContainers(
-        [this, &pluginState](auto& paramVec) {
+        setComponentID(name);
+        setInterceptsMouseClicks(false, true);
+
+        params.doForAllParameterContainers([this, &pluginState](auto& paramVec) {
             for (auto& param : paramVec) {
+                if (auto* choice = dynamic_cast<chowdsp::ChoiceParameter*>(param.get());
+                    choice != nullptr && param->paramID == "filterType") {
+                    filter_type_combo_ = std::make_unique<OpenGLComboBox>();
+                    filter_type_combo_->setColour(juce::ComboBox::outlineColourId,
+                                                  juce::Colours::white);
+                    filter_type_combo_->getImageComponent()->setRenderScale(2.0f);
+                    addAndMakeVisible(filter_type_combo_.get());
+                    addOpenGlComponent(filter_type_combo_->getImageComponent());
+                    filter_type_attachment_ = std::make_unique<chowdsp::ComboBoxAttachment>(
+                        *choice, pluginState, *filter_type_combo_);
+                    filter_type_index_ = filter_type_combo_->getSelectedItemIndex();
+                    filter_type_combo_->onChange = [this] {
+                        filter_type_index_ = filter_type_combo_->getSelectedItemIndex();
+                        updateLabels();
+                    };
+                    continue;
+                }
+
                 if ((int)comps.size() < kMaxEffectSlots)
                     comps.push_back(parameters_view_detail::createParameterComp(pluginState, param, *this));
             }
-        },
-        [](auto&) {});
+        }, [](auto&) {});
 
     // Mix / PostGain are intended visible FX controls. NOTE: they are currently
     // UI-only (no chowdsp parameter attachment) and are NOT wired to DSP yet.
     // No greyed-out placeholder knobs are created for empty slots.
     mix_knob_ = std::make_unique<NoPopupSynthSlider>("Mix");
-    mix_knob_->setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
+    mix_knob_->setSliderStyle(juce::Slider::LinearBar);
+    // They use a dedicated utility layout below the real rotary parameters.
+    // mix_knob_ = std::make_unique<SynthSlider>("Mix");
+    // mix_knob_->setSliderStyle(juce::Slider::LinearBar);
     mix_knob_->setScrollWheelEnabled(false);
     mix_knob_->setKnobSizeScale(1.0f);
     addSlider(mix_knob_.get(), true);
     mix_knob_->parentHierarchyChanged();
 
     postgain_knob_ = std::make_unique<NoPopupSynthSlider>("PostGain");
-    postgain_knob_->setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
+    postgain_knob_->setSliderStyle(juce::Slider::LinearBar);
+    // postgain_knob_ = std::make_unique<SynthSlider>("PostGain");
+    // postgain_knob_->setSliderStyle(juce::Slider::LinearBar);
     postgain_knob_->setScrollWheelEnabled(false);
     postgain_knob_->setKnobSizeScale(1.0f);
     addSlider(postgain_knob_.get(), true);
     postgain_knob_->parentHierarchyChanged();
 
-    // Filter modules get a placeholder type dropdown between the module title and the
-    // first control row. Same presentation-only pattern as the lane header's routing
-    // dropdown: one item, rejects clicks, no keyboard focus. The editor name is
-    // "<type><uuid>" (see FilterModuleProcessor::createEditor), so a "filt" prefix
-    // identifies the filter view.
-    if (name.startsWith("filt")) {
-        filter_type_combo_ = std::make_unique<OpenGLComboBox>();
-        filter_type_combo_->addItem("Lowpass", 1);
-        filter_type_combo_->setSelectedId(1, juce::dontSendNotification);
-        filter_type_combo_->setInterceptsMouseClicks(false, false);
-        filter_type_combo_->setWantsKeyboardFocus(false);
-        addAndMakeVisible(filter_type_combo_.get());
-        addOpenGlComponent(filter_type_combo_->getImageComponent());
-
-        // The combo's fill matches the module body; a live white border quad provides
-        // the visual separation (this view's paintBackground is never baked in FX).
-        filter_type_combo_border_ = std::make_shared<OpenGlQuad>(
-            Shaders::kRoundedRectangleBorderFragment, "filter_type_combo_border");
-        filter_type_combo_border_->setInterceptsMouseClicks(false, false);
-        filter_type_combo_border_->setColor(juce::Colours::white);
-        addOpenGlComponent(filter_type_combo_border_);
-    }
-
     setLookAndFeel(DefaultLookAndFeel::instance());
     setOpaque(false);
     ensureLabels();
+    updateLabels();
 }
 
 FxModuleTemplateView::~FxModuleTemplateView() = default;
 
-// FX-local layout constants. These shrink the FX knob/tick-arc footprint and tune
-// vertical spacing for the narrow FX panel ONLY. They do not touch global skin
-// values or shared SynthSlider rendering constants.
+// FX-local layout constants. FX rotaries intentionally use the same shared default
+// scale as oscillator controls; spacing remains local to the narrow FX panel.
 namespace {
-    constexpr float kFxKnobScale       = 0.7225f; // 0.85 * 0.85 — FX knob/tick-arc footprint
+    constexpr float kFxKnobScale       = OpenGlSlider::kDefaultKnobSizeScale;
     constexpr int   kFxLabelHeight     = 18;      // tall enough to avoid clipping descenders
     constexpr int   kFxLabelToArcGap   = 2;       // label bottom -> top of tick arc
     constexpr int   kFxRowTopPad       = 10;      // padding above the first row
     constexpr int   kFxRowBottomPad    = 2;       // padding below the last row
-    constexpr int   kFxRowGap          = 16;      // breathing room between stacked rows
+    constexpr int   kFxRowGap          = 10;      // breathing room between stacked rows
     constexpr int   kFxMinKnobCellWidth = 76;     // min horizontal cell per knob (drives knobs-per-row)
     constexpr int   kFxSideInset       = 1;       // side inset = border thickness (paintBorder draws 1px)
+    constexpr int   kFxModulationBoxGap = 4;
+    constexpr int   kFxModulationBoxWidth = 120;
+    constexpr int   kFxUtilityTopGap = 20;
+    constexpr int   kFxUtilityLabelWidth = 60;
+    constexpr int   kFxUtilitySideInset = 20;
+    constexpr int   kFxUtilitySliderHeight = 20;
+    constexpr int   kFxUtilityRowGap = 10;
+    // ModuleSection draws the audio-port arrows over its bottom content area.
+    constexpr int   kFxAudioPortReserve = 30;
     // Filter type dropdown: doubled top gap hosts the control; height matches the lane
     // header's routing dropdown (kRoutingControlHeight in EffectsModuleSection).
     constexpr int   kFxTypeComboHeight = 14;
 }
 
 juce::Colour FxModuleTemplateView::getLabelColor(const juce::Component* control) const {
-    if (control == mix_knob_.get() || control == postgain_knob_.get())
-        return ShaderColors::kSoundModuleTextColor;
-
     return ShaderColors::kEffectTextColor;
+}
+
+juce::String FxModuleTemplateView::getControlLabel(const juce::Component& control) const {
+    if (filter_type_combo_ == nullptr)
+        return control.getName();
+
+    const bool peak = filter_type_index_ == 4;
+    const bool shelf = filter_type_index_ == 5 || filter_type_index_ == 6;
+    if (control.getName().equalsIgnoreCase("Cutoff"))
+        return peak || shelf ? "Frequency" : "Cutoff";
+    if (control.getName().equalsIgnoreCase("Q"))
+        return peak ? "Bandwidth" : "Resonance";
+    if (control.getName().equalsIgnoreCase("Amp"))
+        return peak || shelf ? "Gain" : "Output";
+    return control.getName();
 }
 
 void FxModuleTemplateView::ensureLabels() {
@@ -792,7 +575,21 @@ void FxModuleTemplateView::ensureLabels() {
         label->setInterceptsMouseClicks(false, false);
         addOpenGlComponent(label);
         slider_labels_[slider] = label;
+
+        if (auto* synth_slider = dynamic_cast<SynthSlider*>(slider);
+            synth_slider != nullptr && synth_slider != mix_knob_.get()
+            && synth_slider != postgain_knob_.get())
+            ensureModulationSlots(*synth_slider);
     }
+}
+
+void FxModuleTemplateView::ensureModulationSlots(SynthSlider& slider) {
+    if (modulation_slot_strips_.contains(&slider))
+        return;
+
+    auto strip = std::make_unique<ConnectionSlots>(slider);
+    addSubSection(strip.get());
+    modulation_slot_strips_[&slider] = std::move(strip);
 }
 
 void FxModuleTemplateView::updateLabels() {
@@ -802,9 +599,10 @@ void FxModuleTemplateView::updateLabels() {
             continue;
 
         const auto b = slider->getBounds();
-        it->second->setBounds(b.getX(), b.getY() - kFxLabelHeight - kFxLabelToArcGap,
-                              b.getWidth(), kFxLabelHeight);
-        it->second->setText(slider->getName());
+        if (slider != mix_knob_.get() && slider != postgain_knob_.get())
+            it->second->setBounds(b.getX(), b.getY() - kFxLabelHeight - kFxLabelToArcGap,
+                                  b.getWidth(), kFxLabelHeight);
+        it->second->setText(getControlLabel(*slider));
         it->second->setTextSize(getLabelFont().getHeight());
         it->second->setColor(getLabelColor(slider));
         it->second->setVisible(slider->isEnabled());
@@ -817,32 +615,42 @@ void FxModuleTemplateView::updateLabels() {
 int FxModuleTemplateView::getPreferredHeight() const {
     // Filter modules double the title-to-first-label gap to host the type dropdown.
     const int top_pad = filter_type_combo_ != nullptr ? 2 * kFxRowTopPad : kFxRowTopPad;
+    constexpr int footerTopGap = 20;
+    constexpr int footerHeight = 2 * 20 + 6;
 
-    const int n = (int) comps.size() + (mix_knob_ != nullptr ? 1 : 0)
-                                     + (postgain_knob_ != nullptr ? 1 : 0);
-    if (n <= 0)
-        return top_pad + kFxRowBottomPad;
+    const int n = static_cast<int>(comps.size());
+    // const int n = static_cast<int> (comps.size());
+    // if (n <= 0)
+    //     return top_pad + kFxRowBottomPad;
 
-    const int knobPx = std::max(1, (int) std::ceil(
-        kFxKnobScale * 2.0f * (findValue(Skin::kKnobArcSize)
-                               + findValue(Skin::kKnobArcThickness))));
+    const int knobPx = std::max(1, (int) std::ceil(kFxKnobScale * 2.0f * (findValue(Skin::kKnobArcSize) + findValue(Skin::kKnobArcThickness))));
 
     const int perRow  = std::max(1, std::min(getWidth() / kFxMinKnobCellWidth, n));
     const int numRows = (n + perRow - 1) / perRow; // matches resized()'s grouping row count
-    const int rowContentH = kFxLabelHeight + kFxLabelToArcGap + knobPx;
+    const int rowContentH = kFxLabelHeight + kFxLabelToArcGap + knobPx + kFxModulationBoxGap + ConnectionSlots::kSlotHeight;
+    // const int perRow = std::max(1, std::min(getWidth() / kFxMinKnobCellWidth,
+    //                                         std::max(1, n)));
+    // const int numRows = n > 0 ? (n + perRow - 1) / perRow : 0;
+    // const int rowContentH = kFxLabelHeight + kFxLabelToArcGap + knobPx
+    //                         + kFxModulationBoxGap + ModulationSlots::kHeight;
+    // const int parameter_height = numRows > 0
+    //     ? numRows * rowContentH + (numRows - 1) * kFxRowGap
+    //     : 0;
+    // const int utility_height = kFxUtilityTopGap + 2 * kFxUtilitySliderHeight
+    //                          + kFxUtilityRowGap + kFxAudioPortReserve;
 
-    return top_pad + numRows * rowContentH
-         + (numRows - 1) * kFxRowGap + kFxRowBottomPad;
+    return top_pad + numRows * rowContentH + (numRows - 1) * kFxRowGap + kFxRowBottomPad + footerHeight + footerTopGap;
+    //return top_pad + parameter_height + kFxRowBottomPad + utility_height;
 }
 
 void FxModuleTemplateView::resized() {
-    // 1. Lane width.
-    const int w = getWidth();
+    const int w = getWidth(); // lane width
 
     // 2. Shrink the FX knob/tick-arc footprint locally (raster + GL rotary). Does NOT
     // change global skin values or shared SynthSlider constants.
     for (auto* slider : all_sliders_v)
-        if (auto* ss = dynamic_cast<SynthSlider*>(slider))
+        if (auto* ss = dynamic_cast<SynthSlider*>(slider);
+            ss != nullptr && ss != mix_knob_.get() && ss != postgain_knob_.get())
             ss->setKnobSizeScale(kFxKnobScale);
 
     // 3. Rendered knob box, matched to the FX-scaled arc.
@@ -850,29 +658,30 @@ void FxModuleTemplateView::resized() {
         kFxKnobScale * 2.0f * (findValue(Skin::kKnobArcSize)
                                + findValue(Skin::kKnobArcThickness))));
 
-    // 4. Visible controls in order: real params, then Mix, then PostGain. No placeholders.
+    // 4. Real parameter controls remain rotary. Mix and PostGain are laid out
+    // separately as utility bars below them.
     std::vector<juce::Component*> controls;
-    controls.reserve(comps.size() + 2);
+    controls.reserve(comps.size()); // + 2 before
     for (auto& c : comps)
         controls.push_back(c.get());
-    if (mix_knob_ != nullptr)
-        controls.push_back(mix_knob_.get());
-    if (postgain_knob_ != nullptr)
-        controls.push_back(postgain_knob_.get());
 
     // 5. Knobs per row = as many as fit the lane width, clamped to [1, n].
     const int n = (int) controls.size();
-    if (n == 0) {
-        SynthSection::resized();
-        return;
-    }
+    // const int n = static_cast<int> (controls.size());
+    // if (n == 0) {
+    //     SynthSection::resized();
+    //     return;
+    // }
     // perRow ignores the side inset; the inset only trims the row area used for centering.
-    const int perRow = std::max(1, std::min(w / kFxMinKnobCellWidth, n));
+    const int perRow = std::max(1, std::min(w / kFxMinKnobCellWidth,
+                                            std::max(1, n)));
 
     // 6. Row sizes. remainder becomes a smaller FIRST row so every later row (incl. the
     // final Mix/PostGain row) is full; single-per-row when only one fits.
     std::vector<int> rows;
-    if (perRow <= 1) {
+    if (n == 0) {
+        rows.clear();
+    } else if (perRow <= 1) {
         rows.assign(n, 1);
     } else {
         const int leftover = n % perRow;
@@ -891,12 +700,9 @@ void FxModuleTemplateView::resized() {
         const int combo_w = std::max(60, w / 2);
         filter_type_combo_->setBounds((w - combo_w) / 2, (top_pad - combo_h) / 2,
                                       combo_w, combo_h);
-        filter_type_combo_border_->setBounds(filter_type_combo_->getBounds().expanded(1));
-        filter_type_combo_border_->setRounding(3.0f);
-        filter_type_combo_border_->setThickness(1.0f, true);
     }
 
-    const int rowContentH = kFxLabelHeight + kFxLabelToArcGap + knobPx;
+    const int rowContentH = kFxLabelHeight + kFxLabelToArcGap + knobPx + kFxModulationBoxGap + ConnectionSlots::kSlotHeight;
     const int cellW = (w - 2 * kFxSideInset) / perRow;
     int idx = 0;
     int y = top_pad;
@@ -910,33 +716,61 @@ void FxModuleTemplateView::resized() {
         y += rowContentH + kFxRowGap;
     }
 
+    const int parameter_bottom = rows.empty() ? top_pad : y - kFxRowGap;
+    const int utility_y = parameter_bottom + kFxRowBottomPad + kFxUtilityTopGap;
+    const int utility_width = std::max(0, w - 2 * kFxUtilitySideInset);
+
+    auto layoutUtilitySlider = [this, utility_width](SynthSlider& slider, int row_y) {
+        auto row = juce::Rectangle<int>(kFxUtilitySideInset, row_y, utility_width,
+                                        kFxUtilitySliderHeight);
+        const auto label_bounds = row.removeFromLeft(
+            std::min(kFxUtilityLabelWidth, row.getWidth()));
+        slider.setBounds(row);
+        slider.redoImage();
+
+        if (auto label = slider_labels_.find(&slider); label != slider_labels_.end())
+            label->second->setBounds(label_bounds);
+    };
+
+    layoutUtilitySlider(*mix_knob_, utility_y);
+    layoutUtilitySlider(*postgain_knob_,
+                        utility_y + kFxUtilitySliderHeight + kFxUtilityRowGap);
+
+    updateLabels();
+    // constexpr int arrow_height = 30;
+    // constexpr int sliderHeight = 20;
+    // constexpr int sideInset = 20;
+    // const int footerHeight = 2 * sliderHeight + kFxRowGap + arrow_height;
+    // const int footerY = getPreferredHeight() - footerHeight;
+    //
+    // auto layoutLinearSlider = [&] (SynthSlider& slider, int y) {
+    //     auto row = juce::Rectangle<int>(sideInset, y, getWidth() - 2 * sideInset, sliderHeight);
+    //     auto labelBounds = row.removeFromLeft(60);
+    //     slider.setBounds(row);
+    //     slider.redoImage();
+    //
+    //     if (auto label = slider_labels_.find(&slider);
+    //         label != slider_labels_.end())
+    //         label->second->setBounds(labelBounds);
+    // };
+    //
+    // layoutLinearSlider(*mix_knob_, footerY);
+    // layoutLinearSlider(*postgain_knob_, footerY + sliderHeight + kFxRowGap);
+
     // 8. Redo slider images + labels.
     for (auto* slider : all_sliders_v)
-        if (auto* synth_slider = dynamic_cast<SynthSlider*>(slider))
+        if (auto* synth_slider = dynamic_cast<SynthSlider*>(slider)) {
             synth_slider->redoImage();
-    updateLabels();
+            if (auto strip = modulation_slot_strips_.find(synth_slider);
+                strip != modulation_slot_strips_.end()) {
+                const int box_width = std::max(0, std::min(kFxModulationBoxWidth, cellW - 4));
+                strip->second->setBounds(synth_slider->getBounds().getCentreX() - box_width / 2,
+                                         synth_slider->getBottom() + kFxModulationBoxGap,
+                                         box_width, ConnectionSlots::kSlotHeight);
+            }
+        }
 
-    // 9. Base resize.
     SynthSection::resized();
-
-    // 10. Existing note, kept once.
-    // NOTE: Do NOT call repaintBackground() here.
-    //
-    // repaintBackground() walks up to FullInterface and stamps this view's
-    // paintBackground() (all 7 modulation boxes) into the *global* window
-    // background image. Unlike the working non-scrolled sections, an FX view
-    // lives inside the EffectModuleSection scroll viewport: its absolute bounds
-    // extend past the visible viewport and shift on scroll/reflow, and the
-    // global image is neither viewport-clipped nor cleared at the view's old
-    // position. That is what made the rectangular mod boxes escape the FX panel
-    // while scrolling and linger after a module was removed.
-    //
-    // The FX panel's visible background comes solely from the scroll-aware,
-    // viewport-scissored image baked in EffectModuleSection::redoBackgroundImage(),
-    // which the owning EffectModuleSection::resized() always rebakes after it
-    // lays out the FX views. So the scroll background stays correct without the
-    // harmful global stamp. This is FX-local: other sections still repaint
-    // normally because they are not inside a scrolling viewport.
 }
 
 void FxModuleTemplateView::paintBackground(juce::Graphics& g) {
@@ -947,7 +781,7 @@ void FxModuleTemplateView::paintBackground(juce::Graphics& g) {
 
     // NOTE: this function is not invoked in the FX lane path — ModuleSection::
     // paintBackground() is intentionally empty and never paints its child view, so the
-    // combo outline below is a live GL quad (filter_type_combo_border_), not baked here.
+    // combo outline is part of the combo's own high-resolution OpenGL image.
 
     // FX modulation boxes are hidden for now, but the layout still reserves their space
     // to preserve row spacing (see mod_boxes_ / kFxModBoxHeight in resized()). The old

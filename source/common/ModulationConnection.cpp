@@ -6,8 +6,7 @@
 #include <algorithm>
 namespace electrosynth
 {
-    namespace
-    {
+    namespace {
         const std::string kModulationSourceDelimiter = "_";
         const std::set<std::string> kBipolarModulationSourcePrefixes = {
             "lfo",
@@ -16,8 +15,7 @@ namespace electrosynth
             "audio"
         };
 
-        force_inline bool isConnectionAvailable (ModulationConnection* connection)
-        {
+        force_inline bool isConnectionAvailable (Connection* connection) {
             return connection->source_name.empty() && connection->destination_name.empty();
         }
     }
@@ -28,7 +26,8 @@ namespace electrosynth
     //    }
 
     //    ModulationConnection::~ModulationConnection() { }
-    bool ModulationConnection::isModulationSourceDefaultBipolar(const std::string& source) {
+
+    bool Connection::isModulationSourceDefaultBipolar(const std::string& source) {
         //std::size_t pos = source.find(kModulationSourceDelimiter);
         std::size_t pos = source.find_first_of("0123456789");
         std::string prefix = source.substr(0, pos);
@@ -74,7 +73,7 @@ namespace electrosynth
 
     }
 
-    int MappingWrapper::indexOfConnection(const ModulationConnection* connection) const
+    int MappingWrapper::indexOfConnection(const Connection* connection) const
     {
         auto it = std::find(all_connections_.begin(), all_connections_.end(), connection);
         if (it == all_connections_.end())
@@ -82,7 +81,7 @@ namespace electrosynth
         return static_cast<int>(std::distance(all_connections_.begin(), it));
     }
 
-    void MappingWrapper::addConnection(ModulationConnection* connection)
+    void MappingWrapper::addConnection(Connection* connection)
     {
         if (connection == nullptr)
             return;
@@ -94,7 +93,7 @@ namespace electrosynth
         reorderMapping();
     }
 
-    bool MappingWrapper::removeConnection(ModulationConnection* connection)
+    bool MappingWrapper::removeConnection(Connection* connection)
     {
         auto it = std::remove(all_connections_.begin(), all_connections_.end(), connection);
         if (it == all_connections_.end())
@@ -105,7 +104,7 @@ namespace electrosynth
         return true;
     }
 
-    bool MappingWrapper::moveConnection(ModulationConnection* connection, int new_index)
+    bool MappingWrapper::moveConnection(Connection* connection, int new_index)
     {
         if (connection == nullptr)
             return false;
@@ -126,18 +125,18 @@ namespace electrosynth
     }
 
 
-    ModulationConnectionBank::ModulationConnectionBank (LEAF& _leaf) : leaf(_leaf)
+    ConnectionBank::ConnectionBank (LEAF& _leaf) : leaf(_leaf)
     {
-        for (int i = 0; i < kMaxModulationConnections; ++i)
+        for (int i = 0; i < kMaxConnections; ++i)
         {
-            std::unique_ptr<ModulationConnection> connection = std::make_unique<ModulationConnection> ("", "", leaf, i);
+            std::unique_ptr<Connection> connection = std::make_unique<Connection> ("", "", leaf, i);
             all_connections_.push_back (std::move (connection));
         }
     }
 
-    ModulationConnectionBank::~ModulationConnectionBank() {}
+    ConnectionBank::~ConnectionBank() {}
 
-    MappingWrapper* ModulationConnectionBank::createMapping(const std::string &to)
+    MappingWrapper* ConnectionBank::createMapping(const std::string &to)
     {
         try
         {
@@ -154,7 +153,7 @@ namespace electrosynth
         }
 
     }
-    ModulationConnection* ModulationConnectionBank::createConnection(
+    Connection* ConnectionBank::createConnection(
         const std::string& from, const std::string& to, int destination_slot)
     {
         int index = 1;
@@ -167,7 +166,7 @@ namespace electrosynth
 
 
                 connection->mapping_ = createMapping(to);
-                connection->setDefaultBipolar(ModulationConnection::isModulationSourceDefaultBipolar(from));
+                connection->setDefaultBipolar(Connection::isModulationSourceDefaultBipolar(from));
 
                 return connection.get();
             }

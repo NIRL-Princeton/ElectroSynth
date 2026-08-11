@@ -30,8 +30,7 @@ HeaderSection::HeaderSection() : SynthSection("header_section"), tab_offset_(0),
 void HeaderSection::paintBackground(Graphics& g) {
   paintContainer(g);
   g.setColour(findColour(Skin::kBody, true));
-  paintKnobShadows(g);
-  paintChildrenBackgrounds(g);
+  // paintChildrenBackgrounds(g);
   g.saveState();
   g.restoreState();
 }

@@ -4,15 +4,30 @@
 
 
 #include "ModulationSection.h"
-#include "modulation_button.h"
-#include "modulation_manager.h"
+#include "connection_button.h"
+#include "mapping_manager.h"
+
 ModulationSection::ModulationSection( const juce::ValueTree &v, std::unique_ptr<SynthSection> editor, juce::UndoManager& um)
                         : SynthSection(editor->getName()),
                         state(v),
                         _view(std::move(editor)),
-                        mod_button(new ModulationButton("mod")), undo(um) // this is the dragged connector
+                        undo(um) // this is the dragged connector
 {
     setComponentID(_view->getName());
+
+    electrosynth::EndpointDescriptor sourceEndpoint {
+        .address {
+            .type = electrosynth::ConnectionType::Modulation,
+            .nodeId = state.getProperty(IDs::nodeID).toString(),
+            .endpointId = getComponentID() + "_mod",
+            .direction = electrosynth::EndpointDirection::Source
+        },
+        .capabilities {
+            .maxIncomingConnections = 0
+        }
+    };
+
+    mod_button = std::make_shared<ConnectionButton>("mod", std::move(sourceEndpoint));
     addModulationButton(mod_button, false);
     mod_button->setAlwaysOnTop(true);
     addSubSection(_view.get());
@@ -37,41 +52,25 @@ void ModulationSection::setAreaSkinOverride(Skin::SectionOverride skin_override)
         _view->setSkinOverride(skin_override);
 }
 
-void ModulationSection::paintBackground(juce::Graphics &g)
-{
-        SynthSection::paintBackground(g);
-    // g.fillAll(juce::Colours::green);
+void ModulationSection::paintBackground(juce::Graphics &g){
+    SynthSection::paintBackground(g);
 }
 
-void ModulationSection::resized()
-{
-    int widget_margin = findValue(Skin::kWidgetMargin);
-    int title_width = getTitleWidth();
-    int section_height = getKnobSectionHeight();
+void ModulationSection::resized() {
 
-    Rectangle<int> bounds = getLocalBounds().withLeft(title_width);
-    Rectangle<int> knobs_area = getDividedAreaBuffered(bounds, 2, 1, widget_margin);
-    Rectangle<int> settings_area = getDividedAreaUnbuffered(bounds, 4, 0, widget_margin);
     _view->setBounds(getLocalBounds());
     if (mod_button->getParentComponent() == this)
         mod_button->setBounds(_view->getRight() - 40, getY(),40,40);
     exit_button_->setBounds(0,0, 30,30);
 
-    int knob_y2 =0;
     SynthSection::resized();
 }
 
 
-void ModulationSection::addModButtonListener(ModulationManager* manager) {
+void ModulationSection::addModButtonListener(MappingManager* manager) const {
     mod_button->addListener(manager);
 }
 
-//void ModulationSection::setParametersViewEditor (electrosynth::ParametersViewEditor&& editor)
-//{
-//   _view_editor = editor;
-//   addSubSection(_view);
-//
-//}
 void ModulationSection::buttonClicked(juce::Button *button) {
     if (button == exit_button_.get()) {
         undo.beginNewTransaction();

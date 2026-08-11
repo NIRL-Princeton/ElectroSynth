@@ -61,26 +61,30 @@ struct RoutingParams : public LEAFParams<_tVCAModule> {
     std::array<std::atomic<float>,MAX_NUM_VOICES> audio_in{0.f};
     };
 
-    class RoutingProcessor : public ProcessorStateBase<PluginStateImpl_<RoutingParams> > {
+
+class RoutingProcessor : public ProcessorStateBase<PluginStateImpl_<RoutingParams> > {
     public:
-        RoutingProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree&, LEAF* leaf, juce::UndoManager *um);
-        void getNextAudioBlock(const juce::AudioSourceChannelInfo &bufferToFill) override {
-        }
+    RoutingProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree&, LEAF* leaf, juce::UndoManager *um);
+    electrosynth::audio::NodeDescriptor getAudioNodeDescriptor() const noexcept override {
+        return electrosynth::audio::makeSystemProcessorDescriptor();
+    }
+    void getNextAudioBlock(const juce::AudioSourceChannelInfo &bufferToFill) override {
+    }
 
-        void processBlock(juce::AudioBuffer<float> &, juce::MidiBuffer &);
+    void processBlock(juce::AudioBuffer<float> &, juce::MidiBuffer &);
 
-        void prepareToPlay(int samplesPerBlock, double sampleRate) override {
-        };
-
-        void releaseResources() override {
-        }
-
-        std::unique_ptr<SynthSection> createEditor() override;
-        chowdsp::ScopedCallbackList callbacks;
-        // std::array<leaf::tAudioRouting,MAX_NUM_VOICES> audio_routings;
-        int curr_lane;
-        juce::AudioBuffer<float> *audio_out;
+    void prepareToPlay(int samplesPerBlock, double sampleRate) override {
     };
+
+    void releaseResources() override {
+    }
+
+    std::unique_ptr<SynthSection> createEditor() override;
+    chowdsp::ScopedCallbackList callbacks;
+    // std::array<leaf::tAudioRouting,MAX_NUM_VOICES> audio_routings;
+    int curr_lane;
+    juce::AudioBuffer<float> *audio_out;
+};
 
 
 #endif //VCAMODULEPROCESSOR_H

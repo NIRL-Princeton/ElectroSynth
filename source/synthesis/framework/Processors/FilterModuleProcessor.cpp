@@ -31,6 +31,13 @@ FilterModuleProcessor::FilterModuleProcessor(electrosynth::SoundEngine* engine,c
 #include "sound_engine.h"
 void FilterModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer&) {
     int numSamples = buffer.getNumSamples();
+    const int requestedFilterType = juce::jlimit(0, (int)FiltNumTypes - 1,
+                                                 juce::roundToInt(state_.params.filterType->get()));
+    if (requestedFilterType != currentFilterType_) {
+        for (auto* module : state_.params.modules)
+            tFiltModule_setType(module, requestedFilterType);
+        currentFilterType_ = requestedFilterType;
+    }
     //buffer.clear();
     //    auto* samplesL = buffer.getReadPointer(0);
 
