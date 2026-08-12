@@ -10,6 +10,8 @@
 #include "Identifiers.h"
 #include "ProcessorBase.h"
 #include "leaf-midi.h"
+#include "sound_engine.h"
+
 namespace electrosynth{
     namespace utils
     {
@@ -17,10 +19,6 @@ namespace electrosynth{
         juce::String harmonicValToString(float harmonic);
     }
 }
-
-
-
-
 
 
 //template <typename ParameterState,  typename T>
@@ -49,37 +47,36 @@ namespace electrosynth{
 //    OscNumParams
 //} OscParams;
 
-constexpr std::array<const char*, 13> OscParamNames = {
-    "",       // OscMidiPitch
-    "harmonic",           // OscHarmonic
-    "pitch",              // OscPitchOffset
-    "pitchfine",         // OscPitchFine
-    "freqoffset",        // OscFreqOffset
-    "shape",              // OscShapeParam
-    "amp",                // OscAmpParam
-    "glide",              // OscGlide
-    "harmonicStepped",    // OscStepped
-    "",                   // OscSyncMode (undefined in your parameters)
-    "",                   // OscSyncIn (undefined in your parameters)
-    "oscType",            // OscType
-    ""                    // OscNumParams (typically represents the count, no corresponding parameter)
-};
-enum class FlagOscTypes{
-    OscTypeSawSquare =1,
-    OscTypeSineTri =2,
-    OscTypeSaw =4,
-    OscTypePulse = 8,
-    OscTypeSine = 16,
-    OscTypeTri = 32
+// constexpr std::array<const char*, 13> OscParamNames = {
+//     "",       // OscMidiPitch
+//     "harmonic",           // OscHarmonic
+//     "pitch",              // OscPitchOffset
+//     "pitchfine",         // OscPitchFine
+//     "freqoffset",        // OscFreqOffset
+//     "shape",              // OscShapeParam
+//     "amp",                // OscAmpParam
+//     "glide",              // OscGlide
+//     "harmonicStepped",    // OscStepped
+//     "",                   // OscSyncMode (undefined in your parameters)
+//     "",                   // OscSyncIn (undefined in your parameters)
+//     "oscType",            // OscType
+//     ""                    // OscNumParams (typically represents the count, no corresponding parameter)
+// };
 
-} ;
+// enum FlagOscTypes{
+//     OscTypeSawSquare = 1,
+//     OscTypeSineTri = 2,
+//     OscTypeSaw = 4,
+//     OscTypePulse = 8,
+//     OscTypeSine = 16,
+//     OscTypeTri = 32
+// } ;
+
 struct OscillatorParams : public LEAFParams<_tOscModule >
 {
     OscillatorParams(LEAF* leaf) : LEAFParams<_tOscModule>(leaf)
     {
-       add(harmonic, pitchOffset, pitchFine, freqOffset, glide, shape, harmonicstepped, amp, oscType, portaType);
-        //add(pitchOffset);
-
+       add(harmonic, pitchOffset, pitchFine, freqOffset, glide, portaType, shape, harmonicstepped, oscType, amp);
     }
     //add env watch param so that it isnt null
     chowdsp::FloatParameter::Ptr envwatchparam {
@@ -94,7 +91,6 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
         &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal
     };
-
 
     chowdsp::FloatParameter::Ptr harmonic {
         juce::ParameterID{"harmonic" , 100},
@@ -141,11 +137,10 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
         &chowdsp::ParamUtils::stringToFloatVal
     };
 
-    chowdsp::FreqHzParameter::Ptr freqOffset
-        {
+    chowdsp::FreqHzParameter::Ptr freqOffset {
         juce::ParameterID{"freqoffset" , 100},
         "Freq Offset",
-        chowdsp::ParamUtils::createNormalisableRange(-2000.f, 2000.f,0.f),
+        chowdsp::ParamUtils::createNormalisableRange(-2000.f, 2000.f,0.f, 1.f),
         0.0f,
         all_params[OscParams::OscFreqOffset],
         [this]( float val)
@@ -157,18 +152,18 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
 
     chowdsp::TimeMsParameter::Ptr glide
     {
-        juce::ParameterID{"glide" , 100},
-        "Freq Glide",
+        juce::ParameterID{"porta" , 100},
+        "Porta",
         chowdsp::ParamUtils::createNormalisableRange(0.f, 8000.f,500.f),
         0.0f,
         all_params[OscParams::OscGlide],
         [this]( float val)
-        {   float realVal = glide->getCurrentValue();
-            for (auto mod : modules)
-            tOscModule_setParameter(mod,OscGlide, realVal);
+        {for (auto mod : modules)
+            tOscModule_setParameter(mod,OscGlide, val);
             //DBG("freq [0 - 1] " + juce::String(val) + " .... glide actual Val" + juce::String(mod->glide));
         }
     };
+
     chowdsp::FloatParameter::Ptr shape
         {
             juce::ParameterID{"shape" , 100},
@@ -185,20 +180,7 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
             &chowdsp::ParamUtils::floatValToString,
             &chowdsp::ParamUtils::stringToFloatVal
         };
-    chowdsp::GainDBParameter::Ptr amp
-        {
-            juce::ParameterID{"amp" , 100},
-            "amplitude",
-            chowdsp::ParamUtils::createNormalisableRange(-24.f, 24.f ,0.f),
-            0.f,
-            all_params[OscParams::OscAmpParam],
-            [this]( float val)
-            {for (auto mod : modules)
-                tOscModule_setParameter(mod,OscAmpParam,val);
 
-            //DBG("amp [0 - 1] " + juce::String(val) + ".. .... amp actual " + juce::String(modules[0]->amp));
-            }
-        };
     chowdsp::BoolParameter::Ptr harmonicstepped
     {
         juce::ParameterID{"harmonicStepped" , 100},
@@ -218,15 +200,13 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
     chowdsp::FloatParameter::Ptr oscType
     {
         juce::ParameterID{"oscType" , 100},
-        "Oscillator Type",
+        "Waveform",
         chowdsp::ParamUtils::createNormalisableRange(0.f, 5.f, 2.5f, 1.f),
         0.f,
         all_params[OscParams::OscType],
         [this]( float val)
         {for (auto mod : modules)
             tOscModule_setParameter(mod,OscType,val);
-
-
             //DBG("amp [0 - 1] " + juce::String(val) + ".. .... amp actual " + juce::String(modules[0]->amp));
         },
         &chowdsp::ParamUtils::floatValToString,
@@ -235,14 +215,30 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
 
     // chowdsp::EnumChoiceParameter<FlagOscTypes>::Ptr oscType {
     //     juce::ParameterID{"oscType" , 100},
-    //     "Oscillator Type",
-    //     FlagOscTypes::OscTypePulse,
+    //     "Waveform",
+    //     FlagOscTypes::OscTypeSawSquare,
     //     all_params[OscParams::OscType],
-    //     [this](float val){
-    //     //{module->setterFunctions[OscParams::OscType](mod,val);
-    //        // DBG("harm [0 - 1]" + juce::String(val) + " .. .  harm actual Val" + juce::String(mod->harmonicMultiplier));
+    //     [this](float val)
+    //     {for (auto mod : modules)
+    //         tOscModule_setParameter(mod, OscType, val);
+    //         //{module->setterFunctions[OscParams::OscType](mod,val);
     //     }
     // };
+
+    chowdsp::GainDBParameter::Ptr amp
+        {
+            juce::ParameterID{"gain" , 100},
+            "Gain",
+            chowdsp::ParamUtils::createNormalisableRange(-80.f, 9.54f ,0.f),
+            0.f,
+            all_params[OscParams::OscAmpParam],
+            [this]( float val)
+            {for (auto mod : modules)
+                tOscModule_setParameter(mod,OscAmpParam,val);
+
+                //DBG("amp [0 - 1] " + juce::String(val) + ".. .... amp actual " + juce::String(modules[0]->amp));
+            }
+        };
 
     chowdsp::BoolParameter::Ptr pitchStepped{
         juce::ParameterID{"pitchStepped" , 100},
@@ -260,7 +256,7 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
 
     chowdsp::FloatParameter::Ptr portaType {
         juce::ParameterID{"portaType" , 100},
-        "PortaType",
+        "Porta Type",
         chowdsp::ParamUtils::createNormalisableRange(0.f, 1.f, 0.5f, 1.f),
         0.0f,
         all_params[OscParams::OscPortaType],
