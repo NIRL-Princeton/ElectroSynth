@@ -14,7 +14,7 @@ struct SimpNoiseParamHolder : public LEAFParams<_tSimpNoiseModule>
 {
     SimpNoiseParamHolder(LEAF* leaf) : LEAFParams(leaf)
     {
-        add(gain);
+        add(amp);
     }
 
     //add env watch param so that it isnt null
@@ -31,15 +31,17 @@ struct SimpNoiseParamHolder : public LEAFParams<_tSimpNoiseModule>
         &chowdsp::ParamUtils::stringToFloatVal
     };
     // Release param
-    chowdsp::GainDBParameter::Ptr gain {
-        juce::ParameterID { "gain", 100 },
-        "Gain",
-        chowdsp::ParamUtils::createNormalisableRange (0.0f,2.f,1.f),
+    chowdsp::FloatParameter::Ptr amp {
+        juce::ParameterID { "amp", 100 },
+        "Amp",
+        chowdsp::ParamUtils::createNormalisableRange (0.0f,1.f,.5f),
         1.0f,
-        all_params[SimpNosParams::SimpNoiseGain],
+        all_params[SimpNosParams::SimpNoiseAmp],
         [this] (float val) {
-            for (auto mod: modules) tSimpNoiseModule_setParameter(mod,SimpNosParams::SimpNoiseGain,val);
-        }
+            for (auto mod: modules) tSimpNoiseModule_setParameter(mod,SimpNosParams::SimpNoiseAmp,val);
+        },
+        &chowdsp::ParamUtils::floatValToString,
+        &chowdsp::ParamUtils::stringToFloatVal
     };
 
 };

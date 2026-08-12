@@ -14,7 +14,7 @@ struct NoiseParams : public LEAFParams<_tNoiseModule>
 {
     NoiseParams(LEAF* leaf) : LEAFParams<_tNoiseModule>(leaf)
     {
-        add(gain, tilt, peakGain, freqKnob, peakBandwidth, keyFollow, glide, portaType);
+        add(tilt, peakGain, peakBandwidth, freqKnob, keyFollow, glide, portaType, gain);
     }
 
     //add env watch param so that it isnt null
@@ -35,8 +35,8 @@ struct NoiseParams : public LEAFParams<_tNoiseModule>
     chowdsp::GainDBParameter::Ptr gain {
         juce::ParameterID{"gain", 100},
         "Gain",
-        chowdsp::ParamUtils::createNormalisableRange(0.0f, 2.0f, 1.f),
-        1.f,
+        chowdsp::ParamUtils::createNormalisableRange(-80.f, 10.f, 0.f),
+        0.f,
         all_params[NosParams::NoiseGain],
         [this](float val)
         {for (auto mod: modules)    tNoiseModule_setParameter(mod,NoiseGain,val);
@@ -58,23 +58,25 @@ struct NoiseParams : public LEAFParams<_tNoiseModule>
     };
 
     // peakGain
-    chowdsp::GainDBParameter::Ptr peakGain {
+    chowdsp::FloatParameter::Ptr peakGain {
         juce::ParameterID{"peakGain", 100},
-        "PeakGain",
-        chowdsp::ParamUtils::createNormalisableRange(0.f, 2.0f, 1.0f),
-        0.f,
+        "Peak Gain",
+        chowdsp::ParamUtils::createNormalisableRange(1.f, 199.f, 100.f),
+        1.f,
         all_params[NosParams::NoisePeakGain],
         [this](float val)
         {for (auto mod: modules)    tNoiseModule_setParameter(mod,NoisePeakGain,val);
         },
+        &chowdsp::ParamUtils::floatValToString,
+        &chowdsp::ParamUtils::stringToFloatVal
     };
 
     //
     chowdsp::FreqHzParameter::Ptr freqKnob {
         juce::ParameterID{"peakFreq" , 100},
-        "PeakFreq",
-        chowdsp::ParamUtils::createNormalisableRange(20.f, 20000.f, 500.f),
-        500.f,
+        "Peak Freq",
+        chowdsp::ParamUtils::createNormalisableRange(0.1f, 20000.f, 1000.f),
+        1000.f,
         all_params[NosParams::NoiseFreqKnob],
         [this](float val)
         {
@@ -85,7 +87,7 @@ struct NoiseParams : public LEAFParams<_tNoiseModule>
 
     chowdsp::FloatParameter::Ptr peakBandwidth {
         juce::ParameterID { "peakBandwidth", 100 },
-        "PeakBandwidth",
+        "Peak Bandwidth",
         chowdsp::ParamUtils::createNormalisableRange (0.0f, 1.0f, 0.5f),
         0.5f,
         all_params[NosParams::NoisePeakBandwidth],
@@ -103,7 +105,7 @@ struct NoiseParams : public LEAFParams<_tNoiseModule>
     // keyFollow
     chowdsp::FloatParameter::Ptr keyFollow {
         juce::ParameterID { "keyFollow", 100 },
-        "KeyFollow",
+        "Keyfollow",
         chowdsp::ParamUtils::createNormalisableRange (0.f, 1.0f, .5f),
         0.f,
         all_params[NosParams::NoiseKeyFollow],
@@ -117,7 +119,7 @@ struct NoiseParams : public LEAFParams<_tNoiseModule>
     chowdsp::TimeMsParameter::Ptr glide
     {
         juce::ParameterID{"glide" , 100},
-        "Freq Glide",
+        "Porta",
         chowdsp::ParamUtils::createNormalisableRange(0.f, 8000.f,500.f),
         0.0f,
         all_params[NosParams::NoiseGlide],
@@ -132,7 +134,7 @@ struct NoiseParams : public LEAFParams<_tNoiseModule>
     // portaType
     chowdsp::FloatParameter::Ptr portaType {
         juce::ParameterID { "portaType", 100 },
-        "PortaType",
+        "Porta Type",
         chowdsp::ParamUtils::createNormalisableRange (0.f, 1.0f, .5f, 1.f),
         0.f,
         all_params[NosParams::NoisePortaType],

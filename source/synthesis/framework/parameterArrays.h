@@ -136,7 +136,7 @@ const std::array<std::vector<std::string>, 12> paramsAllArray =
         // perlinNoise
         {
             "eventWatch",
-            "gain",
+            "amp",
             "rate",
             "energy"
         },

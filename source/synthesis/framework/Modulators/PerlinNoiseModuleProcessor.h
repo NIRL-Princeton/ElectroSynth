@@ -14,7 +14,7 @@ struct PerlNoiseParamHolder : public LEAFParams<_tPerlNoiseModule>
 {
     PerlNoiseParamHolder(LEAF* leaf) : LEAFParams(leaf)
     {
-        add(gain, rateHz, energy);
+        add(rateHz, energy, amp);
     }
 
     //add env watch param so that it isnt null
@@ -31,20 +31,22 @@ struct PerlNoiseParamHolder : public LEAFParams<_tPerlNoiseModule>
         &chowdsp::ParamUtils::stringToFloatVal
     };
 
-    chowdsp::GainDBParameter::Ptr gain {
-        juce::ParameterID { "gain", 100 },
-        "Gain",
-        chowdsp::ParamUtils::createNormalisableRange (0.0f,2.f,1.f),
+    chowdsp::FloatParameter::Ptr amp {
+        juce::ParameterID { "amp", 100 },
+        "Amplitude",
+        chowdsp::ParamUtils::createNormalisableRange (0.f,5.f,1.f),
         1.0f,
-        all_params[PerlNosParams::PerlNoiseGain],
+        all_params[PerlNosParams::PerlNoiseAmp],
         [this] (float val) {
-            for (auto mod: modules) tPerlNoiseModule_setParameter(mod,PerlNosParams::PerlNoiseGain,val);
-        }
+            for (auto mod: modules) tPerlNoiseModule_setParameter(mod,PerlNosParams::PerlNoiseAmp,val);
+        },
+        &chowdsp::ParamUtils::floatValToString,
+        &chowdsp::ParamUtils::stringToFloatVal
     };
 
     chowdsp::FreqHzParameter::Ptr rateHz {
         juce::ParameterID { "rateHz", 100 },
-        "RateHz",
+        "Rate Hz",
         chowdsp::ParamUtils::createNormalisableRange (0.f,30.0f,2.f),
         2.f,
         all_params[PerlNosParams::PerlNoiseRate],
