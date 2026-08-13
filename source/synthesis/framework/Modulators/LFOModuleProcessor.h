@@ -45,7 +45,7 @@ struct LFOParamHolder : public LEAFParams<_tLFOModule>
         juce::ParameterID { "shape", 100 },
         "Shape",
         chowdsp::ParamUtils::createNormalisableRange (0.0f,1.f,0.5f),
-        0.5f,
+        0.f,
         all_params[LFOParams::LFOShapeParam],
         [this] (float val) {
             for (auto mod: modules) tLFOModule_setParameter(mod,LFOParams::LFOShapeParam,val);

@@ -23,7 +23,7 @@ namespace electrosynth{
 // creating the parameters associated with a filter module [cutoff, Q, and amp]
 struct FilterParams : public LEAFParams<_tFiltModule > {
     FilterParams(LEAF* leaf) : LEAFParams<_tFiltModule>(leaf) {
-        add(cutoff,Q, amp, filterType, keyFollow);
+        add(cutoff,Q,filterType, keyFollow, gain, mix);
     }
     //add env watch param so that it isn't null
     chowdsp::FloatParameter::Ptr envwatchparam {
@@ -68,10 +68,10 @@ struct FilterParams : public LEAFParams<_tFiltModule > {
         &chowdsp::ParamUtils::stringToFloatVal
     };
 
-    // this is where the knob labeled "Amp" is created
-    chowdsp::GainDBParameter::Ptr amp {
-        juce::ParameterID{"amp", 100},
-        "Amp",
+    // this is where the knob labeled "Gain" is created
+    chowdsp::GainDBParameter::Ptr gain {
+        juce::ParameterID{"gain", 100},
+        "Gain",
         chowdsp::ParamUtils::createNormalisableRange(0.0f, 2.0f, 1.0f),
         1.f,
         all_params[FiltParams::FiltGain],
@@ -79,6 +79,21 @@ struct FilterParams : public LEAFParams<_tFiltModule > {
         {
             for (auto mod: modules) tFiltModule_setParameter(mod,FiltGain,val);
         },
+    };
+
+    // this is where the knob labeled "Mix" is created
+    chowdsp::FloatParameter::Ptr mix {
+        juce::ParameterID{"mix", 100},
+        "Mix",
+        chowdsp::ParamUtils::createNormalisableRange(0.0f, 1.0f, 0.5f),
+        1.f,
+        all_params[FiltParams::FiltMix],
+        [this](float val)
+        {
+            for (auto mod: modules) tFiltModule_setParameter(mod,FiltMix,val);
+        },
+        &chowdsp::ParamUtils::floatValToString,
+        &chowdsp::ParamUtils::stringToFloatVal
     };
 
     chowdsp::FloatParameter::Ptr filterType {
