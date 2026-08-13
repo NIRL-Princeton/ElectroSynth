@@ -21,6 +21,5 @@ void DelayModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
             tDelayModule_tick(state_.params.modules[v],L);
             R[i] = L[i];
         }
-
     }
 }
