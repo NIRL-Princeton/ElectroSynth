@@ -8,12 +8,16 @@
 
 //#include "open_gl_background.h"
 #include "header_section.h"
-#include "main_section.h"
-#include "synth_section.h"
+#include <juce_audio_devices/juce_audio_devices.h>
 #include "look_and_feel/skin.h"
+#include "main_section.h"
 #include "melatonin_inspector/melatonin_inspector.h"
 #include "popup_browser.h"
+#include "synth_section.h"
 #include "value_tree_debugger.h"
+
+#include <functional>
+#include <utility>
 class AboutSection;
 struct SynthGuiData;
 class HeaderSection;
@@ -52,6 +56,8 @@ public :
     void applySkinToSubtree(SynthSection* section);
     void showAboutSection() override;
     void sendToDeviceRequested() override;
+    void setSelectedMidiOutputProvider(std::function<juce::MidiOutput*()> provider);
+    bool sendMidiBufferToSelectedOutput(const juce::MidiBuffer& midi_messages);
     void repaintChildBackground(SynthSection* child);
     void repaintSynthesisSection();
     void repaintOpenGlBackground(OpenGlComponent* component);
@@ -129,6 +135,7 @@ private :
     // std::unique_ptr<melatonin::Inspector> inspector;
     //std::unique_ptr<OpenGlToggleButton> inspectButton;
     OpenGlBackground background_;
+    std::function<juce::MidiOutput*()> selected_midi_output_provider_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FullInterface)
 };
