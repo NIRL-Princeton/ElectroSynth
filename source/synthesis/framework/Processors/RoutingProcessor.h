@@ -32,12 +32,13 @@ struct RoutingParams : public LEAFParams<_tVCAModule> {
     chowdsp::GainDBParameter::Ptr gainparam{
         juce::ParameterID{"gain", 100},
         "Gain",
-        juce::NormalisableRange{-30.0f, 0.0f},
+        chowdsp::ParamUtils::createNormalisableRange (-80.f,10.f,0.f),
         0.f,
         all_params[VCAParams::VCAGain],
         [this](float val) {
             for (auto mod: modules)
-                mod->header.setterFunctions[VCAParams::VCAGain](mod, val);
+                //mod->header.setterFunctions[VCAParams::VCAGain](mod, val);
+                tVCAModule_setParameter(mod, VCAGain, val);
             //harmonic->range.interval = val;
             // DBG("amp [0 - 1] " + juce::String(val) + ".. .... stepped pitch actual " + juce::String(modules[0]->pStepped));
         }

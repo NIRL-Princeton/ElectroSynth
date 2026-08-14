@@ -28,6 +28,7 @@ juce::String getEffectTypeDisplayName(const juce::String& type) {
     static const std::map<juce::String, juce::String> display_names {
         { "filt", "Filter" },
         { "delay", "Delay" },
+        { "VCA", "VCA"}
     };
 
     if (const auto found = display_names.find(type); found != display_names.end())
@@ -254,6 +255,12 @@ void EffectModuleSection::handlePopupResult(int result) {
         undo.beginNewTransaction();
         list.appendChild(t, &undo);
     }
+    else if (result == 3) {
+        juce::ValueTree t(IDs::EFFECTMODULE);
+        t.setProperty(IDs::type, "VCA", nullptr);
+        undo.beginNewTransaction();
+        list.appendChild(t, &undo);
+    }
 }
 
 
@@ -408,6 +415,7 @@ PopupItems EffectModuleSection::createPopupMenu() {
     PopupItems options;
     options.addItem(1, "add filt");
     options.addItem(2, "add delay");
+    options.addItem(3, "add VCA");
     return options;
 }
 
