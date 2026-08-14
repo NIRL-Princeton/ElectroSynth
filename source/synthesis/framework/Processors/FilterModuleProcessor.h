@@ -40,16 +40,16 @@ struct FilterParams : public LEAFParams<_tFiltModule > {
     };
 
     // this is where the knob labeled "Cutoff" is created
-    chowdsp::MidiHzParameter::Ptr cutoff {
+    chowdsp::FreqHzParameter::Ptr cutoff {
         juce::ParameterID{"cutoff" , 100},
         "Cutoff",
-        chowdsp::ParamUtils::createNormalisableRange(0.0f, 137.f, 60.f),
-        60.f,
+        chowdsp::ParamUtils::createNormalisableRange(0.0f, 20000.f, 1000.f),
+        1000.f,
         all_params[FiltParams::FiltCutoff],
         [this](float val)
-        {
-            for (auto mod: modules) tFiltModule_setParameter(mod,FiltCutoff,val);
+        {for (auto mod: modules) tFiltModule_setParameter(mod,FiltCutoff,val);
             //DBG("Filt [0 - 1]" + juce::String(val) + " .. .  Filt actual Val" + juce::String(modules[0]->cutoffKnob));
+            //printf("Cutoff knob: %f\n", val);
         }
     };
 
@@ -72,8 +72,8 @@ struct FilterParams : public LEAFParams<_tFiltModule > {
     chowdsp::GainDBParameter::Ptr gain {
         juce::ParameterID{"gain", 100},
         "Gain",
-        chowdsp::ParamUtils::createNormalisableRange(0.0f, 2.0f, 1.0f),
-        1.f,
+        chowdsp::ParamUtils::createNormalisableRange(-80.f, 10.0f, 0.0f),
+        0.f,
         all_params[FiltParams::FiltGain],
         [this](float val)
         {
@@ -82,24 +82,21 @@ struct FilterParams : public LEAFParams<_tFiltModule > {
     };
 
     // this is where the knob labeled "Mix" is created
-    chowdsp::FloatParameter::Ptr mix {
+    chowdsp::PercentParameter::Ptr mix {
         juce::ParameterID{"mix", 100},
         "Mix",
-        chowdsp::ParamUtils::createNormalisableRange(0.0f, 1.0f, 0.5f),
-        1.f,
         all_params[FiltParams::FiltMix],
         [this](float val)
-        {
-            for (auto mod: modules) tFiltModule_setParameter(mod,FiltMix,val);
+        {for (auto mod: modules) tFiltModule_setParameter(mod,FiltMix,val);
         },
-        &chowdsp::ParamUtils::floatValToString,
-        &chowdsp::ParamUtils::stringToFloatVal
+        1.f,
+        false
     };
 
     chowdsp::FloatParameter::Ptr filterType {
         juce::ParameterID{"filterType", 100},
         "FilterType",
-        chowdsp::ParamUtils::createNormalisableRange(0.f, 9.0f, 5.5f, 1.f),
+        chowdsp::ParamUtils::createNormalisableRange(0.f, 8.0f, 4.f, 1.f),
         0.f,
         all_params[FiltParams::FiltType],
         [this](float val)
@@ -147,8 +144,8 @@ public:
     void prepareToPlay (int samplesPerBlock, double sampleRate ) override {
         // filterTransitionSamples_ = juce::jmax(
         //     1, juce::roundToInt(sampleRate * kFilterTypeTransitionSeconds));
-        for (auto* module : state_.params.modules)
-            tFiltModule_setSampleRate(module, (float)sampleRate);
+        // for (auto* module : state_.params.modules)
+        //     tFiltModule_setSampleRate(module, (float)sampleRate); // this sets the samplerate to 512 Hz -Matt
     };
     void releaseResources() override {}
     std::unique_ptr<SynthSection> createEditor() override {
@@ -162,7 +159,7 @@ public:
 
 private:
     //static constexpr double kFilterTypeTransitionSeconds = 0.005;
-    int currentFilterType_ = FiltTypeLowpass;
+    //int currentFilterType_ = FiltTypeLowpass;
     //int filterTransitionSamples_ = 220;
 };
 
