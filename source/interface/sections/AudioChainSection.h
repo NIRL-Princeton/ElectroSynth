@@ -4,10 +4,10 @@
 
 #ifndef AUDIOCHAINSECTION_H
 #define AUDIOCHAINSECTION_H
-#include "synth_section.h"
 #include "ModuleList.h"
-#include "SoundModuleSection.h"
 #include "ParameterView/RoutingView.h"
+#include "SoundModuleSection.h"
+#include "synth_section.h"
 
 class ModulesListContainer : public SynthSection {
 public:
@@ -24,11 +24,12 @@ public:
         paintChildrenBackgrounds(g);
     }
 };
+
 class AudioChainSection : public SynthSection , public ChainList<ProcessorBase>::Listener, ModulesInterface<ProcessorBase>::Listener,
 public juce::ScrollBar::Listener, EffectsViewport::Listener {
 
 public:
-    AudioChainSection(ChainList<ProcessorBase>&,ModulationManager* m, juce::UndoManager& um);// : SynthSection("AudioChainSection") {}
+    AudioChainSection(ChainList<ProcessorBase>&, MappingManager* m, juce::UndoManager& um);// : SynthSection("AudioChainSection") {}
     ~AudioChainSection();
     void chainAdded(ModuleList<ProcessorBase> *newModule) override;
     void chainChanged() override;
@@ -90,7 +91,7 @@ public:
     CriticalSection open_gl_critical_section_;
     std::unique_ptr<OpenGlScrollBar> scroll_bar_;
     std::vector<std::unique_ptr<SoundModuleSection>> sound_module_sections;
-    ModulationManager* modulation_manager_;
+    MappingManager* modulation_manager_;
     std::shared_ptr<OpenGlQuad> footer_quad_;
     juce::UndoManager& undo;
 

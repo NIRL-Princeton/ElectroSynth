@@ -9,15 +9,14 @@
 // 4) Forwards listener events when modules are moved, added, or removed
 // 5) Assigns top-level display numbers.
 
-
 #include "AudioChainSection.h"
-#include "synth_gui_interface.h"
-#include "synth_base.h"
-#include "about_section.h"
-#include "modulation_manager.h"
 #include "FullInterface.h"
+#include "about_section.h"
+#include "mapping_manager.h"
+#include "synth_base.h"
+#include "synth_gui_interface.h"
 
-AudioChainSection::AudioChainSection(ChainList<ProcessorBase> &chains, ModulationManager *m, juce::UndoManager& um) :
+AudioChainSection::AudioChainSection(ChainList<ProcessorBase> &chains, MappingManager *m, juce::UndoManager& um) :
     SynthSection("chains"), chains_(chains), modulation_manager_(m), undo(um) {
 
     setSkinOverride(Skin::kSoundModule);
@@ -32,6 +31,8 @@ AudioChainSection::AudioChainSection(ChainList<ProcessorBase> &chains, Modulatio
     chains_.addListener(this);
 
     scroll_bar_ = std::make_unique<OpenGlScrollBar>();
+    // addAndMakeVisible(scroll_bar_.get());
+    // addOpenGlComponent(scroll_bar_->getGlComponent());
     scroll_bar_->addListener(this);
     viewport_.setScrollBarPosition(true, false); //use this to determine viewport scroll type in effectsviewport
     viewport_.setScrollBarsShown(false, false, true, false);
@@ -276,6 +277,7 @@ PopupItems AudioChainSection::createPopupMenu() {
     options.addItem(1, "add oscillator");
     options.addItem(2, "add string");
     options.addItem(3, "add noise");
+    options.addItem(4, "add sine");
     return options;
 }
 
@@ -297,6 +299,13 @@ void AudioChainSection::handlePopupResult(int result) {
     } else if (result == 3) {
         juce::ValueTree t(IDs::SOUNDMODULE);
         t.setProperty(IDs::type, "noise", nullptr);
+        juce::ValueTree v(IDs::CHAIN);
+        undo.beginNewTransaction();
+        v.appendChild(t, &undo);
+        chains_.appendChild(v, &undo);
+    } else if (result == 4) {
+        juce::ValueTree t(IDs::SOUNDMODULE);
+        t.setProperty(IDs::type, "sine", nullptr);
         juce::ValueTree v(IDs::CHAIN);
         undo.beginNewTransaction();
         v.appendChild(t, &undo);

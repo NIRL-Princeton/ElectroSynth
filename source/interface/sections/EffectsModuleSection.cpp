@@ -3,12 +3,14 @@
 //
 
 #include "EffectsModuleSection.h"
-#include "ModuleSection.h"
-#include "synth_gui_interface.h"
-#include "Processors/ProcessorBase.h"
-#include "modulation_manager.h"
-#include "synth_base.h"
+
 #include "EffectList.h"
+#include "ModuleSection.h"
+#include "Processors/ProcessorBase.h"
+#include "about_section.h"
+#include "mapping_manager.h"
+#include "synth_base.h"
+#include "synth_gui_interface.h"
 #include "FxDragCoordinator.h"
 
 namespace {
@@ -63,10 +65,12 @@ public:
 };
 }
 
-EffectModuleSection::EffectModuleSection(ModulationManager *m, EffectList &module_list,const juce::ValueTree &v, juce::UndoManager& um) :
-ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRectangleFragment)), state(v), undo(um)
+EffectModuleSection::EffectModuleSection(MappingManager *m, EffectList &module_list,const juce::ValueTree &v, juce::UndoManager& um) :
+mapping_manager_ (m),ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRectangleFragment)), state(v), undo(um)
 {
     scroll_bar_ = std::make_unique<OpenGlScrollBar>();
+    addAndMakeVisible(scroll_bar_.get());
+    addOpenGlComponent(scroll_bar_->getGlComponent());
     container_->addOpenGlComponent(footer_body);
 
     setLookAndFeel(DefaultLookAndFeel::instance());
@@ -166,10 +170,67 @@ ModulesInterface( module_list), footer_body(new OpenGlQuad(Shaders::kRoundedRect
     toggle_button_->setVisible(false);
     setInterceptsMouseClicks(true,true);
 
+    // initialize routing UI
+    if (module_list.getAudioNodeDescriptor().hasOutput) { // if this module supports outputs...
+        electrosynth::EndpointDescriptor output { // give it an output audio port address
+            .address {
+                .type = electrosynth::ConnectionType::Audio,
+                .nodeId = module_list.getNodeId(),
+                .endpointId = module_list.getAudioNodeDescriptor().outputPortId,
+                .direction = electrosynth::EndpointDirection::Source,
+                .audioDomain = module_list.getAudioNodeDescriptor().domain
+            },
+            .capabilities {
+                .maxIncomingConnections = 0
+            }
+        };
+
+        // make the UI arrow
+        lane_output_port_ = std::make_shared<EndpointArrowComponent>("audio_output", std::move(output));
+        addOpenGlComponent(lane_output_port_);
+
+        lane_output_slots_ = std::make_unique<ConnectionSlots>(*lane_output_port_);
+        addSubSection(lane_output_slots_.get());
+        lane_output_slots_->setConnections({});
+    }
+
+    if (module_list.getAudioNodeDescriptor().hasInput) { // if this module supports inputs...
+        electrosynth::EndpointDescriptor input { // give it an output audio port address
+            .address {
+                .type = electrosynth::ConnectionType::Audio,
+                .nodeId = module_list.getNodeId(),
+                .endpointId = module_list.getAudioNodeDescriptor().inputPortId,
+                .direction = electrosynth::EndpointDirection::Destination,
+                .audioDomain = module_list.getAudioNodeDescriptor().domain
+            },
+            .capabilities {
+                .hasAmount = true,
+                .maxIncomingConnections = 64
+            }
+        };
+        lane_input_port_ = std::make_shared<EndpointArrowComponent>("audio_input", std::move(input));
+        addOpenGlComponent(lane_input_port_);
+
+        lane_input_slots_ = std::make_unique<ConnectionSlots>(*lane_input_port_);
+        addSubSection(lane_input_slots_.get());
+        lane_input_slots_->setConnections({});
+    }
+
+    if (mapping_manager_ != nullptr) {
+        if (lane_output_port_)
+            mapping_manager_->registerEndpoint(*lane_output_port_);
+
+        if (lane_input_port_)
+            mapping_manager_->registerEndpoint(*lane_input_port_);
+    }
     setSkinOverride(Skin::kFx);
 }
 
 EffectModuleSection::~EffectModuleSection() {
+    if (mapping_manager_ != nullptr) {
+        if (lane_input_port_ != nullptr) mapping_manager_->unregisterEndpoint(*lane_input_port_);
+        if (lane_output_port_ != nullptr) mapping_manager_->unregisterEndpoint(*lane_output_port_);
+    }
    if (drag_coordinator_ != nullptr)
        drag_coordinator_->unregisterLane(*this);
    module_sections.clear();
@@ -219,10 +280,12 @@ void EffectModuleSection::setEffectPositions() {
 
     std::map<juce::String, int> type_counts;
     int laid_out_module_count = 0;
+    int lane_number = static_cast<int>(state.getProperty(IDs::effect_lane)) + 1;
     for (int i = 0; i < module_sections.size(); ++i) {
         ModuleSection* section = module_sections[i].get();
         const auto type = section->state.getProperty(IDs::type).toString();
         section->setName(getEffectTypeDisplayName(type) + " "
+                         + juce::String(lane_number) + "."
                          + juce::String(++type_counts[type]));
 
         // Once a destination is entered, the source wrapper contributes no height.
@@ -246,7 +309,6 @@ void EffectModuleSection::setEffectPositions() {
             previous_was_module = false;
             continue;
         }
-
         if (previous_was_module)
             boundary_ys.push_back(start_y - module_padding / 2);
         previous_was_module = true;
@@ -269,24 +331,24 @@ void EffectModuleSection::setEffectPositions() {
         start_y += external_target_gap_height_ + module_padding;
     }
 
-    // Callista footer: keep the add affordance in the scrollable FX content after the
-    // final module instead of consuming fixed header space.
-    const int button_size = std::max(0, static_cast<int>(findValue(Skin::kAddButtonSize)));
-    const int footer_top_gap = 10;
-    const int footer_bottom_padding = std::max(10, module_padding);
-    const int footer_y = start_y;
-    const int button_y = footer_y + footer_top_gap;
-    const int footer_height = footer_top_gap + button_size + footer_bottom_padding;
-    const int button_x = std::max(0, (viewport_.getWidth() - button_size) / 2);
-
-    footer_body->setBounds(0, footer_y, viewport_.getWidth(), footer_height);
-    add_effect_button_->setBounds(button_x, button_y, button_size, button_size);
-    add_effect_button_background_->setBounds(add_effect_button_->getBounds().reduced(4));
-
-    // setSize (not setBounds): the container's origin belongs to the viewport's scroll
-    // logic; any explicit origin here is overwritten by setViewPosition.
-    container_->setSize(viewport_.getWidth(), footer_y + footer_height);
-    viewport_.setViewPosition(view_position);
+    // // Callista footer: keep the add affordance in the scrollable FX content after the
+    // // final module instead of consuming fixed header space.
+    // const int button_size = std::max(0, static_cast<int>(findValue(Skin::kAddButtonSize)));
+    // const int footer_top_gap = 10;
+    // const int footer_bottom_padding = std::max(10, module_padding);
+    // const int footer_y = start_y;
+    // const int button_y = footer_y + footer_top_gap;
+    // const int footer_height = footer_top_gap + button_size + footer_bottom_padding;
+    // const int button_x = std::max(0, (viewport_.getWidth() - button_size) / 2);
+    //
+    // footer_body->setBounds(0, footer_y, viewport_.getWidth(), footer_height);
+    // add_effect_button_->setBounds(button_x, button_y, button_size, button_size);
+    // add_effect_button_background_->setBounds(add_effect_button_->getBounds().reduced(4));
+    //
+    // // setSize (not setBounds): the container's origin belongs to the viewport's scroll
+    // // logic; any explicit origin here is overwritten by setViewPosition.
+    // container_->setSize(viewport_.getWidth(), footer_y + footer_height);
+    // viewport_.setViewPosition(view_position);
 
     if (insertion_region_ != nullptr) {
         if ((dragged_module_ != nullptr || external_target_preview_active_) && !gap_bounds.isEmpty()) {
@@ -326,6 +388,19 @@ void EffectModuleSection::setEffectPositions() {
         else
             drag_boundary_bands_->setNumQuads(0);
     }
+
+    const int button_width = static_cast<int>(findValue(Skin::kAddButtonSize));
+    const int button_x = viewport_.getWidth() / 2 - button_width / 2;
+    const int button_y = start_y + 10;
+    const int footer_padding = 35;
+    const int container_height = button_y + button_width + footer_padding;
+
+    container_->setSize(viewport_.getWidth(), container_height);
+
+    footer_body->setBounds(0, button_y, viewport_.getWidth(), findValue(Skin::kLargePadding));
+    add_effect_button_->setBounds(button_x, button_y, button_width, button_width);
+    add_effect_button_background_->setBounds(add_effect_button_->getBounds().reduced(4));
+    viewport_.setViewPosition(view_position);
 }
 
 
@@ -366,15 +441,19 @@ std::map<std::string, SynthSlider *> EffectModuleSection::getAllSliders() {
 
 void EffectModuleSection::moduleAdded(ProcessorBase *newModule) {
     auto module_section = std::make_unique<ModuleSection>(newModule->state, newModule->getAudioNodeDescriptor(),
-        std::move (newModule->createEditor()), undo);
+        std::move (newModule->createEditor()), undo, mapping_manager_);
+
+
     module_section->setAreaSkinOverride(Skin::kFx);
     module_section->setDragAccentColor(Skin::kFXAccent);
     module_section->height = 300;
     configureModuleSectionDragCallbacks(*module_section);
 
-    { juce::ScopedLock lock(open_gl_critical_section_);
+    {
+        juce::ScopedLock lock(open_gl_critical_section_);
         container_->addSubSection(module_section.get());
     }
+
     module_section->applySkinFromTopLevel();
     module_section->setInterceptsMouseClicks(true, true);
     parentHierarchyChanged();
@@ -391,14 +470,12 @@ void EffectModuleSection::moduleAdded(ProcessorBase *newModule) {
         listener->added();
     }
     auto interface = findParentComponentOfClass<SynthGuiInterface>();
+
     for (auto sub : sub_sections_) {
             OpenGlComponent::setScissorBounds(sub, viewport_.getLocalBounds(), *interface->getOpenGlWrapper());
             for (auto slider : sub->all_sliders_) {
                 //slider.second->setScissor(this, open_gl);
                 slider.second->setScissorComponent(&viewport_);
-            }
-            for (auto component : sub->open_gl_components_) {
-                component->setScissorComponent(&viewport_);
             }
         }
         container_->setScissorComponent(&viewport_);
@@ -520,6 +597,7 @@ void EffectModuleSection::resized() {
     auto area = getLocalBounds();
     auto header = area.removeFromTop(30);
     toggle_button_->setBounds(0,0,getTitleWidth(),getTitleWidth());
+
     if (isExpanded()) {
         viewport_.setVisible(true);
         container_->setVisible(true);
@@ -529,6 +607,7 @@ void EffectModuleSection::resized() {
         // The external scrollbar remains connected to the viewport for range/state
         // synchronization but is intentionally not added to the visible component or
         // OpenGL trees. Wheel/trackpad scrolling continues through the viewport.
+        //scroll_bar_->setColor(getLookAndFeel().findColour(Skin::kWidgetPrimary1));
 
         // Clip every live child to the FX viewport while scrolling, matching
         // SoundModuleSection::resized(). Without this, scrolled FX child content is not
@@ -561,13 +640,15 @@ void EffectModuleSection::resized() {
 
     SynthSection::resized();
     redoBackgroundImage();
-    //ooter_body->setBounds(0,getHeight()-1, getWidth(), getTitleWidth());
+    //footer_body->setBounds(0,getHeight()-1, getWidth(), getTitleWidth());
     footer_body->setRounding(findValue(Skin::kBodyRounding));
     footer_body->setColor(findColour(Skin::kBody, true));
 
-    header_body_->setBounds(0, 0, getWidth(), header_height);
+    header_body_->setBounds(0, 0, getWidth(), title_width);
+    auto header_bounds = header_body_->getBounds();
     header_body_->setColor(findColour(Skin::kBodyHeading, true));
-    header_title_->setBounds(0, 0, getWidth(), title_width);
+
+    header_title_->setBounds(header_bounds);
     header_title_->setText(getName());
     header_title_->setTextSize(size_ratio_ * 14.0f);
     header_title_->setColor(findColour(Skin::kHeadingText, true));
@@ -583,6 +664,9 @@ void EffectModuleSection::resized() {
     external_transfer_dim_->setScissorComponent(&viewport_);
 
     routing_combo_box_->setBounds(0, 0, 0, 0);
+    // routing_combo_box_->setBounds(kHeaderSidePadding, control_y, combo_width, control_height);
+
+    add_effect_button_background_->setBounds(add_effect_button_->getBounds().reduced(4));
     add_effect_button_->setColour(Skin::kIconButtonOff, findColour(Skin::kIconButtonOff, true));
     add_effect_button_->setColour(Skin::kIconButtonOffHover, findColour(Skin::kIconButtonOffHover, true));
     add_effect_button_->setColour(Skin::kIconButtonOffPressed, findColour(Skin::kIconButtonOffPressed, true));
@@ -599,7 +683,37 @@ void EffectModuleSection::resized() {
         border->setRounding(border_rounding);
         border->setThickness(1.0f, true);
     }
+
+    static constexpr int kLanePortSize = 24;
+    static constexpr int kLanePortInset = 6;
+    static constexpr int kConnectionSlotSpacing = 2;
+
+    const int port_y = (title_width - kLanePortSize) / 2;
+
+    if (lane_input_port_) {
+        lane_input_port_->setBounds(kLanePortInset, port_y, kLanePortSize, kLanePortSize);
+
+        lane_input_slots_->setBounds(
+            lane_input_port_->getRight() + kConnectionSlotSpacing,
+            lane_input_port_->getY(),
+            ConnectionSlots::kPreferredWidth,
+            lane_input_port_->getHeight());
+    }
+
+    if (lane_output_port_) {
+        lane_output_port_->setBounds(getWidth() - kLanePortInset - kLanePortSize,
+            port_y, kLanePortSize, kLanePortSize);
+
+        lane_output_slots_->setBounds(
+            lane_output_port_->getX()
+                - kConnectionSlotSpacing
+                - ConnectionSlots::kPreferredWidth,
+            lane_output_port_->getY(),
+            ConnectionSlots::kPreferredWidth,
+            lane_output_port_->getHeight());
+    }
 }
+
 void EffectModuleSection::removeModule(ProcessorBase *newModule) {
     // Find exactly the one module whose state matches. find_if (vs non-stable
     // std::partition) does not reorder the surviving modules.
@@ -1246,9 +1360,7 @@ void EffectModuleSection::redoBackgroundImage() {
 }
 
 void EffectModuleSection::paintBackground(Graphics &g) {
-
     paintBody(g);
-
     paintBorder(g);
     redoBackgroundImage();
 }

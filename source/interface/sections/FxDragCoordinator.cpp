@@ -497,7 +497,8 @@ void FxDragCoordinator::finish(bool emitIntent, juce::Point<int> pointerScreen) 
     if (emitIntent && module != nullptr && source != nullptr && target != nullptr
         && target != source
         && insertion_index >= 0 && onMoveRequested) {
-        accepted = onMoveRequested({ module->getAudioNodeId(), identifierFor(source),
+        accepted = onMoveRequested({ module->state.getProperty(IDs::audioNodeId).toString(),
+                                     identifierFor(source),
                                      identifierFor(target), insertion_index });
     }
 

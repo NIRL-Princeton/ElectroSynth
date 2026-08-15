@@ -11,12 +11,12 @@
 #include "ModuleSection.h"
 #include "Processors/ProcessorBase.h"
 #include "chowdsp_plugin_utils/Files/chowdsp_TweaksFile.h"
-#include "modulation_manager.h"
+#include "mapping_manager.h"
 #include "synth_base.h"
 #include "synth_gui_interface.h"
 
-SoundModuleSection::SoundModuleSection(ModulationManager *m, ModuleList<ProcessorBase> &module_list,const juce::ValueTree &v,
-        juce::UndoManager& um) : ModulesInterface( module_list),
+SoundModuleSection::SoundModuleSection(MappingManager *m,  ModuleList<ProcessorBase> &module_list,const juce::ValueTree &v,
+        juce::UndoManager& um) : mapping_manager_(m), ModulesInterface( module_list),
         footer_body(new OpenGlQuad(Shaders::kRoundedRectangleFragment)), state(v), undo(um) {
 
     setName("Sound Module");
@@ -134,6 +134,11 @@ void SoundModuleSection::handlePopupResult(int result) {
         t.setProperty(IDs::type, "noise", nullptr);
         undo.beginNewTransaction();
         list.appendChild(t, &undo);
+    } else if (result == 6) {
+        juce::ValueTree t(IDs::SOUNDMODULE);
+        t.setProperty(IDs::type, "sine", nullptr);
+        undo.beginNewTransaction();
+        list.appendChild(t, &undo);
     }
 
     //    if (result == kArmMidiLearn)
@@ -175,6 +180,7 @@ void SoundModuleSection::setEffectPositions() {
     int filter_index = 1;
     int soft_clip_index = 1;
     int noise_index = 1;
+    int sine_index = 1;
     for (size_t index = 0; index < module_sections.size(); ++index) {
         auto& section = module_sections[index];
         const auto type = section->state.getProperty(IDs::type).toString();
@@ -188,6 +194,8 @@ void SoundModuleSection::setEffectPositions() {
             section->setName("Soft Clip " + juce::String(sound_module_index_) + "." + juce::String(soft_clip_index++));
         else if (type == "noise")
             section->setName("Noise " + juce::String(sound_module_index_) + "." + juce::String(noise_index++));
+        else if (type == "sine")
+            section->setName("Sine " + juce::String(sound_module_index_) + "." + juce::String(sine_index++));
 
         const int section_height = section->refreshHeight(); // refresh height before positioning each module
         section->setDrawBottomSeparator(true);  //setDrawBottomSeparator(index + 1 < module_sections.size()); // add line separating modules
@@ -212,6 +220,7 @@ PopupItems SoundModuleSection::createPopupMenu() {
     options.addItem(3, "add string");
     options.addItem(4, "add soft clip");
     options.addItem(5, "add noise");
+    options.addItem(6, "add sine");
     return options;
 }
 
@@ -232,7 +241,7 @@ void SoundModuleSection::paintBackground(juce::Graphics& g) {
 
 void SoundModuleSection::moduleAdded(ProcessorBase *newModule) {
     auto module_section = std::make_unique<ModuleSection>(newModule->state, newModule->getAudioNodeDescriptor(),
-    std::move (newModule->createEditor()), undo);
+    std::move (newModule->createEditor()), undo, mapping_manager_);
     module_section->setAreaSkinOverride(Skin::kSoundModule);
     {
         juce::ScopedLock lock(open_gl_critical_section_);

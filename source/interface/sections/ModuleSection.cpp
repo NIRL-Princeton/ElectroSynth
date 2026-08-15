@@ -6,16 +6,18 @@
 // editor view (ParametersView) and gives it a header, border/background, exit button, draft behavior, and a height.
 
 #include "ModuleSection.h"
-#include "SoundModuleSection.h"
 #include "ParameterView/FxModuleTemplateView.h"
+#include "SoundModuleSection.h"
+#include "mapping_manager.h"
 
 namespace {
     constexpr int kExitButtonSize = 25;
     constexpr int kExitButtonRightOffset = 50;
 }
 
-ModuleSection::ModuleSection(const juce::ValueTree &v, electrosynth::audio::NodeDescriptor node_descriptor, std::unique_ptr<SynthSection> editor, juce::UndoManager& um)
-    : SynthSection(editor->getName()), audioNodeDescriptor_ (std::move(node_descriptor)),state(v), _view(std::move(editor)), undo(um) {
+ModuleSection::ModuleSection(const juce::ValueTree &v, electrosynth::audio::NodeDescriptor node_descriptor, std::unique_ptr<SynthSection> editor,
+    juce::UndoManager& um, MappingManager* map_manager) : SynthSection(editor->getName()), audioNodeDescriptor_ (std::move(node_descriptor)),
+    state(v), _view(std::move(editor)), undo(um), mapping_manager_(map_manager) {
 
     // The module's body fill is normally baked into the owning lane's scroll image and
     // does not follow a live-moving wrapper. While dragged, this quad supplies an opaque
@@ -66,34 +68,66 @@ ModuleSection::ModuleSection(const juce::ValueTree &v, electrosynth::audio::Node
     addOpenGlComponent(highlight_border_);
 
     if (audioNodeDescriptor_.hasOutput) { // if this module supports outputs...
-        electrosynth::audio::AudioPortAddress address { // give it an output audio port address
-            getAudioNodeId(),
-            audioNodeDescriptor_.outputPortId,
-            electrosynth::audio::PortDirection::Output,
-            audioNodeDescriptor_.domain
+        electrosynth::EndpointDescriptor output {
+            .address {
+                .type = electrosynth::ConnectionType::Audio,
+                .nodeId = getNodeId(),
+                .endpointId = audioNodeDescriptor_.outputPortId,
+                .direction = electrosynth::EndpointDirection::Source,
+                .audioDomain = audioNodeDescriptor_.domain
+            },
+            .capabilities {
+                .maxIncomingConnections = 0
+            }
         };
-        output_port_ = std::make_shared<AudioPortComponent>( // make an output arrow belonging to this output port
-            "audio_output",
-            std::move(address));
+        // make an output arrow belonging to this output port
+        output_port_ = std::make_shared<EndpointArrowComponent>( "audio_output", std::move(output));
         addOpenGlComponent(output_port_);
+
+        output_connection_slots_ = std::make_unique<ConnectionSlots>(*output_port_);
+        addSubSection(output_connection_slots_.get());
+        output_connection_slots_->setConnections({});
     }
 
     if (audioNodeDescriptor_.hasInput) { // if this module supports inputs...
-        electrosynth::audio::AudioPortAddress address { // give it an output audio port address
-            getAudioNodeId(),
-            audioNodeDescriptor_.inputPortId,
-            electrosynth::audio::PortDirection::Input,
-            audioNodeDescriptor_.domain
+        electrosynth::EndpointDescriptor input { // give it an output audio port address
+            .address {
+                .type = electrosynth::ConnectionType::Audio,
+                .nodeId = getNodeId(),
+                .endpointId = audioNodeDescriptor_.inputPortId,
+                .direction = electrosynth::EndpointDirection::Destination,
+                .audioDomain = audioNodeDescriptor_.domain
+            },
+            .capabilities {
+                .hasAmount = true,
+                .maxIncomingConnections = 64
+            }
         };
-        input_port_ = std::make_shared<AudioPortComponent>( // make an output arrow belonging to this output port
-            "audio_input",
-            std::move(address));
+
+        input_port_ = std::make_shared<EndpointArrowComponent>("audio_input", std::move(input));
         addOpenGlComponent(input_port_);
+
+        input_connection_slots_ = std::make_unique<ConnectionSlots>(*input_port_);
+        addSubSection(input_connection_slots_.get());
+        input_connection_slots_->setConnections({});
+    }
+
+    if (mapping_manager_ != nullptr) {
+        if (output_port_ != nullptr)
+            mapping_manager_->registerEndpoint(*output_port_);
+
+        if (input_port_ != nullptr)
+            mapping_manager_->registerEndpoint(*input_port_);
+    }
+}
+
+ModuleSection::~ModuleSection() {
+    if (mapping_manager_ != nullptr) {
+        if (output_port_) mapping_manager_->unregisterEndpoint(*output_port_);
+        if (input_port_) mapping_manager_->unregisterEndpoint(*input_port_);
     }
 
 }
-
-ModuleSection::~ModuleSection() = default;
 
 void ModuleSection::setAreaSkinOverride(Skin::SectionOverride skin_override) {
     setSkinOverride(skin_override);
@@ -102,8 +136,11 @@ void ModuleSection::setAreaSkinOverride(Skin::SectionOverride skin_override) {
 }
 
 int ModuleSection::getPreferredHeight() const {
+    // first is callista's
+    //return (_view != nullptr ? _view->getPreferredHeight() : 0) + kHeaderHeight;
     // resized() reserves both the header and bottom audio-port area outside the
     // editor view, so the wrapper's sizing contract must advertise both regions.
+    // Gabe's
     return (_view != nullptr ? _view->getPreferredHeight() : 0)
          + kHeaderHeight + kContentBottomPadding;
 }
@@ -114,9 +151,11 @@ int ModuleSection::refreshHeight() {
 }
 
 void ModuleSection::resized() {
-    static constexpr int kAudioPortPanelWidth = 34;
+    static constexpr int kAudioPortPanelWidth = 5;
     static constexpr int kAudioPortSize = 24;
     static constexpr int kAudioPortY = 5;
+    static constexpr int kWidthOffset = 23;
+    static constexpr int kConnectionSlotSpacing = 2;
 
     auto local = getLocalBounds();
     local.removeFromTop(kHeaderHeight);
@@ -148,16 +187,34 @@ void ModuleSection::resized() {
     exit_button_->setBounds(exit_x, (kHeaderHeight - kExitButtonSize) / 2, kExitButtonSize, kExitButtonSize);
 
     if (output_port_) {
-        output_port_->setBounds(getWidth() - kAudioPortPanelWidth, getHeight() - kAudioPortSize - kAudioPortY,
+        output_port_->setBounds(getWidth() - kAudioPortPanelWidth - kWidthOffset, getHeight() - kAudioPortSize - kAudioPortY,
             kAudioPortSize, kAudioPortSize);
         output_port_->setColor(findColour(Skin::kWidgetPrimary1, true));
         output_port_->resized();
+
+        if (output_connection_slots_) {
+            output_connection_slots_->setBounds(
+                output_port_->getX()
+                    - kConnectionSlotSpacing
+                    - ConnectionSlots::kPreferredWidth,
+                output_port_->getY(),
+                ConnectionSlots::kPreferredWidth,
+                output_port_->getHeight());
+        }
     }
     if (input_port_) {
         input_port_->setBounds(kAudioPortPanelWidth, getHeight() - kAudioPortSize - kAudioPortY,
             kAudioPortSize, kAudioPortSize);
         input_port_->setColor(findColour(Skin::kWidgetPrimary1, true));
         input_port_->resized();
+
+        if (input_connection_slots_) {
+            input_connection_slots_->setBounds(
+                input_port_->getRight() + kConnectionSlotSpacing,
+                input_port_->getY(),
+                ConnectionSlots::kPreferredWidth,
+                input_port_->getHeight());
+        }
     }
 
     bottom_separator_->setBounds(0, std::max(0, getHeight() - 1), getWidth(), 2);

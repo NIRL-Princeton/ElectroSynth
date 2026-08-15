@@ -2,14 +2,13 @@
 // Created by Davis Polito on 11/19/24.
 //
 
-
 #include "ModulationModuleSection.h"
 #include "ModulationSection.h"
 #include "Modulators/EnvModuleProcessor.h"
 #include "Modulators/LFOModuleProcessor.h"
-#include "synth_gui_interface.h"
-#include "modulation_manager.h"
+#include "mapping_manager.h"
 #include "synth_base.h"
+#include "synth_gui_interface.h"
 
 namespace electrosynth {
     class SoundEngine;
@@ -45,7 +44,7 @@ namespace electrosynth {
     }
 }
 
-ModulationModuleSection::ModulationModuleSection(ModulationManager *modulation_manager, ModuleList<ModulatorBase>& module_list,
+ModulationModuleSection::ModulationModuleSection(MappingManager *modulation_manager, ModuleList<ModulatorBase>& module_list,
     juce::UndoManager& um) : ModulesInterface(module_list), modulation_manager(modulation_manager), undo(um)
 {
     setName("Modulation");
@@ -129,7 +128,7 @@ int ModulationModuleSection::getVisibleTabCount() const {
     return static_cast<int>(module_sections.size()) + (hasVCATab() ? 1 : 0);
 }
 
-void ModulationModuleSection::setVCAModulationSection(SynthSection* section, std::shared_ptr<ModulationButton> mod_button) {
+void ModulationModuleSection::setVCAModulationSection(SynthSection* section, std::shared_ptr<ConnectionButton> mod_button) {
     master_env_section_ = section;
     master_env_button_ = std::move(mod_button);
 
@@ -381,7 +380,7 @@ void ModulationModuleSection::updateTabs() {
         tab_buttons_[i]->setColour(Skin::kIconButtonOffHover, accent.brighter(0.15f));
         tab_buttons_[i]->getGlComponent()->setColors();
 
-        ModulationButton* mod_button = nullptr;
+        ConnectionButton* mod_button = nullptr;
         if (is_default_tab)
             mod_button = master_env_button_.get();
         else
@@ -486,7 +485,7 @@ void ModulationModuleSection::redoBackgroundImage() {
     container_->paintBackground(background_graphics);
     background_.setOwnImage(background_image);
 }
-std::map<std::string, ModulationButton*> ModulationModuleSection::getAllModulationButtons() {
+std::map<std::string, ConnectionButton*> ModulationModuleSection::getAllModulationButtons() {
     //test_->getAllSliders();
     return container_->getAllModulationButtons();
 }
@@ -512,6 +511,9 @@ void ModulationModuleSection::moduleAdded(ModulatorBase *newModule) {
     module_sections.emplace_back(std::move(module_section));
 
     auto mod_button = module_sections.back()->getModulationButtonPtr();
+    // register modulation buttons as endpoints
+    if (modulation_manager != nullptr && mod_button->hasEndpoint())
+        modulation_manager->registerEndpoint(*mod_button);
 
     addOpenGlComponent(std::static_pointer_cast<OpenGlImageComponent>(mod_button));
     selected_tab_ = static_cast<int>(module_sections.size()) - 1;
@@ -531,6 +533,7 @@ void ModulationModuleSection::moduleListChanged() {
 }
 
 void ModulationModuleSection::removeModule(ModulatorBase *newModule) {
+
     decltype(module_sections)::iterator it;
     {
         juce::ScopedLock(this->open_gl_critical_section_);
@@ -571,8 +574,11 @@ void ModulationModuleSection::removeModule(ModulatorBase *newModule) {
         }
         else {
             auto& openGLContext = *juce::OpenGLContext::getCurrentContext();
-            if (modulation_button != nullptr)
+            if (modulation_button != nullptr) {
+                modulation_manager->unregisterEndpoint(*modulation_button);
                 destroyOpenGlComponent(*modulation_button, openGLContext);
+            }
+
             section->destroyOpenGlComponents(openGLContext);
             container_->removeSubSection(section);
         }
@@ -587,8 +593,7 @@ void ModulationModuleSection::removeModule(ModulatorBase *newModule) {
         setEffectPositions();
         updateTabs();
 
-        for(auto listener : listeners_)
-        {
+        for(auto listener : listeners_) {
             listener->removed();
         }
         resized();

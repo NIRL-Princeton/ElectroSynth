@@ -16,7 +16,7 @@ class ModulationSection;
 class SoundModuleSection;
 class ModulationModuleSection;
 struct SynthGuiData;
-class ModulationManager;
+class MappingManager;
 class EffectList;
 class MasterVoiceEnvelopeSection : public SynthSection {
 public:
@@ -26,7 +26,7 @@ public:
     void resized() override;
     void paintBackground(Graphics &g) override;
     std::unique_ptr<SynthSection> master_voice_envelope;
-    std::shared_ptr<ModulationButton> mod_button;
+    std::shared_ptr<ConnectionButton> mod_button;
     std::shared_ptr<OpenGlQuad> header_body_;
     std::shared_ptr<PlainTextComponent> header_title_;
 };
@@ -40,7 +40,7 @@ public:
         //virtual void showAboutSection() = 0;
     };
 
-    MainSection(const juce::ValueTree& v, juce::UndoManager &um, OpenGlWrapper &open_gl, SynthGuiData * data, ModulationManager* );
+    MainSection(const juce::ValueTree& v, juce::UndoManager &um, OpenGlWrapper &open_gl, SynthGuiData * data, MappingManager*);
     ~MainSection() override;
 
     void paintBackground(Graphics& g) override;
@@ -48,7 +48,7 @@ public:
     void renderOpenGlComponents(OpenGlWrapper& open_gl, bool animate) override;
 
     std::map<std::string, SynthSlider*> getAllSliders() override;
-    std::map<std::string, ModulationButton*> getAllModulationButtons() override;
+    std::map<std::string, ConnectionButton*> getAllModulationButtons() override;
 
     void addListener(Listener* listener) { listeners_.push_back(listener); }
 

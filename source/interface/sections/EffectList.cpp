@@ -34,6 +34,7 @@ private:
 } // namespace
 
 EffectList::EffectList(SynthBase *synth, const ValueTree &v, int _lane) : ModuleList<ProcessorBase>(synth,v), lane(_lane) {
+    electrosynth::audio::ensureNodeId(state);
     synth_->registerEffectList(this);
 }
 
@@ -203,4 +204,17 @@ bool EffectList::transferEffectTo(EffectList& target,
 
     synth_->submitEffectMove(lane, target.lane, processor, nextTargetProcessor);
     return true;
+}
+
+electrosynth::audio::NodeDescriptor EffectList::getAudioNodeDescriptor() const
+{
+    auto descriptor = electrosynth::audio::makeSystemProcessorDescriptor();
+    descriptor.inputPortId = "lane_in";
+    descriptor.outputPortId = "lane_out";
+    return descriptor;
+}
+
+juce::String EffectList::getNodeId() const
+{
+    return state.getProperty(IDs::nodeID).toString();
 }

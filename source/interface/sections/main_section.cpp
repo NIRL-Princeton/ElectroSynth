@@ -2,23 +2,22 @@
 // Created by Davis Polito on 2/1/24.
 //
 #include "main_section.h"
+#include "EffectList.h"
+#include "FullInterface.h"
+#include "ModulationModuleSection.h"
+#include "ModulationSection.h"
+#include "Modulators/EnvModuleProcessor.h"
+#include "SoundModuleSection.h"
+#include "connection_button.h"
+#include "mapping_manager.h"
+#include "sound_engine.h"
+#include "synth_base.h"
 #include "synth_gui_interface.h"
 #include "synth_slider.h"
-#include "SoundModuleSection.h"
-#include "ModulationModuleSection.h"
-#include "synth_base.h"
-#include "ModulationSection.h"
-#include "modulation_button.h"
-#include "sound_engine.h"
-#include "sound_engine.h"
-#include "sound_engine.h"
-#include "Modulators/EnvModuleProcessor.h"
-#include "EffectList.h"
-#include "modulation_manager.h"
-#include "FullInterface.h"
 
-MainSection::MainSection(const juce::ValueTree& v, juce::UndoManager &um, OpenGlWrapper & open_gl,
-    SynthGuiData* data, ModulationManager* modulation_manager) : SynthSection("main_section"), v(v), um(um) {
+MainSection::MainSection(const juce::ValueTree& v, juce::UndoManager &um, OpenGlWrapper & open_gl, SynthGuiData* data,
+    MappingManager* modulation_manager) : SynthSection("main_section"),
+    v(v), um(um) {
 
     sound_interface = std::make_unique<AudioChainSection>( *data->synth->processors_,modulation_manager, um);
     addSubSection(sound_interface.get());
@@ -26,7 +25,7 @@ MainSection::MainSection(const juce::ValueTree& v, juce::UndoManager &um, OpenGl
     modulation_interface = std::make_unique<ModulationModuleSection>(modulation_manager,*data->synth->modulators_, um);
     addSubSection(modulation_interface.get());
 
-    effects_section_0 = std::make_unique<EffectModuleSection>(modulation_manager, *data->synth->effects_0,data->synth->effects_0->state,um);
+    effects_section_0 = std::make_unique<EffectModuleSection>(modulation_manager,  *data->synth->effects_0,data->synth->effects_0->state,um);
     addSubSection(effects_section_0.get());
     effects_section_1 = std::make_unique<EffectModuleSection>(modulation_manager, *data->synth->effects_1,data->synth->effects_1->state,um);
     addSubSection(effects_section_1.get());
@@ -183,9 +182,9 @@ std::map<std::string, SynthSlider*> MainSection::getAllSliders() {
 
     return result;
 }
-std::map<std::string, ModulationButton*> MainSection::getAllModulationButtons()
+std::map<std::string, ConnectionButton*> MainSection::getAllModulationButtons()
 {
-    std::map<std::string, ModulationButton*> result = modulation_interface->getAllModulationButtons();
+    std::map<std::string, ConnectionButton*> result = modulation_interface->getAllModulationButtons();
 
     const auto& extraButtons = master_voice_envelope_section->getAllModulationButtons();
     result.insert(extraButtons.begin(), extraButtons.end());

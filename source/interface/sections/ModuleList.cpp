@@ -3,31 +3,32 @@
 //
 
 #include "ModuleList.h"
-#include "synth_base.h"
-#include "OscillatorModuleProcessor.h"
-#include "FilterModuleProcessor.h"
-#include "StringModuleProcessor.h"
-#include "SoftClipModuleProcessor.h"
 #include "DelayModuleProcessor.h"
-#include <juce_core/juce_core.h>
+#include "FilterModuleProcessor.h"
 #include "Modulators/EnvModuleProcessor.h"
 #include "Modulators/LFOModuleProcessor.h"
-#include "NoiseModuleProcessor.h"
-#include "Modulators/SimpleNoiseModuleProcessor.h"
 #include "Modulators/PerlinNoiseModuleProcessor.h"
-#include "AudioNode.h"
+#include "Modulators/SimpleNoiseModuleProcessor.h"
+#include "Processors/SineModuleProcessor.h"
+#include "Node.h"
+#include "NoiseModuleProcessor.h"
+#include "OscillatorModuleProcessor.h"
+#include "SoftClipModuleProcessor.h"
+#include "StringModuleProcessor.h"
+#include "synth_base.h"
+#include <juce_core/juce_core.h>
 
-
-template<typename T>
+template <typename T>
 ModuleList<T>::ModuleList(SynthBase *synth,const ValueTree& v) : tracktion::engine::ValueTreeObjectList<T>(v),synth_(synth),state(v){
     if constexpr (std::is_same_v<T, ProcessorBase>)
     {
-       factory.template registerType<OscillatorModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*, juce::UndoManager*>("osc");
-       factory.template registerType<FilterModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*,juce::UndoManager*>("filt");
+        factory.template registerType<OscillatorModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*, juce::UndoManager*>("osc");
+        factory.template registerType<FilterModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*,juce::UndoManager*>("filt");
         factory.template registerType<StringModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*, juce::UndoManager*>("string");
         factory.template registerType<SoftClipModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*, juce::UndoManager*>("softclip");
         factory.template registerType<DelayModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*, juce::UndoManager*>("delay");
         factory.template registerType<NoiseModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*, juce::UndoManager*>("noise");
+        factory.template registerType<SineModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*, juce::UndoManager*>("sine");
     }
     else if constexpr (std::is_same_v<T, ModulatorBase>)
     {
@@ -140,12 +141,12 @@ void ModuleList<T>::valueTreePropertyChanged(juce::ValueTree &v, const juce::Ide
                 if (obj->state.isValid() && xml != nullptr) {
                     auto uuid = obj->state.getProperty(IDs::uuid).toString();
                     auto type = obj->state.getProperty(IDs::type).toString();
-                    auto audio_node_id = obj->state.getProperty(IDs::audioNodeId).toString();
+                    auto node_id = obj->state.getProperty(IDs::nodeID).toString();
                     obj->state.copyPropertiesFrom(juce::ValueTree::fromXml(*xml),nullptr);
                     obj->state.setProperty(IDs::type, type,nullptr);
                     obj->state.setProperty(IDs::uuid, uuid,nullptr);
-                    if constexpr (std::is_same_v<T, ProcessorBase>)
-                        obj->state.setProperty(IDs::audioNodeId, audio_node_id, nullptr);
+                    if constexpr (std::is_same_v<T, ProcessorBase> || std::is_same_v<T, ModulatorBase>)
+                        obj->state.setProperty(IDs::nodeID, node_id, nullptr);
                     //  state.addChild(juce::ValueTree::fromXml(*xml),0,nullptr);
                 }
             }

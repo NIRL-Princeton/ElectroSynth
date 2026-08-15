@@ -5,7 +5,9 @@
 #ifndef EFFECTLIST_H
 #define EFFECTLIST_H
 #include "ModuleList.h"
+#include "Node.h"
 #include <functional>
+
 class EffectList : public ModuleList<ProcessorBase> {
 
 public:
@@ -26,6 +28,8 @@ public:
     bool transferEffectTo(EffectList& target, const juce::String& moduleAudioNodeId,
                           int targetEffectIndex);
     std::function<bool(ProcessorBase*, EffectList&, int)> onUiTransferRequested;
+    electrosynth::audio::NodeDescriptor getAudioNodeDescriptor() const;
+    juce::String getNodeId() const;
     const int lane;
 
 private:

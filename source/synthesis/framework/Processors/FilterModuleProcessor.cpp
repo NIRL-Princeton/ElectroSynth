@@ -43,6 +43,7 @@ void FilterModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     //    auto* samplesL = buffer.getReadPointer(0);
 
     for (int v = 0; v < engine->voiceHandler.numVoicesActive; v++) {
+        tFiltModule_setParameter(state_.params.modules[v], FiltMidiPitch,engine->voiceHandler.voiceNote[v]/127.f );
         auto* L = buffer.getWritePointer(v*2);
         auto* R = buffer.getWritePointer(v*2 +1);
         for (int i = 0; i < numSamples; i++)

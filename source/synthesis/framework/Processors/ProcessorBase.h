@@ -4,11 +4,11 @@
 
 #ifndef ELECTROSYNTH_PROCESSORBASE_H
 #define ELECTROSYNTH_PROCESSORBASE_H
+#include "Identifiers.h"
+#include "Node.h"
+#include "ParameterView/ParametersView.h"
 #include "PluginStateImpl_.h"
 #include "leaf.h"
-#include "ParameterView/ParametersView.h"
-#include "Identifiers.h"
-#include "AudioNode.h"
 
 namespace electrosynth {
     class SoundEngine;
@@ -18,7 +18,7 @@ class ProcessorBase : public juce::AudioSource
 public:
     explicit ProcessorBase(electrosynth::SoundEngine* engine, LEAF* leaf,const juce::ValueTree& tree, juce::UndoManager* um = nullptr) :
         engine(engine), leaf(leaf), state(tree) {
-        electrosynth::audio::ensureAudioNodeId(state, nullptr);
+        electrosynth::audio::ensureNodeId(state, nullptr);
     }
     ~ProcessorBase() override = default;
     LEAF* leaf;
@@ -34,6 +34,9 @@ public:
     virtual void setStateInformation (const void *data, int sizeInBytes)=0;
     virtual std::unique_ptr<SynthSection> createEditor() = 0;
     electrosynth::SoundEngine* engine;
+    juce::String getNodeId() const {
+        return state.getProperty(IDs::nodeID).toString();
+    }
 };
 
 
@@ -56,10 +59,6 @@ public :
     }
     void setStateInformation (const void *data, int sizeInBytes) override {
         state_.deserialize (juce::MemoryBlock { data, (size_t) sizeInBytes });
-    }
-
-    juce::String getAudioNodeId() const {
-        return state.getProperty(IDs::audioNodeId).toString();
     }
 };
 
