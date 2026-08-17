@@ -16,6 +16,7 @@
 
 #include "sound_engine.h"
 
+#include "ModuleGraph.h"
 #include "../framework/Processors/OscillatorModuleProcessor.h"
 #include "MasterVoiceProcessor.h"
 #include "ModulationConnection.h"
@@ -40,6 +41,7 @@ namespace electrosynth
                                                        last_sample_rate_ (-1),
                                                        modulation_bank_ ((leaf))
     {
+        moduleGraph_ = std::make_unique<ModuleGraph>();
         // LEAF_init (&leaf, 44100.0f, memory, 536870912, []() { return (float) rand() / RAND_MAX; });
         // //processors.push_back(std::make_shared<OscillatorModuleProcessor> (&leaf));
         // //SoundEngine::init();
@@ -179,29 +181,188 @@ namespace electrosynth
                && effectLaneTransitions_[static_cast<std::size_t>(lane)].isSilent();
     }
 
-    void SoundEngine::processMappings()
+    void SoundEngine::registerModule(ModuleBase* module)
     {
-        for (auto mapping : mappings)
+        if (module == nullptr)
+            return;
+
+        const auto nodeId = module->getNodeId();
+        if (nodeId.isEmpty())
+            return;
+
+        moduleRegistry_[nodeId] = module;
+    }
+
+    void SoundEngine::unregisterModule(ModuleBase* module)
+    {
+        if (module == nullptr)
+            return;
+
+        const auto nodeId = module->getNodeId();
+        if (nodeId.isEmpty())
+            return;
+
+        auto it = moduleRegistry_.find(nodeId);
+        if (it != moduleRegistry_.end() && it->second == module)
+            moduleRegistry_.erase(it);
+    }
+
+    ModuleBase* SoundEngine::getModuleByNodeId(const juce::String& nodeId) const
+    {
+        if (nodeId.isEmpty())
+            return nullptr;
+
+        const auto it = moduleRegistry_.find(nodeId);
+        return it != moduleRegistry_.end() ? it->second : nullptr;
+    }
+
+    bool SoundEngine::connectGraphConnection(const electrosynth::ConnectionRecord& connection)
+    {
+        if (moduleGraph_ == nullptr || !moduleGraph_->connect(connection))
+            return false;
+
+#if JUCE_DEBUG
+        moduleGraph_->debugPrint("ModuleGraph after connect: " + connection.id,
+            [this](const juce::String& nodeId)
+            {
+                if (auto* module = getModuleByNodeId(nodeId))
+                    return module->getDisplayName().isNotEmpty() ? module->getDisplayName() : nodeId;
+                return nodeId;
+            });
+#endif
+
+        if (connection.type != electrosynth::ConnectionType::Modulation)
+            return true;
+
+        auto& state = modulationStates_[connection.id];
+        state.record = connection;
+        state.scalingValue.store(connection.amount, std::memory_order_relaxed);
+
+        std::stringstream source_stream(connection.source.endpointId.toStdString());
+        std::string source_token;
+        std::getline(source_stream, source_token, '_');
+        state.source = getLEAFProcessorModulator(source_token);
+        std::tie(state.destination, state.destinationParamIndex) = getParameterInfo(connection.destination.endpointId.toStdString());
+
+        if (state.source == nullptr || state.destination == nullptr || state.destinationParamIndex < 0)
         {
-            if (mapping == nullptr)
+            moduleGraph_->disconnect(connection.id);
+            modulationStates_.erase(connection.id);
+            return false;
+        }
+
+        for (int voice = 0; voice < MAX_NUM_VOICES; ++voice)
+        {
+            if (state.mapping[voice] == nullptr)
+                tMapping_init(&state.mapping[voice], &leaf);
+
+            auto* voice_mapping = state.mapping[voice];
+            if (voice_mapping == nullptr
+                || !juce::isPositiveAndBelow(voice, static_cast<int>(state.source->size()))
+                || !juce::isPositiveAndBelow(voice, static_cast<int>(state.destination->size())))
                 continue;
 
-            for (int i = 0; i < MAX_NUM_VOICES; i++) {
-                auto* voice_mapping = &mapping->mapping_[i];
-                if (voice_mapping->initialVal == nullptr || voice_mapping->destObject == nullptr)
+            auto* sourceModule = state.source->at(voice);
+            auto* destinationModule = state.destination->at(voice);
+            if (sourceModule == nullptr || destinationModule == nullptr)
+                continue;
+
+            auto* destValue = destinationModule->params[state.destinationParamIndex];
+            if (destValue == nullptr)
+                continue;
+
+            tMappingAdd_(voice_mapping,
+                &sourceModule->outputs[0],
+                sourceModule->uniqueID,
+                destValue,
+                destinationModule->uniqueID,
+                destinationModule->setterFunctions[state.destinationParamIndex],
+                state.destinationParamIndex,
+                destinationModule,
+                &leaf,
+                &state.scalingValue);
+        }
+
+        return true;
+    }
+
+    bool SoundEngine::updateGraphConnection(const electrosynth::ConnectionRecord& connection)
+    {
+        return moduleGraph_ != nullptr && moduleGraph_->update(connection);
+    }
+
+    void SoundEngine::disconnectGraphConnection(const juce::String& connectionId)
+    {
+        if (moduleGraph_ == nullptr)
+            return;
+
+        auto stateIt = modulationStates_.find(connectionId);
+        if (stateIt != modulationStates_.end())
+        {
+            for (auto& mapping : stateIt->second.mapping)
+            {
+                if (mapping == nullptr)
                     continue;
 
-                bool valid_sources = true;
-                for (int source = 0; source < voice_mapping->numUsedSources; ++source) {
-                    if (voice_mapping->inSources[source] == nullptr
-                        || voice_mapping->scalingValues[source] == nullptr) {
-                        valid_sources = false;
-                        break;
-                    }
-                }
+                auto* toFree = mapping;
+                tMapping_free(&toFree);
+                mapping = nullptr;
+            }
+            modulationStates_.erase(stateIt);
+        }
 
-                if (valid_sources)
-                    processMapping (voice_mapping);
+        moduleGraph_->disconnect(connectionId);
+
+#if JUCE_DEBUG
+        moduleGraph_->debugPrint("ModuleGraph after disconnect: " + connectionId,
+            [this](const juce::String& nodeId)
+            {
+                if (auto* module = getModuleByNodeId(nodeId))
+                    return module->getDisplayName().isNotEmpty() ? module->getDisplayName() : nodeId;
+                return nodeId;
+            });
+#endif
+    }
+
+    void SoundEngine::processMappings()
+    {
+        if (moduleGraph_ == nullptr)
+            return;
+
+        for (const auto& connection : moduleGraph_->getConnections())
+        {
+            if (connection.type != electrosynth::ConnectionType::Modulation)
+                continue;
+
+            auto stateIt = modulationStates_.find(connection.id);
+            if (stateIt == modulationStates_.end())
+                continue;
+
+            auto& state = stateIt->second;
+            state.record = connection;
+            state.scalingValue.store(connection.amount, std::memory_order_relaxed);
+
+            if (state.source == nullptr
+                || state.destination == nullptr
+                || state.destinationParamIndex < 0)
+                continue;
+
+            for (int voice = 0; voice < MAX_NUM_VOICES; ++voice)
+            {
+                auto* voice_mapping = state.mapping[voice];
+                if (voice_mapping == nullptr)
+                    continue;
+
+                if (voice_mapping->initialVal == nullptr
+                    || voice_mapping->destObject == nullptr
+                    || voice_mapping->numUsedSources <= 0)
+                    continue;
+
+                if (voice_mapping->inSources[0] == nullptr
+                    || voice_mapping->scalingValues[0] == nullptr)
+                    continue;
+
+                processMapping(voice_mapping);
             }
         }
     }
@@ -284,14 +445,6 @@ namespace electrosynth
                 juce::ScopedLock sl (myCoolLock);
                 auto amp_vals = MasterVoiceEnvelopeProcessor->processMasterEnvelope();
                 processMappings();
-                for (auto& modulator_chain : modSources)
-                {
-                    for (auto& modulator : modulator_chain)
-                    {
-                        if (modulator != nullptr)
-                            modulator->process();
-                    }
-                }
 
                 int chainIndex = -1;
                 for (auto& proc_chain : processors)
@@ -727,113 +880,107 @@ namespace electrosynth
 
     void SoundEngine::connectMapping (const electrosynth::mapping_change& change)
     {
-        //check for mapping already exists
-        for (auto modulation : mappings)
+        if (moduleGraph_ == nullptr || change.connection == nullptr)
+            return;
+
+        electrosynth::ConnectionRecord record {
+            .id = juce::String (change.connection->uuid),
+            .type = electrosynth::ConnectionType::Modulation,
+            .source {
+                .type = electrosynth::ConnectionType::Modulation,
+                .nodeId = juce::String (change.connection->source_name),
+                .endpointId = juce::String (change.connection->source_name),
+                .direction = electrosynth::EndpointDirection::Source
+            },
+            .destination {
+                .type = electrosynth::ConnectionType::Modulation,
+                .nodeId = juce::String (change.connection->destination_name),
+                .endpointId = juce::String (change.connection->destination_name),
+                .direction = electrosynth::EndpointDirection::Destination
+            },
+            .destinationSlot = change.connection->destination_slot,
+            .amount = change.connection->getCurrentBaseValue(),
+            .bipolar = change.connection->isBipolar(),
+            .bypass = change.connection->isBypass(),
+            .stereo = change.connection->isStereo()
+        };
+
+        if (!moduleGraph_->connect(record))
+            return;
+
+        auto& state = modulationStates_[record.id];
+        state.record = record;
+        state.scalingValue.store(record.amount, std::memory_order_relaxed);
+        state.source = change._source;
+        state.destination = change._dest;
+        state.destinationParamIndex = change.dest_param_index;
+
+        if (state.source == nullptr || state.destination == nullptr || state.destinationParamIndex < 0)
         {
-            if (change.mapping == modulation)
-            {
-                DBG ("adding modulation:" + juce::String (change.source) + " to " + juce::String (modulation->dest_));
-                int sourceIndex = 0;
-                auto it = std::find (change.mapping->all_connections_.begin(), change.mapping->all_connections_.end(), change.connection);
-                if (it != change.mapping->all_connections_.end())
-                {
-                    sourceIndex = static_cast<int> (std::distance (change.mapping->all_connections_.begin(), it));
-                }
-                //set the scale value to point to the backend mapping scaling
-                for (int v = 0; v < MAX_NUM_VOICES; v++)
-                {
-                    auto val = change._dest->at (v)->params[change.dest_param_index];
-                    tMappingAdd_ (&change.mapping->mapping_[v],
-                        &change._source->at (v)->outputs[0],
-                        change._source->at (v)->uniqueID,
-                        val,
-                        change._dest->at (v)->uniqueID,
-                        change._dest->at (v)->setterFunctions[change.dest_param_index],
-                        change.dest_param_index,
-                        change._dest->at (v),
-                        &leaf,
-                        &change.connection->scalingValue_);
-                    // tMappingAdd(&change.mapping->mapping_[v], &change._source[v], &change._dest[v],
-                    //            change.dest_param_index, sourceIndex, &leaf, &change.connection->scalingValue_);
-                }
-                change.mapping->addConnection(change.connection);
-                //TODO : fix bipolaroffset like mapping_
-                //change.connection->bipolarOffset = &change.mapping->mapping_.bipolarOffset[sourceIndex];
-                return;
-            }
+            moduleGraph_->disconnect(record.id);
+            modulationStates_.erase(record.id);
+            return;
         }
 
-        //    int sourceIndex = 0;
-        //    auto it = std::find (change.mapping->all_connections_.begin(),change.mapping->all_connections_.end(),change.connection );
-        //    if (it != change.mapping->all_connections_.end() )
-        //    {
-        //        sourceIndex = static_cast<int> (std::distance (change.mapping->all_connections_.begin(), it));
-        //    }
-
-        //otherwise this is a new mapping
-        //index will be 0 in the mapping
-        //set the scale value to point to the backend mapping scaling
-        for (int v = 0; v < voiceHandler.numVoicesActive; v++)
+        for (int voice = 0; voice < MAX_NUM_VOICES; ++voice)
         {
-            auto val = change._dest->at (v)->params[change.dest_param_index];
-            tMappingAdd_ (&change.mapping->mapping_[v],
-                &change._source->at (v)->outputs[0],
-                change._source->at (v)->uniqueID,
-                val,
-                change._dest->at (v)->uniqueID,
-                change._dest->at (v)->setterFunctions[change.dest_param_index],
-                change.dest_param_index,
-                change._dest->at (v),
+            if (state.mapping[voice] == nullptr)
+                tMapping_init(&state.mapping[voice], &leaf);
+
+            auto* voice_mapping = state.mapping[voice];
+            if (voice_mapping == nullptr
+                || !juce::isPositiveAndBelow(voice, static_cast<int>(state.source->size()))
+                || !juce::isPositiveAndBelow(voice, static_cast<int>(state.destination->size())))
+                continue;
+
+            auto* sourceModule = state.source->at(voice);
+            auto* destinationModule = state.destination->at(voice);
+            if (sourceModule == nullptr || destinationModule == nullptr)
+                continue;
+
+            auto* destValue = destinationModule->params[state.destinationParamIndex];
+            if (destValue == nullptr)
+                continue;
+
+                tMappingAdd_ (voice_mapping,
+                &sourceModule->outputs[0],
+                sourceModule->uniqueID,
+                destValue,
+                destinationModule->uniqueID,
+                destinationModule->setterFunctions[state.destinationParamIndex],
+                state.destinationParamIndex,
+                destinationModule,
                 &leaf,
-                &change.connection->scalingValue_);
-            //     tMappingAdd(&change.mapping->mapping_[v], &change._source[v], &change._dest[v], change.dest_param_index,
-            // 0, &leaf,&change.connection->scalingValue_);
-            change.connection->bipolarOffset = &change.mapping->mapping_[0].bipolarOffset[0];
+                &state.scalingValue);
         }
 
-        mappings.push_back (change.mapping);
-        change.mapping->addConnection(change.connection);
         DBG ("added new modulation");
     }
 
     //returns true if the mapping should be completely removd from process mappings
     void SoundEngine::disconnectMapping (const electrosynth::mapping_change& change)
     {
-        MappingWrapper* mappingToRemove = nullptr;
-        for (auto modulation : mappings)
-        {
-            if (change.mapping == modulation)
-            {
-                DBG ("removing modualtion:" + juce::String (change.source) + " from " + juce::String (modulation->dest_));
-                int sourceIndex = 0;
-                auto it = std::find (change.mapping->all_connections_.begin(), change.mapping->all_connections_.end(), change.connection);
-                if (it != change.mapping->all_connections_.end())
-                {
-                    sourceIndex = static_cast<int> (std::distance (change.mapping->all_connections_.begin(), it));
-                }
-                for (int v = 0; v < MAX_NUM_VOICES; v++)
-                {
-                    modulation->mapping_[v].inSources[sourceIndex] = nullptr;
-                    *modulation->mapping_[v].scalingValues[sourceIndex] = 0.0f;
-                    modulation->mapping_[v].inUUIDS[sourceIndex] = 0.0f;
-                }
+        if (change.connection == nullptr)
+            return;
 
-                change.connection->scalingValue_ = 0.0f;
-                modulation->removeConnection(change.connection);
+        const auto connectionId = juce::String (change.connection->uuid);
+        if (moduleGraph_ != nullptr)
+            moduleGraph_->disconnect(connectionId);
 
-                if (modulation->mapping_[0].numUsedSources == 0)
-                {
-                    mappingToRemove = modulation;
-                }
-                break;
-            }
-        }
-        if (mappingToRemove)
+        auto stateIt = modulationStates_.find(connectionId);
+        if (stateIt == modulationStates_.end())
+            return;
+
+        for (auto& mapping : stateIt->second.mapping)
         {
-            mappings.erase (std::remove (mappings.begin(), mappings.end(), mappingToRemove), mappings.end());
+            if (mapping == nullptr)
+                continue;
+
+            auto* toFree = mapping;
+            tMapping_free(&toFree);
+            mapping = nullptr;
         }
-        //
-        //    DBG("didnt find mapping");
-        //    jassert(true);
+
+        modulationStates_.erase(stateIt);
     }
 } // namespace vital

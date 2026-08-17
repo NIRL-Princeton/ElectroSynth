@@ -4,8 +4,7 @@
 
 #ifndef ELECTROSYNTH_PROCESSORBASE_H
 #define ELECTROSYNTH_PROCESSORBASE_H
-#include "Identifiers.h"
-#include "Node.h"
+#include "ModuleBase.h"
 #include "ParameterView/ParametersView.h"
 #include "PluginStateImpl_.h"
 #include "leaf.h"
@@ -13,35 +12,23 @@
 namespace electrosynth {
     class SoundEngine;
 }
-class ProcessorBase : public juce::AudioSource
+class ProcessorBase : public ModuleBase
 {
 public:
-    explicit ProcessorBase(electrosynth::SoundEngine* engine, LEAF* leaf,const juce::ValueTree& tree, juce::UndoManager* um = nullptr) :
-        engine(engine), leaf(leaf), state(tree) {
-        electrosynth::audio::ensureNodeId(state, nullptr);
-    }
+    explicit ProcessorBase(electrosynth::SoundEngine* engine, LEAF* leaf, const juce::ValueTree& tree, juce::UndoManager* um = nullptr)
+        : ModuleBase(engine, leaf, tree) {}
+
     ~ProcessorBase() override = default;
-    LEAF* leaf;
-    juce::ValueTree state;
-    std::array<ModuleHeader*, MAX_NUM_VOICES>* procArray;
-    juce::String name;
+
     virtual void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) = 0;
     virtual electrosynth::audio::NodeDescriptor getAudioNodeDescriptor() const noexcept = 0; // expose AudioNode
-    void getNextAudioBlock (const juce::AudioSourceChannelInfo &bufferToFill) override {}
-    void prepareToPlay (int samplesPerBlock, double sampleRate ) override {}
-    void releaseResources() override {}
     virtual void getStateInformation (MemoryBlock &destData)=0;
     virtual void setStateInformation (const void *data, int sizeInBytes)=0;
-    virtual std::unique_ptr<SynthSection> createEditor() = 0;
-    electrosynth::SoundEngine* engine;
-    juce::String getNodeId() const {
-        return state.getProperty(IDs::nodeID).toString();
-    }
 };
 
 
 template <typename PluginStateType>
-class ProcessorStateBase : public ProcessorBase{
+class ProcessorStateBase : public ProcessorBase {
 public :
     ProcessorStateBase(electrosynth::SoundEngine* engine,LEAF* leaf, const juce::ValueTree& tree, juce::UndoManager* um = nullptr)
     : ProcessorBase(engine,leaf, tree, um),

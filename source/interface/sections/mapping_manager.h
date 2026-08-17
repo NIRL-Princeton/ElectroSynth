@@ -73,6 +73,7 @@ class ModulationAmountKnob : public SynthSlider {
     void setCurrentSource(bool current);
 
     void setSource(const std::string& name);
+    juce::String getSourceName() const noexcept { return source_name_; }
     juce::String getSourceLabel() const;
     juce::Colour getSourceColor() const;
 
@@ -274,9 +275,9 @@ class MappingManager : public SynthSection, public ConnectionSlots::Listener, pu
     void modulationsChanged(const std::string& name) override;
     int getIndexForModulationSlider(juce::Slider* slider);
     int getModulationIndex(std::string source, std::string destination, int destination_slot = -1);
-    electrosynth::Connection* getConnectionForSlider(juce::Slider* slider);
-    electrosynth::Connection* getConnection(int index);
-    electrosynth::Connection* getConnection(const std::string& source, const std::string& dest,
+    electrosynth::ConnectionRecord* getConnectionForSlider(juce::Slider* slider);
+    electrosynth::ConnectionRecord* getConnection(int index);
+    electrosynth::ConnectionRecord* getConnection(const std::string& source, const std::string& dest,
                                                       int destination_slot = -1);
     void mouseDown(SynthSlider* slider) override;
     void mouseUp(SynthSlider* slider) override;
@@ -312,7 +313,11 @@ private:
     void positionEndpointDragIcon();
     void drawEndpointDestinations(OpenGlWrapper& openGl);
 
-    electrosynth::Connection* findModulationConnection(const juce::String& connectionId) const;
+    electrosynth::ConnectionRecord* findConnectionRecord(const juce::String& connectionId);
+    const electrosynth::ConnectionRecord* findConnectionRecord(const juce::String& connectionId) const;
+    electrosynth::ConnectionRecord* findConnectionRecord(const std::string& source, const std::string& destination,
+                                                        int destination_slot = -1,
+                                                        electrosynth::ConnectionType type = electrosynth::ConnectionType::Modulation);
 
     // connection_slot callbacks
     void connectionSlotClicked(const ConnectionSlotData& connection, const juce::MouseEvent& event) override;
@@ -328,9 +333,9 @@ private:
     void updateSlotVisuals();
     void makeCurrentConnectionAmountsVisible();
     void makeConnectionsVisible(SynthSlider* destination, bool visible);
-    ModulationAmountKnob* getConnectionAmountControl(const electrosynth::Connection* connection) const;
-    void syncConnectionAmountControl(electrosynth::Connection* connection, ModulationAmountKnob* amount_knob);
-    bool placeConnectionAmountInSlot(SynthSlider* destination, const electrosynth::Connection* connection,
+    ModulationAmountKnob* getConnectionAmountControl(const electrosynth::ConnectionRecord* connection) const;
+    void syncConnectionAmountControl(const electrosynth::ConnectionRecord* connection, ModulationAmountKnob* amount_knob);
+    bool placeConnectionAmountInSlot(SynthSlider* destination, const electrosynth::ConnectionRecord* connection,
                                      ModulationAmountKnob* amount_knob);
     void showConnectionAmountCallout(const std::string& source);
     void hideConnectionAmountCallout();
@@ -375,7 +380,7 @@ private:
     std::map<juce::Viewport*, std::unique_ptr<OpenGlMultiQuad>> linear_meters_;
 
     struct StaticModulationArc {
-        electrosynth::Connection* connection = nullptr;
+        electrosynth::ConnectionRecord* connection = nullptr;
         ModulationMeter* meter = nullptr;
         std::unique_ptr<OpenGlQuad> quad;
         int ring_index = 0;
