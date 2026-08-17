@@ -181,6 +181,22 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
             &chowdsp::ParamUtils::stringToFloatVal
         };
 
+    chowdsp::FloatParameter::Ptr oscType
+    {
+        juce::ParameterID{"oscType" , 100},
+        "Waveform",
+        chowdsp::ParamUtils::createNormalisableRange(0.f, 5.f, 2.5f, 1.f),
+        0.f,
+        all_params[OscParams::OscType],
+        [this]( float val)
+        {for (auto mod : modules)
+            tOscModule_setParameter(mod,OscType,val);
+            //DBG("amp [0 - 1] " + juce::String(val) + ".. .... amp actual " + juce::String(modules[0]->amp));
+        },
+        &chowdsp::ParamUtils::floatValToString,
+        &chowdsp::ParamUtils::stringToFloatVal
+    };
+
     chowdsp::BoolParameter::Ptr harmonicstepped
     {
         juce::ParameterID{"harmonicStepped" , 100},
@@ -197,21 +213,6 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
         }
     };
 
-    chowdsp::FloatParameter::Ptr oscType
-    {
-        juce::ParameterID{"oscType" , 100},
-        "Waveform",
-        chowdsp::ParamUtils::createNormalisableRange(0.f, 5.f, 2.5f, 1.f),
-        0.f,
-        all_params[OscParams::OscType],
-        [this]( float val)
-        {for (auto mod : modules)
-            tOscModule_setParameter(mod,OscType,val);
-            //DBG("amp [0 - 1] " + juce::String(val) + ".. .... amp actual " + juce::String(modules[0]->amp));
-        },
-        &chowdsp::ParamUtils::floatValToString,
-        &chowdsp::ParamUtils::stringToFloatVal
-    };
 
     // chowdsp::EnumChoiceParameter<FlagOscTypes>::Ptr oscType {
     //     juce::ParameterID{"oscType" , 100},

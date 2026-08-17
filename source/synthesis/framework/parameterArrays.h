@@ -29,12 +29,12 @@ const std::array<std::vector<std::string>, 12> paramsAllArray =
             "pitchfine", // OscPitchFine
             "freqoffset", // OscFreqOffset
             "shape", // OscShapeParam
-            "amp", // OscAmpParam
+                "oscType",
+            "gain", // OscAmpParam
             "glide", // OscGlide
             "harmonicStepped", // OscStepped
             "", // OscSyncMode (undefined / not modulatable )
-            "", // OscSyncIn (undefined / not modulaatblae )
-            "oscType", // OscType
+            "", // OscSyncIn (undefined / not modulatable )
             "portaType" // OscPortaType (always or not always)
             "" // OscNumParams (typically represents the count, no corresponding parameter)
         },
@@ -65,7 +65,7 @@ const std::array<std::vector<std::string>, 12> paramsAllArray =
             "eventWatch", // FiltEventWatchFlag
             "midiPitch", // FiltMidiPitch
             "cutoff", // FiltCutoff
-            "amp", // FiltGain
+            "gain", // FiltGain
             "resonance", // FiltResonance
             "keyfollow", // FiltKeyfollow
             "filterType", // FiltType
