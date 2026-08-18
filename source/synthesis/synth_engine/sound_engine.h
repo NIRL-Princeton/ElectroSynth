@@ -16,14 +16,18 @@
 
 #pragma once
 #include <juce_audio_processors/juce_audio_processors.h>
+#include <atomic>
 #include "../framework/note_handler.h"
+#include "ModuleBase.h"
+#include "ConnectionRecord.h"
+#include "ModuleGraph.h"
+#include <map>
 #include <leaf.h>
 #include "event_emitter.h"
 #include "ModulationConnection.h"
 #include "BenchMarkProcessBlock.h"
 #include "EffectLaneTransition.h"
 #include "VCAModule.h"
-class MappingWrapper;
 class RoutingProcessor;
 class ProcessorBase;
 class ModulatorBase;
@@ -32,6 +36,15 @@ class EnvModuleProcessor;
 namespace electrosynth {
     using AudioGraphIOProcessor = juce::AudioProcessorGraph::AudioGraphIOProcessor;
     using Node = juce::AudioProcessorGraph::Node;
+
+    struct ModulationRuntimeState {
+        electrosynth::ConnectionRecord record;
+        std::array<leaf::tMapping*, MAX_NUM_VOICES> mapping {};
+        std::array<ModuleHeader*, MAX_NUM_VOICES>* source = nullptr;
+        std::array<ModuleHeader*, MAX_NUM_VOICES>* destination = nullptr;
+        int destinationParamIndex = -1;
+        std::atomic<float> scalingValue { 0.0f };
+    };
 
     class SoundEngine : public NoteHandler {
     public:
@@ -50,11 +63,18 @@ namespace electrosynth {
       juce::MidiBuffer empty;
 
       juce::CriticalSection myCoolLock;
-      void process(juce::AudioSampleBuffer&, juce::MidiBuffer &);
-      void process(juce::AudioSampleBuffer&,int channels, int samples, int offset);
-      void processMappings();
-      void releaseResources() {
-      }
+        void process(juce::AudioSampleBuffer&, juce::MidiBuffer &);
+        void process(juce::AudioSampleBuffer&,int channels, int samples, int offset);
+        void processMappings();
+        void processAudioConnections();
+        int getEffectLaneIndex(const juce::String& nodeId) const noexcept;
+        void registerEffectLaneNodeId(int lane, const juce::String& nodeId) noexcept;
+        bool connectGraphConnection(const electrosynth::ConnectionRecord& connection);
+        bool updateGraphConnection(const electrosynth::ConnectionRecord& connection);
+        void disconnectGraphConnection(const juce::String& connectionId);
+        const std::vector<electrosynth::ConnectionRecord>& getConnections() const noexcept { return moduleGraph_->getConnections(); }
+        void releaseResources() {
+        }
 
       void prepareToPlay(double sampleRate, int samplesPerBlock)
       {
@@ -144,12 +164,18 @@ namespace electrosynth {
         void beginEffectLaneFadeIn(int lane) noexcept;
         bool isEffectLaneSilent(int lane) const noexcept;
         std::vector<std::vector<std::unique_ptr<ModulatorBase>>> modSources;
-        std::vector<MappingWrapper*> mappings;
+        void registerModule(ModuleBase* module);
+        void unregisterModule(ModuleBase* module);
+        ModuleBase* getModuleByNodeId(const juce::String& nodeId) const;
 
         void disconnectMapping(const electrosynth::mapping_change& change);
         void connectMapping (const electrosynth::mapping_change& change);
         ProcessorBase* getProcessorFromUUID(int uuid);
         ModulatorBase* getModulatorFromUUID(int uuid);
+        std::unique_ptr<ModuleGraph> moduleGraph_;
+        std::map<juce::String, ModuleBase*> moduleRegistry_;
+        std::map<juce::String, ModulationRuntimeState> modulationStates_;
+
 
      std::array<ModuleHeader*, MAX_NUM_VOICES>* getLeafProcessorFromUUID(int uuid);
       char memory[536870912]; //512 MB
@@ -175,7 +201,9 @@ namespace electrosynth {
       int buffer_size;
       int curr_sample_rate;
       juce::AudioBuffer<float> temp_voice_buffer{MAX_NUM_VOICES*2,1};
-      std::array<juce::AudioBuffer<float>, 4> temp_fx_buffers;
+        std::array<juce::AudioBuffer<float>, 4> temp_fx_buffers;
+      std::array<juce::AudioBuffer<float>, 3> laneSummedInputs;
+      std::array<juce::String, 3> laneNodeIds {};
       std::array<effect_order::EffectLaneTransition, 3> effectLaneTransitions_;
 
       juce::UndoManager& undo;
@@ -188,4 +216,3 @@ namespace electrosynth {
       JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SoundEngine)
   };
 } // namespace vital
-

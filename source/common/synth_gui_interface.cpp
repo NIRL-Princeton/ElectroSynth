@@ -36,7 +36,7 @@ bool SynthGuiInterface::connect(const electrosynth::ConnectionRecord& connection
 
 #if HEADLESS
 
-SynthGuiInterface::SynthGuiInterface(SynthBase* synth, bool use_gui) : synth_(synth) { }
+SynthGuiInterface::SynthGuiInterface(SynthBase* synth, bool use_gui) : synth_(synth), synth_data_(synth) { }
 SynthGuiInterface::~SynthGuiInterface() { }
 void SynthGuiInterface::updateFullGui() { }
 void SynthGuiInterface::updateGuiControl(const std::string& name, float value) { }
@@ -44,7 +44,6 @@ bool SynthGuiInterface::connectModulation(std::string source, std::string destin
     return false;
 }
 void SynthGuiInterface::disconnectModulation(std::string source, std::string destination) { }
-void SynthGuiInterface::disconnectModulation(electrosynth::Connection* connection) { }
 void SynthGuiInterface::setFocus() { }
 void SynthGuiInterface::notifyChange() { }
 void SynthGuiInterface::notifyFresh() { }
@@ -60,10 +59,9 @@ void SynthGuiInterface::setGuiSize(float scale) { }
 #include "../interface/fullInterface.h"
 
 
-SynthGuiInterface::SynthGuiInterface(SynthBase* synth, bool use_gui) : synth_(synth) {
+SynthGuiInterface::SynthGuiInterface(SynthBase* synth, bool use_gui) : synth_(synth), synth_data_(synth) {
   if (use_gui) {
-    SynthGuiData synth_data(synth_);
-    gui_ = std::make_unique<FullInterface>(&synth_data);
+    gui_ = std::make_unique<FullInterface>(&synth_data_);
     // for registering hotkeys etc.
     commandHandler = std::make_unique<ApplicationCommandHandler>(this);
     commandManager.registerAllCommandsForTarget(commandHandler.get());
@@ -248,10 +246,6 @@ void SynthGuiInterface::disconnectModulation(std::string source, std::string des
     notifyModulationsChanged();
 }
 
-void SynthGuiInterface::disconnectModulation(electrosynth::Connection* connection) {
-    synth_->disconnectModulation(connection);
-    notifyModulationsChanged();
-}
 void SynthGuiInterface::notifyModulationsChanged() {
     if (gui_ != nullptr)
         gui_->modulationChanged();

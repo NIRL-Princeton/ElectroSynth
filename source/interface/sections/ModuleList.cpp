@@ -62,8 +62,8 @@ void ModuleList<T>::deleteObject(T* processor_base) {
         auto button_connections = synth_->getSourceConnections(processor_name + "_mod");
         connections.insert(connections.end(), button_connections.begin(), button_connections.end());
 
-        for (auto* connection : connections)
-            synth_->disconnectModulation(connection);
+        for (const auto& connection : connections)
+            synth_->disconnect(connection);
     }
 
     synth_->removeProcessor(processor_base);

@@ -7,37 +7,31 @@
 #include "PluginStateImpl_.h"
 #include "leaf.h"
 #include "ParameterView/ParametersView.h"
-#include "Identifiers.h"
-#include "Node.h"
+#include "ModuleBase.h"
+
 namespace electrosynth {
     class SoundEngine;
 }
-class ModulatorBase : public juce::AudioSource
+
+class ModulatorBase : public ModuleBase
 {
 public:
     explicit ModulatorBase( electrosynth::SoundEngine* engine,LEAF* leaf,juce::ValueTree& tree, juce::UndoManager* um = nullptr) :
-        engine(engine),
-        leaf(leaf),
-        state(tree)
-    {
-        electrosynth::audio::ensureNodeId(state, nullptr);
-    }
+        ModuleBase(engine, leaf, tree) {}
+
     ~ModulatorBase() override = default;
-    LEAF* leaf;
-    juce::ValueTree state;
-            std::array<ModuleHeader*, MAX_NUM_VOICES>* procArray;
-    juce::String name;
+
+    electrosynth::audio::NodeDescriptor getAudioNodeDescriptor() const noexcept override {
+        return electrosynth::audio::makeGeneratorDescriptor();
+    }
+
+    void tick() override {
+        process();
+    }
+
     virtual void process() = 0;
-    void getNextAudioBlock (const juce::AudioSourceChannelInfo &bufferToFill) override {}
-    void prepareToPlay (int samplesPerBlock, double sampleRate ) override {}
-    void releaseResources() override {}
     virtual void getStateInformation (MemoryBlock &destData)=0;
     virtual void setStateInformation (const void *data, int sizeInBytes)=0;
-    virtual std::unique_ptr<SynthSection> createEditor() = 0;
-    electrosynth::SoundEngine* engine;
-    juce::String getNodeId() const {
-        return state.getProperty(IDs::nodeID).toString();
-    }
 };
 
 

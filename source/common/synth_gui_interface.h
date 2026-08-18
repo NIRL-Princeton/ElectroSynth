@@ -80,8 +80,8 @@ class SynthGuiInterface :  public juce::ApplicationCommandTarget {
     virtual juce::AudioDeviceManager* getAudioDeviceManager() { return nullptr; }
     SynthBase* getSynth() { return synth_; }
     virtual void updateFullGui();
-  juce::File getActiveFile();
-   void openLoadDialog();
+    juce::File getActiveFile();
+    void openLoadDialog();
 
     virtual void updateGuiControl(const std::string& name, float value);
     void tryEnqueueProcessorInitQueue(juce::FixedSizeFunction<48, void()> callback);
@@ -89,7 +89,6 @@ class SynthGuiInterface :  public juce::ApplicationCommandTarget {
     void addModulationSource(std::unique_ptr<ModulatorBase> modSource, int voice_index);
     bool connectModulation(std::string source, std::string destination, int destination_slot = -1);
     void disconnectModulation(std::string source, std::string destination);
-    void disconnectModulation(electrosynth::Connection* connection);
     void notifyModulationsChanged();
     void setFocus();
     void notifyChange();
@@ -97,17 +96,18 @@ class SynthGuiInterface :  public juce::ApplicationCommandTarget {
     void openSaveDialog();
     void externalPresetLoaded(juce::File preset);
     void setGuiSize(float scale);
-  bool loadFromFile(juce::File preset, std::string &error);
+    bool loadFromFile(juce::File preset, std::string &error);
 
     FullInterface* getGui() { return gui_.get(); }
     LEAF* getLEAF();
     OpenGlWrapper* getOpenGlWrapper();
-  std::unique_ptr<ApplicationCommandHandler> commandHandler;
-  juce::ApplicationCommandManager commandManager;
-  protected:
-  std::atomic<bool> loading;
+    std::unique_ptr<ApplicationCommandHandler> commandHandler;
+    juce::ApplicationCommandManager commandManager;
+protected:
+    std::atomic<bool> loading;
     SynthBase* synth_;
-  std::unique_ptr<juce::FileChooser> filechooser;
+    SynthGuiData synth_data_;
+    std::unique_ptr<juce::FileChooser> filechooser;
     std::unique_ptr<FullInterface> gui_;
   
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SynthGuiInterface)

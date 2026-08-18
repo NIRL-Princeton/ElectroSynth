@@ -303,7 +303,7 @@ void ConnectionSlots::syncOpenGl() {
         visuals.body->setColor(color.withAlpha(0.28f));
         visuals.body->setVisible(occupied);
         visuals.border->setColor(color);
-        visuals.border->setVisible(true);
+        visuals.border->setVisible(occupied);
         visuals.label->setText(occupied ? connection->label : "");
         visuals.label->setTextSize(std::max(9.0f, slot_bounds.getHeight() * 0.45f));
         visuals.label->setColor(color);

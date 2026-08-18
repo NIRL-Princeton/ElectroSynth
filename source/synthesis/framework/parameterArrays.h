@@ -29,12 +29,13 @@ const std::array<std::vector<std::string>, 12> paramsAllArray =
             "pitchfine", // OscPitchFine
             "freqoffset", // OscFreqOffset
             "shape", // OscShapeParam
-                "oscType",
+            "oscType", // OscType
             "gain", // OscAmpParam
             "glide", // OscGlide
             "harmonicStepped", // OscStepped
             "", // OscSyncMode (undefined / not modulatable )
-            "", // OscSyncIn (undefined / not modulatable )
+            "", // OscSyncIn (undefined / not modulaatblae )
+
             "portaType" // OscPortaType (always or not always)
             "" // OscNumParams (typically represents the count, no corresponding parameter)
         },

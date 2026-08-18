@@ -59,6 +59,9 @@ SynthBase::SynthBase(AudioDeviceManager *deviceManager) : tree(ValueTree(IDs::EL
     *self_reference_ = this;
 
     engine_ = std::make_unique<electrosynth::SoundEngine>(um);
+    engine_->registerEffectLaneNodeId(0, effects_0->getNodeId());
+    engine_->registerEffectLaneNodeId(1, effects_1->getNodeId());
+    engine_->registerEffectLaneNodeId(2, effects_2->getNodeId());
 
     mod_connections_.reserve(electrosynth::kMaxConnections);
 
@@ -177,6 +180,7 @@ void SynthBase::removeEffect(ProcessorBase *processor, int lane) {
             // Transfer ownership out before erasing
             std::unique_ptr<ProcessorBase> released = std::move(*it);
             *effectLane.erase(it);
+            engine_->unregisterModule(released.get());
             // Create task as a std::function
             DeleteThreadAction task = [ptr = std::move(released)]() mutable {
                 ptr.reset(); // optional; unique_ptr will go out of scope
@@ -216,6 +220,7 @@ void SynthBase::removeProcessor(ProcessorBase *processor) {
                 // Move out then erase (correct order)
                 auto released = std::move(*it2);
                 it2->reset(); // leave empty slot; size unchanged
+                engine_->unregisterModule(released.get());
                 // IMPORTANT: this next part only works if DeleteThreadAction is move-only.
                 // If DeleteThreadAction is std::function<void()>, this will NOT compile.
                 DeleteThreadAction del = [ptr = std::move(released)]() mutable {
@@ -233,6 +238,8 @@ void SynthBase::removeProcessor(ProcessorBase *processor) {
 }
 
 void SynthBase::removeProcessor(ModulatorBase *processor) {
+    if (engine_ == nullptr || processor == nullptr) return;
+
     for (auto &chain: engine_->modSources) {
         auto it = std::find_if(chain.begin(), chain.end(),
                                [&](const std::unique_ptr<ModulatorBase> &proc) {
@@ -255,6 +262,7 @@ void SynthBase::removeProcessor(ModulatorBase *processor) {
 
                 auto released = std::move(*it2);
                 it2->reset(); // leave empty slot; size unchanged
+                engine_->unregisterModule(released.get());
 
                 // IMPORTANT: this next part only works if DeleteThreadAction is move-only.
                 // If DeleteThreadAction is std::function<void()>, this will NOT compile.
@@ -298,6 +306,7 @@ void SynthBase::removeChainRouting(RoutingProcessor *processor) {
         if (idx >= postPtr->size() || idx >= chainsPtr->size())
             return;
         std::unique_ptr<RoutingProcessor> released = std::move((*postPtr)[idx]);
+        engine_->unregisterModule(released.get());
         (*chainsPtr)[idx].clear();
         DeleteThreadAction del = [ptr = std::move(released)]() mutable { ptr.reset(); };
 
@@ -314,6 +323,7 @@ void SynthBase::removeChainRouting(RoutingProcessor *processor) {
 
 void SynthBase::addChainRouting(std::unique_ptr<RoutingProcessor> processor, int chain_index) {
     processor->prepareToPlay(engine_->getSampleRate(), engine_->getBufferSize());
+    engine_->registerModule(processor.get());
 
     engine_->chainPostGain[chain_index]=std::move(processor);
 }
@@ -328,6 +338,7 @@ void SynthBase::addProcessor(std::unique_ptr<ProcessorBase> processor, int chain
                     processor->procArray->at(i);
     }
     engine_->voiceHandler.eventEmitter.numListeners++;
+    engine_->registerModule(processor.get());
     engine_->processors[chain_index].push_back(std::move(processor));
 }
 void SynthBase::addEffect(std::unique_ptr<ProcessorBase> processor, int lane) {
@@ -341,6 +352,7 @@ void SynthBase::addEffect(std::unique_ptr<ProcessorBase> processor, int lane) {
                     processor->procArray->at(i);
     }
     engine_->voiceHandler.eventEmitter.numListeners++;
+    engine_->registerModule(processor.get());
     engine_->effects[lane].push_back(std::move(processor));
 }
 
@@ -515,6 +527,7 @@ void SynthBase::addModulationSource(std::unique_ptr<ModulatorBase> modulationSou
                     modulationSource->procArray->at(i);
     }
     engine_->voiceHandler.eventEmitter.numListeners++;
+    engine_->registerModule(modulationSource.get());
     engine_->modSources[voice_index].push_back(std::move(modulationSource));
 }
 
@@ -826,19 +839,25 @@ electrosynth::mapping_change SynthBase::createMappingChange(electrosynth::Connec
 }
 
 
-std::vector<electrosynth::Connection *> SynthBase::getSourceConnections(const std::string &source) {
-    std::vector<electrosynth::Connection *> connections;
-    for (auto &connection: mod_connections_) {
-        if (connection->source_name == source)
+std::vector<electrosynth::ConnectionRecord> SynthBase::getSourceConnections(const std::string &source) {
+    std::vector<electrosynth::ConnectionRecord> connections;
+    if (engine_ == nullptr)
+        return connections;
+
+    for (const auto& connection : engine_->getConnections()) {
+        if (connection.source.endpointId.toStdString() == source)
             connections.push_back(connection);
     }
     return connections;
 }
 
-std::vector<electrosynth::Connection *> SynthBase::getDestinationConnections(const std::string &destination) {
-    std::vector<electrosynth::Connection *> connections;
-    for (auto &connection: mod_connections_) {
-        if (connection->destination_name == destination)
+std::vector<electrosynth::ConnectionRecord> SynthBase::getDestinationConnections(const std::string &destination) {
+    std::vector<electrosynth::ConnectionRecord> connections;
+    if (engine_ == nullptr)
+        return connections;
+
+    for (const auto& connection : engine_->getConnections()) {
+        if (connection.destination.endpointId.toStdString() == destination)
             connections.push_back(connection);
     }
     return connections;
@@ -846,21 +865,19 @@ std::vector<electrosynth::Connection *> SynthBase::getDestinationConnections(con
 
 electrosynth::Connection *SynthBase::getConnection(const std::string &source,
     const std::string &destination, int destination_slot) {
-    for (auto &connection: mod_connections_) {
-        if (connection->source_name == source
-            && connection->destination_name == destination
-            && (destination_slot < 0 || connection->destination_slot == destination_slot))
-            return connection;
-    }
     return nullptr;
 }
 
 // does this source already have a connection to this destination?
 bool SynthBase::hasSourceDestinationConnection(const std::string &source, const std::string &destination) const
 {
-    for (auto* existing : mod_connections_)
+    if (engine_ == nullptr)
+        return false;
+
+    for (const auto& connection : engine_->getConnections())
     {
-        if (existing->source_name == source && existing->destination_name == destination) return true;
+        if (connection.source.endpointId.toStdString() == source && connection.destination.endpointId.toStdString() == destination)
+            return true;
     }
     return false;
 }
@@ -871,40 +888,56 @@ bool SynthBase::connect(const electrosynth::ConnectionRecord& connection) {
 
     switch (connection.type) {
         case electrosynth::ConnectionType::Modulation:
-            return connectModulation(connection.source.endpointId.toStdString(),
-                                     connection.destination.endpointId.toStdString(),
-                                     connection.destinationSlot);
+            return engine_ != nullptr && engine_->connectGraphConnection(connection);
 
         case electrosynth::ConnectionType::Audio:
-            return true;
+            return engine_ != nullptr && engine_->connectGraphConnection(connection);
     }
 
     return false;
 }
 
+bool SynthBase::updateConnection(const electrosynth::ConnectionRecord& connection) {
+    return connection.isValid() && engine_ != nullptr && engine_->updateGraphConnection(connection);
+}
+
+bool SynthBase::disconnect(const electrosynth::ConnectionRecord& connection) {
+    return connection.isValid() && engine_ != nullptr && (engine_->disconnectGraphConnection(connection.id), true);
+}
+
 bool SynthBase::connectModulation(const std::string &source, const std::string &destination, int destination_slot) {
+    if (source.empty() || destination.empty())
+        return false;
 
-    electrosynth::Connection *connection = getConnection(source, destination, destination_slot);
-    bool create = connection == nullptr;
-    if (create && !hasSourceDestinationConnection (source, destination)) {
-        if (destination_slot >= 0) {
-            for (auto* existing : mod_connections_) {
-                if (existing->destination_name == destination
-                    && existing->destination_slot == destination_slot)
-                    return false;
-            }
-        }
-
-        connection = getModulationBank().createConnection(source, destination, destination_slot);
-        if (connection == nullptr)
+    if (hasSourceDestinationConnection(source, destination)) {
+        if (destination_slot < 0)
             return false;
-        tree.appendChild(connection->state, nullptr);
+
+        for (const auto& existing : getDestinationConnections(destination)) {
+            if (existing.source.endpointId.toStdString() == source && existing.destinationSlot == destination_slot)
+                return false;
+        }
     }
-    if (connection)
-        connectModulation(connection);
-    return create && connection != nullptr
-           && !connection->source_name.empty()
-           && !connection->destination_name.empty();
+
+    electrosynth::ConnectionRecord record {
+        .id = electrosynth::createConnectionRecordId(),
+        .type = electrosynth::ConnectionType::Modulation,
+        .source {
+            .type = electrosynth::ConnectionType::Modulation,
+            .nodeId = juce::String(source),
+            .endpointId = juce::String(source),
+            .direction = electrosynth::EndpointDirection::Source
+        },
+        .destination {
+            .type = electrosynth::ConnectionType::Modulation,
+            .nodeId = juce::String(destination),
+            .endpointId = juce::String(destination),
+            .direction = electrosynth::EndpointDirection::Destination
+        },
+        .destinationSlot = destination_slot
+    };
+
+    return connect(record);
 }
 
 void SynthBase::connectModulation(electrosynth::Connection *connection) {
@@ -938,27 +971,35 @@ void SynthBase::disconnectModulation(electrosynth::Connection *connection) {
 }
 
 void SynthBase::disconnectModulation(const std::string &source, const std::string &destination) {
-    electrosynth::Connection *connection = getConnection(source, destination);
-    if (connection)
-        disconnectModulation(connection);
+    if (engine_ == nullptr)
+        return;
+
+    for (const auto& connection : getSourceConnections(source)) {
+        if (connection.destination.endpointId.toStdString() == destination) {
+            disconnect(connection);
+            break;
+        }
+    }
 }
 
 // if a filter is deleted, disconnect all modulation connections it is the source of
 void SynthBase::disconnectModulationsForDestinationProcessor(const std::string& processor_name) {
     const std::string dest_prefix = processor_name + "_";
-    std::vector<electrosynth::Connection*> connections_to_remove;
+    std::vector<electrosynth::ConnectionRecord> connections_to_remove;
 
-    for (auto* connection : mod_connections_) {
-        if (connection == nullptr) continue;
-        const auto destination = connection->destination_name;
+    if (engine_ == nullptr)
+        return;
+
+    for (const auto& connection : engine_->getConnections()) {
+        const auto destination = connection.destination.endpointId.toStdString();
 
         if (destination.size() >= dest_prefix.size() && destination.starts_with(dest_prefix)) {
             connections_to_remove.push_back(connection);
         }
     }
 
-    for (auto* connection : connections_to_remove) {
-        disconnectModulation(connection);
+    for (const auto& connection : connections_to_remove) {
+        disconnect(connection);
     }
 }
 
