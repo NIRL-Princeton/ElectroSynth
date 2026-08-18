@@ -66,6 +66,7 @@ namespace electrosynth {
         void process(juce::AudioSampleBuffer&, juce::MidiBuffer &);
         void process(juce::AudioSampleBuffer&,int channels, int samples, int offset);
         void processMappings();
+        void processAudioConnections();
         bool connectGraphConnection(const electrosynth::ConnectionRecord& connection);
         bool updateGraphConnection(const electrosynth::ConnectionRecord& connection);
         void disconnectGraphConnection(const juce::String& connectionId);

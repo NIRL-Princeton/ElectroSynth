@@ -296,6 +296,27 @@ namespace electrosynth
         if (moduleGraph_ == nullptr)
             return;
 
+        const auto& connections = moduleGraph_->getConnections();
+        const auto connectionIt = std::find_if(connections.begin(), connections.end(),
+            [&connectionId](const auto& connection)
+            {
+                return connection.id == connectionId;
+            });
+
+        const auto targetConnectionExists = connectionIt != connections.end();
+        const auto* targetConnection = targetConnectionExists ? &*connectionIt : nullptr;
+
+        const bool otherConnectionStillDrivesDestination =
+            targetConnection != nullptr
+            && std::any_of(connections.begin(), connections.end(),
+                [targetConnection](const auto& connection)
+                {
+                    return connection.id != targetConnection->id
+                        && connection.type == targetConnection->type
+                        && connection.destination.endpointId == targetConnection->destination.endpointId
+                        && connection.destinationSlot == targetConnection->destinationSlot;
+                });
+
         auto stateIt = modulationStates_.find(connectionId);
         if (stateIt != modulationStates_.end())
         {
@@ -303,6 +324,14 @@ namespace electrosynth
             {
                 if (mapping == nullptr)
                     continue;
+
+                if (!otherConnectionStillDrivesDestination
+                    && mapping->destObject != nullptr
+                    && mapping->initialVal != nullptr
+                    && mapping->paramID < 255)
+                {
+                    leaf::tMapping_setParameter(mapping->destObject, mapping->paramID, *mapping->initialVal);
+                }
 
                 auto* toFree = mapping;
                 tMapping_free(&toFree);
@@ -363,6 +392,35 @@ namespace electrosynth
                     continue;
 
                 processMapping(voice_mapping);
+            }
+        }
+    }
+
+    void SoundEngine::processAudioConnections()
+    {
+        if (moduleGraph_ == nullptr)
+            return;
+
+        for (const auto& connection : moduleGraph_->getConnections())
+        {
+            if (connection.type != electrosynth::ConnectionType::Audio)
+                continue;
+
+            auto const* sourceModule = getModuleByNodeId(connection.source.nodeId);
+            auto const* destModule = getModuleByNodeId(connection.destination.nodeId);
+
+            if (sourceModule == nullptr || destModule == nullptr
+            || sourceModule->procArray == nullptr
+            || destModule->procArray == nullptr)
+                continue;
+
+            for (int v = 0; v < MAX_NUM_VOICES; ++v)
+            {
+                auto* src = sourceModule->procArray->at(v);
+                auto* dst = destModule->procArray->at(v);
+
+                if (src != nullptr && dst != nullptr)
+                    dst->summedInput += src->outputs[0] * connection.amount;
             }
         }
     }
@@ -444,7 +502,18 @@ namespace electrosynth
             {
                 juce::ScopedLock sl (myCoolLock);
                 auto amp_vals = MasterVoiceEnvelopeProcessor->processMasterEnvelope();
+
                 processMappings();
+                processAudioConnections();
+
+                for (auto& modLane : modSources)
+                {
+                    for (auto& modulator : modLane)
+                    {
+                        if (modulator != nullptr)
+                            modulator->tick();
+                    }
+                }
 
                 int chainIndex = -1;
                 for (auto& proc_chain : processors)
@@ -503,7 +572,7 @@ namespace electrosynth
                 const auto laneGain = effectLaneTransitions_[effectLaneIndex].advance();
                 for (auto& fx : fx_lane)
                 {
-                    fx->processBlock (temp_fx_buffers[index], empty);
+                    if (fx != nullptr) fx->processBlock (temp_fx_buffers[index], empty);
                 }
                 for (int v = 0; v < voiceHandler.numVoicesActive; ++v)
                 {
@@ -758,28 +827,6 @@ namespace electrosynth
     }
 
     std::array<ModuleHeader*, MAX_NUM_VOICES>* SoundEngine::getLEAFProcessor (const std::string& proc_string) {
-        /*
-        // Use find_if to search the outermost vector
-        auto outerIt = std::find_if (processors.begin(), processors.end(), [&] (const auto& innerVec) {
-            // Use find_if on the inner vector to look for the processor with the target name
-            auto innerIt = std::find_if (innerVec.begin(), innerVec.end(), [&] (const auto& processor) {
-                return processor != nullptr && processor->name == juce::String (proc_string);
-            });
-
-            // Return true if the processor was found in this inner vector
-            return innerIt != innerVec.end();
-        });
-
-        if (outerIt != processors.end())
-        {
-            auto innerIt = std::find_if (outerIt->begin(), outerIt->end(), [&] (const auto& processor) {
-                return processor != nullptr && processor->name == juce::String (proc_string);
-            });
-
-            // Here you can cast the processor to leaf::Processor* if needed
-            return (innerIt->get()->procArray);
-        }
-        */
 
         auto findProcessor = [&proc_string](auto& lanes) -> ProcessorBase* {
             for (auto& lane : lanes) {

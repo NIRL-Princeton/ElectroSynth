@@ -744,6 +744,10 @@ void MappingManager::updateConnectionSlots()
         }
         if (auto* slots = port->getConnectionSlots()) slots->setConnections (std::move(slots_for_port));
     }
+
+    if (auto* gui = findParentComponentOfClass<SynthGuiInterface>())
+        if (auto* full = gui->getGui())
+        full->redoBackground();
 }
 
 // Drag/drop visuals ***************************************************************************************************************************** Drag/drop visuals
@@ -893,20 +897,29 @@ void MappingManager::handleConnectionMenuResult(const juce::String& connectionId
 
 void MappingManager::removeConnectionRecord(const juce::String& connectionId)
 {
-    const auto removed = std::erase_if(connection_records_, [&connectionId](const auto& connection) {
-        return connection.id == connectionId;
-    });
-
-    if (removed > 0) {
-        updateConnectionSlots();
-        return;
-    }
-
     auto* parent = findParentComponentOfClass<SynthGuiInterface>();
     if (parent == nullptr) return;
 
-    if (auto* record = findConnectionRecord(connectionId))
+    if (auto* record = findConnectionRecord(connectionId)) {
+        const auto type = record->type;
+        const auto destination = record->destination.endpointId.toStdString();
         parent->getSynth()->disconnect(*record);
+        std::erase_if(connection_records_, [&connectionId](const auto& connection) {
+            return connection.id == connectionId;
+        });
+        if (type == electrosynth::ConnectionType::Modulation) {
+            updateSlotVisuals();
+            modulationsChanged(destination);
+        }
+        else {
+            updateConnectionSlots();
+        }
+        return;
+    }
+
+    std::erase_if(connection_records_, [&connectionId](const auto& connection) {
+        return connection.id == connectionId;
+    });
     updateConnectionSlots();
 }
 
@@ -1109,11 +1122,7 @@ bool MappingManager::hasFreeConnection() {
   if (parent == nullptr)
     return false;
 
-  return std::any_of(connection_records_.begin(), connection_records_.end(), [] (const auto& connection) {
-    return connection.type == electrosynth::ConnectionType::Modulation
-        && connection.source.endpointId.isEmpty()
-        && connection.destination.endpointId.isEmpty();
-  });
+  return connection_records_.size() < static_cast<size_t>(electrosynth::kMaxConnections);
 }
 
 void MappingManager::scheduleComponentUpdate()
@@ -1647,8 +1656,12 @@ void MappingManager::draggedToComponent(juce::Component* component, bool bipolar
     }
     auto const source_name = current_modulator_->getComponentID().toStdString();
 
-    if (getConnection(source_name, destination_name) != nullptr)
+    auto const connection = getConnection (source_name, destination_name);
+    if (connection != nullptr)
         return; // already connected, no preview creation
+
+    if (source_name == destination_name)
+        return; // don't connect to self
 
     const int destination_slot = findSlotForNewConnection(slider);
     if (isSlotOccupied(destination_name, destination_slot)) return; // if slot is taken, return
