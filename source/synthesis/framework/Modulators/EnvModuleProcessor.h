@@ -15,7 +15,8 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
 {
     EnvParamHolder(LEAF* leaf) : LEAFParams<_tEnvModule>(leaf)
     {
-        add(attackParam,
+        add(velocityParam,
+            attackParam,
             decayParam,
             sustainParam,
             releaseParam,
@@ -38,11 +39,12 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
     };
     chowdsp::FloatParameter::Ptr velocityParam {
         juce::ParameterID { "velocity", 100 },
-        "velocity",
-        chowdsp::ParamUtils::createNormalisableRange (0.0f, 1.0f, 0.5f),
+        "Velocity Sensitivity",
+        chowdsp::ParamUtils::createNormalisableRange (0.0f, 1.0f, 0.9f),
         1.0f,
         all_params[EnvVelocitySense],
         [this] (float val) {
+            for (auto mod: modules) tEnvModule_setParameter(mod, EnvVelocitySense, val);
         },
         &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal
@@ -53,7 +55,7 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
     {
         juce::ParameterID { "attack", 100 },
             "Attack",
-            chowdsp::ParamUtils::createNormalisableRange (0.0f, 1.0f, 0.5f),
+            chowdsp::ParamUtils::createNormalisableRange (0.0f, 20000.0f, 4000.f),
             0.005f,
             all_params[EnvParams::EnvAttack],
             [this] (float val) {
@@ -67,7 +69,7 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
     chowdsp::TimeMsParameter::Ptr decayParam {
         juce::ParameterID { "decay", 100 },
         "Decay",
-        chowdsp::ParamUtils::createNormalisableRange (0.0f, 1.0f, 0.5f),
+        chowdsp::ParamUtils::createNormalisableRange (0.0f, 20000.0f, 4000.f),
         0.3f,
         all_params[EnvParams::EnvDecay],
         [this] (float val) {
@@ -94,8 +96,8 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
     chowdsp::TimeMsParameter::Ptr releaseParam {
         juce::ParameterID { "release", 100 },
         "Release",
-        chowdsp::ParamUtils::createNormalisableRange (0.0f, 1.0f, 0.5f),
-        0.1f,
+        chowdsp::ParamUtils::createNormalisableRange (0.0f, 20000.0f, 4000.f),
+        3.f,
         all_params[EnvParams::EnvRelease],
         [this] (float val) {
             for (auto mod: modules) tEnvModule_setParameter(mod,EnvRelease,val);

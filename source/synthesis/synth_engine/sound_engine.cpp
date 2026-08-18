@@ -447,11 +447,13 @@ namespace electrosynth
                     {
                         callNoteOn (voiceHandler.eventEmitter.listeners[v][j],
                             velocity);
+                        //printf("On On 1.  ");
                     }
                 }
 
                 callNoteOn (&MasterVoiceEnvelopeProcessor->state_.params.modules[v]->header, velocity);
                 voiceHandler.voiceIsSounding[v] = true;
+                //printf("On On 2.  ");
                 // float norm = key / float(mkkkidiKeyMax - midiKeyMin);
             }
         }
@@ -501,12 +503,15 @@ namespace electrosynth
             {
                 callNoteOn (voiceHandler.eventEmitter.listeners[v][j],
                     -1);
+                //printf("Off On 1.  ");
             }
 
             callNoteOn (&MasterVoiceEnvelopeProcessor->state_.params.modules[v]->header, -1);
             voiceHandler.voiceIsSounding[v] = true;
+            //printf("Off On 2.");
             // float norm = key / float(mkkkidiKeyMax - midiKeyMin);
         }
+        //printf("\n");
     }
 
     void SoundEngine::setModWheel (float value, int channel)
