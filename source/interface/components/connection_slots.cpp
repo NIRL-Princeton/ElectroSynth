@@ -189,6 +189,7 @@ ConnectionSlots::ConnectionSlots (SynthSlider& destination) :
     SynthSection(destination.getComponentID() + "_connection_slots"), destination_(&destination) {
 
     setInterceptsMouseClicks(false, true);
+    destination_->setConnectionSlots(this);
 
     for (int index = 0; index < SynthSlider::kNumSlots; ++index) {
         const auto prefix = destination_->getComponentID() + "_modulation_slot_" + juce::String(index);
@@ -204,22 +205,45 @@ ConnectionSlots::~ConnectionSlots() {
     }
 
     if (destination_ != nullptr) {
+        if (destination_->getConnectionSlots() == this)
+            destination_->setConnectionSlots(nullptr);
+
         for (int slot = 0; slot < SynthSlider::kNumSlots; ++slot)
             destination_->setExtraModulationTarget(slot, nullptr);
     }
 }
 
 void ConnectionSlots::setConnections(std::vector<ConnectionSlotData> connections) {
-    const int visible_count = juce::jmin(static_cast<int>(connections.size()), kMaxVisibleSlots);
 
-    for (int index = 0; index < kMaxVisibleSlots; ++index) {
-        if (index < visible_count)
-            slot_components_[index]->setConnection(std::move(connections[index]));
-        else
-            slot_components_[index]->clearConnection();
+    const int capacity = getSlotCapacity();
+
+    for (int index = 0; index < capacity; ++index)
+        slot_components_[index]->clearConnection();
+
+    std::array<bool, kMaxVisibleSlots> occupied {};
+
+    int displayedCount = 0;
+    for (auto& connection : connections) {
+        int slot = connection.slotIndex;
+        if (!juce::isPositiveAndBelow(slot, capacity)) {
+            slot = -1;
+
+            for (int index = 0; index < capacity; ++index) {
+                if (!occupied[index]) {
+                    slot = index;
+                    break;
+                }
+            }
+        }
+        if (!juce::isPositiveAndBelow (slot, capacity) || occupied[slot])
+            continue;
+
+        occupied[slot] = true;
+        ++displayedCount;
+        slot_components_[slot]->setConnection (std::move(connection));
     }
 
-    setVisible(visible_count > 0);
+    setVisible(destination_ != nullptr || displayedCount > 0);
     syncOpenGl();
 }
 

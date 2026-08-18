@@ -207,33 +207,40 @@ MappingManager::MappingManager() :
 }
 
 // Endpoint organization and maintenance methods *****************************************************************  Endpoint organization and maintenance methods
-void MappingManager::registerEndpoint(EndpointArrowComponent& endpoint) {
-    if (!endpoint.hasEndpoint()) return;
+void MappingManager::registerEndpoint(EndpointArrowComponent& arrow) {
+    registerEndpoint(
+        arrow,
+        arrow.getEndpoint(),
+        arrow.getConnectionSlots());
+}
 
-    const auto address = endpoint.getEndpoint().address;
-    const auto endpoint_key = getEndpointKey(address);
+void MappingManager::registerEndpoint(juce::Component& component, electrosynth::EndpointDescriptor endpoint, ConnectionSlots* slots) {
+    if (!endpoint.address.isValid())
+        return;
 
-    auto existing = mapping_endpoints_.find(endpoint_key); // clear listener from old recreated component
+    const auto endpointKey = getEndpointKey(endpoint.address);
+    const auto existing = mapping_endpoints_.find(endpointKey);
     if (existing != mapping_endpoints_.end()) {
         if (auto* oldComponent = existing->second.component.getComponent())
             oldComponent->removeMouseListener(this);
+        if (auto* oldSlots = existing->second.slots.getComponent())
+            oldSlots->removeListener(this);
     }
 
-    endpoint.addMouseListener(this, false);
-    mapping_endpoints_[endpoint_key] = {
-        .component = &endpoint
-    };
-
-    if (auto* slots = endpoint.getConnectionSlots())
+    component.addMouseListener(this, false);
+    if (slots != nullptr)
         slots->addListener(this);
 
-    updateConnectionSlots();
+    mapping_endpoints_[endpointKey] = {
+        .component = &component,
+        .endpoint = std::move(endpoint),
+        .slots = slots
+    };
+
+    scheduleConnectionSlotRefresh();
 }
 
 void MappingManager::unregisterEndpoint(const EndpointArrowComponent& endpoint) {
-    if (auto* slots = endpoint.getConnectionSlots())
-        slots->removeListener(this);
-
     unregisterEndpoint(endpoint.getEndpoint().address);
 }
 
@@ -260,9 +267,11 @@ void MappingManager::unregisterEndpoint(const electrosynth::EndpointAddress& add
 
     if (auto* component = found->second.component.getComponent())
         component->removeMouseListener(this);
+    if (auto* slots = found->second.slots.getComponent())
+        slots->removeListener(this);
 
     mapping_endpoints_.erase(found);
-    updateConnectionSlots();
+    scheduleConnectionSlotRefresh();
 }
 
 juce::String MappingManager::getEndpointKey(const electrosynth::EndpointAddress& address) {
@@ -288,20 +297,24 @@ RegisteredMappingEndpoint* MappingManager::getRegisteredMappingEndpoint(const el
 // Generic Endpoint mouse handlers  **********************************************************************************************  Generic Endpoint mouse handlers
 void MappingManager::mouseDown(const juce::MouseEvent& event) {
     auto* registered_endpoint = getRegisteredMappingEndpoint(event.eventComponent);
-    auto* endpoint = registered_endpoint != nullptr
+    auto* component = registered_endpoint != nullptr
         ? registered_endpoint->component.getComponent()
         : nullptr;
-    if (endpoint == nullptr
-        || endpoint->getEndpoint().address.direction != electrosynth::EndpointDirection::Source)
+    if (component == nullptr || registered_endpoint->endpoint.address.direction
+        != electrosynth::EndpointDirection::Source)
+        return;
+
+    auto* endpoint = dynamic_cast<EndpointArrowComponent*>(component);
+    if (endpoint == nullptr)
         return;
 
     clearEndpointDestinationVisuals();
     endpoint_drag_destination_.reset();
     endpoint_drag_destination_component_ = nullptr;
-    endpoint_drag_source_ = endpoint->getEndpoint().address;
+    endpoint_drag_source_ = registered_endpoint->endpoint.address;
     endpoint_drag_source_component_ = endpoint;
 
-    const auto& address = endpoint->getEndpoint().address;
+    const auto& address = registered_endpoint->endpoint.address;
 
     if (address.type == electrosynth::ConnectionType::Modulation) {
         auto* button = dynamic_cast<ConnectionButton*>(endpoint);
@@ -354,8 +367,9 @@ void MappingManager::mouseDrag(const juce::MouseEvent& event) {
     auto* previous = endpoint_drag_destination_component_.getComponent();
 
     // are we hovering over an actual destination?
-    auto* next = destination != nullptr ?
-        destination->component.getComponent() : nullptr;
+    auto* next = destination != nullptr
+        ? dynamic_cast<EndpointArrowComponent*>(destination->component.getComponent())
+        : nullptr;
 
     // if we are, is this new destination different than the last?
     if (previous != next) {
@@ -372,7 +386,7 @@ void MappingManager::mouseDrag(const juce::MouseEvent& event) {
         return;
     }
 
-    endpoint_drag_destination_ = next->getEndpoint().address;
+    endpoint_drag_destination_ = destination->endpoint.address;
     endpoint_drag_destination_component_ = next;
 }
 
@@ -437,7 +451,7 @@ RegisteredMappingEndpoint* MappingManager::findEndpointAt(juce::Point<int> manag
     for (auto& [key, endpoint] : mapping_endpoints_) {
         auto* component = endpoint.component.getComponent();
         if (component == nullptr || !component->isShowing() || !endpoint_drag_source_.has_value() ||
-            !endpointsAreCompatible(*endpoint_drag_source_, component->getEndpoint().address))
+            !endpointsAreCompatible(*endpoint_drag_source_, endpoint.endpoint.address))
             continue;
 
         const auto local_position = component->getLocalPoint(nullptr, screen_position);
@@ -454,8 +468,7 @@ bool MappingManager::connectEndpoints (const electrosynth::EndpointAddress& sour
     auto* destinationEndpoint = getRegisteredMappingEndpoint(destination);
     if (destinationEndpoint == nullptr) return false;
 
-    auto* destination_component = destinationEndpoint->component.getComponent();
-    if (destination_component == nullptr) return false;
+    if (destinationEndpoint->component == nullptr) return false;
 
     auto* parent = findParentComponentOfClass<SynthGuiInterface>();
     if (parent == nullptr) return false;
@@ -468,7 +481,7 @@ bool MappingManager::connectEndpoints (const electrosynth::EndpointAddress& sour
        });
     if (duplicate != existingConnections.end()) return true;
 
-    const int capacity = destination_component->getEndpoint().capabilities.maxIncomingConnections;
+    const int capacity = destinationEndpoint->endpoint.capabilities.maxIncomingConnections;
     if (capacity <= 0 || static_cast<int>(existingConnections.size()) >= capacity) {
         return false;
     }
@@ -483,77 +496,175 @@ bool MappingManager::connectEndpoints (const electrosynth::EndpointAddress& sour
     if (!parent->connect(connection))
         return false;
 
-    updateConnectionSlots();
+    refreshConnectionSlots();
     return true;
 }
 
-void MappingManager::updateConnectionSlots() {
+std::optional<ConnectionSlotData> MappingManager::makeConnectionSlotData (const electrosynth::ConnectionRecord& connection,
+    const electrosynth::EndpointAddress& viewedEndpoint, const electrosynth::EndpointCapabilities& capabilities) {
 
-    const auto get_label = [](const juce::String& label) {
-        const auto abbreviate = [&label](const juce::String& full_label, const juce::String& new_label) -> std::optional<juce::String> {
-            if (!label.startsWithIgnoreCase (full_label)) return std::nullopt;
-            const auto suffix = label.substring(full_label.length()).trimStart();
-            return suffix.isEmpty() ? new_label : new_label + " " + suffix;
+    const auto& peer = viewedEndpoint.direction == electrosynth::EndpointDirection::Destination ? connection.source : connection.destination;
+    juce::String label;
+    juce::Colour colour;
+
+    if (connection.type == electrosynth::ConnectionType::Modulation
+        && viewedEndpoint.direction == electrosynth::EndpointDirection::Destination) {
+        const auto button = modulation_buttons_.find(peer.endpointId.toStdString());
+
+        if (button != modulation_buttons_.end() && button->second != nullptr) {
+            label = button->second->getDisplayLabel();
+            colour = button->second->getSourceColor();
+        }
+
+        if (label.isEmpty()) label = getConnectionSourceLabel (peer.endpointId.toStdString());
+        if (colour.isTransparent()) colour = getConnectionSourceColor(peer.endpointId.toStdString());
+    }
+    else {
+        auto* registeredPeer = getRegisteredMappingEndpoint(peer);
+        if (registeredPeer == nullptr) return std::nullopt;
+
+        auto* component = registeredPeer->component.getComponent();
+        if (component == nullptr) return std::nullopt;
+
+        auto* owner = component->getParentComponent();
+        if (connection.type == electrosynth::ConnectionType::Modulation) {
+            label = component->getName().isNotEmpty()
+                ? component->getName() : component->getComponentID();
+        }
+        else {
+            label = owner != nullptr && owner->getName().isNotEmpty()
+                ? owner->getName() : component->getName();
+        }
+        if (auto* slider = dynamic_cast<SynthSlider*>(component);
+            slider != nullptr && slider->getSectionParent() != nullptr) {
+            colour = slider->getSectionParent()->findColour(Skin::kWidgetPrimary1, true);
+        }
+        else {
+            colour = component->findColour(Skin::kWidgetPrimary1, true);
+        }
+
+        const auto abbreviate = [&label](const juce::String& fullLabel,
+                                         const juce::String& abbreviatedLabel) -> std::optional<juce::String> {
+            if (!label.startsWithIgnoreCase(fullLabel))
+                return std::nullopt;
+
+            const auto suffix = label.substring(fullLabel.length()).trimStart();
+            return suffix.isEmpty() ? abbreviatedLabel : abbreviatedLabel + " " + suffix;
         };
-        if (auto result = abbreviate("Oscillator", "osc")) return *result;
-        if (auto result = abbreviate("Filter", "flt")) return *result;
-        if (auto result = abbreviate("String", "str")) return *result;
-        if (auto result = abbreviate("Soft Clip", "clp")) return *result;
-        if (auto result = abbreviate("Delay", "dly")) return *result;
-        if (auto result = abbreviate("Noise", "ns")) return *result;
-        if (auto result = abbreviate("Lane", "ln")) return *result;
-        return label;
-    };
 
+        if (auto result = abbreviate("Oscillator", "osc")) label = *result;
+        else if (auto result = abbreviate("Filter", "flt")) label = *result;
+        else if (auto result = abbreviate("String", "str")) label = *result;
+        else if (auto result = abbreviate("Soft Clip", "clp")) label = *result;
+        else if (auto result = abbreviate("Delay", "dly")) label = *result;
+        else if (auto result = abbreviate("Noise", "ns")) label = *result;
+        else if (auto result = abbreviate("Lane", "ln")) label = *result;
+    }
+
+    return ConnectionSlotData {
+        .slotIndex = viewedEndpoint.direction == electrosynth::EndpointDirection::Destination
+            ? connection.destinationSlot : -1,
+        .connectionId = connection.id,
+        .peer = peer,
+        .label = label,
+        .colour = colour,
+        .hasAmount = capabilities.hasAmount,
+        .hasBipolar = capabilities.hasBipolar,
+        .hasStereo = capabilities.hasStereo,
+        .amount = connection.amount,
+        .bipolar = connection.bipolar,
+        .bypass = connection.bypass,
+        .stereo = connection.stereo
+    };
+}
+
+void MappingManager::refreshConnectionSlots() {
     auto* parent = findParentComponentOfClass<SynthGuiInterface>();
     if (parent == nullptr) return;
 
-    for (auto& [key, registered_endpoint] : mapping_endpoints_) {
-        auto* port = registered_endpoint.component.getComponent();
-        if (port == nullptr) continue;
+    for (auto& [key, registeredEndpoint] : mapping_endpoints_) {
+        auto* component = registeredEndpoint.component.getComponent();
+        if (component == nullptr) continue;
 
-        const auto& address = port->getEndpoint().address;
-        if (address.type != electrosynth::ConnectionType::Audio) continue;
+        ConnectionSlots* slots = registeredEndpoint.slots.getComponent();
+        if (auto* slider = dynamic_cast<SynthSlider*>(component))
+            slots = slider->getConnectionSlots();
+        else if (auto* arrow = dynamic_cast<EndpointArrowComponent*>(component))
+            slots = arrow->getConnectionSlots();
 
-        std::vector<ConnectionSlotData> slots_for_port;
-        const auto endpointConnections = parent->getConnectionsForEndpoint(address);
-        for (const auto& connection : endpointConnections) {
-            if (connection.type != electrosynth::ConnectionType::Audio) continue;
+        if (slots == nullptr) continue;
 
-            const auto& endpoint = address.direction == electrosynth::EndpointDirection::Destination ? connection.destination : connection.source;
-            if (!endpoint.matches(address)) continue;
-
-            const auto& peer_address = address.direction == electrosynth::EndpointDirection::Destination ? connection.source : connection.destination;
-            auto* peer_endpoint = getRegisteredMappingEndpoint(peer_address);
-            if (peer_endpoint == nullptr) continue;
-
-            auto* peer = peer_endpoint->component.getComponent();
-            if (peer == nullptr) continue;
-
-            auto* destination_endpoint = getRegisteredMappingEndpoint(connection.destination);
-            auto* destination_component = destination_endpoint != nullptr ? destination_endpoint->component.getComponent() : nullptr;
-            if (destination_component == nullptr) continue;
-
-            auto* owner = peer->getParentComponent();
-            const auto full_label = owner != nullptr && owner->getName().isNotEmpty() ? owner->getName() : peer->getName();
-
-            slots_for_port.push_back({
-                .connectionId = connection.id,
-                .peer = peer_address,
-                .label = get_label(full_label),
-                .colour = peer->findColour(Skin::kWidgetPrimary1, true),
-
-                .hasAmount = destination_component->getEndpoint().capabilities.hasAmount,
-                .hasBipolar = destination_component->getEndpoint().capabilities.hasBipolar,
-                .hasStereo = destination_component->getEndpoint().capabilities.hasStereo,
-                .amount = connection.amount,
-                .bipolar = connection.bipolar,
-                .bypass = connection.bypass,
-                .stereo = connection.stereo
-            });
+        if (registeredEndpoint.slots.getComponent() != slots) {
+            if (auto* oldSlots = registeredEndpoint.slots.getComponent())
+                oldSlots->removeListener(this);
+            registeredEndpoint.slots = slots;
+            slots->addListener(this);
         }
-        if (auto* slots = port->getConnectionSlots()) slots->setConnections (std::move(slots_for_port));
+
+        const auto& descriptor = registeredEndpoint.endpoint;
+        const auto& address = descriptor.address;
+
+        std::vector<ConnectionSlotData> slotData;
+
+        const auto connections = parent->getConnectionsForEndpoint(address);
+        for (const auto& connection : connections) {
+            if (connection.type != address.type) continue;
+            if (connection.targetConnectionId.isNotEmpty()) continue;
+
+            const auto& connectedEndpoint = address.direction == electrosynth::EndpointDirection::Destination ?
+                connection.destination : connection.source;
+            if (!connectedEndpoint.matches(address)) continue;
+
+
+            auto* destinationEndpoint = getRegisteredMappingEndpoint(connection.destination);
+            if (destinationEndpoint == nullptr) continue;
+
+            auto data = makeConnectionSlotData(connection, address, destinationEndpoint->endpoint.capabilities);
+            if (!data) continue;
+
+            attachAuxiliarySlotData(*data, connection, *parent);
+            slotData.push_back(std::move(*data));
+        }
+
+        slots->setConnections(std::move(slotData));
     }
+}
+
+void MappingManager::attachAuxiliarySlotData(ConnectionSlotData& slotData, const electrosynth::ConnectionRecord& connection,
+    const SynthGuiInterface& synthInterface) {
+
+    // only modulations support aux connections now
+    if (connection.type != electrosynth::ConnectionType::Modulation) return;
+
+    const auto auxiliaryConnections = synthInterface.getConnectionsTargetingConnection(connection.id);
+
+    if (auxiliaryConnections.empty()) return;
+
+    const auto& auxiliary = auxiliaryConnections.front();
+    const auto& source = auxiliary.source;
+
+    juce::String label;
+    juce::Colour colour;
+
+    const auto button = modulation_buttons_.find(source.endpointId.toStdString());
+
+    if (button != modulation_buttons_.end() && button->second != nullptr) {
+        label = button->second->getDisplayLabel();
+        colour = button->second->getSourceColor();
+    }
+
+    if (label.isEmpty())
+        label = getConnectionSourceLabel(source.endpointId.toStdString());
+
+    if (colour.isTransparent())
+        colour = getConnectionSourceColor(source.endpointId.toStdString());
+
+    slotData.auxiliary = ConnectionSlotData::Auxiliary {
+        .connectionId = auxiliary.id,
+        .peer = source,
+        .label = label,
+        .colour = colour
+    };
 }
 
 // Drag/drop visuals ***************************************************************************************************************************** Drag/drop visuals
@@ -570,14 +681,14 @@ bool MappingManager::isMappingMode() const {
 void MappingManager::updateEndpointDestinationVisuals() {
     if (!endpoint_drag_source_) return;
     for (auto& [key, endpoint] : mapping_endpoints_) {
-        if (auto* arrow = endpoint.component.getComponent())
-            arrow->setMappingTarget(endpointsAreCompatible(*endpoint_drag_source_, arrow->getEndpoint().address));
+        if (auto* arrow = dynamic_cast<EndpointArrowComponent*>(endpoint.component.getComponent()))
+            arrow->setMappingTarget(endpointsAreCompatible(*endpoint_drag_source_, endpoint.endpoint.address));
     }
 }
 
 void MappingManager::clearEndpointDestinationVisuals() {
     for (auto& [key, endpoint] : mapping_endpoints_) {
-        if (auto* arrow = endpoint.component.getComponent()) {
+        if (auto* arrow = dynamic_cast<EndpointArrowComponent*>(endpoint.component.getComponent())) {
             arrow->setMappingTarget(false);
             arrow->setDragTarget(false);
         }
@@ -600,9 +711,9 @@ void MappingManager::positionEndpointDragIcon() {
 void MappingManager::drawEndpointDestinations(OpenGlWrapper& openGl) {
     if (!endpoint_drag_source_) return;
     for (auto& [key, endpoint] : mapping_endpoints_) {
-        auto* arrow = endpoint.component.getComponent();
+        auto* arrow = dynamic_cast<EndpointArrowComponent*>(endpoint.component.getComponent());
         if (arrow == nullptr
-            || !endpointsAreCompatible(*endpoint_drag_source_, arrow->getEndpoint().address))
+            || !endpointsAreCompatible(*endpoint_drag_source_, endpoint.endpoint.address))
             continue;
 
         arrow->render(openGl, true);
@@ -667,8 +778,7 @@ void MappingManager::handleConnectionMenuResult(const juce::String& connectionId
     }
 
     if (parent->updateConnection(updated)) {
-        updateConnectionSlots();
-        updateSlotVisuals();
+        refreshConnectionSlots();
     }
 }
 
@@ -684,8 +794,7 @@ void MappingManager::removeConnectionRecord(const juce::String& connectionId) {
     const auto destination = connection->destination.endpointId.toStdString();
     const auto type = connection->type;
     if (parent->disconnectConnection(connectionId)) {
-        updateConnectionSlots();
-        updateSlotVisuals();
+        refreshConnectionSlots();
         if (type == electrosynth::ConnectionType::Modulation)
             modulationsChanged(destination);
     }
@@ -702,8 +811,7 @@ void MappingManager::connectionAmountChanged(const ConnectionSlotData& connectio
         updated.amount = amount;
 
         if (parent->updateConnection(updated)) {
-            updateConnectionSlots();
-            updateSlotVisuals();
+            refreshConnectionSlots();
         }
     }
 
@@ -743,12 +851,18 @@ void MappingManager::createMappingSlider(std::string name, SynthSlider* slider) 
 
   destination_lookup_[name] = destination.get();
   all_destinations_.push_back(std::move(destination));
+
+  if (slider != nullptr && slider->hasModulationEndpoint())
+      registerEndpoint(*slider, slider->getModulationEndpoint(), slider->getConnectionSlots());
 }
 
 MappingManager::~MappingManager() {
-    for (auto& [key, endpoint] : mapping_endpoints_)
+    for (auto& [key, endpoint] : mapping_endpoints_) {
         if (auto* component = endpoint.component.getComponent())
             component->removeMouseListener(this);
+        if (auto* slots = endpoint.slots.getComponent())
+            slots->removeListener(this);
+    }
 }
 
 void MappingManager::resized() {
@@ -851,7 +965,7 @@ void MappingManager::connectionAmountChanged(SynthSlider* slider) {
     updated.stereo = slider->isModulationStereo();
     updated.bypass = slider->isModulationBypassed();
     parent->updateConnection(updated);
-    updateSlotVisuals();
+    refreshConnectionSlots();
     current_modulator_->repaint();
     return;
   }
@@ -911,6 +1025,21 @@ void MappingManager::scheduleComponentUpdate()
                                      // componentAdded()'s not-ready retry logic still works
     safe_this->componentAdded();
   });
+}
+
+void MappingManager::scheduleConnectionSlotRefresh() {
+    if (connection_slot_refresh_pending_)
+        return;
+
+    connection_slot_refresh_pending_ = true;
+    juce::Component::SafePointer<MappingManager> safe_this(this);
+    juce::MessageManager::callAsync([safe_this]() {
+        if (safe_this == nullptr)
+            return;
+
+        safe_this->connection_slot_refresh_pending_ = false;
+        safe_this->refreshConnectionSlots();
+    });
 }
 
 void MappingManager::componentAdded() {
@@ -1093,7 +1222,7 @@ void MappingManager::componentAdded() {
         }
     }
 
-    updateSlotVisuals();
+    refreshConnectionSlots();
     full->open_gl_.context.executeOnGLThread ([this, full] (juce::OpenGLContext& openGLContext) {
         for (auto& multiquad : rotary_destinations_)
         {
@@ -1283,104 +1412,6 @@ bool MappingManager::isSlotOccupied(const std::string& destination, int destinat
   return false;
 }
 
-void MappingManager::updateSlotVisuals() {
-    SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
-    if (parent == nullptr) return;
-
-    std::vector<electrosynth::SlotComponent*> active_slots;
-
-    auto get_display_label = [this](const juce::String& source_name) {
-        auto button = modulation_buttons_.find(source_name.toStdString());
-        if (button != modulation_buttons_.end() && button->second != nullptr
-                && button->second->getDisplayLabel().isNotEmpty())
-            return button->second->getDisplayLabel();
-
-        return getConnectionSourceLabel(source_name.toStdString());
-    };
-
-    for (const auto& [name, slider] : slider_model_lookup_) {
-        if (slider == nullptr || !slider->hasModulationEndpoint())
-            continue;
-
-        for (const auto& connection : parent->getConnectionsForEndpoint(
-                 slider->getModulationEndpoint().address)) {
-            if (connection.type != electrosynth::ConnectionType::Modulation
-                || connection.targetConnectionId.isNotEmpty()
-                || !juce::isPositiveAndBelow(connection.destinationSlot, SynthSlider::kNumSlots))
-                continue;
-
-            auto* target = slider->getExtraModulationTarget(connection.destinationSlot);
-            auto* slot = dynamic_cast<electrosynth::SlotComponent*>(target);
-            if (slot == nullptr)
-                continue;
-
-            if (auto* slots = dynamic_cast<ConnectionSlots*>(slot->getParentComponent()))
-                slots->addListener(this);
-            active_slots.push_back(slot);
-
-            const auto sourceName = connection.source.endpointId;
-            const auto sourceButton = modulation_buttons_.find(sourceName.toStdString());
-            const auto sourceColour = sourceButton != modulation_buttons_.end()
-                    && sourceButton->second != nullptr
-                ? sourceButton->second->getSourceColor()
-                : getConnectionSourceColor(sourceName.toStdString());
-
-            ConnectionSlotData data {
-                .connectionId = connection.id,
-                .peer = connection.source,
-                .label = get_display_label(sourceName),
-                .colour = sourceColour,
-                .hasAmount = true,
-                .hasBipolar = true,
-                .hasStereo = true,
-                .amount = connection.amount,
-                .bipolar = connection.bipolar,
-                .bypass = connection.bypass,
-                .stereo = connection.stereo
-            };
-
-            const auto auxiliaryConnections = parent->getConnectionsTargetingConnection(connection.id);
-            if (!auxiliaryConnections.empty()) {
-                const auto& auxiliary = auxiliaryConnections.front();
-                const auto auxiliaryName = auxiliary.source.endpointId;
-                const auto button = modulation_buttons_.find(auxiliaryName.toStdString());
-                const auto colour = button != modulation_buttons_.end() && button->second != nullptr
-                    ? button->second->getSourceColor()
-                    : getConnectionSourceColor(auxiliaryName.toStdString());
-
-                data.auxiliary = ConnectionSlotData::Auxiliary {
-                    .connectionId = auxiliary.id,
-                    .peer = auxiliary.source,
-                    .label = get_display_label(auxiliaryName),
-                    .colour = colour
-                };
-            }
-
-            slot->setConnection(std::move(data));
-        }
-    }
-
-    for (const auto& [name, slider] : slider_model_lookup_) {
-        if (slider == nullptr) continue;
-
-        for (auto* target : slider->getExtraModulationTargets()) {
-            auto* slot = dynamic_cast<electrosynth::SlotComponent*>(target);
-            if (slot == nullptr)
-                continue;
-
-            if (std::find(active_slots.begin(), active_slots.end(), slot) == active_slots.end()) {
-                slot->clearConnection();
-            }
-        }
-    }
-
-	  // Parameter views inside sound/effect modules are rendered into cached
-  // background images. Rebuild the full background after all slot states have
-  // been updated so their source-colored icons are included in those caches.
-    if (auto* full = parent->getGui())
-        full->redoBackground();
-}
-
 void MappingManager::draggedToComponent(juce::Component* component, bool bipolar) {
     if (component == nullptr || current_modulator_ == nullptr || !current_modulator_->hasEndpoint())
         return;
@@ -1450,7 +1481,7 @@ void MappingManager::draggedToComponent(juce::Component* component, bool bipolar
     temporarily_set_connection_id_ = connection.id;
     temporarily_set_slot_ = destination_slot;
     temporarily_set_bipolar_ = bipolar;
-    updateSlotVisuals();
+    refreshConnectionSlots();
     modulationsChanged(destination_name);
     destination->setActive(true);
     setDestinationQuadBounds(destination);
@@ -1489,7 +1520,7 @@ void MappingManager::setTemporaryConnectionBipolar(juce::Component* component, b
     return;
 
   temporarily_set_bipolar_ = bipolar;
-  updateSlotVisuals();
+  refreshConnectionSlots();
   showConnectionAmountOverlay(temporarily_set_connection_id_);
 }
 
@@ -1505,7 +1536,7 @@ void MappingManager::clearTemporaryConnection() {
     temporarily_set_synth_slider_ = nullptr;
     temporarily_set_connection_id_.clear();
     temporarily_set_slot_ = -1;
-    updateSlotVisuals();
+    refreshConnectionSlots();
     modulationsChanged(destinationName);
 
     hideConnectionAmountOverlay();
@@ -1834,9 +1865,8 @@ void MappingManager::menuFinished(SynthSlider* slider) {
 }
 
 void MappingManager::modulationsChanged(const std::string& destination) {
-  SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
 
-  updateSlotVisuals();
+    SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
   SynthSlider* slider = slider_model_lookup_[destination];
 
   if (parent == nullptr)
@@ -1880,7 +1910,7 @@ void MappingManager::reset() {
 
   for (const auto& meter : meter_lookup_)
     modulationsChanged(meter.first);
-  updateSlotVisuals();
+  refreshConnectionSlots();
 }
 
 void MappingManager::setVisibleMeterBounds() {

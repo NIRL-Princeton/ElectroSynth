@@ -29,6 +29,7 @@ class FullInterface;
 class OpenGlSlider;
 class SynthGuiInterface;
 class SynthSection;
+class ConnectionSlots;
 
 class OpenGlSliderQuad : public OpenGlQuad {
   public:
@@ -457,6 +458,14 @@ class SynthSlider : public OpenGlSlider, public juce::TextEditor::Listener {
         return modulation_endpoint_.address.isValid();
     }
 
+    void setConnectionSlots(ConnectionSlots* slots) noexcept {
+        connection_slots_ = slots;
+    }
+
+    ConnectionSlots* getConnectionSlots() const noexcept {
+        return connection_slots_;
+    }
+
 
 //    void setAttachment(chowdsp::FloatParameter& param, chowdsp::PluginState& pluginState)
 //    {
@@ -508,6 +517,7 @@ class SynthSlider : public OpenGlSlider, public juce::TextEditor::Listener {
     const std::string* string_lookup_;
 
     std::array<juce::Component*, kNumSlots> extra_modulation_targets_ {};
+    ConnectionSlots* connection_slots_ = nullptr;
     SynthGuiInterface* synth_interface_;
     std::unique_ptr<OpenGlTextEditor> text_entry_;
     bool command_text_entry_candidate_ = false;

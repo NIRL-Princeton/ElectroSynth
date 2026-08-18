@@ -116,6 +116,9 @@ MainSection::~MainSection() {
     for (auto* list : effect_lists_)
         if (list != nullptr)
             list->onUiTransferRequested = nullptr;
+
+    modulation_interface.reset();
+    master_voice_envelope_section.reset();
 }
 
 void MainSection::renderOpenGlComponents(OpenGlWrapper& open_gl, bool animate) {

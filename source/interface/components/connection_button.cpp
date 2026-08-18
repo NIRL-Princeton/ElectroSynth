@@ -35,7 +35,9 @@ ConnectionButton::~ConnectionButton() = default;
 
 void ConnectionButton::resized() {
   EndpointArrowComponent::resized();
-  drag_drop_area_.setBounds(getLocalBounds().reduced(4));
+  // EndpointArrowComponent renders through this target component. Keep it at
+  // the full endpoint bounds so modulation arrows match audio arrows exactly.
+  drag_drop_area_.setBounds(getLocalBounds());
 }
 
 void ConnectionButton::init(OpenGlWrapper &open_gl) {

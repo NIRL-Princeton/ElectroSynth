@@ -9,6 +9,8 @@
 class ModulatorBase;
 class ModulationSection;
 class MappingManager;
+class ConnectionButton;
+class ConnectionSlots;
 class ModulationModuleSection : public ModulesInterface<ModulatorBase>
 {
 public:

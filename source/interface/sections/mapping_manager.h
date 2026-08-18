@@ -39,7 +39,9 @@ class ConnectionDestination;
 class SynthBase;
 
 struct RegisteredMappingEndpoint {
-    juce::Component::SafePointer<EndpointArrowComponent> component;
+    juce::Component::SafePointer<juce::Component> component;
+    electrosynth::EndpointDescriptor endpoint;
+    juce::Component::SafePointer<ConnectionSlots> slots;
 };
 
 class MappingManager : public SynthSection, public ConnectionSlots::Listener, public ConnectionButton::Listener,
@@ -61,7 +63,7 @@ class MappingManager : public SynthSection, public ConnectionSlots::Listener, pu
         kToggleConnectionStereo = 4
     };
 
-    void registerEndpoint(EndpointArrowComponent& endpoint);
+    void registerEndpoint(EndpointArrowComponent& arrow);
     void unregisterEndpoint(const EndpointArrowComponent& endpoint);
 
     void mouseDown(const juce::MouseEvent& event) override;
@@ -146,20 +148,27 @@ private:
     bool isPointInsideDestinationDropArea(SynthSlider* slider, juce::Point<int> manager_position) const;
     int findSlotForNewConnection(SynthSlider* slider) const;
     bool isSlotOccupied(const std::string& destination, int destination_slot) const;
-    void updateSlotVisuals();
     void showConnectionAmountOverlay(const juce::String& connectionId);
     void hideConnectionAmountOverlay();
     void componentAdded();
     void scheduleComponentUpdate();
+    void scheduleConnectionSlotRefresh();
 
     static juce::String getEndpointKey(const electrosynth::EndpointAddress& address);
     void unregisterEndpoint(const electrosynth::EndpointAddress& address);
+
+    void registerEndpoint(juce::Component& component, electrosynth::EndpointDescriptor endpoint, ConnectionSlots* slots);
     RegisteredMappingEndpoint* getRegisteredMappingEndpoint(juce::Component* component);
     static bool endpointsAreCompatible(const electrosynth::EndpointAddress& source, const electrosynth::EndpointAddress& destination);
     RegisteredMappingEndpoint* findEndpointAt(juce::Point<int> managerPosition);
     bool connectEndpoints(const electrosynth::EndpointAddress& source, const electrosynth::EndpointAddress& destination);
     RegisteredMappingEndpoint* getRegisteredMappingEndpoint(const electrosynth::EndpointAddress& address);
-    void updateConnectionSlots();
+
+    void refreshConnectionSlots();
+    void attachAuxiliarySlotData(ConnectionSlotData& slotData, const electrosynth::ConnectionRecord& connection, const SynthGuiInterface& synthInterface);
+
+    std::optional<ConnectionSlotData> makeConnectionSlotData(const electrosynth::ConnectionRecord& connection,
+            const electrosynth::EndpointAddress& viewedEndpoint, const electrosynth::EndpointCapabilities& capabilities);
 
     CriticalSection open_gl_critical_section_;
     std::unique_ptr<juce::Component> destinations_;
@@ -188,6 +197,7 @@ private:
     bool dragging_;
     bool changing_hover_;
     bool component_update_pending_;
+    bool connection_slot_refresh_pending_ = false;
 
     ConnectionButton* current_modulator_;
     std::map<std::string, ConnectionButton*> modulation_buttons_;

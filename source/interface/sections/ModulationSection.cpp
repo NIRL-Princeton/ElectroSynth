@@ -6,13 +6,10 @@
 #include "ModulationSection.h"
 #include "connection_button.h"
 #include "mapping_manager.h"
+#include "connection_slots.h"
 
 ModulationSection::ModulationSection( const juce::ValueTree &v, std::unique_ptr<SynthSection> editor, juce::UndoManager& um)
-                        : SynthSection(editor->getName()),
-                        state(v),
-                        _view(std::move(editor)),
-                        undo(um) // this is the dragged connector
-{
+                        : SynthSection(editor->getName()), state(v), _view(std::move(editor)), undo(um) {
     setComponentID(_view->getName());
 
     electrosynth::EndpointDescriptor sourceEndpoint {
@@ -28,7 +25,12 @@ ModulationSection::ModulationSection( const juce::ValueTree &v, std::unique_ptr<
     };
 
     mod_button = std::make_shared<ConnectionButton>("mod", std::move(sourceEndpoint));
-    addModulationButton(mod_button, false);
+
+    addModulationButton(mod_button, true);
+    connection_slots_ = std::make_unique<ConnectionSlots>(*mod_button);
+    addSubSection(connection_slots_.get());
+    connection_slots_->setConnections({});
+
     mod_button->setAlwaysOnTop(true);
     addSubSection(_view.get());
     if (auto* parameters = dynamic_cast<electrosynth::ParametersView*>(_view.get()))
@@ -57,12 +59,29 @@ void ModulationSection::paintBackground(juce::Graphics &g){
 }
 
 void ModulationSection::resized() {
+    constexpr int arrowSize = 24;
+    constexpr int rightPadding = 5;
+    constexpr int bottomPadding = 5;
+    constexpr int slotGap = 2;
 
+    // Keep the editor border on the module's outer edge. Trimming its height
+    // placed that border directly above the routing row as a horizontal line.
     _view->setBounds(getLocalBounds());
-    if (mod_button->getParentComponent() == this)
-        mod_button->setBounds(_view->getRight() - 40, getY(),40,40);
-    exit_button_->setBounds(0,0, 30,30);
 
+    mod_button->setBounds(
+        getWidth() - rightPadding - arrowSize,
+        getHeight() - bottomPadding - arrowSize,
+        arrowSize,
+        arrowSize);
+
+    connection_slots_->setBounds(
+        mod_button->getX() - slotGap - ConnectionSlots::kPreferredWidth,
+        mod_button->getY(),
+        ConnectionSlots::kPreferredWidth,
+        arrowSize);
+
+
+    exit_button_->setBounds(0,0, 30,30);
     SynthSection::resized();
 }
 

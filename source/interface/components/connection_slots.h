@@ -14,6 +14,9 @@
 class EndpointArrowComponent;
 
 struct ConnectionSlotData {
+
+    int slotIndex = -1;
+
     juce::String connectionId;
     electrosynth::EndpointAddress peer;
     juce::String label;
@@ -135,6 +138,11 @@ private:
         std::shared_ptr<OpenGlQuad> aux_border;
         std::shared_ptr<PlainTextComponent> aux_label;
     };
+
+    int getSlotCapacity() const noexcept {
+        return destination_ != nullptr
+            ? SynthSlider::kNumSlots : kMaxVisibleSlots;
+    }
 
     int hovered_slot_ = -1;
     std::vector<Listener*> listeners_;

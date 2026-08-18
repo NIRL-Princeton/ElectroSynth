@@ -7,6 +7,7 @@
 #include "Modulators/EnvModuleProcessor.h"
 #include "Modulators/LFOModuleProcessor.h"
 #include "mapping_manager.h"
+#include "connection_slots.h"
 #include "synth_base.h"
 #include "synth_gui_interface.h"
 
@@ -134,8 +135,10 @@ void ModulationModuleSection::setVCAModulationSection(SynthSection* section, std
 
     if (master_env_section_ != nullptr) {
         container_->addSubSection(master_env_section_);
-        if (master_env_button_ != nullptr)
-            addOpenGlComponent(std::static_pointer_cast<OpenGlImageComponent>(master_env_button_));
+        if (master_env_button_ != nullptr) {
+            if (modulation_manager != nullptr)
+                modulation_manager->registerEndpoint(*master_env_button_);
+        }
         master_env_section_->setVisible(true);
         selected_tab_ = kDefaultTab;
     }
@@ -368,7 +371,7 @@ void ModulationModuleSection::updateTabs() {
         const int number = is_default_tab ? 0 : (is_envelope ? ++env_number : ++lfo_number);
         const auto label = is_default_tab ? juce::String("Master")
                                           : (is_envelope ? juce::String("Env ") : (is_lfo ? juce::String("LFO") : juce::String("Noise") )) + juce::String(number);
-        tab_buttons_[i]->setText("   " + label);
+        tab_buttons_[i]->setText(label);
         tab_buttons_[i]->setToggleState(selected, juce::dontSendNotification);
         tab_buttons_[i]->setColour(Skin::kBody, findColour(Skin::kBody, true));
         tab_buttons_[i]->setColour(Skin::kTextComponentBackground, selected ? juce::Colours::transparentBlack : juce::Colours::black);
@@ -400,10 +403,8 @@ void ModulationModuleSection::updateTabs() {
                                    : tab_bounds.getX();
             mod_button->setSourceColor(accent);
             mod_button->setVisible(occupied);
-            mod_button->setBounds(icon_x, tab_bounds.getCentreY() - kModButtonSize / 2,
-                                  kModButtonSize, kModButtonSize);
-            mod_button->toFront(false);
             mod_button->setDisplayLabel(label);
+
         }
 
         tab_borders_[i]->setVisible(!selected);
@@ -511,11 +512,12 @@ void ModulationModuleSection::moduleAdded(ModulatorBase *newModule) {
     module_sections.emplace_back(std::move(module_section));
 
     auto mod_button = module_sections.back()->getModulationButtonPtr();
-    // register modulation buttons as endpoints
+
+
+    // Register only after the source-side slots exist so the endpoint record has
+    // the complete shared UI path from its first refresh.
     if (modulation_manager != nullptr && mod_button->hasEndpoint())
         modulation_manager->registerEndpoint(*mod_button);
-
-    addOpenGlComponent(std::static_pointer_cast<OpenGlImageComponent>(mod_button));
     selected_tab_ = static_cast<int>(module_sections.size()) - 1;
     updateTabs();
 
@@ -556,6 +558,10 @@ void ModulationModuleSection::removeModule(ModulatorBase *newModule) {
         auto* section = it->get();
         section->setVisible(false);
         auto modulation_button = section->getModulationButtonPtr();
+
+        if (modulation_manager != nullptr && modulation_button != nullptr)
+            modulation_manager->unregisterEndpoint(*modulation_button);
+
         if ((juce::OpenGLContext::getCurrentContext() == nullptr)) {
 
             auto *_parent = findParentComponentOfClass<SynthGuiInterface>();
@@ -575,7 +581,6 @@ void ModulationModuleSection::removeModule(ModulatorBase *newModule) {
         else {
             auto& openGLContext = *juce::OpenGLContext::getCurrentContext();
             if (modulation_button != nullptr) {
-                modulation_manager->unregisterEndpoint(*modulation_button);
                 destroyOpenGlComponent(*modulation_button, openGLContext);
             }
 

@@ -18,8 +18,12 @@ class ModulationModuleSection;
 struct SynthGuiData;
 class MappingManager;
 class EffectList;
+class ConnectionSlots;
+
 class MasterVoiceEnvelopeSection : public SynthSection {
+
 public:
+
     MasterVoiceEnvelopeSection(const juce::ValueTree& v, juce::UndoManager &um,
         OpenGlWrapper &open_gl, SynthGuiData * data, std::unique_ptr<SynthSection>&&);
 
@@ -29,9 +33,12 @@ public:
     std::shared_ptr<ConnectionButton> mod_button;
     std::shared_ptr<OpenGlQuad> header_body_;
     std::shared_ptr<PlainTextComponent> header_title_;
+    std::unique_ptr<ConnectionSlots> connection_slots_;
 };
-class MainSection : public SynthSection
-{
+
+
+class MainSection : public SynthSection {
+
 public:
     class Listener {
     public:

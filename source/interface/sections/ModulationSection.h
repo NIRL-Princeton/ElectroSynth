@@ -12,8 +12,8 @@
     #include <juce_gui_basics/juce_gui_basics.h>
 class ConnectionButton;
 class MappingManager;
-class ModulationSection : public SynthSection
-{
+class ConnectionSlots;
+class ModulationSection : public SynthSection {
 public:
     ModulationSection(  const juce::ValueTree &, std::unique_ptr<SynthSection> editor, juce::UndoManager& um);
     virtual ~ModulationSection();
@@ -39,6 +39,7 @@ private:
 
     std::unique_ptr<SynthSection> _view;
     std::shared_ptr<ConnectionButton> mod_button;
+    std::unique_ptr<ConnectionSlots> connection_slots_;
     std::shared_ptr<OpenGlShapeButton> exit_button_;
     juce::UndoManager& undo;
 };
