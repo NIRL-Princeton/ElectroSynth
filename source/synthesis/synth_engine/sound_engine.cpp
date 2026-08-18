@@ -104,6 +104,11 @@ namespace electrosynth
         //temp_voice_buffer.set
         for (auto& buffer : temp_fx_buffers)
             buffer.setSize (MAX_NUM_VOICES * 2, 1);
+        for (auto& laneInput : laneSummedInputs)
+        {
+            laneInput.setSize(MAX_NUM_VOICES * 2, 1);
+            laneInput.clear();
+        }
     }
 
     SoundEngine::~SoundEngine()
@@ -193,6 +198,14 @@ namespace electrosynth
         moduleRegistry_[nodeId] = module;
     }
 
+    void SoundEngine::registerEffectLaneNodeId(int lane, const juce::String& nodeId) noexcept
+    {
+        if (!juce::isPositiveAndBelow(lane, static_cast<int>(laneNodeIds.size())))
+            return;
+
+        laneNodeIds[static_cast<std::size_t>(lane)] = nodeId;
+    }
+
     void SoundEngine::unregisterModule(ModuleBase* module)
     {
         if (module == nullptr)
@@ -214,6 +227,20 @@ namespace electrosynth
 
         const auto it = moduleRegistry_.find(nodeId);
         return it != moduleRegistry_.end() ? it->second : nullptr;
+    }
+
+    int SoundEngine::getEffectLaneIndex(const juce::String& nodeId) const noexcept
+    {
+        if (nodeId.isEmpty())
+            return -1;
+
+        for (int lane = 0; lane < static_cast<int>(laneNodeIds.size()); ++lane)
+        {
+            if (laneNodeIds[static_cast<std::size_t>(lane)] == nodeId)
+                return lane;
+        }
+
+        return -1;
     }
 
     bool SoundEngine::connectGraphConnection(const electrosynth::ConnectionRecord& connection)
@@ -238,10 +265,18 @@ namespace electrosynth
         state.record = connection;
         state.scalingValue.store(connection.amount, std::memory_order_relaxed);
 
-        std::stringstream source_stream(connection.source.endpointId.toStdString());
-        std::string source_token;
-        std::getline(source_stream, source_token, '_');
-        state.source = getLEAFProcessorModulator(source_token);
+        state.source = nullptr;
+        if (auto* sourceModule = getModuleByNodeId(connection.source.nodeId))
+            state.source = sourceModule->procArray;
+
+        if (state.source == nullptr)
+        {
+            std::stringstream source_stream(connection.source.endpointId.toStdString());
+            std::string source_token;
+            std::getline(source_stream, source_token, '_');
+            state.source = getLEAFProcessorModulator(source_token);
+        }
+
         std::tie(state.destination, state.destinationParamIndex) = getParameterInfo(connection.destination.endpointId.toStdString());
 
         if (state.source == nullptr || state.destination == nullptr || state.destinationParamIndex < 0)
@@ -409,20 +444,55 @@ namespace electrosynth
             auto const* sourceModule = getModuleByNodeId(connection.source.nodeId);
             auto const* destModule = getModuleByNodeId(connection.destination.nodeId);
 
-            if (sourceModule == nullptr || destModule == nullptr
-            || sourceModule->procArray == nullptr
-            || destModule->procArray == nullptr)
+            if (sourceModule == nullptr || sourceModule->procArray == nullptr)
                 continue;
 
+            if (destModule != nullptr && destModule->procArray != nullptr)
+            {
+                for (int v = 0; v < MAX_NUM_VOICES; ++v)
+                {
+                    auto* src = sourceModule->procArray->at(v);
+                    auto* dst = destModule->procArray->at(v);
+
+                    if (src != nullptr && dst != nullptr)
+                        dst->summedInput += src->outputs[0] * connection.amount;
+                }
+                continue;
+            }
+
+            const int lane = getEffectLaneIndex(connection.destination.nodeId);
+            if (lane < 0)
+                continue;
+
+            auto& laneInput = laneSummedInputs[static_cast<std::size_t>(lane)];
             for (int v = 0; v < MAX_NUM_VOICES; ++v)
             {
                 auto* src = sourceModule->procArray->at(v);
-                auto* dst = destModule->procArray->at(v);
+                if (src == nullptr)
+                    continue;
 
-                if (src != nullptr && dst != nullptr)
-                    dst->summedInput += src->outputs[0] * connection.amount;
+                const float sample = src->outputs[0] * connection.amount;
+                laneInput.addSample(v * 2, 0, sample);
+                laneInput.addSample(v * 2 + 1, 0, sample);
             }
         }
+    }
+
+    static void flushLaneInputToBuffer(juce::AudioBuffer<float>& laneInput, juce::AudioBuffer<float>& laneBuffer)
+    {
+        if (laneInput.getNumChannels() == 0 || laneBuffer.getNumChannels() == 0)
+            return;
+
+        const int numVoices = juce::jmin(laneInput.getNumChannels(), laneBuffer.getNumChannels()) / 2;
+        for (int v = 0; v < numVoices; ++v)
+        {
+            const int left = v * 2;
+            const int right = left + 1;
+            laneBuffer.addSample(left, 0, laneInput.getSample(left, 0));
+            laneBuffer.addSample(right, 0, laneInput.getSample(right, 0));
+        }
+
+        laneInput.clear();
     }
 
     void SoundEngine::process (juce::AudioSampleBuffer& audio_buffer, int channels, int samples, int offset)
@@ -505,6 +575,9 @@ namespace electrosynth
 
                 processMappings();
                 processAudioConnections();
+
+                for (std::size_t lane = 0; lane < laneSummedInputs.size(); ++lane)
+                    flushLaneInputToBuffer(laneSummedInputs[lane], temp_fx_buffers[lane + 1]);
 
                 for (auto& modLane : modSources)
                 {

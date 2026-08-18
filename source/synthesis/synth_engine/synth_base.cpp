@@ -59,6 +59,9 @@ SynthBase::SynthBase(AudioDeviceManager *deviceManager) : tree(ValueTree(IDs::EL
     *self_reference_ = this;
 
     engine_ = std::make_unique<electrosynth::SoundEngine>(um);
+    engine_->registerEffectLaneNodeId(0, effects_0->getNodeId());
+    engine_->registerEffectLaneNodeId(1, effects_1->getNodeId());
+    engine_->registerEffectLaneNodeId(2, effects_2->getNodeId());
 
     mod_connections_.reserve(electrosynth::kMaxConnections);
 

@@ -444,6 +444,15 @@ RegisteredMappingEndpoint* MappingManager::getRegisteredMappingEndpoint(juce::Co
     return nullptr;
 }
 
+RegisteredMappingEndpoint* MappingManager::getRegisteredMappingEndpointRecursive(juce::Component* component) {
+    for (auto* current = component; current != nullptr; current = current->getParentComponent()) {
+        if (auto* endpoint = getRegisteredMappingEndpoint(current))
+            return endpoint;
+    }
+
+    return nullptr;
+}
+
 RegisteredMappingEndpoint* MappingManager::getRegisteredMappingEndpoint(const electrosynth::EndpointAddress& address) {
     const auto found = mapping_endpoints_.find(getEndpointKey(address));
     if (found == mapping_endpoints_.end()) return nullptr;
@@ -480,7 +489,7 @@ electrosynth::ConnectionRecord* MappingManager::findConnectionRecord(const std::
 
 // Generic Endpoint mouse handlers  **********************************************************************************************  Generic Endpoint mouse handlers
 void MappingManager::mouseDown(const juce::MouseEvent& event) {
-    auto* registered_endpoint = getRegisteredMappingEndpoint(event.eventComponent);
+    auto* registered_endpoint = getRegisteredMappingEndpointRecursive(event.eventComponent);
     auto* endpoint = registered_endpoint != nullptr
         ? registered_endpoint->component.getComponent()
         : nullptr;
@@ -505,15 +514,7 @@ void MappingManager::mouseDown(const juce::MouseEvent& event) {
         return;
         }
 
-    // Existing audio setup remains below.
-    clearEndpointDestinationVisuals();
-
-    mouse_drag_position_ = getLocalPoint(event.eventComponent, event.getPosition());
-
-    // visuals
-    drag_icon_.setShape(Paths::rightArrow());
-    updateEndpointDestinationVisuals();
-    positionEndpointDragIcon();
+    startEndpointMap(endpoint, event);
 }
 
 void MappingManager::mouseDrag(const juce::MouseEvent& event) {
@@ -587,6 +588,67 @@ void MappingManager::mouseUp(const juce::MouseEvent& event) {
         return;
     }
 
+    if (endpoint_drag_source_.has_value()
+        && endpoint_drag_source_->type == electrosynth::ConnectionType::Audio)
+    {
+        SynthSlider* slider = nullptr;
+        for (const auto& [name, destination] : destination_lookup_)
+        {
+            if (destination == nullptr)
+                continue;
+
+            auto* candidate = destination->getDestinationSlider();
+            if (candidate == nullptr)
+                continue;
+
+            if (isPointInsideDestinationDropArea(candidate, mouse_drag_position_))
+            {
+                slider = candidate;
+                break;
+            }
+        }
+
+        if (slider != nullptr)
+        {
+            const auto destination_name = slider->getComponentID().toStdString();
+            const int destination_slot = findSlotForNewConnection(slider);
+
+            if (destination_slot >= 0 && !isSlotOccupied(destination_name, destination_slot))
+            {
+                electrosynth::ConnectionRecord record {
+                    .id = electrosynth::createConnectionRecordId(),
+                    .type = electrosynth::ConnectionType::Modulation,
+                    .source {
+                        .type = endpoint_drag_source_->type,
+                        .nodeId = endpoint_drag_source_->nodeId,
+                        .endpointId = endpoint_drag_source_->endpointId,
+                        .direction = electrosynth::EndpointDirection::Source
+                    },
+                    .destination {
+                        .type = electrosynth::ConnectionType::Modulation,
+                        .nodeId = juce::String(destination_name),
+                        .endpointId = juce::String(destination_name),
+                        .direction = electrosynth::EndpointDirection::Destination
+                    },
+                    .destinationSlot = destination_slot
+                };
+
+                auto* parent = findParentComponentOfClass<SynthGuiInterface>();
+                if (parent != nullptr && parent->connect(record))
+                {
+                    connection_records_.push_back(std::move(record));
+                    updateSlotVisuals();
+                    modulationsChanged(destination_name);
+                    updateConnectionSlots();
+                }
+            }
+        }
+
+        // Audio endpoint drags use the same cleanup as modulation drags so the
+        // full-screen destination overlay does not remain on top of knobs.
+        endDestinationMap();
+    }
+
     // if valid, connect endpoints
     if (endpoint_drag_source_.has_value() && endpoint_drag_destination_.has_value()) {
         connectEndpoints(*endpoint_drag_source_, *endpoint_drag_destination_);
@@ -613,14 +675,17 @@ bool MappingManager::endpointsAreCompatible(const electrosynth::EndpointAddress&
         destination.direction != electrosynth::EndpointDirection::Destination)
         return false;
 
-    if (source.type != destination.type)
-        return false;
-
     if (source.type == electrosynth::ConnectionType::Audio) {
-        return source.audioDomain == destination.audioDomain && source.nodeId != destination.nodeId;
+        if (destination.type == electrosynth::ConnectionType::Audio)
+            return source.audioDomain == destination.audioDomain && source.nodeId != destination.nodeId;
+
+        if (destination.type == electrosynth::ConnectionType::Modulation)
+            return source.nodeId != destination.nodeId;
+
+        return false;
     }
 
-    return true;
+    return source.type == destination.type;
 }
 
 RegisteredMappingEndpoint* MappingManager::findEndpointAt(juce::Point<int> managerPosition) {
@@ -650,11 +715,13 @@ bool MappingManager::connectEndpoints (const electrosynth::EndpointAddress& sour
     if (destination_component == nullptr) return false;
 
     const int capacity = destination_component->getEndpoint().capabilities.maxIncomingConnections;
-    const auto connectionsToDestination = [&] (const electrosynth::ConnectionRecord& record) {
-        return record.destination.matches(destination);
-    };
 
     // does this connection already exist?
+    const auto connection_type = source.type == electrosynth::ConnectionType::Audio
+        && destination.type == electrosynth::ConnectionType::Modulation
+        ? electrosynth::ConnectionType::Modulation
+        : source.type;
+
     const auto duplicate = std::find_if(connection_records_.begin(),connection_records_.end(),
         [&](const auto& record) {
             return record.source.matches(source) && record.destination.matches(destination);
@@ -662,7 +729,9 @@ bool MappingManager::connectEndpoints (const electrosynth::EndpointAddress& sour
     if (duplicate != connection_records_.end()) return true;
 
     const int existingConnectionsCount = static_cast<int>(std::count_if(connection_records_.begin(), connection_records_.end(),
-        connectionsToDestination));
+        [&] (const electrosynth::ConnectionRecord& record) {
+            return record.destination.matches(destination);
+        }));
 
     if (capacity <= 0 || existingConnectionsCount >= capacity) {
         return false;
@@ -670,7 +739,7 @@ bool MappingManager::connectEndpoints (const electrosynth::EndpointAddress& sour
 
     electrosynth::ConnectionRecord connection {
         .id = electrosynth::createConnectionRecordId(),
-        .type = source.type,
+        .type = connection_type,
         .source = source,
         .destination = destination
     };
@@ -711,31 +780,66 @@ void MappingManager::updateConnectionSlots()
 
         std::vector<ConnectionSlotData> slots_for_port;
         for (const auto& connection : connection_records_) {
-            if (connection.type != electrosynth::ConnectionType::Audio) continue;
-            const auto& endpoint = address.direction == electrosynth::EndpointDirection::Destination ? connection.destination : connection.source;
-            if (!endpoint.matches(address)) continue;
-            const auto& peer_address = address.direction == electrosynth::EndpointDirection::Destination ? connection.source : connection.destination;
-            auto* peer_endpoint = getRegisteredMappingEndpoint(peer_address);
-            if (peer_endpoint == nullptr) continue;
-            auto* peer = peer_endpoint->component.getComponent();
-            if (peer == nullptr) continue;
+            const bool mixed_audio_to_parameter =
+                connection.type == electrosynth::ConnectionType::Modulation
+                && connection.source.type == electrosynth::ConnectionType::Audio
+                && connection.destination.type == electrosynth::ConnectionType::Modulation;
 
-            auto* destination_endpoint = getRegisteredMappingEndpoint(connection.destination);
-            auto* destination_component = destination_endpoint != nullptr ? destination_endpoint->component.getComponent() : nullptr;
-            if (destination_component == nullptr) continue;
+            if (!mixed_audio_to_parameter && connection.type != electrosynth::ConnectionType::Audio)
+                continue;
 
-            auto* owner = peer->getParentComponent();
-            const auto full_label = owner != nullptr && owner->getName().isNotEmpty() ? owner->getName() : peer->getName();
+            if (connection.type == electrosynth::ConnectionType::Audio) {
+                const auto& endpoint = address.direction == electrosynth::EndpointDirection::Destination ? connection.destination : connection.source;
+                if (!endpoint.matches(address)) continue;
+                const auto& peer_address = address.direction == electrosynth::EndpointDirection::Destination ? connection.source : connection.destination;
+                auto* peer_endpoint = getRegisteredMappingEndpoint(peer_address);
+                if (peer_endpoint == nullptr) continue;
+                auto* peer = peer_endpoint->component.getComponent();
+                if (peer == nullptr) continue;
+
+                auto* destination_endpoint = getRegisteredMappingEndpoint(connection.destination);
+                auto* destination_component = destination_endpoint != nullptr ? destination_endpoint->component.getComponent() : nullptr;
+                if (destination_component == nullptr) continue;
+
+                auto* owner = peer->getParentComponent();
+                const auto full_label = owner != nullptr && owner->getName().isNotEmpty() ? owner->getName() : peer->getName();
+
+                slots_for_port.push_back({
+                    .connectionId = connection.id,
+                    .peer = peer_address,
+                    .label = get_label(full_label),
+                    .colour = peer->findColour(Skin::kWidgetPrimary1, true),
+
+                    .hasAmount = destination_component->getEndpoint().capabilities.hasAmount,
+                    .hasBipolar = destination_component->getEndpoint().capabilities.hasBipolar,
+                    .hasStereo = destination_component->getEndpoint().capabilities.hasStereo,
+                    .amount = connection.amount,
+                    .bipolar = connection.bipolar,
+                    .bypass = connection.bypass,
+                    .stereo = connection.stereo
+                });
+                continue;
+            }
+
+            if (!connection.source.matches(address))
+                continue;
+
+            auto slider_iter = slider_model_lookup_.find(connection.destination.endpointId.toStdString());
+            if (slider_iter == slider_model_lookup_.end() || slider_iter->second == nullptr)
+                continue;
+
+            auto* slider = slider_iter->second;
+            auto* owner = slider->getParentComponent();
+            const auto full_label = owner != nullptr && owner->getName().isNotEmpty() ? owner->getName() : slider->getName();
 
             slots_for_port.push_back({
                 .connectionId = connection.id,
-                .peer = peer_address,
+                .peer = connection.destination,
                 .label = get_label(full_label),
-                .colour = peer->findColour(Skin::kWidgetPrimary1, true),
-
-                .hasAmount = destination_component->getEndpoint().capabilities.hasAmount,
-                .hasBipolar = destination_component->getEndpoint().capabilities.hasBipolar,
-                .hasStereo = destination_component->getEndpoint().capabilities.hasStereo,
+                .colour = port->findColour(Skin::kWidgetPrimary1, true),
+                .hasAmount = true,
+                .hasBipolar = true,
+                .hasStereo = true,
                 .amount = connection.amount,
                 .bipolar = connection.bipolar,
                 .bypass = connection.bypass,
@@ -831,6 +935,14 @@ void MappingManager::connectionSlotClicked(const ConnectionSlotData& connection,
     });
 }
 
+namespace {
+    bool isMixedAudioToParameterConnection(const electrosynth::ConnectionRecord& connection) {
+        return connection.type == electrosynth::ConnectionType::Modulation
+            && connection.source.type == electrosynth::ConnectionType::Audio
+            && connection.destination.type == electrosynth::ConnectionType::Modulation;
+    }
+}
+
 void MappingManager::handleConnectionMenuResult(const juce::String& connectionId, int result) {
     if (result == kRemoveConnection) {
         removeConnectionRecord(connectionId);
@@ -864,6 +976,8 @@ void MappingManager::handleConnectionMenuResult(const juce::String& connectionId
         if (auto* parent = findParentComponentOfClass<SynthGuiInterface>())
             parent->getSynth()->updateConnection(*audioConnectionRecord);
         updateConnectionSlots();
+        if (isMixedAudioToParameterConnection(*audioConnectionRecord))
+            updateSlotVisuals();
         return;
     }
 
@@ -893,6 +1007,8 @@ void MappingManager::handleConnectionMenuResult(const juce::String& connectionId
     if (auto* parent = findParentComponentOfClass<SynthGuiInterface>())
         parent->getSynth()->updateConnection(*modulationRecord);
     updateConnectionSlots();
+    if (modulationRecord->source.type == electrosynth::ConnectionType::Audio)
+        updateSlotVisuals();
 }
 
 void MappingManager::removeConnectionRecord(const juce::String& connectionId)
@@ -910,6 +1026,8 @@ void MappingManager::removeConnectionRecord(const juce::String& connectionId)
         if (type == electrosynth::ConnectionType::Modulation) {
             updateSlotVisuals();
             modulationsChanged(destination);
+            if (record->source.type == electrosynth::ConnectionType::Audio)
+                updateConnectionSlots();
         }
         else {
             updateConnectionSlots();
@@ -935,6 +1053,8 @@ void MappingManager::connectionAmountChanged(const ConnectionSlotData& connectio
         if (auto* synth = findParentComponentOfClass<SynthGuiInterface>())
             synth->getSynth()->updateConnection(*found_audio);
         updateConnectionSlots();
+        if (isMixedAudioToParameterConnection(*found_audio))
+            updateSlotVisuals();
         return;
     }
 
@@ -1087,7 +1207,7 @@ void MappingManager::updateMappingMeterLocations() {
 
 void MappingManager::connectionAmountChanged(SynthSlider* slider) {
   std::string slider_name = slider->getComponentID().toStdString();
-  std::string source_name = current_modulator_->getComponentID().toStdString();
+  std::string source_name = getCurrentSourceName().toStdString();
   setConnectionValues(source_name, slider_name,
                       slider->getModulationAmount(), slider->isModulationBipolar(),
                       slider->isModulationStereo(), slider->isModulationBypassed());
@@ -1096,7 +1216,7 @@ void MappingManager::connectionAmountChanged(SynthSlider* slider) {
 
 void MappingManager::connectionRemoved(SynthSlider* slider) {
   std::string slider_name = slider->getComponentID().toStdString();
-  std::string source_name = current_modulator_->getComponentID().toStdString();
+  std::string source_name = getCurrentSourceName().toStdString();
 
   removeMapping(source_name, slider_name);
   modulation_buttons_[source_name]->repaint();
@@ -1207,7 +1327,8 @@ void MappingManager::componentAdded() {
     {
         ScopedLock lock (open_gl_critical_section_);
 
-        auto contains_current_modulator = [&mod_buttons] (ConnectionButton* button) {
+        auto contains_current_modulator = [&mod_buttons] (EndpointArrowComponent* component) {
+            auto* button = dynamic_cast<ConnectionButton*>(component);
             if (button == nullptr)
                 return false;
             for (const auto& modulation_button : mod_buttons)
@@ -1518,11 +1639,25 @@ void MappingManager::updateSlotVisuals() {
 
     std::vector<electrosynth::SlotComponent*> active_slots;
 
-    auto get_display_label = [this](const std::string& source_name) {
+    auto get_display_label = [this](const electrosynth::ConnectionRecord& connection) {
+        const auto source_name = connection.source.endpointId.toStdString();
         auto button = modulation_buttons_.find(source_name);
         if (button != modulation_buttons_.end() && button->second != nullptr
                 && button->second->getDisplayLabel().isNotEmpty())
             return button->second->getDisplayLabel();
+
+        if (connection.source.type == electrosynth::ConnectionType::Audio) {
+            if (auto* endpoint = getRegisteredMappingEndpoint(connection.source)) {
+                if (auto* component = endpoint->component.getComponent()) {
+                    if (auto* owner = component->getParentComponent(); owner != nullptr
+                        && owner->getName().isNotEmpty())
+                        return owner->getName();
+
+                    if (component->getName().isNotEmpty())
+                        return component->getName();
+                }
+            }
+        }
 
         return getConnectionSourceLabel(source_name);
     };
@@ -1550,11 +1685,13 @@ void MappingManager::updateSlotVisuals() {
                 ? source_button->second->getSourceColor()
                 : getConnectionSourceColor(connection.source.endpointId);
 
-	        ConnectionSlotData data {
+            ConnectionSlotData data {
 	            .connectionId = connection.id,
                 .peer = connection.source,
-                .label = get_display_label(source_name),
-                .colour = source_colour,
+                .label = get_display_label(connection),
+                .colour = connection.source.type == electrosynth::ConnectionType::Audio
+                    ? ShaderColors::kEffectTextColor
+                    : source_colour,
                 .hasAmount = true,
                 .hasBipolar = true,
 	            .hasStereo = true,
@@ -1577,7 +1714,7 @@ void MappingManager::updateSlotVisuals() {
                     data.auxiliary = ConnectionSlotData::Auxiliary {
                         .connectionId = aux_connection.id,
                         .peer = aux_connection.source,
-                        .label = get_display_label(aux_connection.source.endpointId.toStdString()),
+                        .label = get_display_label(aux_connection),
                         .colour = colour
                     };
                 }
@@ -1610,11 +1747,11 @@ void MappingManager::updateSlotVisuals() {
 
 // creates an auxiliary modulation connection to an existing modulation connection
 void MappingManager::makeAuxilaryConnection(ModulationAmountKnob* hover_slider) {
-    if (hover_slider->isCurrentModulator() || hover_slider->hasAux() || current_modulator_ == nullptr)
+    if (hover_slider->isCurrentModulator() || hover_slider->hasAux() || getCurrentSourceName().isEmpty())
         return;
 
     std::string name = hover_slider->getOriginalName().toStdString();
-    std::string source_name = current_modulator_->getComponentID().toStdString();
+    std::string source_name = getCurrentSourceName().toStdString();
     electrosynth::ConnectionRecord* connection = getConnection(source_name, name);
     if (connection == nullptr) {
         float value = hover_slider->getValue() * 0.5f;
@@ -1636,7 +1773,7 @@ void MappingManager::makeAuxilaryConnection(ModulationAmountKnob* hover_slider) 
 }
 
 void MappingManager::draggedToComponent(juce::Component* component, bool bipolar) {
-    if (component == nullptr || current_modulator_ == nullptr)
+    if (component == nullptr || getCurrentSourceName().isEmpty())
         return;
 
     std::string destination_name = component->getComponentID().toStdString();
@@ -1654,7 +1791,7 @@ void MappingManager::draggedToComponent(juce::Component* component, bool bipolar
             clearTemporaryConnection();
         return;
     }
-    auto const source_name = current_modulator_->getComponentID().toStdString();
+    auto const source_name = getCurrentSourceName().toStdString();
 
     auto const connection = getConnection (source_name, destination_name);
     if (connection != nullptr)
@@ -1704,10 +1841,10 @@ void MappingManager::draggedToComponent(juce::Component* component, bool bipolar
 }
 
 void MappingManager::setTemporaryConnectionBipolar(juce::Component* component, bool bipolar) {
-  if (current_modulator_ == nullptr || component != temporarily_set_destination_ || component == nullptr)
+  if (getCurrentSourceName().isEmpty() || component != temporarily_set_destination_ || component == nullptr)
     return;
 
-  std::string source_name = current_modulator_->getComponentID().toStdString();
+  std::string source_name = getCurrentSourceName().toStdString();
   std::string name = component->getComponentID().toStdString();
   ConnectionDestination* destination = destination_lookup_[name];
   SynthSlider* slider = destination->getDestinationSlider();
@@ -1725,10 +1862,10 @@ void MappingManager::setTemporaryConnectionBipolar(juce::Component* component, b
 }
 
 void MappingManager::clearTemporaryConnection() {
-  if (temporarily_set_destination_ && current_modulator_) {
+  if (temporarily_set_destination_ && !getCurrentSourceName().isEmpty()) {
     auto* destination = temporarily_set_destination_;
     destination->setActive(false);
-    std::string source_name = current_modulator_->getComponentID().toStdString();
+    std::string source_name = getCurrentSourceName().toStdString();
     removeMapping(source_name, temporarily_set_synth_slider_->getComponentID().toStdString(),
                      temporarily_set_slot_);
     setDestinationQuadBounds(destination);
@@ -1742,10 +1879,10 @@ void MappingManager::clearTemporaryConnection() {
 }
 
 void MappingManager::clearTemporaryHoverConnection() {
-  if (temporarily_set_hover_slider_ && current_modulator_) {
+  if (temporarily_set_hover_slider_ && !getCurrentSourceName().isEmpty()) {
     std::string name = temporarily_set_hover_slider_->getOriginalName().toStdString();
 
-    std::string source_name = current_modulator_->getComponentID().toStdString();
+    std::string source_name = getCurrentSourceName().toStdString();
     removeMapping(source_name, temporarily_set_hover_slider_->getOriginalName().toStdString());
     temporarily_set_hover_slider_ = nullptr;
   }
@@ -1800,13 +1937,13 @@ void MappingManager::mappingDragged(const juce::MouseEvent& e) {
 }
 
 void MappingManager::connectionWheelMoved(const juce::MouseEvent& e, const juce::MouseWheelDetails& wheel) {
-  if (!dragging_ || current_modulator_ == nullptr || temporarily_set_destination_ == nullptr)
+  if (!dragging_ || getCurrentSourceName().isEmpty() || temporarily_set_destination_ == nullptr)
     return;
 
   juce::MouseEvent new_event(e.source, e.position, juce::ModifierKeys(), e.pressure, e.orientation, e.rotation,
                        e.tiltX, e.tiltY, e.eventComponent, e.originalComponent, e.eventTime, e.mouseDownPosition,
                        e.mouseDownTime, e.getNumberOfClicks(), e.mouseWasDraggedSinceMouseDown());
-  std::string source_name = current_modulator_->getComponentID().toStdString();
+  std::string source_name = getCurrentSourceName().toStdString();
   std::string destination_name = temporarily_set_destination_->getComponentID().toStdString();
   int index = getModulationIndex(source_name, destination_name, temporarily_set_slot_);
     /*
@@ -1922,7 +2059,7 @@ void MappingManager::drawDestinations(OpenGlWrapper& open_gl) {
     auto destination_color = findColour(Skin::kLightenScreen, true).brighter (1.0);
     if (mapping_mode)
         destination_color = current_source_ != nullptr ?
-                current_source_->getSourceColor() : destination_color;
+                current_source_->getArrowColor() : destination_color;
 
 
     for (auto& rotary_destination_group : rotary_destinations_) {
@@ -1954,17 +2091,17 @@ void MappingManager::drawCurrentSource(OpenGlWrapper& open_gl) {
 }
 
 void MappingManager::positionDragIcon() {
-  static constexpr float kRadiusWidthRatio = 0.03f;
-  if (current_source_ == nullptr || getWidth() <= 0 || getHeight() <= 0) return;
+    static constexpr float kRadiusWidthRatio = 0.03f;
+    if (current_source_ == nullptr || getWidth() <= 0 || getHeight() <= 0) return;
 
   const int icon_size = static_cast<int>(std::round(kRadiusWidthRatio * getWidth()));
   const Rectangle<int> bounds(mouse_drag_position_.x - icon_size / 2, mouse_drag_position_.y - icon_size / 2,
                                     icon_size, icon_size);
-  if (drag_icon_.getBounds() != bounds) drag_icon_.setBounds(bounds);
+    if (drag_icon_.getBounds() != bounds) drag_icon_.setBounds(bounds);
 
     drag_icon_.setActive(true);
     drag_icon_.setVisible(true);
-    drag_icon_.setColor(current_source_->getSourceColor());
+    drag_icon_.setColor(current_source_->getArrowColor());
     drag_icon_.redrawImage(true);
 }
 
@@ -1980,6 +2117,97 @@ void MappingManager::drawDraggingSource(OpenGlWrapper& open_gl) {
 
     drag_icon_.setActive(true);
     drag_icon_.render(open_gl, true);
+}
+
+void MappingManager::startEndpointMap(EndpointArrowComponent* source, const juce::MouseEvent& e) {
+    if (source == nullptr || !hasFreeConnection())
+        return;
+
+    current_source_ = source;
+    dragging_ = true;
+
+    mouse_drag_position_ = getLocalPoint(source, e.getPosition());
+    positionDragIcon();
+
+    juce::Rectangle<int> global_bounds = getLocalArea(current_source_, current_source_->getLocalBounds());
+    juce::Point<int> global_start = global_bounds.getCentre();
+    mouse_drag_start_ = global_start;
+    destinations_->setVisible(true);
+    int widget_margin = findValue(Skin::kWidgetMargin);
+
+    std::map<juce::Viewport*, int> rotary_indices;
+    std::map<juce::Viewport*, int> linear_indices;
+    for (auto& rotary_destination_group : rotary_destinations_)
+        rotary_indices[rotary_destination_group.first] = 0;
+
+    for (auto& linear_destination_group : linear_destinations_)
+        linear_indices[linear_destination_group.first] = 0;
+
+    SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
+    std::string source_name = source->getComponentID().toStdString();
+    std::set<std::string> active_destinations;
+    std::vector<electrosynth::ConnectionRecord> connections = parent->getSynth()->getSourceConnections(source_name);
+    for (const auto& connection : connections)
+        active_destinations.insert(connection.destination.endpointId.toStdString());
+
+    for (auto& destination : destination_lookup_) {
+        auto slider_iter = slider_model_lookup_.find(destination.first);
+        if (slider_iter == slider_model_lookup_.end() || slider_iter->second == nullptr)
+            continue;
+
+        SynthSlider* model = slider_iter->second;
+        if (current_source_ == nullptr)
+            continue;
+
+        bool should_show = model->isShowing() && model->getSectionParent()->isActive()
+            && current_source_->getComponentID() != juce::String(destination.first);
+
+        juce::Viewport* viewport = model->findParentComponentOfClass<juce::Viewport>();
+        destination.second->setVisible(should_show);
+        destination.second->setActive(active_destinations.count(destination.first));
+        destination.second->setMargin(widget_margin);
+
+        juce::Point<int> position = getLocalPoint(model, juce::Point<int>(0, 0));
+        juce::Rectangle<int> slider_bounds = (model->getLocalBounds() + position).reduced(5.f);
+        destination.second->setBounds(slider_bounds);
+
+        if (should_show) {
+            if (destination.second->isRotary()) {
+                destination.second->setIndex(rotary_indices[viewport]);
+                rotary_indices[viewport] = rotary_indices[viewport] + 1;
+            }
+            else {
+                destination.second->setIndex(linear_indices[viewport]);
+                linear_indices[viewport] += destination.second->hasExtraModulationTarget()
+                                      ? SynthSlider::kNumSlots : 1;
+            }
+            setDestinationQuadBounds(destination.second);
+        }
+    }
+
+    for (auto& index_count : rotary_indices) {
+        rotary_destinations_[index_count.first]->setNumQuads(index_count.second);
+        rotary_destinations_[index_count.first]->setAlpha(index_count.second > 0 ? 1.0f : 0.0f);
+    }
+
+    for (auto& index_count : linear_indices) {
+        linear_destinations_[index_count.first]->setNumQuads(index_count.second);
+        linear_destinations_[index_count.first]->setAlpha(index_count.second > 0 ? 1.0f : 0.0f);
+    }
+
+    drag_icon_.setShape(Paths::rightArrow());
+    updateEndpointDestinationVisuals();
+    positionEndpointDragIcon();
+}
+
+juce::String MappingManager::getCurrentSourceName() const {
+    if (current_modulator_ != nullptr)
+        return current_modulator_->getComponentID();
+
+    if (current_source_ != nullptr)
+        return current_source_->getComponentID();
+
+    return {};
 }
 
 void MappingManager::renderOpenGlComponents(OpenGlWrapper& open_gl, bool animate) {

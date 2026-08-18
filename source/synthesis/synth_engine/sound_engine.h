@@ -67,6 +67,8 @@ namespace electrosynth {
         void process(juce::AudioSampleBuffer&,int channels, int samples, int offset);
         void processMappings();
         void processAudioConnections();
+        int getEffectLaneIndex(const juce::String& nodeId) const noexcept;
+        void registerEffectLaneNodeId(int lane, const juce::String& nodeId) noexcept;
         bool connectGraphConnection(const electrosynth::ConnectionRecord& connection);
         bool updateGraphConnection(const electrosynth::ConnectionRecord& connection);
         void disconnectGraphConnection(const juce::String& connectionId);
@@ -199,7 +201,9 @@ namespace electrosynth {
       int buffer_size;
       int curr_sample_rate;
       juce::AudioBuffer<float> temp_voice_buffer{MAX_NUM_VOICES*2,1};
-      std::array<juce::AudioBuffer<float>, 4> temp_fx_buffers;
+        std::array<juce::AudioBuffer<float>, 4> temp_fx_buffers;
+      std::array<juce::AudioBuffer<float>, 3> laneSummedInputs;
+      std::array<juce::String, 3> laneNodeIds {};
       std::array<effect_order::EffectLaneTransition, 3> effectLaneTransitions_;
 
       juce::UndoManager& undo;

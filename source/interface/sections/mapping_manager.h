@@ -233,6 +233,7 @@ class MappingManager : public SynthSection, public ConnectionSlots::Listener, pu
     void connectionClicked(ConnectionButton* source) override;
     bool hasFreeConnection();
     void startDestinationMap(ConnectionButton* source, const juce::MouseEvent& e) override;
+    void startEndpointMap(EndpointArrowComponent* source, const juce::MouseEvent& e);
     void mappingDragged(const juce::MouseEvent& e) override;
     void positionDragIcon();
     void connectionWheelMoved(const juce::MouseEvent& e, const juce::MouseWheelDetails& wheel) override;
@@ -312,6 +313,7 @@ private:
     void clearEndpointDestinationVisuals();
     void positionEndpointDragIcon();
     void drawEndpointDestinations(OpenGlWrapper& openGl);
+    juce::String getCurrentSourceName() const;
 
     electrosynth::ConnectionRecord* findConnectionRecord(const juce::String& connectionId);
     const electrosynth::ConnectionRecord* findConnectionRecord(const juce::String& connectionId) const;
@@ -349,6 +351,7 @@ private:
     static juce::String getEndpointKey(const electrosynth::EndpointAddress& address);
     void unregisterEndpoint(const electrosynth::EndpointAddress& address);
     RegisteredMappingEndpoint* getRegisteredMappingEndpoint(juce::Component* component);
+    RegisteredMappingEndpoint* getRegisteredMappingEndpointRecursive(juce::Component* component);
     bool endpointsAreCompatible(const electrosynth::EndpointAddress& source, const electrosynth::EndpointAddress& destination) const;
     RegisteredMappingEndpoint* findEndpointAt(juce::Point<int> managerPosition);
     bool connectEndpoints(const electrosynth::EndpointAddress& source, const electrosynth::EndpointAddress& destination);
@@ -360,7 +363,7 @@ private:
     std::unique_ptr<juce::Component> destinations_;
     std::map<juce::Viewport*, int> num_rotary_meters;
     std::map<juce::Viewport*, int> num_linear_meters;
-    ConnectionButton* current_source_;
+    EndpointArrowComponent* current_source_;
     ExpandConnectionButton* current_expanded_;
     ConnectionDestination* temporarily_set_destination_;
     SynthSlider* temporarily_set_synth_slider_;
