@@ -33,7 +33,7 @@ struct SoftClipParams : public LEAFParams<_tSoftClipModule >
     chowdsp::GainDBParameter::Ptr inputGain {
         juce::ParameterID{"inputGain" , 100},
         "Input Gain",
-        chowdsp::ParamUtils::createNormalisableRange(-80.0f, 10.f, 0.f),
+        chowdsp::ParamUtils::createNormalisableRange(-10000.0f, 12.f, 0.f),
         0.0f,
         all_params[SoftClipModuleParams::SoftClipInputGain],
         [this](float val)
@@ -72,7 +72,7 @@ struct SoftClipParams : public LEAFParams<_tSoftClipModule >
     chowdsp::GainDBParameter::Ptr outputGain {
         juce::ParameterID{"outputGain", 100},
         "Output Gain",
-        chowdsp::ParamUtils::createNormalisableRange(-80.0f, 10.0f, 0.f),
+        chowdsp::ParamUtils::createNormalisableRange(-10000.0f, 12.0f, 0.f),
         0.0f,
         all_params[SoftClipModuleParams::SoftClipOutputGain],
         [this](float val) {

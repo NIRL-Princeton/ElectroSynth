@@ -11,6 +11,7 @@
 #include "ProcessorBase.h"
 #include "leaf-midi.h"
 #include "sound_engine.h"
+#include "leaf-tables.h"
 
 namespace electrosynth{
     namespace utils
@@ -76,7 +77,7 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
 {
     OscillatorParams(LEAF* leaf) : LEAFParams<_tOscModule>(leaf)
     {
-       add(harmonic, pitchOffset, pitchFine, freqOffset, glide, portaType, shape, harmonicstepped, oscType, amp);
+       add(harmonic, pitchOffset, pitchFine, freqOffset, glide, portaType, shape, harmonicstepped, oscType, gain);
     }
     //add env watch param so that it isnt null
     chowdsp::FloatParameter::Ptr envwatchparam {
@@ -224,20 +225,23 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
     //         //{module->setterFunctions[OscParams::OscType](mod,val);
     //     }
     // };
-
-    chowdsp::GainDBParameter::Ptr amp
+    //float* brug;
+    chowdsp::GainDBParameter::Ptr gain
         {
             juce::ParameterID{"gain" , 100},
             "Gain",
-            chowdsp::ParamUtils::createNormalisableRange(-80.f, 10.f ,0.f),
-            0.f,
-            all_params[OscParams::OscAmpParam],
+            chowdsp::ParamUtils::createNormalisableRange(-10000.f, 12.f ,0.f),
+             0.f,
+            all_params[OscParams::OscGainParam],
             [this]( float val)
             {for (auto mod : modules)
-                tOscModule_setParameter(mod,OscAmpParam,val);
+                tOscModule_setParameter(mod,OscGainParam,val);
+                //printf("Raw Amp: %f\n", val);
 
                 //DBG("amp [0 - 1] " + juce::String(val) + ".. .... amp actual " + juce::String(modules[0]->amp));
-            }
+            },
+            //&chowdsp::ParamUtils::gainValToString,
+            //&chowdsp::ParamUtils::stringToGainVal
         };
 
     chowdsp::BoolParameter::Ptr pitchStepped{

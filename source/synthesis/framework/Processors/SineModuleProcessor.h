@@ -43,7 +43,7 @@ struct SineOscParams : public LEAFParams<_tSineModule >
     {
         juce::ParameterID{"gain" , 100},
         "Gain",
-        chowdsp::ParamUtils::createNormalisableRange(-80.f, 10.f ,0.f),
+        chowdsp::ParamUtils::createNormalisableRange(-10000.f, 12.f ,0.f),
         0.f,
         all_params[SineParams::SineGain],
         [this]( float val)
