@@ -424,6 +424,7 @@ private:
     juce::Component::SafePointer<EndpointArrowComponent> endpoint_drag_source_component_;
     std::optional<electrosynth::EndpointAddress> endpoint_drag_destination_;
     juce::Component::SafePointer<EndpointArrowComponent> endpoint_drag_destination_component_;
+    bool endpoint_drag_bipolar_ = false;
 
     std::vector<electrosynth::ConnectionRecord> connection_records_;
 

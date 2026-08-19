@@ -109,6 +109,11 @@ namespace electrosynth
             laneInput.setSize(MAX_NUM_VOICES * 2, 1);
             laneInput.clear();
         }
+        for (auto& laneBuffer : laneProcessingBuffers)
+        {
+            laneBuffer.setSize(MAX_NUM_VOICES * 2, 1);
+            laneBuffer.clear();
+        }
     }
 
     SoundEngine::~SoundEngine()
@@ -194,6 +199,18 @@ namespace electrosynth
         const auto nodeId = module->getNodeId();
         if (nodeId.isEmpty())
             return;
+
+        if (module->procArray != nullptr)
+        {
+            for (auto* header : *module->procArray)
+            {
+                if (header != nullptr)
+                {
+                    header->previousInput = 0.0f;
+                    header->previousOutput = 0.0f;
+                }
+            }
+        }
 
         moduleRegistry_[nodeId] = module;
     }
@@ -455,7 +472,7 @@ namespace electrosynth
                     auto* dst = destModule->procArray->at(v);
 
                     if (src != nullptr && dst != nullptr)
-                        dst->summedInput += src->outputs[0] * connection.amount;
+                        dst->summedInput += src->previousOutput * connection.amount;
                 }
                 continue;
             }
@@ -471,10 +488,52 @@ namespace electrosynth
                 if (src == nullptr)
                     continue;
 
-                const float sample = src->outputs[0] * connection.amount;
+                const float sample = src->previousOutput * connection.amount;
                 laneInput.addSample(v * 2, 0, sample);
                 laneInput.addSample(v * 2 + 1, 0, sample);
             }
+        }
+    }
+
+    static void commitCurrentOutputs(std::array<ModuleHeader*, MAX_NUM_VOICES>* procArray) noexcept
+    {
+        if (procArray == nullptr)
+            return;
+
+        for (auto* header : *procArray)
+        {
+            if (header != nullptr)
+                header->previousOutput = header->outputs[0];
+        }
+    }
+
+    static void fillBufferFromPreviousOutputs(juce::AudioBuffer<float>& buffer,
+                                              std::array<ModuleHeader*, MAX_NUM_VOICES>* procArray) noexcept
+    {
+        if (procArray == nullptr || buffer.getNumChannels() == 0)
+            return;
+
+        const int numVoices = juce::jmin(buffer.getNumChannels(), static_cast<int>(procArray->size())) / 2;
+        for (int v = 0; v < numVoices; ++v)
+        {
+            auto* header = (*procArray)[static_cast<std::size_t>(v)];
+            if (header == nullptr)
+                continue;
+
+            const int left = v * 2;
+            const int right = left + 1;
+            buffer.setSample(left, 0, header->previousOutput);
+            buffer.setSample(right, 0, header->previousOutput);
+        }
+    }
+
+    static void commitCurrentOutputsForAllModules(
+        const std::map<juce::String, ModuleBase*>& moduleRegistry) noexcept
+    {
+        for (const auto& [_, module] : moduleRegistry)
+        {
+            if (module != nullptr)
+                commitCurrentOutputs(module->procArray);
         }
     }
 
@@ -584,7 +643,9 @@ namespace electrosynth
                     for (auto& modulator : modLane)
                     {
                         if (modulator != nullptr)
+                        {
                             modulator->tick();
+                        }
                     }
                 }
 
@@ -597,19 +658,11 @@ namespace electrosynth
                     for (auto& proc : proc_chain)
                     {
                         if (proc != nullptr)
+                        {
                             proc->processBlock (temp_voice_buffer, empty);
+                            fillBufferFromPreviousOutputs (temp_voice_buffer, proc->procArray);
+                        }
                     }
-                    // //at end of given processor chain
-                    // for ( int v = 0; v < voiceHandler.numVoicesActive; ++v) {
-                    //         // audio_buffer.addSample(0, i, temp_voice_buffer.getSample(v*2, 0));
-                    //         // audio_buffer.addSample(1, i, temp_voice_buffer.getSample(v*2+1, 0));
-                    //     // if (amp_vals->getSample(v*2,0) > 0.f) {
-                    //     //     DBG(amp_vals->getSample(v*2,0));
-                    //     //     DBG(temp_voice_buffer.getSample(v*2,0));
-                    //     // }
-                    //         audio_buffer.addSample(0, i, amp_vals->getSample(v*2, 0) * temp_voice_buffer.getSample(v*2, 0));
-                    //        audio_buffer.addSample(1, i, amp_vals->getSample(v*2+1, 0) * temp_voice_buffer.getSample(v*2+1, 0));
-                    // }
 
                     for (int v = 0; v < voiceHandler.numVoicesActive; ++v)
                     {
@@ -628,7 +681,6 @@ namespace electrosynth
                     //writes out to fx_buffers
                     chainPostGain[chainIndex]->processBlock (temp_voice_buffer, empty);
 
-
                     temp_voice_buffer.clear();
                 }
             }
@@ -643,15 +695,22 @@ namespace electrosynth
             for (auto& fx_lane : effects)
             {
                 const auto laneGain = effectLaneTransitions_[effectLaneIndex].advance();
+                auto& laneBuffer = laneProcessingBuffers[effectLaneIndex];
+                laneBuffer.makeCopyOf(temp_fx_buffers[index]);
                 for (auto& fx : fx_lane)
                 {
-                    if (fx != nullptr) fx->processBlock (temp_fx_buffers[index], empty);
+                    if (fx != nullptr)
+                    {
+                        fx->processBlock (laneBuffer, empty);
+                        fillBufferFromPreviousOutputs(laneBuffer, fx->procArray);
+                    }
                 }
                 for (int v = 0; v < voiceHandler.numVoicesActive; ++v)
                 {
-                    audio_buffer.addSample (0, i, laneGain * temp_fx_buffers[index].getSample (v * 2, 0));
-                    audio_buffer.addSample (1, i, laneGain * temp_fx_buffers[index].getSample (v * 2 + 1, 0));
+                    audio_buffer.addSample (0, i, laneGain * laneBuffer.getSample (v * 2, 0));
+                    audio_buffer.addSample (1, i, laneGain * laneBuffer.getSample (v * 2 + 1, 0));
                 }
+                temp_fx_buffers[index].makeCopyOf(laneBuffer);
                 index++;
                 effectLaneIndex++;
             }
@@ -660,6 +719,8 @@ namespace electrosynth
             {
                 fx.clear();
             }
+
+            commitCurrentOutputsForAllModules(moduleRegistry_);
             // melatonin::printSparklin   e (*amp_vals.get,true);
         }
         // melatonin::printSparkline(audio_buffer, true);

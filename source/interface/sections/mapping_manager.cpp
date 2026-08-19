@@ -502,6 +502,7 @@ void MappingManager::mouseDown(const juce::MouseEvent& event) {
     endpoint_drag_destination_component_ = nullptr;
     endpoint_drag_source_ = endpoint->getEndpoint().address;
     endpoint_drag_source_component_ = endpoint;
+    endpoint_drag_bipolar_ = event.mods.isAnyModifierKeyDown();
 
     const auto& address = endpoint->getEndpoint().address;
 
@@ -583,6 +584,7 @@ void MappingManager::mouseUp(const juce::MouseEvent& event) {
 
         endpoint_drag_source_.reset();
         endpoint_drag_source_component_ = nullptr;
+        endpoint_drag_bipolar_ = false;
         endpoint_drag_destination_.reset();
         endpoint_drag_destination_component_ = nullptr;
         return;
@@ -612,9 +614,16 @@ void MappingManager::mouseUp(const juce::MouseEvent& event) {
         {
             const auto destination_name = slider->getComponentID().toStdString();
             const int destination_slot = findSlotForNewConnection(slider);
+            const bool bipolar = endpoint_drag_bipolar_;
 
             if (destination_slot >= 0 && !isSlotOccupied(destination_name, destination_slot))
             {
+                float percent = slider->valueToProportionOfLength(slider->getValue());
+                float modulation_amount = 1.0f - percent;
+                if (bipolar)
+                    modulation_amount = std::min(modulation_amount, percent) * 2.0f;
+                modulation_amount = std::max(modulation_amount, kDefaultModulationRatio);
+
                 electrosynth::ConnectionRecord record {
                     .id = electrosynth::createConnectionRecordId(),
                     .type = electrosynth::ConnectionType::Modulation,
@@ -630,7 +639,11 @@ void MappingManager::mouseUp(const juce::MouseEvent& event) {
                         .endpointId = juce::String(destination_name),
                         .direction = electrosynth::EndpointDirection::Destination
                     },
-                    .destinationSlot = destination_slot
+                    .destinationSlot = destination_slot,
+                    .amount = modulation_amount,
+                    .bipolar = bipolar,
+                    .bypass = false,
+                    .stereo = false
                 };
 
                 auto* parent = findParentComponentOfClass<SynthGuiInterface>();
@@ -661,6 +674,7 @@ void MappingManager::mouseUp(const juce::MouseEvent& event) {
 
     endpoint_drag_source_.reset();
     endpoint_drag_source_component_ = nullptr;
+    endpoint_drag_bipolar_ = false;
 
     endpoint_drag_destination_.reset();
     endpoint_drag_destination_component_ = nullptr;
@@ -1049,6 +1063,21 @@ void MappingManager::connectionAmountChanged(const ConnectionSlotData& connectio
         });
 
     if (found_audio != connection_records_.end()) {
+        if (isMixedAudioToParameterConnection(*found_audio)) {
+            setConnectionValues(
+                found_audio->source.endpointId.toStdString(),
+                found_audio->destination.endpointId.toStdString(),
+                amount,
+                found_audio->bipolar,
+                found_audio->stereo,
+                found_audio->bypass,
+                found_audio->destinationSlot);
+
+            updateConnectionSlots();
+            updateSlotVisuals();
+            return;
+        }
+
         found_audio->amount = amount;
         if (auto* synth = findParentComponentOfClass<SynthGuiInterface>())
             synth->getSynth()->updateConnection(*found_audio);

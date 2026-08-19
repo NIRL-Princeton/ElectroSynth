@@ -202,6 +202,7 @@ namespace electrosynth {
       int curr_sample_rate;
       juce::AudioBuffer<float> temp_voice_buffer{MAX_NUM_VOICES*2,1};
         std::array<juce::AudioBuffer<float>, 4> temp_fx_buffers;
+      std::array<juce::AudioBuffer<float>, 3> laneProcessingBuffers;
       std::array<juce::AudioBuffer<float>, 3> laneSummedInputs;
       std::array<juce::String, 3> laneNodeIds {};
       std::array<effect_order::EffectLaneTransition, 3> effectLaneTransitions_;
