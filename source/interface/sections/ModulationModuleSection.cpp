@@ -283,13 +283,13 @@ void ModulationModuleSection::handlePopupResult(int result) {
         undo.beginNewTransaction();
         list.appendChild(t,&undo);
     }
-    else if (result == 5)
-    {
-        juce::ValueTree t(IDs::MODULATOR);
-        t.setProperty(IDs::type, "sampHold", nullptr);
-        undo.beginNewTransaction();
-        list.appendChild(t,&undo);
-    }
+    // else if (result == 5)
+    // {
+    //     juce::ValueTree t(IDs::MODULATOR);
+    //     t.setProperty(IDs::type, "sampHold", nullptr);
+    //     undo.beginNewTransaction();
+    //     list.appendChild(t,&undo);
+    // }
 
 }
 
@@ -368,7 +368,7 @@ void ModulationModuleSection::updateTabs() {
         const bool is_lfo = !is_default_tab && module_sections[module_index]->getModulatorType().equalsIgnoreCase("lfo");
         const bool is_perlNos = !is_default_tab && module_sections[module_index]->getModulatorType().equalsIgnoreCase("perlNos");
         const bool is_simpNos = !is_default_tab && module_sections[module_index]->getModulatorType().equalsIgnoreCase("simpNos");
-        const bool is_sampHold = !is_default_tab && module_sections[module_index]->getModulatorType().equalsIgnoreCase("sampHold");
+        //const bool is_sampHold = !is_default_tab && module_sections[module_index]->getModulatorType().equalsIgnoreCase("sampHold");
         const bool selected = is_default_tab ? selected_tab_ == kDefaultTab : module_index == selected_tab_;
         auto color = (Skin::kEnvelopeAccent);
         const auto accent = is_default_tab
@@ -400,10 +400,10 @@ void ModulationModuleSection::updateTabs() {
         {
             label = juce::String("Noise ") + juce::String(number);
         }
-        else if (is_sampHold)
-        {
-            label = juce::String("SampHold ") + juce::String(number);
-        }
+        // else if (is_sampHold)
+        // {
+        //     label = juce::String("SampHold ") + juce::String(number);
+        // }
         tab_buttons_[i]->setText("   " + label);
         tab_buttons_[i]->setToggleState(selected, juce::dontSendNotification);
         tab_buttons_[i]->setColour(Skin::kBody, findColour(Skin::kBody, true));
@@ -462,7 +462,7 @@ PopupItems ModulationModuleSection::createPopupMenu() {
     options.addItem(2, "add LFO" );
     options.addItem(3, "add White Noise");
     options.addItem(4, "add Perlin Noise");
-    options.addItem(5, "add Sample and Hold");
+    //options.addItem(5, "add Sample and Hold");
 
     return options;
 }

@@ -65,7 +65,7 @@ constexpr TypeMap map{
     TypeValuePair<_tSineModule, 11>{},
     TypeValuePair<_tSampleAndHoldModule, 12>{}
 };
-const std::array<std::string, 12> module_strings = { "osc", "filt", "env", "lfo","string","vca", "softclip", "delay", "noise", "simpNos", "perlNos", "sine", "sampHold"};
+const std::array<std::string, 13> module_strings = { "osc", "filt", "env", "lfo","string","vca", "softclip", "delay", "noise", "simpNos", "perlNos", "sine", "sampHold"};
 
 
 #endif //ELECTORSYNTH_MODULE_TYPE_INFO_H
