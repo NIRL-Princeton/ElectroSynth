@@ -283,6 +283,13 @@ void ModulationModuleSection::handlePopupResult(int result) {
         undo.beginNewTransaction();
         list.appendChild(t,&undo);
     }
+    else if (result == 5)
+    {
+        juce::ValueTree t(IDs::MODULATOR);
+        t.setProperty(IDs::type, "sampHold", nullptr);
+        undo.beginNewTransaction();
+        list.appendChild(t,&undo);
+    }
 
 }
 
@@ -359,6 +366,9 @@ void ModulationModuleSection::updateTabs() {
         const int module_index = hasVCATab() ? i - 1 : i;
         const bool is_envelope = !is_default_tab && module_sections[module_index]->getModulatorType().equalsIgnoreCase("env");
         const bool is_lfo = !is_default_tab && module_sections[module_index]->getModulatorType().equalsIgnoreCase("lfo");
+        const bool is_perlNos = !is_default_tab && module_sections[module_index]->getModulatorType().equalsIgnoreCase("perlNos");
+        const bool is_simpNos = !is_default_tab && module_sections[module_index]->getModulatorType().equalsIgnoreCase("simpNos");
+        const bool is_sampHold = !is_default_tab && module_sections[module_index]->getModulatorType().equalsIgnoreCase("sampHold");
         const bool selected = is_default_tab ? selected_tab_ == kDefaultTab : module_index == selected_tab_;
         auto color = (Skin::kEnvelopeAccent);
         const auto accent = is_default_tab
@@ -366,8 +376,34 @@ void ModulationModuleSection::updateTabs() {
                                 : (is_envelope ? ShaderColors::kEnvelopeTextColor : (is_lfo ? ShaderColors::kLfoTextColor : ShaderColors::kNoise));
 
         const int number = is_default_tab ? 0 : (is_envelope ? ++env_number : ++lfo_number);
-        const auto label = is_default_tab ? juce::String("Master")
-                                          : (is_envelope ? juce::String("Env ") : (is_lfo ? juce::String("LFO") : juce::String("Noise") )) + juce::String(number);
+        // const auto label = is_default_tab ? juce::String("Master")
+        //                                   : (is_envelope ? juce::String("Env ")
+        //                                   : (is_lfo ? juce::String("LFO") : juce::String("Noise") )) + juce::String(number);
+        String label;
+        if (is_default_tab)
+        {
+            label = juce::String("Master ") + juce::String(number);
+        }
+        else if (is_envelope)
+        {
+            label = juce::String("Env ") + juce::String(number);
+        }
+        else if (is_lfo)
+        {
+            label = juce::String("LFO ") + juce::String(number);
+        }
+        else if (is_perlNos)
+        {
+            label = juce::String("PerlNos ") + juce::String(number);
+        }
+        else if (is_simpNos)
+        {
+            label = juce::String("Noise ") + juce::String(number);
+        }
+        else if (is_sampHold)
+        {
+            label = juce::String("SampHold ") + juce::String(number);
+        }
         tab_buttons_[i]->setText("   " + label);
         tab_buttons_[i]->setToggleState(selected, juce::dontSendNotification);
         tab_buttons_[i]->setColour(Skin::kBody, findColour(Skin::kBody, true));
@@ -426,6 +462,7 @@ PopupItems ModulationModuleSection::createPopupMenu() {
     options.addItem(2, "add LFO" );
     options.addItem(3, "add White Noise");
     options.addItem(4, "add Perlin Noise");
+    options.addItem(5, "add Sample and Hold");
 
     return options;
 }
@@ -497,6 +534,7 @@ void ModulationModuleSection::moduleAdded(ModulatorBase *newModule) {
     Skin::SectionOverride skin_override = Skin::kNoise;
     if (modulator_type.equalsIgnoreCase("env")) skin_override = Skin::kEnvelope;
     else if (modulator_type.equalsIgnoreCase("lfo")) skin_override = Skin::kLfo;
+    //else if (modulator_type.equalsIgnoreCase("perlNos")) skin_override = Skin::kPerlNos;
 
     module_section->setAreaSkinOverride(skin_override);
 

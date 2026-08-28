@@ -9,6 +9,7 @@
 #include "Modulators/LFOModuleProcessor.h"
 #include "Modulators/PerlinNoiseModuleProcessor.h"
 #include "Modulators/SimpleNoiseModuleProcessor.h"
+#include "Modulators/SampleAndHoldProcessor.h"
 #include "Processors/SineModuleProcessor.h"
 #include "Processors/VCAModuleProcessor.h"
 #include "Node.h"
@@ -31,6 +32,7 @@ ModuleList<T>::ModuleList(SynthBase *synth,const ValueTree& v) : tracktion::engi
         factory.template registerType<NoiseModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*, juce::UndoManager*>("noise");
         factory.template registerType<SineModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*, juce::UndoManager*>("sine");
         factory.template registerType<VCAModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*, juce::UndoManager*>("VCA");
+        factory.template registerType<SampleAndHoldProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*, juce::UndoManager*>("SampleHold");
     }
     else if constexpr (std::is_same_v<T, ModulatorBase>)
     {

@@ -16,7 +16,7 @@
 //
 // } ModuleType;
 // Keep this array in exactly the same order as ModuleType in defs.h.
-const std::array<std::vector<std::string>, 12> paramsAllArray =
+const std::array<std::vector<std::string>, 13> paramsAllArray =
 {
     {
         // oscillator
@@ -146,6 +146,13 @@ const std::array<std::vector<std::string>, 12> paramsAllArray =
             "eventWatch",
             "pitch",
             "gain"
+        },
+
+        // sample and hold
+        {
+            "eventWatch",
+            "duration",
+
         },
     }
 
