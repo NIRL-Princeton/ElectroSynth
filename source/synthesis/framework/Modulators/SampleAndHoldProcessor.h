@@ -73,7 +73,7 @@ struct SampHoldParamHolder : public LEAFParams<_tSampleAndHoldModule>
 //
 // };
 
-class SampleAndHoldProcessor : public ProcessorStateBase<PluginStateImpl_<SampHoldParams>>
+class SampleAndHoldProcessor : public ProcessorStateBase<PluginStateImpl_<SampHoldParamHolder>>
 {
 public:
     SampleAndHoldProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree&, LEAF* leaf,juce::UndoManager*);
@@ -86,7 +86,6 @@ public:
     void releaseResources() override {}
     std::unique_ptr<SynthSection> createEditor() override {
         auto name = state.getProperty(IDs::type).toString() + state.getProperty(IDs::uuid).toString();
-        // Filter can live in either lane: horizontal ParametersView as a sound
         // module, vertical FxModuleTemplateView as an effect module (FX panel).
         if (state.hasType(IDs::SOUNDMODULE))
             return std::make_unique<electrosynth::ParametersView>(state_, state_.params, name);

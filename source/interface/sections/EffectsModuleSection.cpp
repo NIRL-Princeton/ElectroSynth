@@ -29,7 +29,7 @@ juce::String getEffectTypeDisplayName(const juce::String& type) {
         { "filt", "Filter" },
         { "delay", "Delay" },
         { "VCA", "VCA"},
-        {"Sample & Hold", "Sample & Hold"}
+        {"sampHold", "sampHold"}
     };
 
     if (const auto found = display_names.find(type); found != display_names.end())
@@ -264,7 +264,7 @@ void EffectModuleSection::handlePopupResult(int result) {
     }
     else if (result == 4) {
         juce::ValueTree t(IDs::EFFECTMODULE);
-        t.setProperty(IDs::type, "Sample & Hold", nullptr);
+        t.setProperty(IDs::type, "sampHold", nullptr);
         undo.beginNewTransaction();
         list.appendChild(t, &undo);
     }
