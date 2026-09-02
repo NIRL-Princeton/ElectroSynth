@@ -49,8 +49,8 @@ struct SampHoldParamHolder : public LEAFParams<_tSampleAndHoldModule>
     chowdsp::FreqHzParameter::Ptr frequency {
         juce::ParameterID { "frequency", 100 },
         "Frequency",
-        chowdsp::ParamUtils::createNormalisableRange (0.f,20000.0f,4000.f),
-        2.f,
+        chowdsp::ParamUtils::createNormalisableRange (0.f,20000.f,10.f),
+        10.f,
         all_params[SampHoldParams::SampHoldFrequency],
         [this] (float val) {
             for (auto mod: modules) tSampleAndHoldModule_setParameter(mod,SampHoldParams::SampHoldFrequency,val);
