@@ -18,7 +18,7 @@ struct SampHoldParamHolder : public LEAFParams<_tSampleAndHoldModule>
 {
     SampHoldParamHolder(LEAF* leaf) : LEAFParams(leaf)
     {
-        add(threshold, frequency);
+        add(threshold, frequency, durRand, gain, mix);
     }
 
     //add env watch param so that it isnt null
@@ -38,8 +38,8 @@ struct SampHoldParamHolder : public LEAFParams<_tSampleAndHoldModule>
     chowdsp::GainDBParameter::Ptr threshold {
         juce::ParameterID { "threshold", 100 },
         "Threshold",
-        chowdsp::ParamUtils::createNormalisableRange (0.f,4.f,1.f),
-        1.0f,
+        chowdsp::ParamUtils::createNormalisableRange (-10000.f,12.f,0.f),
+        0.0f,
         all_params[SampHoldParams::SampHoldThreshold],
         [this] (float val) {
             for (auto mod: modules) tSampleAndHoldModule_setParameter(mod,SampHoldParams::SampHoldThreshold,val);
@@ -56,22 +56,43 @@ struct SampHoldParamHolder : public LEAFParams<_tSampleAndHoldModule>
             for (auto mod: modules) tSampleAndHoldModule_setParameter(mod,SampHoldParams::SampHoldFrequency,val);
         }
     };
-};
 
-// class SampleAndHoldProcessor: public ModulatorStateBase<PluginStateImpl_<SampHoldParamHolder >>
-// {
-// public:
-//     SampleAndHoldProcessor(electrosynth::SoundEngine* engine,juce::ValueTree&, LEAF* leaf,juce::UndoManager*);
-//     void getNextAudioBlock (const juce::AudioSourceChannelInfo &bufferToFill) override{};
-//     void prepareToPlay (int samplesPerBlock, double sampleRate ) override {}
-//     void releaseResources() override {}
-//     std::unique_ptr<SynthSection> createEditor() override
-//     {
-//         return std::make_unique<electrosynth::ParametersView>(state_, state_.params, state.getProperty(IDs::type).toString() + state.getProperty(IDs::uuid).toString());
-//     }
-//     void process() override;
-//
-// };
+    chowdsp::FloatParameter::Ptr durRand {
+        juce::ParameterID { "durRand", 100 },
+        "DurRand",
+        chowdsp::ParamUtils::createNormalisableRange (0.f,1.0f,.5f),
+        0.f,
+        all_params[SampHoldParams::SampHoldDurRand],
+        [this] (float val) {
+            for (auto mod: modules) tSampleAndHoldModule_setParameter(mod,SampHoldParams::SampHoldDurRand,val);
+        },
+        &chowdsp::ParamUtils::floatValToString,
+        &chowdsp::ParamUtils::stringToFloatVal
+    };
+
+    chowdsp::GainDBParameter::Ptr gain {
+        juce::ParameterID { "gain", 100 },
+        "Gain",
+        chowdsp::ParamUtils::createNormalisableRange (-10000.f,12.f,0.f),
+        0.0f,
+        all_params[SampHoldParams::SampHoldGain],
+        [this] (float val) {
+            for (auto mod: modules) tSampleAndHoldModule_setParameter(mod,SampHoldParams::SampHoldGain,val);
+        }
+    };
+
+    // this is where the knob labeled "Mix" is created
+    chowdsp::PercentParameter::Ptr mix {
+        juce::ParameterID{"mix", 100},
+        "Mix",
+        all_params[SampHoldParams::SampHoldMix],
+        [this](float val)
+        {for (auto mod: modules) tSampleAndHoldModule_setParameter(mod,SampHoldMix,val);
+        },
+        1.f,
+        false
+    };
+};
 
 class SampleAndHoldProcessor : public ProcessorStateBase<PluginStateImpl_<SampHoldParamHolder>>
 {
@@ -92,7 +113,5 @@ public:
         return std::make_unique<electrosynth::FxModuleTemplateView>(state_, state_.params, name);
     }
 };
-
-
 
 #endif // ELECTORSYNTH_SAMPLEANDHOLDPROCESSOR_H

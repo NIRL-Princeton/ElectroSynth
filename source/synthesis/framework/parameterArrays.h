@@ -151,7 +151,10 @@ const std::array<std::vector<std::string>, 13> paramsAllArray =
         // sample and hold
         {
             "eventWatch",
-            "duration",
+            "threshold",
+            "frequency",
+            "durRand",
+               "gain",
 
         },
     }

@@ -223,7 +223,7 @@ target_compile_definitions(LEAF_modules PRIVATE LEAF_USE_DYNAMIC_ALLOCATION=1)
 target_link_libraries("${PROJECT_NAME}" PRIVATE SharedCode)
 
 # IPP support, comment out to disable
-include(PamplejuceIPP)
+#include(PamplejuceIPP)
 
 # Everything related to the tests target
 #include(Tests)
