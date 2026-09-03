@@ -17,6 +17,8 @@ namespace electrosynth {
         juce::String prefix;
         if (source_name.startsWithIgnoreCase("env"))
             prefix = "Env ";
+        else if (source_name.startsWithIgnoreCase("simpleEnv"))
+            prefix = "Simple Env";
         else if (source_name.startsWithIgnoreCase("lfo"))
             prefix = "LFO ";
         else if (source_name.startsWithIgnoreCase("vca") || source_name.containsIgnoreCase("master"))
@@ -283,6 +285,13 @@ void ModulationModuleSection::handlePopupResult(int result) {
         undo.beginNewTransaction();
         list.appendChild(t,&undo);
     }
+    else if (result == 5 )
+    {
+        juce::ValueTree t(IDs::MODULATOR);
+        t.setProperty(IDs::type, "simpleEnv", nullptr);
+        undo.beginNewTransaction();
+        list.appendChild(t,&undo);
+    }
     // else if (result == 5)
     // {
     //     juce::ValueTree t(IDs::MODULATOR);
@@ -365,6 +374,7 @@ void ModulationModuleSection::updateTabs() {
         const bool is_default_tab = hasVCATab() && i == 0;
         const int module_index = hasVCATab() ? i - 1 : i;
         const bool is_envelope = !is_default_tab && module_sections[module_index]->getModulatorType().equalsIgnoreCase("env");
+        const bool is_simpEnv = !is_default_tab && module_sections[module_index]->getModulatorType().equalsIgnoreCase("simpleEnv");
         const bool is_lfo = !is_default_tab && module_sections[module_index]->getModulatorType().equalsIgnoreCase("lfo");
         const bool is_perlNos = !is_default_tab && module_sections[module_index]->getModulatorType().equalsIgnoreCase("perlNos");
         const bool is_simpNos = !is_default_tab && module_sections[module_index]->getModulatorType().equalsIgnoreCase("simpNos");
@@ -399,6 +409,10 @@ void ModulationModuleSection::updateTabs() {
         else if (is_simpNos)
         {
             label = juce::String("Noise ") + juce::String(number);
+        }
+        else if (is_simpEnv)
+        {
+            label = juce::String("Simple Env ") + juce::String(number);
         }
         // else if (is_sampHold)
         // {
@@ -462,6 +476,7 @@ PopupItems ModulationModuleSection::createPopupMenu() {
     options.addItem(2, "add LFO" );
     options.addItem(3, "add White Noise");
     options.addItem(4, "add Perlin Noise");
+    options.addItem(5, "add simple Env");
     //options.addItem(5, "add Sample and Hold");
 
     return options;

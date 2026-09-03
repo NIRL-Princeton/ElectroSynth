@@ -101,6 +101,8 @@ add_library(SharedCode INTERFACE
         source/synthesis/framework/Processors/SineModuleProcessor.h
         source/synthesis/framework/Modulators/SampleAndHoldProcessor.cpp
         source/synthesis/framework/Modulators/SampleAndHoldProcessor.h
+        source/synthesis/framework/Modulators/SimpleEnvModuleProcessor.cpp
+        source/synthesis/framework/Modulators/SimpleEnvModuleProcessor.h
         source/interface/components/endpoint_arrow_component.h
         source/interface/components/endpoint_arrow_component.cpp
         source/interface/components/connection_slots.cpp
