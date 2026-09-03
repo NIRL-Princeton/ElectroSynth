@@ -154,8 +154,9 @@ const std::array<std::vector<std::string>, 13> paramsAllArray =
             "threshold",
             "frequency",
             "durRand",
-               "gain",
-
+            "gain",
+            "mix",
+               "harmonic",
         },
     }
 
