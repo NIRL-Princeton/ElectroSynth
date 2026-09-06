@@ -52,7 +52,7 @@ struct SimpEnvParamHolder : public LEAFParams<_tSimpleEnvModule>
     {
         juce::ParameterID { "attack", 100 },
             "Attack",
-            chowdsp::ParamUtils::createNormalisableRange (0.0f, 20000.0f, 4000.f),
+            chowdsp::ParamUtils::createNormalisableRange (0.005f, 20000.0f, 4000.f),
             0.005f,
             all_params[SimpEnvAttack],
             [this] (float val) {
