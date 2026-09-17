@@ -66,9 +66,9 @@ public:
 
     void presetChangedThroughMidi(juce::File preset) override;
 
-    std::vector<electrosynth::Connection *> getSourceConnections(const std::string &source);
+    std::vector<electrosynth::ConnectionRecord> getSourceConnections(const std::string &source);
 
-    std::vector<electrosynth::Connection *> getDestinationConnections(const std::string &destination);
+    std::vector<electrosynth::ConnectionRecord> getDestinationConnections(const std::string &destination);
 
     electrosynth::Connection *getConnection(const std::string &source, const std::string &destination,
                                                       int destination_slot = -1);
@@ -84,6 +84,8 @@ public:
                            int destination_slot = -1);
 
     bool connect(const electrosynth::ConnectionRecord& connection);
+    bool updateConnection(const electrosynth::ConnectionRecord& connection);
+    bool disconnect(const electrosynth::ConnectionRecord& connection);
 
     void connectModulation(electrosynth::Connection *connection);
 

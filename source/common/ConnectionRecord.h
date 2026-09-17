@@ -59,8 +59,16 @@ namespace electrosynth {
         bool stereo = false;
 
         bool isValid() const noexcept {
-            return id.isNotEmpty() && source.isValid() && destination.isValid() && source.type == type &&
-                destination.type == type && source.direction == EndpointDirection::Source
+            const bool type_matches =
+                (type == ConnectionType::Audio
+                    && source.type == ConnectionType::Audio
+                    && destination.type == ConnectionType::Audio)
+                || (type == ConnectionType::Modulation
+                    && destination.type == ConnectionType::Modulation
+                    && (source.type == ConnectionType::Audio || source.type == ConnectionType::Modulation));
+
+            return id.isNotEmpty() && source.isValid() && destination.isValid() && type_matches
+                && source.direction == EndpointDirection::Source
                 && destination.direction == EndpointDirection::Destination;
         }
     };

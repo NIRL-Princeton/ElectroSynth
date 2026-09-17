@@ -64,15 +64,15 @@ public:
     electrosynth::audio::NodeDescriptor getAudioNodeDescriptor() const noexcept override {
         return electrosynth::audio::makeProcessorDescriptor();
     }
-
-    void getNextAudioBlock (const juce::AudioSourceChannelInfo &bufferToFill) override {}
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
-    void prepareToPlay (int samplesPerBlock, double sampleRate ) override {};
-    void releaseResources() override {}
     std::unique_ptr<SynthSection> createEditor() override
     {
         return std::make_unique<electrosynth::FxModuleTemplateView>(state_, state_.params, state.getProperty(IDs::type).toString() + state.getProperty(IDs::uuid).toString());
     }
+
+    void getNextAudioBlock (const juce::AudioSourceChannelInfo &bufferToFill) override {}
+    void prepareToPlay (int samplesPerBlock, double sampleRate ) override {}
+    void releaseResources() override {}
 };
 
 #endif // ELECTORSYNTH_DELAYMODULEPROCESSOR_H

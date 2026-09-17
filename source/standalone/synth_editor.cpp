@@ -66,9 +66,16 @@ SynthEditor::SynthEditor(bool use_gui) : SynthGuiInterface(this, use_gui) {
   deviceManager.addMidiInputDeviceCallback("", midi_manager_.get());
 
   if (use_gui) {
-    setLookAndFeel(DefaultLookAndFeel::instance());
-    addAndMakeVisible(gui_.get());
-    gui_->reset();
+
+      // callback retrieves current output every time a message is sent
+      gui_->setSelectedMidiOutputProvider([this]() -> juce::MidiOutput* {
+            return deviceManager.getDefaultMidiOutput();
+        });
+
+      setLookAndFeel(DefaultLookAndFeel::instance());
+      addAndMakeVisible(gui_.get());
+      gui_->reset();
+
 
 
     Rectangle<int> total_bounds = Desktop::getInstance().getDisplays().getTotalBounds(true);

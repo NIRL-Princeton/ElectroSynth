@@ -62,7 +62,7 @@ namespace electrosynth
 
 }
 // void sendPresetOverMidi(const leaf::tProcessorPreset7Bit& preset, size_t maxChunkSize, juce::MidiOutput* midi_output);
-void sendPresetOverMidi(const leaf::tMappingPreset7Bit& preset, size_t maxChunkSize, juce::MidiOutput* midi_output);
+void sendPresetOverMidi(const leaf::tMappingPreset7Bit& preset, size_t maxChunkSize, juce::MidiBuffer& midi_buffer);
 class MidiManager : public MidiInputCallback,public tracktion::engine::ValueTreeObjectList<electrosynth::MidiDeviceWrapper> {
 public:
     typedef std::map<int, std::map<std::string, const electrosynth::ValueDetails*>> midi_map;
