@@ -6,9 +6,12 @@
 #include "DelayModuleProcessor.h"
 #include "FilterModuleProcessor.h"
 #include "Modulators/EnvModuleProcessor.h"
+#include "Modulators/SimpleEnvModuleProcessor.h"
+#include "Modulators/ADEnvModuleProcessor.h"
 #include "Modulators/LFOModuleProcessor.h"
 #include "Modulators/PerlinNoiseModuleProcessor.h"
 #include "Modulators/SimpleNoiseModuleProcessor.h"
+#include "Modulators/SampleAndHoldProcessor.h"
 #include "Processors/SineModuleProcessor.h"
 #include "Processors/VCAModuleProcessor.h"
 #include "Node.h"
@@ -31,14 +34,20 @@ ModuleList<T>::ModuleList(SynthBase *synth,const ValueTree& v) : tracktion::engi
         factory.template registerType<NoiseModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*, juce::UndoManager*>("noise");
         factory.template registerType<SineModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*, juce::UndoManager*>("sine");
         factory.template registerType<VCAModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*, juce::UndoManager*>("VCA");
+        factory.template registerType<SampleAndHoldProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*, juce::UndoManager*>("sampHold");
+
     }
     else if constexpr (std::is_same_v<T, ModulatorBase>)
     {
 
         factory.template registerType<EnvModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*,juce::UndoManager*>("env");
+        factory.template registerType<SimpleEnvModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*,juce::UndoManager*>("simpleEnv");
+        factory.template registerType<ADEnvModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*,juce::UndoManager*>("ADEnv");
         factory.template registerType<LFOModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*, juce::UndoManager*>("lfo");
         factory.template registerType<SimpNoiseModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*, juce::UndoManager*>("simpNos");
         factory.template registerType<PerlNoiseModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*, juce::UndoManager*>("perlNos");
+        //factory.template registerType<SampleAndHoldProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*, juce::UndoManager*>("sampHold");
+
 
     }
     tracktion::engine::ValueTreeObjectList<T>::rebuildObjects();

@@ -72,7 +72,7 @@ struct FilterParams : public LEAFParams<_tFiltModule > {
     chowdsp::GainDBParameter::Ptr gain {
         juce::ParameterID{"gain", 100},
         "Gain",
-        chowdsp::ParamUtils::createNormalisableRange(-80.f, 10.0f, 0.0f),
+        chowdsp::ParamUtils::createNormalisableRange(-10000.f, 12.0f, 0.0f),
         0.f,
         all_params[FiltParams::FiltGain],
         [this](float val)
