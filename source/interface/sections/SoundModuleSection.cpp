@@ -398,6 +398,13 @@ void SoundModuleSection::removeModule(ProcessorBase *newModule) {
 void SoundModuleSection::moduleListChanged() {
 }
 
+void SoundModuleSection::moduleOrderChanged() {
+    if (auto* synth = list.getSynth())
+        synth->refreshModuleGraphTopology();
+    resized();
+    redoBackgroundImage();
+}
+
 void SoundModuleSection::mouseEnter (const MouseEvent& event) {
     if (event.eventComponent == add_to_module_button_.get()) {
         showPopupDisplay(

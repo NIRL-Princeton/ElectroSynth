@@ -41,6 +41,7 @@ class SynthGuiInterface;
 template<typename T>
 class BKSamplerSound;
 class EffectList;
+namespace electrosynth { class SoundEngine; }
 
 class SynthBase : public MidiManager::Listener, public juce::ValueTree::Listener, public Timer {
 public:
@@ -166,6 +167,7 @@ public:
     void removeChainRouting(RoutingProcessor *processor);
 
     void addEffect(std::unique_ptr<ProcessorBase> processor, int lane);
+    void refreshModuleGraphTopology();
 
     struct EffectOrderCommand {
         int lane = -1;

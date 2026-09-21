@@ -32,6 +32,7 @@ public:
     void resized() override;
     void removeModule(ProcessorBase* newModule)   override;
     void moduleListChanged() ;
+    void moduleOrderChanged() override;
     void redoBackgroundImage() override;
     std::shared_ptr<OpenGlQuad> footer_body;
     std::shared_ptr<OpenGlQuad> header_body_;

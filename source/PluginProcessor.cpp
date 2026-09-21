@@ -114,32 +114,14 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Midi
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-    // In case we have more outputs than inputs, this code clears any output channels that didn't contain input data,
-    // (because these aren't guaranteed to be empty - they may contain garbage). This is here to avoid people getting
-    // screaming feedback when they first compile a plugin, but obviously you don't need to keep this code if your
-    // algorithm always overwrites all the output channels.
-
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-    // This is the place where you'd normally do the guts of your plugin's audio processing... Make sure to reset
-    // the state if your inner loop is processing the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels interleaved by keeping the same state.
-
-    /*
-     for (int channel = 0; channel < totalNumInputChannels; ++channel) {
-         auto* channelData = buffer.getWritePointer (channel);
-
-         juce::ignoreUnused (channelData);
-         // ..do something to the data...
-     }
-     */
-
     ScopedLock lock(getCriticalSection());
 
-    int num_samples = buffer.getNumSamples();
+    const int num_samples = buffer.getNumSamples();
     int synth_samples = std::min(num_samples, electrosynth::kMaxBufferSize);
-    int num_channels = getTotalNumOutputChannels();
+    const int num_channels = getTotalNumOutputChannels();
     //processModulationChanges();
     MidiBuffer midi_messages;
     midi_manager_->removeNextBlockOfMessages(midi_messages, num_samples);
@@ -148,13 +130,13 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Midi
     //double sample_time = 1.0 / getSampleRate();
     double sample_time = 1.0 / AudioProcessor::getSampleRate();
     for (int sample_offset = 0; sample_offset < num_samples;) {
-        int num_samples = std::min<int>(num_samples - sample_offset, electrosynth::kMaxBufferSize);
+        const int samplesToProcess = std::min<int>(samplesToProcess - sample_offset, electrosynth::kMaxBufferSize);
 
         //engine_->correctToTime(current_time_);
 
-        processMidi(midi_messages, sample_offset, num_samples+ sample_offset);
-        processAudio(&buffer, num_channels, num_samples, sample_offset);
-        sample_offset += num_samples;
+        processMidi(midi_messages, sample_offset, samplesToProcess+ sample_offset);
+        processAudio(&buffer, num_channels, samplesToProcess, sample_offset);
+        sample_offset += samplesToProcess;
         //current_time_ += current_samples * sample_time;
     }
 }

@@ -114,6 +114,11 @@ namespace electrosynth
             laneBuffer.setSize(MAX_NUM_VOICES * 2, 1);
             laneBuffer.clear();
         }
+        for (auto& chainPostGainBuffer : chainPostGainBuffers)
+        {
+            chainPostGainBuffer.setSize(MAX_NUM_VOICES * 2, 1);
+            chainPostGainBuffer.clear();
+        }
     }
 
     SoundEngine::~SoundEngine()
@@ -213,6 +218,8 @@ namespace electrosynth
         }
 
         moduleRegistry_[nodeId] = module;
+        if (moduleGraph_ != nullptr)
+            moduleGraph_->registerNode(nodeId, module, ModuleGraph::NodeKind::AudioModule);
     }
 
     void SoundEngine::registerEffectLaneNodeId(int lane, const juce::String& nodeId) noexcept
@@ -221,6 +228,77 @@ namespace electrosynth
             return;
 
         laneNodeIds[static_cast<std::size_t>(lane)] = nodeId;
+        if (moduleGraph_ != nullptr)
+            moduleGraph_->registerNode(nodeId, nullptr, ModuleGraph::NodeKind::LaneHeader, lane, 0);
+    }
+
+    void SoundEngine::registerModulePlacement(ModuleBase* module,
+                                              ModuleGraph::NodeKind kind,
+                                              int groupIndex,
+                                              int orderIndex)
+    {
+        if (module == nullptr || moduleGraph_ == nullptr)
+            return;
+
+        const auto nodeId = module->getNodeId();
+        if (nodeId.isEmpty())
+            return;
+
+        moduleGraph_->registerNode(nodeId, module, kind, groupIndex, orderIndex);
+    }
+
+    void SoundEngine::refreshModuleGraphTopology()
+    {
+        if (moduleGraph_ == nullptr)
+            return;
+
+        for (std::size_t chainIndex = 0; chainIndex < processors.size(); ++chainIndex)
+        {
+            auto& chain = processors[chainIndex];
+            for (std::size_t orderIndex = 0; orderIndex < chain.size(); ++orderIndex)
+            {
+                if (auto* module = chain[orderIndex].get())
+                    moduleGraph_->registerNode(module->getNodeId(), module,
+                        ModuleGraph::NodeKind::AudioModule,
+                        static_cast<int>(chainIndex),
+                        static_cast<int>(orderIndex));
+            }
+        }
+
+        for (std::size_t laneIndex = 0; laneIndex < effects.size(); ++laneIndex)
+        {
+            auto& lane = effects[laneIndex];
+            for (std::size_t orderIndex = 0; orderIndex < lane.size(); ++orderIndex)
+            {
+                if (auto* module = lane[orderIndex].get())
+                    moduleGraph_->registerNode(module->getNodeId(), module,
+                        ModuleGraph::NodeKind::AudioModule,
+                        static_cast<int>(laneIndex),
+                        static_cast<int>(orderIndex));
+            }
+        }
+
+        for (std::size_t laneIndex = 0; laneIndex < modSources.size(); ++laneIndex)
+        {
+            auto& lane = modSources[laneIndex];
+            for (std::size_t orderIndex = 0; orderIndex < lane.size(); ++orderIndex)
+            {
+                if (auto* module = lane[orderIndex].get())
+                    moduleGraph_->registerNode(module->getNodeId(), module,
+                        ModuleGraph::NodeKind::Modulator,
+                        static_cast<int>(laneIndex),
+                        static_cast<int>(orderIndex));
+            }
+        }
+
+        for (std::size_t laneIndex = 0; laneIndex < laneNodeIds.size(); ++laneIndex)
+        {
+            const auto& nodeId = laneNodeIds[laneIndex];
+            if (nodeId.isNotEmpty())
+                moduleGraph_->registerNode(nodeId, nullptr,
+                    ModuleGraph::NodeKind::LaneHeader,
+                    static_cast<int>(laneIndex), 0);
+        }
     }
 
     void SoundEngine::unregisterModule(ModuleBase* module)
@@ -235,6 +313,8 @@ namespace electrosynth
         auto it = moduleRegistry_.find(nodeId);
         if (it != moduleRegistry_.end() && it->second == module)
             moduleRegistry_.erase(it);
+        if (moduleGraph_ != nullptr)
+            moduleGraph_->unregisterNode(nodeId);
     }
 
     ModuleBase* SoundEngine::getModuleByNodeId(const juce::String& nodeId) const
@@ -630,6 +710,7 @@ namespace electrosynth
             }
             {
                 juce::ScopedLock sl (myCoolLock);
+                // we're ticking master envelope first
                 auto amp_vals = MasterVoiceEnvelopeProcessor->processMasterEnvelope();
 
                 processMappings();
@@ -638,6 +719,7 @@ namespace electrosynth
                 for (std::size_t lane = 0; lane < laneSummedInputs.size(); ++lane)
                     flushLaneInputToBuffer(laneSummedInputs[lane], temp_fx_buffers[lane + 1]);
 
+                // actually tick modulators
                 for (auto& modLane : modSources)
                 {
                     for (auto& modulator : modLane)
@@ -660,6 +742,7 @@ namespace electrosynth
                         if (proc != nullptr)
                         {
                             proc->processBlock (temp_voice_buffer, empty);
+                            // is procArray really previous output or current output?
                             fillBufferFromPreviousOutputs (temp_voice_buffer, proc->procArray);
                         }
                     }
@@ -679,7 +762,9 @@ namespace electrosynth
                             amp_vals->getSample (v * 2 + 1, 0) * temp_voice_buffer.getSample (v * 2 + 1, 0));
                     }
                     //writes out to fx_buffers
-                    chainPostGain[chainIndex]->processBlock (temp_voice_buffer, empty);
+                    auto& chainPostInputBuffer = chainPostGainBuffers[static_cast<std::size_t>(chainIndex)];
+                    chainPostGain[chainIndex]->processBlock (chainPostInputBuffer, empty);
+                    chainPostInputBuffer.makeCopyOf (temp_voice_buffer);
 
                     temp_voice_buffer.clear();
                 }
@@ -1127,8 +1212,8 @@ namespace electrosynth
             auto* destValue = destinationModule->params[state.destinationParamIndex];
             if (destValue == nullptr)
                 continue;
-
-                tMappingAdd_ (voice_mapping,
+            tMappingAdd_(
+                voice_mapping,
                 &sourceModule->outputs[0],
                 sourceModule->uniqueID,
                 destValue,
@@ -1137,7 +1222,8 @@ namespace electrosynth
                 state.destinationParamIndex,
                 destinationModule,
                 &leaf,
-                &state.scalingValue);
+                &state.scalingValue
+            );
         }
 
         DBG ("added new modulation");

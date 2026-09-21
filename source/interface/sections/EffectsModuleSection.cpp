@@ -1253,6 +1253,8 @@ void EffectModuleSection::moduleOrderChanged() {
                              return parent.indexOf(a->state) < parent.indexOf(b->state);
                          });
     }
+    if (auto* synth = list.getSynth())
+        synth->refreshModuleGraphTopology();
     setEffectPositions();
     redoBackgroundImage();
 }

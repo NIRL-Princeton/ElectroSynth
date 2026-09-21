@@ -31,6 +31,7 @@
 class RoutingProcessor;
 class ProcessorBase;
 class ModulatorBase;
+class ModuleBase;
 class EnvModuleProcessor;
 #include "leaf-midi.h"
 namespace electrosynth {
@@ -67,8 +68,10 @@ namespace electrosynth {
         void process(juce::AudioSampleBuffer&,int channels, int samples, int offset);
         void processMappings();
         void processAudioConnections();
+        void refreshModuleGraphTopology();
         int getEffectLaneIndex(const juce::String& nodeId) const noexcept;
         void registerEffectLaneNodeId(int lane, const juce::String& nodeId) noexcept;
+        void registerModulePlacement(ModuleBase* module, ModuleGraph::NodeKind kind, int groupIndex, int orderIndex);
         bool connectGraphConnection(const electrosynth::ConnectionRecord& connection);
         bool updateGraphConnection(const electrosynth::ConnectionRecord& connection);
         void disconnectGraphConnection(const juce::String& connectionId);
@@ -157,6 +160,7 @@ namespace electrosynth {
         std::pair<  std::array<ModuleHeader*, MAX_NUM_VOICES>* , int> getParameterInfo(const std::string&);
         std::vector<std::vector<std::unique_ptr<ProcessorBase>>> processors;
         std::vector<std::unique_ptr<RoutingProcessor>> chainPostGain;
+        std::array<juce::AudioBuffer<float>, 10> chainPostGainBuffers;
         std::vector<leaf::tAudioRouting*> chain_to_lane_routings;
         std::vector<std::unique_ptr<RoutingProcessor>> effectPreGain;
         std::array<std::vector<std::unique_ptr<ProcessorBase>>,3> effects;

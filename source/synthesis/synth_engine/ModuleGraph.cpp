@@ -10,6 +10,98 @@
 
 namespace electrosynth
 {
+    void ModuleGraph::registerNode(const juce::String& nodeId,
+                                   ModuleBase* module,
+                                   NodeKind kind,
+                                   int groupIndex,
+                                   int orderIndex)
+    {
+        if (nodeId.isEmpty())
+            return;
+
+        auto& record = nodes_[nodeId];
+        if (module != nullptr)
+            record.module = module;
+        if (kind != NodeKind::Unknown || record.kind == NodeKind::Unknown)
+            record.kind = kind;
+        if (groupIndex >= 0)
+            record.groupIndex = groupIndex;
+        if (orderIndex >= 0)
+            record.orderIndex = orderIndex;
+    }
+
+    void ModuleGraph::unregisterNode(const juce::String& nodeId)
+    {
+        if (nodeId.isEmpty())
+            return;
+
+        nodes_.erase(nodeId);
+    }
+
+    void ModuleGraph::setNodeKind(const juce::String& nodeId, NodeKind kind)
+    {
+        if (nodeId.isEmpty())
+            return;
+
+        auto& record = nodes_[nodeId];
+        record.kind = kind;
+    }
+
+    void ModuleGraph::setNodePlacement(const juce::String& nodeId, int groupIndex, int orderIndex)
+    {
+        if (nodeId.isEmpty())
+            return;
+
+        auto& record = nodes_[nodeId];
+        record.groupIndex = groupIndex;
+        record.orderIndex = orderIndex;
+    }
+
+    bool ModuleGraph::hasNode(const juce::String& nodeId) const
+    {
+        return nodeId.isNotEmpty() && nodes_.find(nodeId) != nodes_.end();
+    }
+
+    const ModuleGraph::NodeRecord* ModuleGraph::getNode(const juce::String& nodeId) const
+    {
+        if (nodeId.isEmpty())
+            return nullptr;
+
+        const auto it = nodes_.find(nodeId);
+        return it != nodes_.end() ? &it->second : nullptr;
+    }
+
+    std::vector<juce::String> ModuleGraph::getNodeIds(NodeKind kind, int groupIndex) const
+    {
+        std::vector<std::pair<int, juce::String>> ordered;
+        ordered.reserve(nodes_.size());
+
+        for (const auto& [nodeId, record] : nodes_)
+        {
+            if (record.kind != kind)
+                continue;
+            if (groupIndex >= 0 && record.groupIndex != groupIndex)
+                continue;
+
+            ordered.emplace_back(record.orderIndex, nodeId);
+        }
+
+        std::sort(ordered.begin(), ordered.end(),
+            [] (const auto& lhs, const auto& rhs)
+            {
+                if (lhs.first != rhs.first)
+                    return lhs.first < rhs.first;
+                return lhs.second < rhs.second;
+            });
+
+        std::vector<juce::String> nodeIds;
+        nodeIds.reserve(ordered.size());
+        for (const auto& [_, nodeId] : ordered)
+            nodeIds.push_back(nodeId);
+
+        return nodeIds;
+    }
+
     bool ModuleGraph::connect(const electrosynth::ConnectionRecord& connection)
     {
         if (!connection.isValid())
@@ -72,7 +164,35 @@ namespace electrosynth
         };
 
         juce::String out;
-        out << "ModuleGraph: " << juce::String(static_cast<int>(connections_.size())) << " connection(s)\n";
+        out << "ModuleGraph: " << juce::String(static_cast<int>(nodes_.size())) << " node(s), "
+            << juce::String(static_cast<int>(connections_.size())) << " connection(s)\n";
+
+        if (!nodes_.empty())
+        {
+            out << "  Nodes:\n";
+            for (const auto& [nodeId, record] : nodes_)
+            {
+                auto kindToString = [] (NodeKind kind)
+                {
+                    switch (kind)
+                    {
+                        case NodeKind::Unknown: return "unknown";
+                        case NodeKind::AudioModule: return "module";
+                        case NodeKind::LaneHeader: return "lane";
+                        case NodeKind::Modulator: return "mod";
+                    }
+                    return "unknown";
+                };
+
+                out << "    " << labelForId(nodeId)
+                    << " kind=" << kindToString(record.kind)
+                    << " group=" << juce::String(record.groupIndex)
+                    << " order=" << juce::String(record.orderIndex);
+                if (record.module != nullptr)
+                    out << " module=1";
+                out << "\n";
+            }
+        }
 
         if (connections_.empty())
         {

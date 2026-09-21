@@ -326,6 +326,10 @@ void SynthBase::addChainRouting(std::unique_ptr<RoutingProcessor> processor, int
     engine_->registerModule(processor.get());
 
     engine_->chainPostGain[chain_index]=std::move(processor);
+    engine_->registerModulePlacement(engine_->chainPostGain[chain_index].get(),
+                                     electrosynth::ModuleGraph::NodeKind::AudioModule,
+                                     chain_index,
+                                     0);
 }
 void SynthBase::addProcessor(std::unique_ptr<ProcessorBase> processor, int chain_index) {
     processor->prepareToPlay(engine_->getSampleRate(), engine_->getBufferSize());
@@ -340,6 +344,10 @@ void SynthBase::addProcessor(std::unique_ptr<ProcessorBase> processor, int chain
     engine_->voiceHandler.eventEmitter.numListeners++;
     engine_->registerModule(processor.get());
     engine_->processors[chain_index].push_back(std::move(processor));
+    engine_->registerModulePlacement(engine_->processors[chain_index].back().get(),
+                                     electrosynth::ModuleGraph::NodeKind::AudioModule,
+                                     chain_index,
+                                     static_cast<int>(engine_->processors[chain_index].size() - 1));
 }
 void SynthBase::addEffect(std::unique_ptr<ProcessorBase> processor, int lane) {
     processor->prepareToPlay(engine_->getSampleRate(), engine_->getBufferSize());
@@ -354,6 +362,10 @@ void SynthBase::addEffect(std::unique_ptr<ProcessorBase> processor, int lane) {
     engine_->voiceHandler.eventEmitter.numListeners++;
     engine_->registerModule(processor.get());
     engine_->effects[lane].push_back(std::move(processor));
+    engine_->registerModulePlacement(engine_->effects[lane].back().get(),
+                                     electrosynth::ModuleGraph::NodeKind::AudioModule,
+                                     lane,
+                                     static_cast<int>(engine_->effects[lane].size() - 1));
 }
 
 void SynthBase::submitEffectOrder(int lane, ProcessorBase* movedProcessor, ProcessorBase* nextProcessor) {
@@ -445,12 +457,18 @@ bool SynthBase::applyEffectOrderCommand(const EffectOrderCommand& command) {
         auto ownedProcessor = std::move(*moved);
         effectLane.erase(moved);
         targetLane.insert(insertion, std::move(ownedProcessor));
+        engine_->refreshModuleGraphTopology();
         return true;
     }
 
-    return electrosynth::effect_order::placeBefore(
+    const bool applied = electrosynth::effect_order::placeBefore(
                effectLane, command.movedProcessor, command.nextProcessor)
            == electrosynth::effect_order::PlacementResult::applied;
+
+    if (applied)
+        engine_->refreshModuleGraphTopology();
+
+    return applied;
 }
 
 void SynthBase::completeEffectOrderCommand(const EffectOrderCommand& command) {
@@ -529,6 +547,10 @@ void SynthBase::addModulationSource(std::unique_ptr<ModulatorBase> modulationSou
     engine_->voiceHandler.eventEmitter.numListeners++;
     engine_->registerModule(modulationSource.get());
     engine_->modSources[voice_index].push_back(std::move(modulationSource));
+    engine_->registerModulePlacement(engine_->modSources[voice_index].back().get(),
+                                     electrosynth::ModuleGraph::NodeKind::Modulator,
+                                     voice_index,
+                                     static_cast<int>(engine_->modSources[voice_index].size() - 1));
 }
 
 bool SynthBase::loadFromValueTree(const ValueTree &state) {
@@ -609,6 +631,11 @@ bool SynthBase::saveToActiveFile() {
     return saveToFile(active_file_);
 }
 
+void SynthBase::refreshModuleGraphTopology() {
+    if (engine_ != nullptr)
+        engine_->refreshModuleGraphTopology();
+}
+
 
 void SynthBase::processAudio(AudioSampleBuffer *buffer, int channels, int samples, int offset) {
     AudioThreadAction action;
@@ -628,9 +655,7 @@ void SynthBase::processAudioAndMidi(juce::AudioBuffer<float> &audio_buffer, juce
         action();
     drainEffectOrderQueue();
     processMappingChanges();
-
     engine_->process(audio_buffer, midi_buffer);
-
     //melatonin::printSparkline(audio_buffer);
 }
 

@@ -34,6 +34,7 @@ public:
 
 
     ModuleList(SynthBase* synth,const ValueTree& );
+    SynthBase* getSynth() const { return synth_; }
 
 
     void appendChild (const ValueTree& child, UndoManager* undoManager)
