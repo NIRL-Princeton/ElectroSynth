@@ -140,7 +140,7 @@ public:
         return electrosynth::audio::makeProcessorDescriptor();
     }
     void getNextAudioBlock (const juce::AudioSourceChannelInfo &bufferToFill) override {}
-    void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
+    void process () override;
     void prepareToPlay (int samplesPerBlock, double sampleRate ) override {
         // filterTransitionSamples_ = juce::jmax(
         //     1, juce::roundToInt(sampleRate * kFilterTypeTransitionSeconds));

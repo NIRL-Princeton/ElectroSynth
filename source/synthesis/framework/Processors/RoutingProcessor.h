@@ -72,6 +72,8 @@ class RoutingProcessor : public ProcessorStateBase<PluginStateImpl_<RoutingParam
     void getNextAudioBlock(const juce::AudioSourceChannelInfo &bufferToFill) override {
     }
 
+    void process() override {};
+
     void processBlock(juce::AudioBuffer<float> &, juce::MidiBuffer &);
 
     void prepareToPlay(int samplesPerBlock, double sampleRate) override {

@@ -8,13 +8,17 @@
 #include <sstream>
 #include <unordered_map>
 
+#include "ModuleBase.h"
+
 namespace electrosynth
 {
     void ModuleGraph::registerNode(const juce::String& nodeId,
                                    ModuleBase* module,
                                    NodeKind kind,
                                    int groupIndex,
-                                   int orderIndex)
+                                   int orderIndex,
+                                   bool inLane,
+                                   bool inProcessorChain)
     {
         if (nodeId.isEmpty())
             return;
@@ -28,6 +32,8 @@ namespace electrosynth
             record.groupIndex = groupIndex;
         if (orderIndex >= 0)
             record.orderIndex = orderIndex;
+        record.inLane = inLane;
+        record.inProcessorChain = inProcessorChain;
     }
 
     void ModuleGraph::unregisterNode(const juce::String& nodeId)
@@ -47,7 +53,11 @@ namespace electrosynth
         record.kind = kind;
     }
 
-    void ModuleGraph::setNodePlacement(const juce::String& nodeId, int groupIndex, int orderIndex)
+    void ModuleGraph::setNodePlacement(const juce::String& nodeId,
+                                       int groupIndex,
+                                       int orderIndex,
+                                       bool inLane,
+                                       bool inProcessorChain)
     {
         if (nodeId.isEmpty())
             return;
@@ -55,6 +65,17 @@ namespace electrosynth
         auto& record = nodes_[nodeId];
         record.groupIndex = groupIndex;
         record.orderIndex = orderIndex;
+        record.inLane = inLane;
+        record.inProcessorChain = inProcessorChain;
+    }
+
+    void ModuleGraph::setNodeTerminal(const juce::String& nodeId, bool terminal)
+    {
+        if (nodeId.isEmpty())
+            return;
+
+        auto& record = nodes_[nodeId];
+        record.terminal = terminal;
     }
 
     bool ModuleGraph::hasNode(const juce::String& nodeId) const
@@ -150,26 +171,33 @@ namespace electrosynth
             connections_.end());
     }
 
-    juce::String ModuleGraph::toDebugString(const std::function<juce::String(const juce::String&)>& nodeLabelForId) const
+    juce::String ModuleGraph::toDebugString() const
     {
-        const auto labelForId = [&nodeLabelForId](const juce::String& nodeId)
+        const auto labelForId = [this](const juce::String& nodeId)
         {
-            if (nodeLabelForId)
+            if (const auto* node = getNode(nodeId))
             {
-                auto label = nodeLabelForId(nodeId);
-                if (label.isNotEmpty())
-                    return label;
+                if (node->module != nullptr)
+                {
+                    const auto displayName = node->module->getDisplayName();
+                    if (displayName.isNotEmpty())
+                        return displayName;
+
+                    const auto typeName = node->module->state.getProperty(IDs::type).toString();
+                    if (typeName.isNotEmpty())
+                        return typeName;
+                }
             }
+
             return nodeId;
         };
 
         juce::String out;
         out << "ModuleGraph: " << juce::String(static_cast<int>(nodes_.size())) << " node(s), "
-            << juce::String(static_cast<int>(connections_.size())) << " connection(s)\n";
+            << juce::String(static_cast<int>(connections_.size())) << " cross connection(s)\n";
 
         if (!nodes_.empty())
         {
-            out << "  Nodes:\n";
             for (const auto& [nodeId, record] : nodes_)
             {
                 auto kindToString = [] (NodeKind kind)
@@ -178,7 +206,6 @@ namespace electrosynth
                     {
                         case NodeKind::Unknown: return "unknown";
                         case NodeKind::AudioModule: return "module";
-                        case NodeKind::LaneHeader: return "lane";
                         case NodeKind::Modulator: return "mod";
                     }
                     return "unknown";
@@ -186,19 +213,24 @@ namespace electrosynth
 
                 out << "    " << labelForId(nodeId)
                     << " kind=" << kindToString(record.kind)
+                    << " inLane=" << (record.inLane ? "yes" : "no")
+                    << " inProcessorChain=" << (record.inProcessorChain ? "yes" : "no")
+                    << " terminal=" << (record.terminal ? "yes" : "no")
                     << " group=" << juce::String(record.groupIndex)
                     << " order=" << juce::String(record.orderIndex);
                 if (record.module != nullptr)
-                    out << " module=1";
+                    out << " display=\"" << record.module->getDisplayName() << "\"";
                 out << "\n";
             }
         }
 
         if (connections_.empty())
         {
-            out << "  <empty>\n";
+            out << "No cross connections...\n";
             return out;
         }
+
+        out << "Cross connections:\n";
 
         std::unordered_map<std::string, int> outgoingCounts;
         std::unordered_map<std::string, int> incomingCounts;
@@ -220,19 +252,21 @@ namespace electrosynth
 
         for (const auto& connection : connections_)
         {
-            out << "  [" << connectionTypeToString(connection.type) << "] "
-                << connection.id << "  "
+                out << "    [" << connectionTypeToString(connection.type) << "] "
+                // << connection.id << "  "
                 << labelForId(connection.source.nodeId) << ":" << connection.source.endpointId << " -> "
                 << labelForId(connection.destination.nodeId) << ":" << connection.destination.endpointId
                 << "  slot=" << juce::String(connection.destinationSlot)
                 << "  amount=" << juce::String(connection.amount, 4)
-                << "  flags="
-                << (connection.bypass ? "b" : "-")
-                << (connection.bipolar ? "p" : "-")
-                << (connection.stereo ? "s" : "-")
+                << "  bypass=" << (connection.bypass ? "Y" : "N")
+                << "  bipolar=" << (connection.bipolar ? "Y" : "N")
+                << "  stereo=" << (connection.stereo ? "Y" : "N")
+                << "  topology=" << (connection.topologyDerived ? "Y" : "N")
                 << "\n";
         }
 
+
+        /*
         out << "  Node summary:\n";
         for (const auto& [node, count] : outgoingCounts)
         {
@@ -245,16 +279,16 @@ namespace electrosynth
             if (outgoingCounts.find(node) == outgoingCounts.end())
                 out << "    " << labelForId(juce::String(node)) << ": out=0 in=" << juce::String(count) << "\n";
         }
+        */
 
         return out;
     }
 
-    void ModuleGraph::debugPrint(const juce::String& header,
-                                 const std::function<juce::String(const juce::String&)>& nodeLabelForId) const
+    void ModuleGraph::debugPrint(const juce::String& header) const
     {
         if (header.isNotEmpty())
             DBG(header);
-        DBG(toDebugString(nodeLabelForId));
+        DBG(toDebugString());
     }
 
     std::vector<ConnectionRecord> ModuleGraph::getIncoming(const juce::String& nodeId) const

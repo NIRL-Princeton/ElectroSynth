@@ -173,19 +173,11 @@ namespace tracktion { inline namespace engine
 
             void valueTreeChildRemoved (juce::ValueTree& exParent, juce::ValueTree& tree, int) override
             {
-                DBG(tree.toXmlString());
-                if (parent == exParent)
-                    DBG("isexparent true");
-                if (isSuitableType (tree))
-                    DBG("issuitabvle type");
                 if (parent == exParent && isSuitableType (tree))
                 {
-                    DBG("toremove");
                     auto oldIndex = indexOf (tree);
-                    DBG("oldindex");
                     if (oldIndex >= 0)
                     {
-                        DBG("removeee");
                         ObjectType* o;
 
                         {
@@ -197,8 +189,6 @@ namespace tracktion { inline namespace engine
                         deleteObject (o);
                     } else
                     {
-                        DBG("removeeeindex < 0");
-
                     }
 
                 }

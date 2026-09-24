@@ -20,7 +20,11 @@ public:
 
     ~ProcessorBase() override = default;
 
-    virtual void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) = 0;
+    void tick() override {
+        process();
+    }
+
+    virtual void process() = 0;
     virtual electrosynth::audio::NodeDescriptor getAudioNodeDescriptor() const noexcept = 0; // expose AudioNode
     virtual void getStateInformation (MemoryBlock &destData)=0;
     virtual void setStateInformation (const void *data, int sizeInBytes)=0;

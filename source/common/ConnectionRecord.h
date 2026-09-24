@@ -52,6 +52,7 @@ namespace electrosynth {
         EndpointAddress source;
         EndpointAddress destination;
         int destinationSlot = -1;   // which visual slot does this connection occupy?
+        bool topologyDerived = false; // implicit edge generated from module ordering / routing
 
         float amount = 1.0f; // persistent states for connection, not UI
         bool bipolar = false;

@@ -32,11 +32,9 @@ struct MasterVoiceParams :  chowdsp::ParamHolder
 {
     MasterVoiceParams(LEAF* leaf) : chowdsp::ParamHolder("MasterVoice" ),env(leaf)
     {
-
+        add(env);
     }
     EnvParamHolder env;
-
-
 };
 
 
@@ -52,7 +50,7 @@ public:
     }
 
     void getNextAudioBlock (const juce::AudioSourceChannelInfo &bufferToFill) override {}
-    void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
+    void process() override {};
     void prepareToPlay (int samplesPerBlock, double sampleRate ) override {};
     void releaseResources() override {}
     //void processAudioBlock (juce::AudioBuffer<float>& buffer) override {};

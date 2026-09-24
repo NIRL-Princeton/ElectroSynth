@@ -220,6 +220,7 @@ public:
     void disconnectModulationsForDestinationProcessor(const std::string& processor_name);
 
     void processMappingChanges();
+    void refreshModuleGraphTopologyIfNeeded();
 
     int getNumModulations(const std::string &destination);
 
@@ -229,6 +230,7 @@ private:
     static constexpr std::size_t kEffectOrderQueueCapacity = 64;
 
     void drainEffectOrderQueue();
+    void drainProcessorInitQueue();
     void completeEffectOrderCommand(const EffectOrderCommand& command);
     bool applyEffectOrderCommand(const EffectOrderCommand& command);
     void flushPendingEffectOrderCommands();
@@ -243,6 +245,7 @@ private:
     std::atomic<std::uint64_t> lastAdoptedEffectOrderGeneration_{0};
     std::atomic<std::uint64_t> rejectedEffectOrderCommandCount_{0};
     std::atomic<bool> effectOrderReconciliationRequested_{false};
+    bool moduleGraphTopologyDirty_ = false;
 
 public:
 

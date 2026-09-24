@@ -69,13 +69,21 @@ namespace electrosynth {
         void processMappings();
         void processAudioConnections();
         void refreshModuleGraphTopology();
+        void mixOutputFromTerminalModules(juce::AudioSampleBuffer& audio_buffer, juce::AudioBuffer<float>& masterEnvelope, int i) const;
+        void debugPrintTerminalAudioModules(const juce::String& header = {}) const;
         int getEffectLaneIndex(const juce::String& nodeId) const noexcept;
         void registerEffectLaneNodeId(int lane, const juce::String& nodeId) noexcept;
-        void registerModulePlacement(ModuleBase* module, ModuleGraph::NodeKind kind, int groupIndex, int orderIndex);
+        void registerModulePlacement(ModuleBase* module,
+                                     ModuleGraph::NodeKind kind,
+                                     int groupIndex,
+                                     int orderIndex,
+                                     bool inLane = false,
+                                     bool inProcessorChain = false);
         bool connectGraphConnection(const electrosynth::ConnectionRecord& connection);
         bool updateGraphConnection(const electrosynth::ConnectionRecord& connection);
         void disconnectGraphConnection(const juce::String& connectionId);
         const std::vector<electrosynth::ConnectionRecord>& getConnections() const noexcept { return moduleGraph_->getConnections(); }
+        const std::vector<ModuleBase*>& getTerminalModules() const noexcept { return terminalAudioModules_; }
         void releaseResources() {
         }
 
@@ -168,6 +176,7 @@ namespace electrosynth {
         void beginEffectLaneFadeIn(int lane) noexcept;
         bool isEffectLaneSilent(int lane) const noexcept;
         std::vector<std::vector<std::unique_ptr<ModulatorBase>>> modSources;
+        std::vector<ModuleBase*> terminalAudioModules_;
         void registerModule(ModuleBase* module);
         void unregisterModule(ModuleBase* module);
         ModuleBase* getModuleByNodeId(const juce::String& nodeId) const;

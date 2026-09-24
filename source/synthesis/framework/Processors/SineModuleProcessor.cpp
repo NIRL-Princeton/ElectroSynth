@@ -43,10 +43,10 @@ SineModuleProcessor::SineModuleProcessor(electrosynth::SoundEngine* engine,const
     // };
 }
 
-void SineModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midi)
+void SineModuleProcessor::process ()
 {
     state_.getParameterListeners().callAudioThreadBroadcasters();
-    int numSamples = buffer.getNumSamples();
+    int numSamples = 1;
     //buffer.clear();
 
     //float glideOrigin = state_.params.modules[tStack_first(engine->voiceHandler.voiceOrder)]->pitchSmooth.curr;
@@ -70,13 +70,10 @@ void SineModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
         //     //state_.params.modules[v]->pitchSmooth.curr = state_.params.modules[v]->pitchSmooth.dest;
         //     noVoicesSounding = 0;
         // }
-        auto* L = buffer.getWritePointer(v*2);
-        auto* R = buffer.getWritePointer(v*2+1);
         for (int i = 0; i < numSamples; i++)
         {
-            tSineModule_tick(state_.params.modules[v],L);
-            L[i] += state_.params.modules[v]->header.outputs[0];
-            R[i] = L[i];
+            float dummy = 0.f;
+            tSineModule_tick(state_.params.modules[v], &dummy);
         }
     }
 

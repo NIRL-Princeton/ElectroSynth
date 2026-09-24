@@ -2588,13 +2588,13 @@ bool MappingManager::connectMapping(
         .type = electrosynth::ConnectionType::Modulation,
         .source {
             .type = electrosynth::ConnectionType::Modulation,
-            .nodeId = juce::String (source),
+            .nodeId = juce::String (source).upToFirstOccurrenceOf ("_", false,false),
             .endpointId = juce::String (source),
             .direction = electrosynth::EndpointDirection::Source
         },
         .destination {
             .type = electrosynth::ConnectionType::Modulation,
-            .nodeId = juce::String (destination),
+            .nodeId = juce::String (destination).upToFirstOccurrenceOf ("_", false,false),
             .endpointId = juce::String (destination),
             .direction = electrosynth::EndpointDirection::Destination
         },

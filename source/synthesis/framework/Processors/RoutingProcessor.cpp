@@ -13,10 +13,13 @@ RoutingProcessor::RoutingProcessor(electrosynth::SoundEngine *engine, const juce
         callbacks += {
                 state_.addParameterListener (*state_.params.routing, chowdsp::ParameterListenerThread::AudioThread,
                     [this] {
+                    if (this->engine == nullptr)
+                        return;
                     auto routing = state_.params.routing.get();
                     float lane =  routing->getIndex(); /// (float)4; //numroutings
                     curr_lane = lane;
                         audio_out = &this->engine->temp_fx_buffers[curr_lane];
+                    this->engine->refreshModuleGraphTopology();
                     // for (auto mod: state_.params.modules) {
                     //     mod->setterFunctions[OscParams::OscType](mod,val);
                     //     mod->setterFunctions[OscParams::OscShapeParam](mod->theOsc, *mod->params[OscShapeParam]);

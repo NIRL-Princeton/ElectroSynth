@@ -11,6 +11,7 @@
 #include "ProcessorBase.h"
 #include "leaf-midi.h"
 #include "sound_engine.h"
+#include <cmath>
 
 namespace electrosynth{
     namespace utils
@@ -230,14 +231,18 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
         {
             juce::ParameterID{"gain" , 100},
             "Gain",
-            chowdsp::ParamUtils::createNormalisableRange(-80.f, 10.f ,0.f),
-            0.f,
+            chowdsp::ParamUtils::createNormalisableRange(-80.f, 10.f, 0.f),
+            -6.f,
             all_params[OscParams::OscAmpParam],
-            [this]( float val)
-            {for (auto mod : modules)
-                tOscModule_setParameter(mod,OscAmpParam,val);
-
-                //DBG("amp [0 - 1] " + juce::String(val) + ".. .... amp actual " + juce::String(modules[0]->amp));
+            [this]( float normVal)
+            {
+                const auto gainRange = chowdsp::ParamUtils::createNormalisableRange(-80.f, 10.f, 0.f);
+                const float gainDb = gainRange.convertFrom0to1(normVal);
+                const float gainLin = std::pow(10.0f, gainDb / 20.0f);
+                for (auto mod : modules)
+                {
+                    tOscModule_setParameter(mod, OscAmpParam, gainLin);
+                }
             }
         };
 
@@ -281,7 +286,7 @@ public:
     }
 
     void getNextAudioBlock (const juce::AudioSourceChannelInfo &bufferToFill) override {}
-    void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
+    void process () override;
     void prepareToPlay (int samplesPerBlock, double sampleRate ) override {};
     void releaseResources() override {}
     //void processAudioBlock (juce::AudioBuffer<float>& buffer) override {};

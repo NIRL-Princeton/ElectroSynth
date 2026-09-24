@@ -64,7 +64,7 @@ public:
     electrosynth::audio::NodeDescriptor getAudioNodeDescriptor() const noexcept override {
         return electrosynth::audio::makeProcessorDescriptor();
     }
-    void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
+    void process() override;
     std::unique_ptr<SynthSection> createEditor() override
     {
         return std::make_unique<electrosynth::FxModuleTemplateView>(state_, state_.params, state.getProperty(IDs::type).toString() + state.getProperty(IDs::uuid).toString());
