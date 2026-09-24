@@ -144,6 +144,12 @@ void SoundModuleSection::handlePopupResult(int result) {
         t.setProperty(IDs::type, "sampHold", nullptr);
         undo.beginNewTransaction();
         list.appendChild(t, &undo);
+    } else if (result == 8)
+    {
+        juce::ValueTree t(IDs::SOUNDMODULE);
+        t.setProperty(IDs::type, "randHold", nullptr);
+        undo.beginNewTransaction();
+        list.appendChild(t, &undo);
     }
 
     //    if (result == kArmMidiLearn)
@@ -186,6 +192,8 @@ void SoundModuleSection::setEffectPositions() {
     int soft_clip_index = 1;
     int noise_index = 1;
     int sine_index = 1;
+    int sampHold_index = 1;
+    int simpSampHold_index = 1;
     for (size_t index = 0; index < module_sections.size(); ++index) {
         auto& section = module_sections[index];
         const auto type = section->state.getProperty(IDs::type).toString();
@@ -202,7 +210,9 @@ void SoundModuleSection::setEffectPositions() {
         else if (type == "sine")
             section->setName("Sine " + juce::String(sound_module_index_) + "." + juce::String(sine_index++));
         else if (type == "sampHold")
-            section->setName("Sample & Hold " + juce::String(sound_module_index_) + "." + juce::String(sine_index++));
+            section->setName("Sample & Hold " + juce::String(sound_module_index_) + "." + juce::String(sampHold_index++));
+        else if (type == "simpSampHold")
+            section->setName("Simple Sample & Hold " + juce::String(sound_module_index_) + "." + juce::String(simpSampHold_index++));
 
         const int section_height = section->refreshHeight(); // refresh height before positioning each module
         section->setDrawBottomSeparator(true);  //setDrawBottomSeparator(index + 1 < module_sections.size()); // add line separating modules
@@ -229,6 +239,7 @@ PopupItems SoundModuleSection::createPopupMenu() {
     options.addItem(5, "add noise");
     options.addItem(6, "add sine");
     options.addItem(7, "add Sample & Hold");
+    options.addItem(8, "add Rand & Hold");
     return options;
 }
 

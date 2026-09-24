@@ -16,7 +16,7 @@
 //
 // } ModuleType;
 // Keep this array in exactly the same order as ModuleType in defs.h.
-const std::array<std::vector<std::string>, 14> paramsAllArray =
+const std::array<std::vector<std::string>, 16> paramsAllArray =
 {
     {
         // oscillator
@@ -170,6 +170,24 @@ const std::array<std::vector<std::string>, 14> paramsAllArray =
             "leak",       // EnvLeak
             "velocity"    // EnvVelocitySense
         },
+
+        // AD envelope
+        {
+            "eventWatch", // EnvEventWatchFlag
+            "attack",     // EnvAttack
+            "decay",      // EnvDecay
+            "velocity"    // EnvVelocitySense
+        },
+
+        // rand and hold
+        {
+            "eventWatch",
+            "threshold",
+            "frequency",
+            "durRand",
+            "gain",
+            "mix",
+},
     }
 
 };
