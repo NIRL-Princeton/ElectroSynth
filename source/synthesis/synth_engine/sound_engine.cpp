@@ -32,6 +32,12 @@
 
 namespace electrosynth
 {
+    static std::string makeTopologyConnectionKey(const juce::String& sourceNodeId,
+                                                 const juce::String& destinationNodeId)
+    {
+        return sourceNodeId.toStdString() + "->" + destinationNodeId.toStdString();
+    }
+
     static void LEAF_errorCallback(LEAF* const leaf, LEAFErrorType error)
     {
         // (void)leaf;
@@ -60,6 +66,7 @@ namespace electrosynth
         connection.topologyDerived = true;
         return connection;
     }
+
     SoundEngine::SoundEngine (juce::UndoManager& um) : undo (um), /*voice_handler_(nullptr),*/
                                                        last_oversampling_amount_ (-1),
                                                        last_sample_rate_ (-1),
@@ -273,6 +280,14 @@ namespace electrosynth
         if (moduleGraph_ == nullptr)
             return;
 
+        std::unordered_map<std::string, float> previousTopologyAudioAmounts;
+        previousTopologyAudioAmounts.reserve(moduleGraph_->getConnections().size());
+        for (const auto& connection : moduleGraph_->getConnections())
+        {
+            if (connection.type == electrosynth::ConnectionType::Audio && connection.topologyDerived)
+                previousTopologyAudioAmounts.emplace(makeTopologyConnectionKey(connection.source.nodeId, connection.destination.nodeId), connection.amount);
+        }
+
         std::vector<juce::String> topologyConnectionsToRemove;
         for (const auto& connection : moduleGraph_->getConnections())
         {
@@ -282,6 +297,8 @@ namespace electrosynth
         for (const auto& connectionId : topologyConnectionsToRemove)
             moduleGraph_->disconnect(connectionId);
 
+        chainExitModules_.clear();
+        laneBridgeAudioConnections_.clear();
         for (std::size_t chainIndex = 0; chainIndex < processors.size(); ++chainIndex)
         {
             auto& chain = processors[chainIndex];
@@ -298,17 +315,30 @@ namespace electrosynth
                         true);
 
                     if (previousModule != nullptr)
-                        moduleGraph_->connect(makeTopologyAudioConnection(previousModule->getNodeId(), module->getNodeId()));
+                    {
+                        auto connection = makeTopologyAudioConnection(previousModule->getNodeId(), module->getNodeId());
+                        if (const auto amountIt = previousTopologyAudioAmounts.find(
+                                makeTopologyConnectionKey(connection.source.nodeId, connection.destination.nodeId));
+                            amountIt != previousTopologyAudioAmounts.end())
+                        {
+                            connection.amount = amountIt->second;
+                        }
+
+                        moduleGraph_->connect(connection);
+                    }
 
                     previousModule = module;
                 }
             }
 
+            if (previousModule != nullptr)
+                chainExitModules_.insert(previousModule);
+
             const auto* routingProcessor = chainIndex < chainPostGain.size() ? chainPostGain[chainIndex].get() : nullptr;
-            if (routingProcessor == nullptr || routingProcessor->state_.params.routing == nullptr)
+            if (routingProcessor == nullptr)
                 continue;
 
-            const int routingIndex = routingProcessor->state_.params.routing->getIndex();
+            const int routingIndex = routingProcessor->getRoutingIndex();
             if (routingIndex <= 0)
                 continue;
 
@@ -328,7 +358,17 @@ namespace electrosynth
             }
 
             if (previousModule != nullptr && firstLaneModule != nullptr)
-                moduleGraph_->connect(makeTopologyAudioConnection(previousModule->getNodeId(), firstLaneModule->getNodeId()));
+            {
+                auto connection = makeTopologyAudioConnection(previousModule->getNodeId(), firstLaneModule->getNodeId());
+                if (const auto amountIt = previousTopologyAudioAmounts.find(
+                        makeTopologyConnectionKey(connection.source.nodeId, connection.destination.nodeId));
+                    amountIt != previousTopologyAudioAmounts.end())
+                {
+                    connection.amount = amountIt->second;
+                }
+
+                moduleGraph_->connect(connection);
+            }
         }
 
         for (std::size_t laneIndex = 0; laneIndex < effects.size(); ++laneIndex)
@@ -346,9 +386,80 @@ namespace electrosynth
                         true,
                         false);
                     if (previousModule != nullptr)
-                        moduleGraph_->connect(makeTopologyAudioConnection(previousModule->getNodeId(), module->getNodeId()));
+                    {
+                        auto connection = makeTopologyAudioConnection(previousModule->getNodeId(), module->getNodeId());
+                        if (const auto amountIt = previousTopologyAudioAmounts.find(
+                                makeTopologyConnectionKey(connection.source.nodeId, connection.destination.nodeId));
+                            amountIt != previousTopologyAudioAmounts.end())
+                        {
+                            connection.amount = amountIt->second;
+                        }
+
+                        moduleGraph_->connect(connection);
+                    }
                     previousModule = module;
                 }
+            }
+        }
+
+        std::array<ModuleBase*, 3> firstLaneModules {};
+        for (std::size_t laneIndex = 0; laneIndex < effects.size(); ++laneIndex)
+        {
+            for (const auto& modulePtr : effects[laneIndex])
+            {
+                if (modulePtr != nullptr)
+                {
+                    firstLaneModules[laneIndex] = modulePtr.get();
+                    break;
+                }
+            }
+        }
+
+        for (std::size_t laneIndex = 0; laneIndex < effects.size(); ++laneIndex)
+        {
+            if (!juce::isPositiveAndBelow(static_cast<int>(laneIndex), static_cast<int>(laneNodeIds.size())))
+                continue;
+
+            const auto& laneNodeId = laneNodeIds[laneIndex];
+            auto* firstLaneModule = firstLaneModules[laneIndex];
+            if (laneNodeId.isEmpty() || firstLaneModule == nullptr)
+                continue;
+
+            for (const auto& connection : moduleGraph_->getIncoming(laneNodeId))
+            {
+                if (connection.type != electrosynth::ConnectionType::Audio || connection.topologyDerived)
+                    continue;
+
+                const auto* sourceNode = moduleGraph_->getNode(connection.source.nodeId);
+                if (sourceNode == nullptr || sourceNode->module == nullptr)
+                    continue;
+
+                const auto sourceNodeId = sourceNode->module->getNodeId();
+                const auto destinationNodeId = firstLaneModule->getNodeId();
+                if (sourceNodeId.isEmpty() || destinationNodeId.isEmpty())
+                    continue;
+
+                bool alreadyBridged = false;
+                for (const auto& bridge : laneBridgeAudioConnections_)
+                {
+                    if (bridge.sourceModule != nullptr
+                        && bridge.destinationModule != nullptr
+                        && bridge.sourceModule->getNodeId() == sourceNodeId
+                        && bridge.destinationModule->getNodeId() == destinationNodeId)
+                    {
+                        alreadyBridged = true;
+                        break;
+                    }
+                }
+
+                if (sourceNodeId == destinationNodeId || alreadyBridged)
+                    continue;
+
+                laneBridgeAudioConnections_.push_back({
+                    sourceNode->module,
+                    firstLaneModule,
+                    connection.amount
+                });
             }
         }
 
@@ -367,17 +478,17 @@ namespace electrosynth
             }
         }
 
-        std::unordered_set<std::string> audioSources;
-        audioSources.reserve(moduleGraph_->getConnections().size());
+        std::unordered_set<std::string> topologyAudioSources;
+        topologyAudioSources.reserve(moduleGraph_->getConnections().size());
         for (const auto& connection : moduleGraph_->getConnections())
         {
-            if (connection.type == electrosynth::ConnectionType::Audio)
-                audioSources.insert(connection.source.nodeId.toStdString());
+            if (connection.type == electrosynth::ConnectionType::Audio && connection.topologyDerived)
+                topologyAudioSources.insert(connection.source.nodeId.toStdString());
         }
 
         for (const auto& nodeId : moduleGraph_->getNodeIds(ModuleGraph::NodeKind::AudioModule))
         {
-            const bool isTerminal = audioSources.find(nodeId.toStdString()) == audioSources.end();
+            const bool isTerminal = topologyAudioSources.find(nodeId.toStdString()) == topologyAudioSources.end();
             moduleGraph_->setNodeTerminal(nodeId, isTerminal);
         }
 
@@ -391,6 +502,54 @@ namespace electrosynth
 
         moduleGraph_->debugPrint("ModuleGraph Topology: ");
         debugPrintTerminalAudioModules("Terminal modules after topology refres...");
+        debugPrintChainExitModules();
+
+        rebuildRuntimeTopologySnapshot();
+    }
+
+    std::shared_ptr<const RuntimeTopologySnapshot> SoundEngine::getRuntimeTopologySnapshot() const noexcept
+    {
+        return std::atomic_load_explicit(&runtimeTopologySnapshot_, std::memory_order_acquire);
+    }
+
+    void SoundEngine::rebuildRuntimeTopologySnapshot()
+    {
+        auto snapshot = std::make_shared<RuntimeTopologySnapshot>();
+
+        if (moduleGraph_ != nullptr)
+        {
+            snapshot->audioConnections.reserve(moduleGraph_->getConnections().size());
+            for (const auto& connection : moduleGraph_->getConnections())
+            {
+                if (connection.type != electrosynth::ConnectionType::Audio || !connection.isValid())
+                    continue;
+
+                const auto* sourceNode = moduleGraph_->getNode(connection.source.nodeId);
+                const auto* destinationNode = moduleGraph_->getNode(connection.destination.nodeId);
+                if (sourceNode == nullptr || destinationNode == nullptr
+                    || sourceNode->module == nullptr || destinationNode->module == nullptr)
+                    continue;
+
+                snapshot->audioConnections.push_back({
+                    sourceNode->module,
+                    destinationNode->module,
+                    connection.amount
+                });
+            }
+
+            snapshot->terminalAudioModules = terminalAudioModules_;
+            snapshot->audioConnections.reserve(snapshot->audioConnections.size() + laneBridgeAudioConnections_.size());
+            snapshot->audioConnections.insert(snapshot->audioConnections.end(),
+                                              laneBridgeAudioConnections_.begin(),
+                                              laneBridgeAudioConnections_.end());
+            snapshot->chainExitModules.reserve(chainExitModules_.size());
+            snapshot->chainExitModules.insert(snapshot->chainExitModules.end(),
+                                              chainExitModules_.begin(),
+                                              chainExitModules_.end());
+        }
+
+        const std::shared_ptr<const RuntimeTopologySnapshot> constSnapshot = snapshot;
+        std::atomic_store_explicit(&runtimeTopologySnapshot_, constSnapshot, std::memory_order_release);
     }
 
     void SoundEngine::unregisterModule(ModuleBase* module)
@@ -608,50 +767,38 @@ namespace electrosynth
         }
     }
 
-    void SoundEngine::processAudioConnections()
+    void SoundEngine::processAudioConnections(juce::AudioBuffer<float>& masterEnvelope)
     {
-        if (moduleGraph_ == nullptr)
+        const auto snapshot = getRuntimeTopologySnapshot();
+        if (snapshot == nullptr)
             return;
 
-        for (const auto& connection : moduleGraph_->getConnections())
+        for (const auto& connection : snapshot->audioConnections)
         {
-            if (connection.type != electrosynth::ConnectionType::Audio)
+            if (connection.sourceModule == nullptr || connection.destinationModule == nullptr)
                 continue;
 
-            auto const* sourceModule = getModuleByNodeId(connection.source.nodeId);
-            auto const* destModule = getModuleByNodeId(connection.destination.nodeId);
-
-            if (sourceModule == nullptr || sourceModule->procArray == nullptr)
+            if (connection.sourceModule->procArray == nullptr
+                || connection.destinationModule->procArray == nullptr)
                 continue;
 
-            if (destModule != nullptr && destModule->procArray != nullptr)
+            const bool isChainExit = chainExitModules_.contains(connection.sourceModule);
+
+            for (int v = 0; v < MAX_NUM_VOICES; ++v)
             {
-                for (int v = 0; v < MAX_NUM_VOICES; ++v)
-                {
-                    auto* src = sourceModule->procArray->at(v);
-                    auto* dst = destModule->procArray->at(v);
+                auto* src = connection.sourceModule->procArray->at(v);
+                auto* dst = connection.destinationModule->procArray->at(v);
 
-                    if (src != nullptr && dst != nullptr)
-                        dst->summedInput += src->previousOutput * connection.amount;
+                if (src != nullptr)
+                {
+                    const auto envValue = masterEnvelope.getSample (v * 2, 0);
+                    const auto sourceOut = isChainExit ? src->previousOutput * envValue : src->previousOutput; // intervene with the master envelope baby !
+                    if (dst != nullptr)
+                    {
+                        dst->summedInput += sourceOut * connection.amount;
+                    }
                 }
             }
-
-            // MIKE CUT
-            // const int lane = getEffectLaneIndex(connection.destination.nodeId);
-            // if (lane < 0)
-            //     continue;
-            //
-            // auto& laneInput = laneSummedInputs[static_cast<std::size_t>(lane)];
-            // for (int v = 0; v < MAX_NUM_VOICES; ++v)
-            // {
-            //     auto* src = sourceModule->procArray->at(v);
-            //     if (src == nullptr)
-            //         continue;
-            //
-            //     const float sample = src->previousOutput * connection.amount;
-            //     laneInput.addSample(v * 2, 0, sample);
-            //     laneInput.addSample(v * 2 + 1, 0, sample);
-            // }
         }
     }
 
@@ -663,27 +810,6 @@ namespace electrosynth
         {
             if (header != nullptr)
                 header->previousOutput = header->outputs[0];
-        }
-    }
-
-    static void fillBufferFromPreviousOutputs(juce::AudioBuffer<float>& buffer,
-                                              std::array<ModuleHeader*, MAX_NUM_VOICES>* procArray) noexcept
-    {
-        jassert(procArray != nullptr);
-        if (buffer.getNumChannels() == 0)
-            return;
-
-        const int numVoices = juce::jmin(buffer.getNumChannels(), static_cast<int>(procArray->size())) / 2;
-        for (int v = 0; v < numVoices; ++v)
-        {
-            auto* header = (*procArray)[static_cast<std::size_t>(v)];
-            if (header == nullptr)
-                continue;
-
-            const int left = v * 2;
-            const int right = left + 1;
-            buffer.setSample(left, 0, header->previousOutput);
-            buffer.setSample(right, 0, header->previousOutput);
         }
     }
 
@@ -707,9 +833,39 @@ namespace electrosynth
         }
     }
 
-    void SoundEngine::mixOutputFromTerminalModules(juce::AudioSampleBuffer& audio_buffer, juce::AudioBuffer<float>& masterEnvelope, int i) const
+    void SoundEngine::mixChainOutputsWithMasterEnvelope(juce::AudioBuffer<float>& masterEnvelope) const noexcept
     {
-        for (auto* module : terminalAudioModules_)
+        const auto snapshot = getRuntimeTopologySnapshot();
+        if (snapshot == nullptr)
+            return;
+
+        for (auto* module : snapshot->chainExitModules)
+        {
+            if (module == nullptr || module->procArray == nullptr)
+                continue;
+
+            for (int v = 0; v < voiceHandler.numVoicesActive; ++v)
+            {
+                auto* header = (*module->procArray)[v];
+                if (header == nullptr)
+                    continue;
+
+                const float envL = masterEnvelope.getSample(v * 2, 0);
+                const float envR = masterEnvelope.getSample(v * 2 + 1, 0);
+
+                // If mono per-voice, pick one envelope value or decide a policy here.
+                header->previousOutput *= envL;
+            }
+        }
+    }
+
+    void SoundEngine::mixTerminalModulesToOutput(juce::AudioSampleBuffer& audio_buffer, juce::AudioBuffer<float>& masterEnvelope, int i, bool mixWithMasterEnvelope) const
+    {
+        const auto snapshot = getRuntimeTopologySnapshot();
+        if (snapshot == nullptr)
+            return;
+
+        for (auto* module : snapshot->terminalAudioModules)
         {
             if (module == nullptr || module->procArray == nullptr)
                 continue;
@@ -721,14 +877,18 @@ namespace electrosynth
                 if (header == nullptr)
                     continue;
 
+                const bool isChainExit = snapshot->chainExitModules.end() != std::find(snapshot->chainExitModules.begin(),
+                                                                                        snapshot->chainExitModules.end(),
+                                                                                        module);
+                const float env = isChainExit ? masterEnvelope.getSample(v * 2, 0) : 1.0f;
                 audio_buffer.addSample (
                     0,
                     i,
-                    masterEnvelope.getSample (v * 2, 0) * header->previousOutput);
+                    mixWithMasterEnvelope ? env : 1.0f * header->previousOutput * env);
                 audio_buffer.addSample (
                     1,
                     i,
-                    masterEnvelope.getSample (v * 2 + 1, 0) * header->previousOutput);
+                    mixWithMasterEnvelope ? env : 1.0f * header->previousOutput * env);
 
             }
         }
@@ -770,6 +930,41 @@ namespace electrosynth
                 out << " voices=" << juce::String(static_cast<int>(module->procArray->size()));
 
             out << "\n";
+        }
+
+        DBG(out);
+#else
+        (void) header;
+#endif
+    }
+
+    void SoundEngine::debugPrintChainExitModules() const
+    {
+#if JUCE_DEBUG
+        juce::String out;
+
+        out << "Num chain exit modules: "
+            << juce::String(static_cast<int>(chainExitModules_.size())) << "\n";
+
+        if (chainExitModules_.empty())
+        {
+            out << "    <none>\n";
+            DBG(out);
+            return;
+        }
+
+        int index = 0;
+        for (const auto* module : chainExitModules_)
+        {
+            if (module == nullptr)
+            {
+                out << "    [" << juce::String(index) << "] <null>\n";
+                ++index;
+                continue;
+            }
+
+            out << "    display=\"" << module->getDisplayName() << "\"\n";
+            ++index;
         }
 
         DBG(out);
@@ -876,16 +1071,19 @@ namespace electrosynth
                 auto masterEnvelope = MasterVoiceEnvelopeProcessor->processMasterEnvelope();
 
                 processMappings();
-                processAudioConnections();
+
+                // mixChainOutputsWithMasterEnvelope(*masterEnvelope);
+                processAudioConnections  (*masterEnvelope);
 
                 // MIKE CUT
                 // for (std::size_t lane = 0; lane < laneSummedInputs.size(); ++lane)
                 //     flushLaneInputToBuffer(laneSummedInputs[lane], temp_fx_buffers[lane + 1]);
 
                 tickAllModules(moduleRegistry_);
-                commitCurrentOutputsForAllModules(moduleRegistry_);
 
-                mixOutputFromTerminalModules (audio_buffer, *masterEnvelope, i);
+                mixTerminalModulesToOutput (audio_buffer, *masterEnvelope, i);
+
+                commitCurrentOutputsForAllModules(moduleRegistry_);
 
                 // MIKE CUT
                 // int chainIndex = -1;

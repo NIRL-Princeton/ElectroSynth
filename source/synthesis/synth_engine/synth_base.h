@@ -193,6 +193,7 @@ public:
     }
 
     void addModulationSource(std::unique_ptr<ModulatorBase> processor, int voice_index);
+    void markModuleGraphTopologyDirty() noexcept { moduleGraphTopologyDirty_ = true; }
 
     // juce::ValueTree& getValueTree();
     juce::UndoManager &getUndoManager();

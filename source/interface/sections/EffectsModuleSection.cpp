@@ -261,6 +261,12 @@ void EffectModuleSection::handlePopupResult(int result) {
         undo.beginNewTransaction();
         list.appendChild(t, &undo);
     }
+    else if (result == 4) {
+        juce::ValueTree t(IDs::EFFECTMODULE);
+        t.setProperty(IDs::type, "softclip", nullptr);
+        undo.beginNewTransaction();
+        list.appendChild(t, &undo);
+    }
 }
 
 
@@ -416,6 +422,7 @@ PopupItems EffectModuleSection::createPopupMenu() {
     options.addItem(1, "add filt");
     options.addItem(2, "add delay");
     options.addItem(3, "add VCA");
+    options.addItem(4, "add soft clip");
     return options;
 }
 

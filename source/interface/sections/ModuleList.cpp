@@ -165,7 +165,7 @@ ModuleList<T> *ChainList<T>::createNewObject(const juce::ValueTree &v) {
     ModuleList<T> *list;
     if constexpr (std::is_same_v<T, ProcessorBase>) {
         auto* leaf  = synth_->getLeaf();
-        auto proc = std::make_unique<RoutingProcessor>(synth_->getEngine(),v,leaf,&synth_->um);
+        auto proc = std::make_unique<RoutingProcessor>(synth_->getEngine(), synth_, v, leaf, &synth_->um);
         auto * rawPtr = proc.get();
         auto task = [this, _proc = std::move(proc),index = v.getParent().indexOf(v)  ]() mutable {
             synth_->addChainRouting(std::move(_proc), index);

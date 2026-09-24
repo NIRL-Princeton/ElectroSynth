@@ -17,6 +17,8 @@
 #pragma once
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <atomic>
+#include <memory>
+#include <unordered_set>
 #include "../framework/note_handler.h"
 #include "ModuleBase.h"
 #include "ConnectionRecord.h"
@@ -47,6 +49,18 @@ namespace electrosynth {
         std::atomic<float> scalingValue { 0.0f };
     };
 
+    struct RuntimeAudioConnection {
+        ModuleBase* sourceModule = nullptr;
+        ModuleBase* destinationModule = nullptr;
+        float amount = 1.0f;
+    };
+
+    struct RuntimeTopologySnapshot {
+        std::vector<RuntimeAudioConnection> audioConnections;
+        std::vector<ModuleBase*> terminalAudioModules;
+        std::vector<ModuleBase*> chainExitModules;
+    };
+
     class SoundEngine : public NoteHandler {
     public:
       static constexpr int kDefaultOversamplingAmount = 2;
@@ -67,10 +81,13 @@ namespace electrosynth {
         void process(juce::AudioSampleBuffer&, juce::MidiBuffer &);
         void process(juce::AudioSampleBuffer&,int channels, int samples, int offset);
         void processMappings();
-        void processAudioConnections();
+        void processAudioConnections(juce::AudioBuffer<float>& masterEnvelope);
         void refreshModuleGraphTopology();
-        void mixOutputFromTerminalModules(juce::AudioSampleBuffer& audio_buffer, juce::AudioBuffer<float>& masterEnvelope, int i) const;
+        void rebuildRuntimeTopologySnapshot();
+        void mixChainOutputsWithMasterEnvelope(juce::AudioBuffer<float>& masterEnvelope) const noexcept;
+        void mixTerminalModulesToOutput(juce::AudioSampleBuffer& audio_buffer, juce::AudioBuffer<float>& masterEnvelope, int i, bool mixWithMasterEnvelope = false) const;
         void debugPrintTerminalAudioModules(const juce::String& header = {}) const;
+        void debugPrintChainExitModules() const;
         int getEffectLaneIndex(const juce::String& nodeId) const noexcept;
         void registerEffectLaneNodeId(int lane, const juce::String& nodeId) noexcept;
         void registerModulePlacement(ModuleBase* module,
@@ -177,6 +194,8 @@ namespace electrosynth {
         bool isEffectLaneSilent(int lane) const noexcept;
         std::vector<std::vector<std::unique_ptr<ModulatorBase>>> modSources;
         std::vector<ModuleBase*> terminalAudioModules_;
+        std::unordered_set<ModuleBase*> chainExitModules_;
+        std::vector<RuntimeAudioConnection> laneBridgeAudioConnections_;
         void registerModule(ModuleBase* module);
         void unregisterModule(ModuleBase* module);
         ModuleBase* getModuleByNodeId(const juce::String& nodeId) const;
@@ -185,9 +204,11 @@ namespace electrosynth {
         void connectMapping (const electrosynth::mapping_change& change);
         ProcessorBase* getProcessorFromUUID(int uuid);
         ModulatorBase* getModulatorFromUUID(int uuid);
+        std::shared_ptr<const RuntimeTopologySnapshot> getRuntimeTopologySnapshot() const noexcept;
         std::unique_ptr<ModuleGraph> moduleGraph_;
         std::map<juce::String, ModuleBase*> moduleRegistry_;
         std::map<juce::String, ModulationRuntimeState> modulationStates_;
+        mutable std::shared_ptr<const RuntimeTopologySnapshot> runtimeTopologySnapshot_;
 
 
      std::array<ModuleHeader*, MAX_NUM_VOICES>* getLeafProcessorFromUUID(int uuid);
