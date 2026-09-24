@@ -108,6 +108,8 @@ add_library(SharedCode INTERFACE
         source/synthesis/framework/Processors/SineModuleProcessor.h
         source/synthesis/framework/Modulators/SampleAndHoldProcessor.cpp
         source/synthesis/framework/Modulators/SampleAndHoldProcessor.h
+        source/synthesis/framework/Modulators/RandAndHoldProcessor.cpp
+        source/synthesis/framework/Modulators/RandAndHoldProcessor.h
         source/synthesis/framework/Modulators/SimpleEnvModuleProcessor.cpp
         source/synthesis/framework/Modulators/SimpleEnvModuleProcessor.h
         source/synthesis/framework/Modulators/ADEnvModuleProcessor.h

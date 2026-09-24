@@ -17,8 +17,8 @@
 namespace electrosynth{
     namespace utils
     {
-        float stringToHarmonicVal2(const juce::String &s);
-        juce::String harmonicValToString2(float harmonic);
+        float stringToHarmonicVal3(const juce::String &s);
+        juce::String harmonicValToString3(float harmonic);
     }
 }
 
@@ -48,9 +48,9 @@ struct RandHoldParamHolder : public LEAFParams<_tRandAndHoldModule>
         "Threshold",
         chowdsp::ParamUtils::createNormalisableRange (-10000.f,12.f,0.f),
         0.0f,
-        all_params[SampHoldParams::SampHoldThreshold],
+        all_params[RandHoldParams::RandHoldThreshold],
         [this] (float val) {
-            for (auto mod: modules) tSampleAndHoldModule_setParameter(mod,SampHoldParams::SampHoldThreshold,val);
+            for (auto mod: modules) tRandAndHoldModule_setParameter(mod,RandHoldParams::RandHoldThreshold,val);
         }
     };
 
@@ -72,38 +72,10 @@ struct RandHoldParamHolder : public LEAFParams<_tRandAndHoldModule>
         "Frequency",
         chowdsp::ParamUtils::createNormalisableRange (0.f,20000.f,20.f),
         0.f,
-        all_params[SampHoldParams::SampHoldFrequency],
+        all_params[RandHoldParams::RandHoldFrequency],
         [this] (float val) {
-            for (auto mod: modules) tSampleAndHoldModule_setParameter(mod,SampHoldParams::SampHoldFrequency,val);
+            for (auto mod: modules) tRandAndHoldModule_setParameter(mod,RandHoldParams::RandHoldFrequency,val);
         }
-    };
-
-    chowdsp::FloatParameter::Ptr keyFollow {
-        juce::ParameterID { "keyFollow", 100 },
-        "KeyFollow",
-        chowdsp::ParamUtils::createNormalisableRange (0.f,1.0f,.5f),
-        0.f,
-        all_params[SampHoldParams::SampHoldKeyFollow],
-        [this] (float val) {
-            for (auto mod: modules) tSampleAndHoldModule_setParameter(mod,SampHoldParams::SampHoldKeyFollow,val);
-        },
-        &chowdsp::ParamUtils::floatValToString,
-        &chowdsp::ParamUtils::stringToFloatVal
-    };
-
-    chowdsp::FloatParameter::Ptr harmonic {
-        juce::ParameterID{"harmonic" , 100},
-        "Harmonic",
-        chowdsp::ParamUtils::createNormalisableRange(-15.f, 15.f, 0.f, 1.f),
-        0.f,
-        all_params[SampHoldParams::SampHoldHarmonic],
-        [this](float val){
-            for (auto mod : modules)
-                tSampleAndHoldModule_setParameter(mod,SampHoldHarmonic,val);
-            //DBG("harm [0 - 1]" + juce::String(val) + " .. .  harm actual Val" + juce::String(modules[0]->harmonicMultiplier));
-        },
-        &electrosynth::utils::harmonicValToString2,
-        &electrosynth::utils::stringToHarmonicVal2
     };
 
     chowdsp::FloatParameter::Ptr durRand {
@@ -111,9 +83,9 @@ struct RandHoldParamHolder : public LEAFParams<_tRandAndHoldModule>
         "DurRand",
         chowdsp::ParamUtils::createNormalisableRange (0.f,1.0f,.5f),
         0.f,
-        all_params[SampHoldParams::SampHoldDurRand],
+        all_params[RandHoldParams::RandHoldDurRand],
         [this] (float val) {
-            for (auto mod: modules) tSampleAndHoldModule_setParameter(mod,SampHoldParams::SampHoldDurRand,val);
+            for (auto mod: modules) tRandAndHoldModule_setParameter(mod,RandHoldParams::RandHoldDurRand,val);
         },
         &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal
@@ -124,9 +96,9 @@ struct RandHoldParamHolder : public LEAFParams<_tRandAndHoldModule>
         "Gain",
         chowdsp::ParamUtils::createNormalisableRange (-10000.f,12.f,0.f),
         0.0f,
-        all_params[SampHoldParams::SampHoldGain],
+        all_params[RandHoldParams::RandHoldGain],
         [this] (float val) {
-            for (auto mod: modules) tSampleAndHoldModule_setParameter(mod,SampHoldParams::SampHoldGain,val);
+            for (auto mod: modules) tRandAndHoldModule_setParameter(mod,RandHoldParams::RandHoldGain,val);
         }
     };
 
@@ -134,19 +106,19 @@ struct RandHoldParamHolder : public LEAFParams<_tRandAndHoldModule>
     chowdsp::PercentParameter::Ptr mix {
         juce::ParameterID{"mix", 100},
         "Mix",
-        all_params[SampHoldParams::SampHoldMix],
+        all_params[RandHoldParams::RandHoldMix],
         [this](float val)
-        {for (auto mod: modules) tSampleAndHoldModule_setParameter(mod,SampHoldMix,val);
+        {for (auto mod: modules) tRandAndHoldModule_setParameter(mod,RandHoldMix,val);
         },
         1.f,
         false
     };
 };
 
-class SampleAndHoldProcessor : public ProcessorStateBase<PluginStateImpl_<SampHoldParamHolder>>
+class RandAndHoldProcessor : public ProcessorStateBase<PluginStateImpl_<RandHoldParamHolder>>
 {
 public:
-    SampleAndHoldProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree&, LEAF* leaf,juce::UndoManager*);
+    RandAndHoldProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree&, LEAF* leaf,juce::UndoManager*);
     electrosynth::audio::NodeDescriptor getAudioNodeDescriptor() const noexcept override {
         return electrosynth::audio::makeProcessorDescriptor();
     }
@@ -159,11 +131,8 @@ public:
         // module, vertical FxModuleTemplateView as an effect module (FX panel).
         if (state.hasType(IDs::SOUNDMODULE))
             return std::make_unique<electrosynth::ParametersView>(state_, state_.params, name);
-        return std::make_unique<electrosynth::FxModuleTemplateView>(state_, state_.params, name);
+        //return std::make_unique<electrosynth::FxModuleTemplateView>(state_, state_.params, name);
     }
 };
-
-#endif // ELECTORSYNTH_SAMPLEANDHOLDPROCESSOR_H
-
 
 #endif // ELECTORSYNTH_RANDANDHOLDPROCESSOR_H
