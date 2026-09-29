@@ -21,7 +21,7 @@ float electrosynth::utils::stringToHarmonicVal2(const juce::String &s){
 juce::String electrosynth::utils::harmonicValToString2(float harmonic)
 {
     if(harmonic < 0.f)
-        return "1 / " + juce::String(abs(round(harmonic) - 1.f)) ;
+        return "1 / " + juce::String(abs(round(harmonic) - 1.f));
     else
         return juce::String(round(harmonic + 1.f));
 }

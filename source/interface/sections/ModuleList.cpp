@@ -36,7 +36,7 @@ ModuleList<T>::ModuleList(SynthBase *synth,const ValueTree& v) : tracktion::engi
         factory.template registerType<SineModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*, juce::UndoManager*>("sine");
         factory.template registerType<VCAModuleProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*, juce::UndoManager*>("VCA");
         factory.template registerType<SampleAndHoldProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*, juce::UndoManager*>("sampHold");
-        factory.template registerType<RandAndHoldProcessor,electrosynth::SoundEngine*,juce::ValueTree, LEAF*, juce::UndoManager*>("randHold");
+        //factory.template registerType<RandAndHoldProcessor,electrosynth::SoundEngine*,juce::ValueTree, LEAF*, juce::UndoManager*>("randHold");
 
     }
     else if constexpr (std::is_same_v<T, ModulatorBase>)
@@ -48,7 +48,7 @@ ModuleList<T>::ModuleList(SynthBase *synth,const ValueTree& v) : tracktion::engi
         factory.template registerType<LFOModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*, juce::UndoManager*>("lfo");
         factory.template registerType<SimpNoiseModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*, juce::UndoManager*>("simpNos");
         factory.template registerType<PerlNoiseModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*, juce::UndoManager*>("perlNos");
-        //factory.template registerType<RandAndHoldProcessor,electrosynth::SoundEngine*,juce::ValueTree, LEAF*, juce::UndoManager*>("randHold");
+        factory.template registerType<RandAndHoldProcessor,electrosynth::SoundEngine*,juce::ValueTree, LEAF*, juce::UndoManager*>("randHold");
 
 
 

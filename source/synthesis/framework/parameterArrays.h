@@ -182,11 +182,7 @@ const std::array<std::vector<std::string>, 16> paramsAllArray =
         // rand and hold
         {
             "eventWatch",
-            "threshold",
-            "frequency",
-            "durRand",
-            "gain",
-            "mix",
+            "amp",
 },
     }
 
