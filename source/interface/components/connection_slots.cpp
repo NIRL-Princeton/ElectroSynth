@@ -208,7 +208,7 @@ void ConnectionSlots::resized() {
     SynthSection::resized();
 
     if (arrow_ != nullptr) {
-        const bool is_input = arrow_->getEndpoint().address.direction == electrosynth::EndpointDirection::Destination;
+        const bool is_input = arrow_->getEndpoint().address.direction == electrosynth::EndpointType::Destination;
         const int slot_y = (getHeight() - kSlotHeight) / 2;
 
         for (int index = 0; index < kMaxVisibleSlots; ++index) {

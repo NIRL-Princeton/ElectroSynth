@@ -992,13 +992,13 @@ bool SynthBase::connectModulation(const std::string &source, const std::string &
             .type = electrosynth::ConnectionType::Modulation,
             .nodeId = juce::String(source),
             .endpointId = juce::String(source),
-            .direction = electrosynth::EndpointDirection::Source
+            .direction = electrosynth::EndpointType::Source
         },
         .destination {
             .type = electrosynth::ConnectionType::Modulation,
             .nodeId = juce::String(destination),
             .endpointId = juce::String(destination),
-            .direction = electrosynth::EndpointDirection::Destination
+            .direction = electrosynth::EndpointType::Destination
         },
         .destinationSlot = destination_slot
     };

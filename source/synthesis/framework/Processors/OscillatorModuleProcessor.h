@@ -234,11 +234,10 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
             chowdsp::ParamUtils::createNormalisableRange(-80.f, 10.f, 0.f),
             -6.f,
             all_params[OscParams::OscAmpParam],
-            [this]( float normVal)
+            [this](float val)
             {
-                const auto gainRange = chowdsp::ParamUtils::createNormalisableRange(-80.f, 10.f, 0.f);
-                const float gainDb = gainRange.convertFrom0to1(normVal);
-                const float gainLin = std::pow(10.0f, gainDb / 20.0f);
+                const auto gainDb = chowdsp::ParamUtils::createNormalisableRange(-80.f, 10.f, 0.f).convertFrom0to1(val);
+                const auto gainLin = std::pow(10.0f, gainDb / 20.0f);
                 for (auto mod : modules)
                 {
                     tOscModule_setParameter(mod, OscAmpParam, gainLin);

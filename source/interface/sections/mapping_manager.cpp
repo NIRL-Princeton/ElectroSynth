@@ -494,7 +494,7 @@ void MappingManager::mouseDown(const juce::MouseEvent& event) {
         ? registered_endpoint->component.getComponent()
         : nullptr;
     if (endpoint == nullptr
-        || endpoint->getEndpoint().address.direction != electrosynth::EndpointDirection::Source)
+        || endpoint->getEndpoint().address.direction != electrosynth::EndpointType::Source)
         return;
 
     clearEndpointDestinationVisuals();
@@ -631,13 +631,13 @@ void MappingManager::mouseUp(const juce::MouseEvent& event) {
                         .type = endpoint_drag_source_->type,
                         .nodeId = endpoint_drag_source_->nodeId,
                         .endpointId = endpoint_drag_source_->endpointId,
-                        .direction = electrosynth::EndpointDirection::Source
+                        .direction = electrosynth::EndpointType::Source
                     },
                     .destination {
                         .type = electrosynth::ConnectionType::Modulation,
                         .nodeId = juce::String(destination_name),
                         .endpointId = juce::String(destination_name),
-                        .direction = electrosynth::EndpointDirection::Destination
+                        .direction = electrosynth::EndpointType::Destination
                     },
                     .destinationSlot = destination_slot,
                     .amount = modulation_amount,
@@ -685,8 +685,8 @@ bool MappingManager::endpointsAreCompatible(const electrosynth::EndpointAddress&
     if (!source.isValid() || !destination.isValid())
         return false;
 
-    if (source.direction != electrosynth::EndpointDirection::Source ||
-        destination.direction != electrosynth::EndpointDirection::Destination)
+    if (source.direction != electrosynth::EndpointType::Source ||
+        destination.direction != electrosynth::EndpointType::Destination)
         return false;
 
     if (source.type == electrosynth::ConnectionType::Audio) {
@@ -728,7 +728,7 @@ bool MappingManager::connectEndpoints (const electrosynth::EndpointAddress& sour
     auto* destination_component = destinationEndpoint->component.getComponent();
     if (destination_component == nullptr) return false;
 
-    const int capacity = destination_component->getEndpoint().capabilities.maxIncomingConnections;
+    const int capacity = destination_component->getEndpoint().features.maxIncomingConnections;
 
     // does this connection already exist?
     const auto connection_type = source.type == electrosynth::ConnectionType::Audio
@@ -803,9 +803,9 @@ void MappingManager::updateConnectionSlots()
                 continue;
 
             if (connection.type == electrosynth::ConnectionType::Audio) {
-                const auto& endpoint = address.direction == electrosynth::EndpointDirection::Destination ? connection.destination : connection.source;
+                const auto& endpoint = address.direction == electrosynth::EndpointType::Destination ? connection.destination : connection.source;
                 if (!endpoint.matches(address)) continue;
-                const auto& peer_address = address.direction == electrosynth::EndpointDirection::Destination ? connection.source : connection.destination;
+                const auto& peer_address = address.direction == electrosynth::EndpointType::Destination ? connection.source : connection.destination;
                 auto* peer_endpoint = getRegisteredMappingEndpoint(peer_address);
                 if (peer_endpoint == nullptr) continue;
                 auto* peer = peer_endpoint->component.getComponent();
@@ -824,9 +824,9 @@ void MappingManager::updateConnectionSlots()
                     .label = get_label(full_label),
                     .colour = peer->findColour(Skin::kWidgetPrimary1, true),
 
-                    .hasAmount = destination_component->getEndpoint().capabilities.hasAmount,
-                    .hasBipolar = destination_component->getEndpoint().capabilities.hasBipolar,
-                    .hasStereo = destination_component->getEndpoint().capabilities.hasStereo,
+                    .hasAmount = destination_component->getEndpoint().features.hasAmount,
+                    .hasBipolar = destination_component->getEndpoint().features.hasBipolar,
+                    .hasStereo = destination_component->getEndpoint().features.hasStereo,
                     .amount = connection.amount,
                     .bipolar = connection.bipolar,
                     .bypass = connection.bypass,
@@ -2590,13 +2590,13 @@ bool MappingManager::connectMapping(
             .type = electrosynth::ConnectionType::Modulation,
             .nodeId = juce::String (source).upToFirstOccurrenceOf ("_", false,false),
             .endpointId = juce::String (source),
-            .direction = electrosynth::EndpointDirection::Source
+            .direction = electrosynth::EndpointType::Source
         },
         .destination {
             .type = electrosynth::ConnectionType::Modulation,
             .nodeId = juce::String (destination).upToFirstOccurrenceOf ("_", false,false),
             .endpointId = juce::String (destination),
-            .direction = electrosynth::EndpointDirection::Destination
+            .direction = electrosynth::EndpointType::Destination
         },
         .destinationSlot = destination_slot
     };

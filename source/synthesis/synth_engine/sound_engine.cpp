@@ -32,8 +32,8 @@
 
 namespace electrosynth
 {
-    static std::string makeTopologyConnectionKey(const juce::String& sourceNodeId,
-                                                 const juce::String& destinationNodeId)
+    static std::string getConnectionKey(const juce::String& sourceNodeId,
+                                        const juce::String& destinationNodeId)
     {
         return sourceNodeId.toStdString() + "->" + destinationNodeId.toStdString();
     }
@@ -54,14 +54,14 @@ namespace electrosynth
         connection.source = {
             .type = ConnectionType::Audio,
             .nodeId = sourceNodeId,
-            .endpointId = "audio_out",
-            .direction = EndpointDirection::Source
+            .endpointId = "audio_out", // endpointId makes sense if you think of bidirectional arrow
+            .direction = EndpointType::Source
         };
         connection.destination = {
             .type = ConnectionType::Audio,
             .nodeId = destinationNodeId,
             .endpointId = "audio_in",
-            .direction = EndpointDirection::Destination
+            .direction = EndpointType::Destination
         };
         connection.topologyDerived = true;
         return connection;
@@ -242,7 +242,7 @@ namespace electrosynth
             {
                 if (header != nullptr)
                 {
-                    header->previousOutput = 0.0f;
+                    header->outputs[0] = 0.0f;
                 }
             }
         }
@@ -285,7 +285,7 @@ namespace electrosynth
         for (const auto& connection : moduleGraph_->getConnections())
         {
             if (connection.type == electrosynth::ConnectionType::Audio && connection.topologyDerived)
-                previousTopologyAudioAmounts.emplace(makeTopologyConnectionKey(connection.source.nodeId, connection.destination.nodeId), connection.amount);
+                previousTopologyAudioAmounts.emplace(getConnectionKey(connection.source.nodeId, connection.destination.nodeId), connection.amount);
         }
 
         std::vector<juce::String> topologyConnectionsToRemove;
@@ -318,7 +318,7 @@ namespace electrosynth
                     {
                         auto connection = makeTopologyAudioConnection(previousModule->getNodeId(), module->getNodeId());
                         if (const auto amountIt = previousTopologyAudioAmounts.find(
-                                makeTopologyConnectionKey(connection.source.nodeId, connection.destination.nodeId));
+                                getConnectionKey(connection.source.nodeId, connection.destination.nodeId));
                             amountIt != previousTopologyAudioAmounts.end())
                         {
                             connection.amount = amountIt->second;
@@ -361,7 +361,7 @@ namespace electrosynth
             {
                 auto connection = makeTopologyAudioConnection(previousModule->getNodeId(), firstLaneModule->getNodeId());
                 if (const auto amountIt = previousTopologyAudioAmounts.find(
-                        makeTopologyConnectionKey(connection.source.nodeId, connection.destination.nodeId));
+                        getConnectionKey(connection.source.nodeId, connection.destination.nodeId));
                     amountIt != previousTopologyAudioAmounts.end())
                 {
                     connection.amount = amountIt->second;
@@ -389,7 +389,7 @@ namespace electrosynth
                     {
                         auto connection = makeTopologyAudioConnection(previousModule->getNodeId(), module->getNodeId());
                         if (const auto amountIt = previousTopologyAudioAmounts.find(
-                                makeTopologyConnectionKey(connection.source.nodeId, connection.destination.nodeId));
+                                getConnectionKey(connection.source.nodeId, connection.destination.nodeId));
                             amountIt != previousTopologyAudioAmounts.end())
                         {
                             connection.amount = amountIt->second;
@@ -792,36 +792,43 @@ namespace electrosynth
                 if (src != nullptr)
                 {
                     const auto envValue = masterEnvelope.getSample (v * 2, 0);
-                    const auto sourceOut = isChainExit ? src->previousOutput * envValue : src->previousOutput; // intervene with the master envelope baby !
+                    const auto sourceOut = isChainExit ? src->outputs[0].load() * envValue : src->outputs[0].load(); // intervene with the master envelope baby !
                     if (dst != nullptr)
                     {
-                        dst->summedInput += sourceOut * connection.amount;
+                        dst->inputs[0] = dst->inputs[0] + sourceOut * connection.amount;
+                    }
+                }
+                if (src != nullptr)
+                {
+                    if (dst != nullptr)
+                    {
+                        dst->inputs[0] = LEAF_clip(-1.f, dst->inputs[0], 1.f); // might get aliasing... could replace with soft clip.
                     }
                 }
             }
         }
     }
 
-    static void commitCurrentOutputs(std::array<ModuleHeader*, MAX_NUM_VOICES>* procArray) noexcept
-    {
-        jassert(procArray != nullptr);
-
-        for (auto* header : *procArray)
-        {
-            if (header != nullptr)
-                header->previousOutput = header->outputs[0];
-        }
-    }
-
-    static void commitCurrentOutputsForAllModules(
-        const std::map<juce::String, ModuleBase*>& moduleRegistry) noexcept
-    {
-        for (const auto& [_, module] : moduleRegistry)
-        {
-            if (module != nullptr)
-                commitCurrentOutputs(module->procArray);
-        }
-    }
+    // static void commitCurrentOutputs(std::array<ModuleHeader*, MAX_NUM_VOICES>* procArray) noexcept
+    // {
+    //     jassert(procArray != nullptr);
+    //
+    //     for (auto* header : *procArray)
+    //     {
+    //         if (header != nullptr)
+    //             header->previousOutput = header->outputs[0];
+    //     }
+    // }
+    //
+    // static void commitCurrentOutputsForAllModules(
+    //     const std::map<juce::String, ModuleBase*>& moduleRegistry) noexcept
+    // {
+    //     for (const auto& [_, module] : moduleRegistry)
+    //     {
+    //         if (module != nullptr)
+    //             commitCurrentOutputs(module->procArray);
+    //     }
+    // }
 
     static void tickAllModules(
         const std::map<juce::String, ModuleBase*>& moduleRegistry) noexcept
@@ -833,6 +840,7 @@ namespace electrosynth
         }
     }
 
+    // get rid of this ??
     void SoundEngine::mixChainOutputsWithMasterEnvelope(juce::AudioBuffer<float>& masterEnvelope) const noexcept
     {
         const auto snapshot = getRuntimeTopologySnapshot();
@@ -854,7 +862,7 @@ namespace electrosynth
                 const float envR = masterEnvelope.getSample(v * 2 + 1, 0);
 
                 // If mono per-voice, pick one envelope value or decide a policy here.
-                header->previousOutput *= envL;
+                header->outputs[0] = header->outputs[0] * envL;
             }
         }
     }
@@ -877,6 +885,7 @@ namespace electrosynth
                 if (header == nullptr)
                     continue;
 
+                // this is here only for case when there's literally only one module in audio chain (because then it doesn't register an audioconnection)
                 const bool isChainExit = snapshot->chainExitModules.end() != std::find(snapshot->chainExitModules.begin(),
                                                                                         snapshot->chainExitModules.end(),
                                                                                         module);
@@ -884,11 +893,11 @@ namespace electrosynth
                 audio_buffer.addSample (
                     0,
                     i,
-                    mixWithMasterEnvelope ? env : 1.0f * header->previousOutput * env);
+                    mixWithMasterEnvelope ? env : 1.0f * header->outputs[0] * env);
                 audio_buffer.addSample (
                     1,
                     i,
-                    mixWithMasterEnvelope ? env : 1.0f * header->previousOutput * env);
+                    mixWithMasterEnvelope ? env : 1.0f * header->outputs[0] * env);
 
             }
         }
@@ -902,7 +911,7 @@ namespace electrosynth
             out << header << "\n";
 
         out << "Terminal audio modules: "
-            << juce::String(static_cast<int>(terminalAudioModules_.size())) << "\n";
+            << juce::String(terminalAudioModules_.size()) << "\n";
 
         if (terminalAudioModules_.empty())
         {
@@ -916,25 +925,23 @@ namespace electrosynth
             const auto* module = terminalAudioModules_[index];
             if (module == nullptr)
             {
-                out << "    [" << juce::String(static_cast<int>(index)) << "] <null>\n";
+                out << "    [" << juce::String(index) << "] <null>\n";
                 continue;
             }
 
-            out << "    [" << juce::String(static_cast<int>(index)) << "] "
+            out << "    [" << juce::String(index) << "] "
                 << module->getNodeId()
                 << " display=\"" << module->getDisplayName() << "\""
                 << " ptr=" << juce::String::toHexString(static_cast<juce::uint64>(
                     reinterpret_cast<juce::pointer_sized_int>(module)));
 
             if (module->procArray != nullptr)
-                out << " voices=" << juce::String(static_cast<int>(module->procArray->size()));
+                out << " voices=" << juce::String(module->procArray->size());
 
             out << "\n";
         }
 
         DBG(out);
-#else
-        (void) header;
 #endif
     }
 
@@ -968,8 +975,6 @@ namespace electrosynth
         }
 
         DBG(out);
-#else
-        (void) header;
 #endif
     }
 
@@ -1070,20 +1075,19 @@ namespace electrosynth
                 // we're ticking master envelope first
                 auto masterEnvelope = MasterVoiceEnvelopeProcessor->processMasterEnvelope();
 
-                processMappings();
+                processMappings(); // process modulations !! :)
 
-                // mixChainOutputsWithMasterEnvelope(*masterEnvelope);
-                processAudioConnections  (*masterEnvelope);
+                processAudioConnections  (*masterEnvelope); // process all audio connections (e.g. route their audio to and fro) - robert frost
 
-                // MIKE CUT
-                // for (std::size_t lane = 0; lane < laneSummedInputs.size(); ++lane)
-                //     flushLaneInputToBuffer(laneSummedInputs[lane], temp_fx_buffers[lane + 1]);
+                tickAllModules(moduleRegistry_); // tick all the modules, one by one, indiscriminately (cold)
 
-                tickAllModules(moduleRegistry_);
+                mixTerminalModulesToOutput (audio_buffer, *masterEnvelope, i); // get actual outputs from graph (terminal modules) and fill JUCE output buffer
 
-                mixTerminalModulesToOutput (audio_buffer, *masterEnvelope, i);
+                // Mike (think about)
+                // 1. check out whether we can actually read output[0] to avoid additional sample delay at end of chain...
+                // 2. might be able to have a function (like commitCurrentOutputsForAllModules) that zeroes all summedInputs
+                // 3. possibly get rid of summedInput in favor of more eneric input pathwayg??? (to take things out of LEAF Module Processor and give us more discrete control from above)
 
-                commitCurrentOutputsForAllModules(moduleRegistry_);
 
                 // MIKE CUT
                 // int chainIndex = -1;
@@ -1510,13 +1514,13 @@ namespace electrosynth
                 .type = electrosynth::ConnectionType::Modulation,
                 .nodeId = juce::String (change.connection->source_name),
                 .endpointId = juce::String (change.connection->source_name),
-                .direction = electrosynth::EndpointDirection::Source
+                .direction = electrosynth::EndpointType::Source
             },
             .destination {
                 .type = electrosynth::ConnectionType::Modulation,
                 .nodeId = juce::String (change.connection->destination_name),
                 .endpointId = juce::String (change.connection->destination_name),
-                .direction = electrosynth::EndpointDirection::Destination
+                .direction = electrosynth::EndpointType::Destination
             },
             .destinationSlot = change.connection->destination_slot,
             .amount = change.connection->getCurrentBaseValue(),

@@ -183,16 +183,26 @@ namespace electrosynth {
         std::array<ModuleHeader*, MAX_NUM_VOICES>*  getLEAFProcessor(const std::string&);
         std::array<ModuleHeader*, MAX_NUM_VOICES>* getLEAFProcessorModulator(const std::string&);
         std::pair<  std::array<ModuleHeader*, MAX_NUM_VOICES>* , int> getParameterInfo(const std::string&);
+
+
+
+        // module graph is being constructed based on contents of below (processors, effects, modSources)
+        // but we could just keep track of "where a module is" through its Node metadata in moduleGraph
+        // and have one container for all modules, like this? :
+        // std::vector<std::unique_ptr<ModuleBase>> modules;
         std::vector<std::vector<std::unique_ptr<ProcessorBase>>> processors;
+        std::array<std::vector<std::unique_ptr<ProcessorBase>>,3> effects;
+        std::vector<std::vector<std::unique_ptr<ModulatorBase>>> modSources;
+
         std::vector<std::unique_ptr<RoutingProcessor>> chainPostGain;
         std::array<juce::AudioBuffer<float>, 10> chainPostGainBuffers;
+
         std::vector<leaf::tAudioRouting*> chain_to_lane_routings;
         std::vector<std::unique_ptr<RoutingProcessor>> effectPreGain;
-        std::array<std::vector<std::unique_ptr<ProcessorBase>>,3> effects;
         void beginEffectLaneFadeOut(int lane) noexcept;
         void beginEffectLaneFadeIn(int lane) noexcept;
         bool isEffectLaneSilent(int lane) const noexcept;
-        std::vector<std::vector<std::unique_ptr<ModulatorBase>>> modSources;
+
         std::vector<ModuleBase*> terminalAudioModules_;
         std::unordered_set<ModuleBase*> chainExitModules_;
         std::vector<RuntimeAudioConnection> laneBridgeAudioConnections_;

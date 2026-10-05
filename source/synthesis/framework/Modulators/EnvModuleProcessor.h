@@ -68,8 +68,6 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
         }
     };
 
-
-
     // Decay param
     chowdsp::TimeMsParameter::Ptr decayParam {
         juce::ParameterID { "decay", 100 },

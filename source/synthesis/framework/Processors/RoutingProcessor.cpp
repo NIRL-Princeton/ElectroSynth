@@ -64,7 +64,7 @@ void RoutingProcessor::processBlock(juce::AudioBuffer<float> & buffer, juce::Mid
         for (int i = 0; i < numSamples; i++)
         {
             tVCAModule_tick(state_.params.modules[v],inL);
-            outL[i] += state_.params.modules[v]->header.previousOutput;
+            outL[i] += state_.params.modules[v]->header.outputs[0];
             outR[i] = outL[i];
         }
     }

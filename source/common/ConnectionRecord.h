@@ -11,12 +11,12 @@ namespace electrosynth {
         Audio
     };
 
-    enum class EndpointDirection {
+    enum class EndpointType {
         Source,
         Destination
     };
 
-    struct EndpointCapabilities {
+    struct EndpointFeature {
         bool hasAmount = false;
         bool hasBipolar = false;
         bool hasStereo = false;
@@ -28,7 +28,7 @@ namespace electrosynth {
         ConnectionType type = ConnectionType::Modulation;
         juce::String nodeId; // what node (or module, ex. filter 1.1, oscillation 3.2, etc.) does this endpoint belong to?
         juce::String endpointId; // which endpoint is this?
-        EndpointDirection direction = EndpointDirection::Source; // is this a source or destination?
+        EndpointType direction = EndpointType::Source; // is this a source or destination?
         audio::AudioDomain audioDomain = audio::AudioDomain::PerVoiceStereo;
 
         bool isValid() const noexcept {
@@ -43,7 +43,7 @@ namespace electrosynth {
 
     struct EndpointDescriptor {
         EndpointAddress address;
-        EndpointCapabilities capabilities;
+        EndpointFeature features;
     };
 
     struct ConnectionRecord {
@@ -52,9 +52,9 @@ namespace electrosynth {
         EndpointAddress source;
         EndpointAddress destination;
         int destinationSlot = -1;   // which visual slot does this connection occupy?
-        bool topologyDerived = false; // implicit edge generated from module ordering / routing
+        bool topologyDerived = false; // true if connection is result of simply being in graph (like module to module downward in lane)
 
-        float amount = 1.0f; // persistent states for connection, not UI
+        float amount = 1.0f;
         bool bipolar = false;
         bool bypass = false;
         bool stereo = false;
@@ -69,8 +69,8 @@ namespace electrosynth {
                     && (source.type == ConnectionType::Audio || source.type == ConnectionType::Modulation));
 
             return id.isNotEmpty() && source.isValid() && destination.isValid() && type_matches
-                && source.direction == EndpointDirection::Source
-                && destination.direction == EndpointDirection::Destination;
+                && source.direction == EndpointType::Source
+                && destination.direction == EndpointType::Destination;
         }
     };
 

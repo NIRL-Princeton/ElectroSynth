@@ -20,9 +20,9 @@ ModulationSection::ModulationSection( const juce::ValueTree &v, std::unique_ptr<
             .type = electrosynth::ConnectionType::Modulation,
             .nodeId = state.getProperty(IDs::nodeID).toString(),
             .endpointId = getComponentID() + "_mod",
-            .direction = electrosynth::EndpointDirection::Source
+            .direction = electrosynth::EndpointType::Source
         },
-        .capabilities {
+        .features {
             .maxIncomingConnections = 0
         }
     };
