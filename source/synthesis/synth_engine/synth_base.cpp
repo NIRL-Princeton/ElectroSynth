@@ -957,7 +957,7 @@ bool SynthBase::connect(const electrosynth::ConnectionRecord& connection) {
 bool SynthBase::updateConnection(const electrosynth::ConnectionRecord& connection) {
     juce::ScopedLock sl(getCriticalSection());
     const bool updated = connection.isValid() && engine_ != nullptr && engine_->updateGraphConnection(connection);
-    if (updated && connection.type == electrosynth::ConnectionType::Audio)
+    if (updated && connection.type == electrosynth::ConnectionType::Audio) {}
         moduleGraphTopologyDirty_ = true;
     return updated;
 }

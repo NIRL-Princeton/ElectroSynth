@@ -53,12 +53,25 @@ namespace electrosynth {
         ModuleBase* sourceModule = nullptr;
         ModuleBase* destinationModule = nullptr;
         float amount = 1.0f;
+        bool sourceIsChainExit = false;
+    };
+
+    struct RuntimeTerminalAudioModule {
+        ModuleBase* module = nullptr;
+        bool isChainExit = false;
+    };
+
+    struct RuntimeModulationConnection {
+        std::shared_ptr<ModulationRuntimeState> state;
+        float amount = 1.0f; // optional if scaling already wired
     };
 
     struct RuntimeTopologySnapshot {
         std::vector<RuntimeAudioConnection> audioConnections;
-        std::vector<ModuleBase*> terminalAudioModules;
+        std::vector<RuntimeTerminalAudioModule> terminalAudioModules;
         std::vector<ModuleBase*> chainExitModules;
+        std::vector<RuntimeModulationConnection> modulationConnections;
+        std::vector<ModuleBase*> modulesToTick;
     };
 
     class SoundEngine : public NoteHandler {
@@ -223,7 +236,7 @@ namespace electrosynth {
         std::shared_ptr<const RuntimeTopologySnapshot> getRuntimeTopologySnapshot() const noexcept;
         std::unique_ptr<ModuleGraph> moduleGraph_;
         std::map<juce::String, ModuleBase*> moduleRegistry_;
-        std::map<juce::String, ModulationRuntimeState> modulationStates_;
+        std::map<juce::String, std::shared_ptr<ModulationRuntimeState>> modulationStates_;
         mutable std::shared_ptr<const RuntimeTopologySnapshot> runtimeTopologySnapshot_;
 
 
