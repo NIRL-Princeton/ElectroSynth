@@ -40,11 +40,6 @@ SynthEditor::SynthEditor(bool use_gui) : SynthGuiInterface(this, use_gui) {
 
   setAudioChannels(0, electrosynth::kNumChannels);
 
-  AudioDeviceManager::AudioDeviceSetup setup;
-  deviceManager.getAudioDeviceSetup(setup);
-  setup.sampleRate = electrosynth::kDefaultSampleRate;
- // deviceManager.initialise(0, electrosynth::kNumChannels, nullptr, true, "", &setup);
-
     auto midiInputs = juce::MidiInput::getAvailableDevices();
     if (midiInputs.size() > 0 && !deviceManager.isMidiInputDeviceEnabled (midiInputs[0].identifier))
     {

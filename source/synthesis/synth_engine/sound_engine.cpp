@@ -665,7 +665,20 @@ namespace electrosynth
 
     bool SoundEngine::updateGraphConnection(const electrosynth::ConnectionRecord& connection)
     {
-        return moduleGraph_ != nullptr && moduleGraph_->update(connection);
+        if (moduleGraph_ == nullptr || !moduleGraph_->update(connection))
+            return false;
+
+        if (connection.type == electrosynth::ConnectionType::Modulation)
+        {
+            auto stateIt = modulationStates_.find(connection.id);
+            if (stateIt != modulationStates_.end())
+            {
+                stateIt->second.record = connection;
+                stateIt->second.scalingValue.store(connection.amount, std::memory_order_relaxed);
+            }
+        }
+
+        return true;
     }
 
     void SoundEngine::disconnectGraphConnection(const juce::String& connectionId)
@@ -724,30 +737,18 @@ namespace electrosynth
 #endif
     }
 
-    void SoundEngine::processMappings()
+    void SoundEngine::processMappings(const RuntimeTopologySnapshot& snapshot)
     {
-        if (moduleGraph_ == nullptr)
-            return;
+        juce::ignoreUnused(snapshot);
 
-        for (const auto& connection : moduleGraph_->getConnections())
+        for (auto& [_, moduleRuntime] : modulationStates_)
         {
-            if (connection.type != electrosynth::ConnectionType::Modulation)
-                continue;
-
-            auto moduleRuntimeIt = modulationStates_.find(connection.id);
-            if (moduleRuntimeIt == modulationStates_.end())
-                continue;
-
-            auto& moduleRuntime = moduleRuntimeIt->second;
-            moduleRuntime.record = connection;
-            moduleRuntime.scalingValue.store(connection.amount, std::memory_order_relaxed);
-
             if (moduleRuntime.source == nullptr
                 || moduleRuntime.destination == nullptr
                 || moduleRuntime.destinationParamIndex < 0)
                 continue;
 
-            for (int voice = 0; voice < MAX_NUM_VOICES; ++voice)
+            for (int voice = 0; voice < voiceHandler.numVoicesActive; ++voice)
             {
                 auto* voice_mapping = moduleRuntime.mapping[voice];
                 if (voice_mapping == nullptr)
@@ -767,13 +768,13 @@ namespace electrosynth
         }
     }
 
-    void SoundEngine::processAudioConnections(juce::AudioBuffer<float>& masterEnvelope)
+    void SoundEngine::processAudioConnections(juce::AudioBuffer<float>& masterEnvelope,
+                                              const RuntimeTopologySnapshot& snapshot)
     {
-        const auto snapshot = getRuntimeTopologySnapshot();
-        if (snapshot == nullptr)
-            return;
+        std::unordered_set<ModuleBase*> chainExitLookup(snapshot.chainExitModules.begin(),
+                                                        snapshot.chainExitModules.end());
 
-        for (const auto& connection : snapshot->audioConnections)
+        for (const auto& connection : snapshot.audioConnections)
         {
             if (connection.sourceModule == nullptr || connection.destinationModule == nullptr)
                 continue;
@@ -782,29 +783,19 @@ namespace electrosynth
                 || connection.destinationModule->procArray == nullptr)
                 continue;
 
-            const bool isChainExit = chainExitModules_.contains(connection.sourceModule);
+            const bool isChainExit = chainExitLookup.find(connection.sourceModule) != chainExitLookup.end();
 
-            for (int v = 0; v < MAX_NUM_VOICES; ++v)
+            for (int v = 0; v < voiceHandler.numVoicesActive; ++v)
             {
                 auto* src = connection.sourceModule->procArray->at(v);
                 auto* dst = connection.destinationModule->procArray->at(v);
+                if (src == nullptr || dst == nullptr)
+                    continue;
 
-                if (src != nullptr)
-                {
-                    const auto envValue = masterEnvelope.getSample (v * 2, 0);
-                    const auto sourceOut = isChainExit ? src->outputs[0].load() * envValue : src->outputs[0].load(); // intervene with the master envelope baby !
-                    if (dst != nullptr)
-                    {
-                        dst->inputs[0] = dst->inputs[0] + sourceOut * connection.amount;
-                    }
-                }
-                if (src != nullptr)
-                {
-                    if (dst != nullptr)
-                    {
-                        dst->inputs[0] = LEAF_clip(-1.f, dst->inputs[0], 1.f); // might get aliasing... could replace with soft clip.
-                    }
-                }
+                const auto envValue = masterEnvelope.getSample (v * 2, 0);
+                const auto sourceOut = isChainExit ? src->outputs[0].load() * envValue : src->outputs[0].load(); // intervene with the master envelope baby !
+                dst->inputs[0] = dst->inputs[0] + sourceOut * connection.amount;
+                dst->inputs[0] = LEAF_clip(-1.f, dst->inputs[0], 1.f); // might get aliasing... could replace with soft clip.
             }
         }
     }
@@ -841,13 +832,10 @@ namespace electrosynth
     }
 
     // get rid of this ??
-    void SoundEngine::mixChainOutputsWithMasterEnvelope(juce::AudioBuffer<float>& masterEnvelope) const noexcept
+    void SoundEngine::mixChainOutputsWithMasterEnvelope(juce::AudioBuffer<float>& masterEnvelope,
+                                                        const RuntimeTopologySnapshot& snapshot) const noexcept
     {
-        const auto snapshot = getRuntimeTopologySnapshot();
-        if (snapshot == nullptr)
-            return;
-
-        for (auto* module : snapshot->chainExitModules)
+        for (auto* module : snapshot.chainExitModules)
         {
             if (module == nullptr || module->procArray == nullptr)
                 continue;
@@ -867,13 +855,16 @@ namespace electrosynth
         }
     }
 
-    void SoundEngine::mixTerminalModulesToOutput(juce::AudioSampleBuffer& audio_buffer, juce::AudioBuffer<float>& masterEnvelope, int i, bool mixWithMasterEnvelope) const
+    void SoundEngine::mixTerminalModulesToOutput(juce::AudioSampleBuffer& audio_buffer,
+                                                 juce::AudioBuffer<float>& masterEnvelope,
+                                                 const RuntimeTopologySnapshot& snapshot,
+                                                 int i,
+                                                 bool mixWithMasterEnvelope) const
     {
-        const auto snapshot = getRuntimeTopologySnapshot();
-        if (snapshot == nullptr)
-            return;
+        std::unordered_set<ModuleBase*> chainExitLookup(snapshot.chainExitModules.begin(),
+                                                        snapshot.chainExitModules.end());
 
-        for (auto* module : snapshot->terminalAudioModules)
+        for (auto* module : snapshot.terminalAudioModules)
         {
             if (module == nullptr || module->procArray == nullptr)
                 continue;
@@ -886,9 +877,7 @@ namespace electrosynth
                     continue;
 
                 // this is here only for case when there's literally only one module in audio chain (because then it doesn't register an audioconnection)
-                const bool isChainExit = snapshot->chainExitModules.end() != std::find(snapshot->chainExitModules.begin(),
-                                                                                        snapshot->chainExitModules.end(),
-                                                                                        module);
+                const bool isChainExit = chainExitLookup.find(module) != chainExitLookup.end();
                 const float env = isChainExit ? masterEnvelope.getSample(v * 2, 0) : 1.0f;
                 audio_buffer.addSample (
                     0,
@@ -1001,6 +990,11 @@ namespace electrosynth
         //VITAL_ASSERT(num_samples <= output()->buffer_size);
         // benchmark();
         juce::FloatVectorOperations::disableDenormalisedNumberSupport();
+
+        // Create / load runtime graph at block level instead of every sample.
+        static const RuntimeTopologySnapshot kEmptySnapshot;
+        const auto runtimeSnapshot = getRuntimeTopologySnapshot();
+        const RuntimeTopologySnapshot& snapshot = runtimeSnapshot != nullptr ? *runtimeSnapshot : kEmptySnapshot;
         temp_voice_buffer.clear();
         for (auto& buffer : temp_fx_buffers)
             buffer.clear();
@@ -1075,58 +1069,17 @@ namespace electrosynth
                 // we're ticking master envelope first
                 const auto masterEnvelope = MasterVoiceEnvelopeProcessor->processMasterEnvelope();
 
-                processMappings(); // process modulations !! :)
+                processMappings(snapshot); // process modulations !! :)
 
-                processAudioConnections  (*masterEnvelope); // process all audio connections (e.g. route their audio to and fro) - robert frost
+                processAudioConnections(*masterEnvelope, snapshot); // process all audio connections (e.g. route their audio to and fro) - robert frost
 
                 tickAllModules(moduleRegistry_); // tick all the modules, one by one, indiscriminately (cold)
 
-                mixTerminalModulesToOutput (audio_buffer, *masterEnvelope, i); // get actual outputs from graph (terminal modules) and fill JUCE output buffer
+                mixTerminalModulesToOutput(audio_buffer, *masterEnvelope, snapshot, i); // get actual outputs from graph (terminal modules) and fill JUCE output buffer
 
                 // Mike (think about)
-                // 1. check out whether we can actually read output[0] to avoid additional sample delay at end of chain...
-                // 2. might be able to have a function (like commitCurrentOutputsForAllModules) that zeroes all summedInputs
-                // 3. possibly get rid of summedInput in favor of more eneric input pathwayg??? (to take things out of LEAF Module Processor and give us more discrete control from above)
-
-
-                // MIKE CUT
-                // int chainIndex = -1;
-                // for (auto& proc_chain : processors)
-                // {
-                //     chainIndex++;
-                //     if (proc_chain.empty())
-                //         continue;
-                //     for (auto& proc : proc_chain)
-                //     {
-                //         if (proc != nullptr)
-                //         {
-                //             proc->processBlock (temp_voice_buffer, empty);
-                //             // is procArray really previous output or current output?
-                //             fillBufferFromPreviousOutputs (temp_voice_buffer, proc->procArray);
-                //         }
-                //     }
-                //
-                //     for (int v = 0; v < voiceHandler.numVoicesActive; ++v)
-                //     {
-                //         // audio_buffer.addSample(0, i, temp_voice_buffer.getSample(v*2, 0));
-                //         // audio_buffer.addSample(1, i, temp_voice_buffer.getSample(v*2+1, 0));
-                // temp_voice_buffer.setSample (
-                //     v * 2,
-                //     0,
-                //     amp_vals->getSample (v * 2, 0) * temp_voice_buffer.getSample (v * 2, 0)
-                //     );
-                // temp_voice_buffer.setSample (
-                //     v * 2 + 1,
-                //     0,
-                //     amp_vals->getSample (v * 2 + 1, 0) * temp_voice_buffer.getSample (v * 2 + 1, 0));
-                //     }
-                //     //writes out to fx_buffers
-                //     auto& chainPostInputBuffer = chainPostGainBuffers[static_cast<std::size_t>(chainIndex)];
-                //     chainPostGain[chainIndex]->processBlock (chainPostInputBuffer, empty);
-                //     chainPostInputBuffer.makeCopyOf (temp_voice_buffer);
-                //
-                //     temp_voice_buffer.clear();
-                // }
+                // 1. might be able to have a function (like commitCurrentOutputsForAllModules) that zeroes all summedInputs
+                // 2. possibly get rid of summedInput in favor of more generic input pathway??? (to take things out of LEAF Module Processor and give us more discrete control from above)
             }
 
 

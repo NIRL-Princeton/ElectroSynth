@@ -80,12 +80,18 @@ namespace electrosynth {
       juce::CriticalSection myCoolLock;
         void process(juce::AudioSampleBuffer&, juce::MidiBuffer &);
         void process(juce::AudioSampleBuffer&,int channels, int samples, int offset);
-        void processMappings();
-        void processAudioConnections(juce::AudioBuffer<float>& masterEnvelope);
+        void processMappings(const RuntimeTopologySnapshot& snapshot);
+        void processAudioConnections(juce::AudioBuffer<float>& masterEnvelope,
+                                     const RuntimeTopologySnapshot& snapshot);
         void refreshModuleGraphTopology();
         void rebuildRuntimeTopologySnapshot();
-        void mixChainOutputsWithMasterEnvelope(juce::AudioBuffer<float>& masterEnvelope) const noexcept;
-        void mixTerminalModulesToOutput(juce::AudioSampleBuffer& audio_buffer, juce::AudioBuffer<float>& masterEnvelope, int i, bool mixWithMasterEnvelope = false) const;
+        void mixChainOutputsWithMasterEnvelope(juce::AudioBuffer<float>& masterEnvelope,
+                                               const RuntimeTopologySnapshot& snapshot) const noexcept;
+        void mixTerminalModulesToOutput(juce::AudioSampleBuffer& audio_buffer,
+                                        juce::AudioBuffer<float>& masterEnvelope,
+                                        const RuntimeTopologySnapshot& snapshot,
+                                        int i,
+                                        bool mixWithMasterEnvelope = false) const;
         void debugPrintTerminalAudioModules(const juce::String& header = {}) const;
         void debugPrintChainExitModules() const;
         int getEffectLaneIndex(const juce::String& nodeId) const noexcept;
