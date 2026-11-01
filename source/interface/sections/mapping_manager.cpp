@@ -680,7 +680,6 @@ void MappingManager::mouseUp(const juce::MouseEvent& event) {
     endpoint_drag_destination_component_ = nullptr;
 }
 
-// Making connection helpers  ************************************************************************************************************ Making connection helpers
 bool MappingManager::endpointsAreCompatible(const electrosynth::EndpointAddress& source, const electrosynth::EndpointAddress& destination) const {
     if (!source.isValid() || !destination.isValid())
         return false;
@@ -691,7 +690,7 @@ bool MappingManager::endpointsAreCompatible(const electrosynth::EndpointAddress&
 
     if (source.type == electrosynth::ConnectionType::Audio) {
         if (destination.type == electrosynth::ConnectionType::Audio)
-            return source.audioDomain == destination.audioDomain && source.nodeId != destination.nodeId;
+            return source.nodeId != destination.nodeId;
 
         if (destination.type == electrosynth::ConnectionType::Modulation)
             return source.nodeId != destination.nodeId;

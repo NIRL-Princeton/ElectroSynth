@@ -500,7 +500,7 @@ namespace electrosynth
                 terminalAudioModules_.push_back(node->module);
         }
 
-        moduleGraph_->debugPrint("ModuleGraph Topology: ");
+        moduleGraph_->debugPrint("ModuleGraph: ");
         debugPrintTerminalAudioModules("Terminal modules after topology refres...");
         debugPrintChainExitModules();
 
@@ -1073,7 +1073,7 @@ namespace electrosynth
             {
                 juce::ScopedLock sl (myCoolLock);
                 // we're ticking master envelope first
-                auto masterEnvelope = MasterVoiceEnvelopeProcessor->processMasterEnvelope();
+                const auto masterEnvelope = MasterVoiceEnvelopeProcessor->processMasterEnvelope();
 
                 processMappings(); // process modulations !! :)
 

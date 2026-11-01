@@ -178,8 +178,7 @@ mapping_manager_ (m),ModulesInterface( module_list), footer_body(new OpenGlQuad(
                 .type = electrosynth::ConnectionType::Audio,
                 .nodeId = module_list.getNodeId(),
                 .endpointId = module_list.getAudioNodeDescriptor().outputPortId,
-                .direction = electrosynth::EndpointType::Source,
-                .audioDomain = module_list.getAudioNodeDescriptor().domain
+                .direction = electrosynth::EndpointType::Source
             },
             .features {
                 .maxIncomingConnections = 0
@@ -201,8 +200,7 @@ mapping_manager_ (m),ModulesInterface( module_list), footer_body(new OpenGlQuad(
                 .type = electrosynth::ConnectionType::Audio,
                 .nodeId = module_list.getNodeId(),
                 .endpointId = module_list.getAudioNodeDescriptor().inputPortId,
-                .direction = electrosynth::EndpointType::Destination,
-                .audioDomain = module_list.getAudioNodeDescriptor().domain
+                .direction = electrosynth::EndpointType::Destination
             },
             .features {
                 .hasAmount = true,

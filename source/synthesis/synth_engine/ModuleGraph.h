@@ -24,6 +24,7 @@ namespace electrosynth
             Modulator
         };
 
+        // This holds all the information about a node in the module graph
         struct NodeRecord
         {
             ModuleBase* module = nullptr;

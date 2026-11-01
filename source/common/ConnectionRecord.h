@@ -27,9 +27,8 @@ namespace electrosynth {
     struct EndpointAddress {
         ConnectionType type = ConnectionType::Modulation;
         juce::String nodeId; // what node (or module, ex. filter 1.1, oscillation 3.2, etc.) does this endpoint belong to?
-        juce::String endpointId; // which endpoint is this?
+        juce::String endpointId; // which endpoint is this? e.g. "frequency", "gain", etc.
         EndpointType direction = EndpointType::Source; // is this a source or destination?
-        audio::AudioDomain audioDomain = audio::AudioDomain::PerVoiceStereo;
 
         bool isValid() const noexcept {
             return nodeId.isNotEmpty() && endpointId.isNotEmpty();

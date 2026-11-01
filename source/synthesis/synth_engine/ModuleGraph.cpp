@@ -12,6 +12,23 @@
 
 namespace electrosynth
 {
+    static juce::String labelForNodeId(const ModuleGraph& graph, const juce::String& nodeId)
+    {
+        const auto* node = graph.getNode(nodeId);
+        if (node != nullptr && node->module != nullptr)
+        {
+            const auto displayName = node->module->getDisplayName();
+            if (displayName.isNotEmpty())
+                return displayName;
+
+            const auto typeName = node->module->state.getProperty(IDs::type).toString();
+            if (typeName.isNotEmpty())
+                return typeName;
+        }
+
+        return nodeId;
+    }
+
     void ModuleGraph::registerNode(const juce::String& nodeId,
                                    ModuleBase* module,
                                    NodeKind kind,
@@ -173,46 +190,17 @@ namespace electrosynth
 
     juce::String ModuleGraph::toDebugString() const
     {
-        const auto labelForId = [this](const juce::String& nodeId)
-        {
-            if (const auto* node = getNode(nodeId))
-            {
-                if (node->module != nullptr)
-                {
-                    const auto displayName = node->module->getDisplayName();
-                    if (displayName.isNotEmpty())
-                        return displayName;
-
-                    const auto typeName = node->module->state.getProperty(IDs::type).toString();
-                    if (typeName.isNotEmpty())
-                        return typeName;
-                }
-            }
-
-            return nodeId;
-        };
-
         juce::String out;
-        out << "ModuleGraph: " << juce::String(static_cast<int>(nodes_.size())) << " node(s), "
+        // Number of nodes, number of non-topological interconnections
+        out << juce::String(static_cast<int>(nodes_.size())) << " node(s), "
             << juce::String(static_cast<int>(connections_.size())) << " cross connection(s)\n";
 
         if (!nodes_.empty())
         {
             for (const auto& [nodeId, record] : nodes_)
             {
-                auto kindToString = [] (NodeKind kind)
-                {
-                    switch (kind)
-                    {
-                        case NodeKind::Unknown: return "unknown";
-                        case NodeKind::AudioModule: return "module";
-                        case NodeKind::Modulator: return "mod";
-                    }
-                    return "unknown";
-                };
-
-                out << "    " << labelForId(nodeId)
-                    << " kind=" << kindToString(record.kind)
+                out << "    " << labelForNodeId(*this, nodeId)
+                    << " kind=" << ((record.kind == NodeKind::AudioModule) ? "module" : "mod")
                     << " inLane=" << (record.inLane ? "yes" : "no")
                     << " inProcessorChain=" << (record.inProcessorChain ? "yes" : "no")
                     << " terminal=" << (record.terminal ? "yes" : "no")
@@ -232,14 +220,6 @@ namespace electrosynth
 
         out << "Cross connections:\n";
 
-        std::unordered_map<std::string, int> outgoingCounts;
-        std::unordered_map<std::string, int> incomingCounts;
-        for (const auto& connection : connections_)
-        {
-            ++outgoingCounts[connection.source.nodeId.toStdString()];
-            ++incomingCounts[connection.destination.nodeId.toStdString()];
-        }
-
         auto connectionTypeToString = [] (ConnectionType type)
         {
             switch (type)
@@ -254,8 +234,8 @@ namespace electrosynth
         {
                 out << "    [" << connectionTypeToString(connection.type) << "] "
                 // << connection.id << "  "
-                << labelForId(connection.source.nodeId) << ":" << connection.source.endpointId << " -> "
-                << labelForId(connection.destination.nodeId) << ":" << connection.destination.endpointId
+                << labelForNodeId(*this, connection.source.nodeId) << ":" << connection.source.endpointId << " -> "
+                << labelForNodeId(*this, connection.destination.nodeId) << ":" << connection.destination.endpointId
                 << "  slot=" << juce::String(connection.destinationSlot)
                 << "  amount=" << juce::String(connection.amount, 4)
                 << "  bypass=" << (connection.bypass ? "Y" : "N")
@@ -264,22 +244,6 @@ namespace electrosynth
                 << "  topology=" << (connection.topologyDerived ? "Y" : "N")
                 << "\n";
         }
-
-
-        /*
-        out << "  Node summary:\n";
-        for (const auto& [node, count] : outgoingCounts)
-        {
-            out << "    " << labelForId(juce::String(node)) << ": out=" << juce::String(count)
-                << " in=" << juce::String(incomingCounts[node]) << "\n";
-        }
-
-        for (const auto& [node, count] : incomingCounts)
-        {
-            if (outgoingCounts.find(node) == outgoingCounts.end())
-                out << "    " << labelForId(juce::String(node)) << ": out=0 in=" << juce::String(count) << "\n";
-        }
-        */
 
         return out;
     }
