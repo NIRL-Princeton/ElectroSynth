@@ -139,6 +139,11 @@ void SoundModuleSection::handlePopupResult(int result) {
         t.setProperty(IDs::type, "sine", nullptr);
         undo.beginNewTransaction();
         list.appendChild(t, &undo);
+    } else if (result == 7) {
+        juce::ValueTree t(IDs::SOUNDMODULE);
+        t.setProperty(IDs::type, "sampHold", nullptr);
+        undo.beginNewTransaction();
+        list.appendChild(t, &undo);
     }
 
     //    if (result == kArmMidiLearn)
@@ -196,6 +201,8 @@ void SoundModuleSection::setEffectPositions() {
             section->setName("Noise " + juce::String(sound_module_index_) + "." + juce::String(noise_index++));
         else if (type == "sine")
             section->setName("Sine " + juce::String(sound_module_index_) + "." + juce::String(sine_index++));
+        else if (type == "sampHold")
+            section->setName("Sample & Hold " + juce::String(sound_module_index_) + "." + juce::String(sine_index++));
 
         const int section_height = section->refreshHeight(); // refresh height before positioning each module
         section->setDrawBottomSeparator(true);  //setDrawBottomSeparator(index + 1 < module_sections.size()); // add line separating modules
@@ -221,6 +228,7 @@ PopupItems SoundModuleSection::createPopupMenu() {
     options.addItem(4, "add soft clip");
     options.addItem(5, "add noise");
     options.addItem(6, "add sine");
+    options.addItem(7, "add Sample & Hold");
     return options;
 }
 

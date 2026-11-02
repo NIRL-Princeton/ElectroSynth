@@ -106,6 +106,12 @@ add_library(SharedCode INTERFACE
         source/synthesis/framework/Modulators/PerlinNoiseModuleProcessor.h
         source/synthesis/framework/Processors/SineModuleProcessor.cpp
         source/synthesis/framework/Processors/SineModuleProcessor.h
+        source/synthesis/framework/Modulators/SampleAndHoldProcessor.cpp
+        source/synthesis/framework/Modulators/SampleAndHoldProcessor.h
+        source/synthesis/framework/Modulators/SimpleEnvModuleProcessor.cpp
+        source/synthesis/framework/Modulators/SimpleEnvModuleProcessor.h
+        source/synthesis/framework/Modulators/ADEnvModuleProcessor.h
+        source/synthesis/framework/Modulators/ADEnvModuleProcessor.cpp
         source/interface/components/endpoint_arrow_component.h
         source/interface/components/endpoint_arrow_component.cpp
         source/interface/components/connection_slots.cpp
@@ -230,7 +236,7 @@ target_compile_definitions(LEAF_modules PRIVATE LEAF_USE_DYNAMIC_ALLOCATION=1)
 target_link_libraries("${PROJECT_NAME}" PRIVATE SharedCode)
 
 # IPP support, comment out to disable
-include(PamplejuceIPP)
+#include(PamplejuceIPP)
 
 # Everything related to the tests target
 #include(Tests)
