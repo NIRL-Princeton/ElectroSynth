@@ -349,6 +349,28 @@ bool FullInterface::sendMidiBufferToSelectedOutput(const juce::MidiBuffer& midi_
 
 void FullInterface::sendToDeviceRequested() {
     // value-initialize preset so it doesn't contain indeterminent data
+
+    DBG("SENDING TO DEVICE!");
+
+    // for Jeff, we get the runtime snapshot here and can use it to create mappingpreset7bits or in another way to get all the data over!
+    const auto* synth = data != nullptr ? data->synth : nullptr; // make sure data and data->synth exist
+    auto* engine = synth != nullptr ? synth->getEngine() : nullptr; // get engine from synth
+    const auto runtimeSnapshot = engine != nullptr ? engine->getRuntimeTopologySnapshot() : nullptr; // get the snapshot !
+    if (runtimeSnapshot != nullptr)
+    {
+        DBG("Num audio connections: "
+            + juce::String(static_cast<int>(runtimeSnapshot->audioConnections.size()))
+            + "\nNum modulation connections: "
+            + juce::String(static_cast<int>(runtimeSnapshot->modulationConnections.size()))
+            + "\nNum modules to tick: "
+            + juce::String(static_cast<int>(runtimeSnapshot->modulesToTick.size()))
+            + "\nNum terminal modules: "
+            + juce::String(static_cast<int>(runtimeSnapshot->terminalAudioModules.size()))
+            + "\nNum chain exit modules: "
+            + juce::String(static_cast<int>(runtimeSnapshot->chainExitModules.size()))
+            );
+    }
+
     leaf::tMappingPreset7Bit preset7Bit {};
 
     // build sysex message
@@ -559,7 +581,6 @@ std::map<std::string, SynthSlider*> FullInterface::getAllSliders(){
 std::map<std::string, ConnectionButton*> FullInterface::getAllModulationButtons(){
     return main_->getAllModulationButtons();
 }
-
 
 
 

@@ -11,6 +11,8 @@
 #include "mapping.h"
 #include "ProcessorBase.h"
 
+class SynthBase;
+
 enum RoutingMode {
     Master = 1 << 0,
     Lane_1 = 1 << 1,
@@ -65,14 +67,17 @@ struct RoutingParams : public LEAFParams<_tVCAModule> {
 
 class RoutingProcessor : public ProcessorStateBase<PluginStateImpl_<RoutingParams> > {
     public:
-    RoutingProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree&, LEAF* leaf, juce::UndoManager *um);
+    RoutingProcessor(electrosynth::SoundEngine* engine, SynthBase* synthBase, const juce::ValueTree&, LEAF* leaf, juce::UndoManager *um);
     electrosynth::audio::NodeDescriptor getAudioNodeDescriptor() const noexcept override {
         return electrosynth::audio::makeSystemProcessorDescriptor();
     }
     void getNextAudioBlock(const juce::AudioSourceChannelInfo &bufferToFill) override {
     }
 
+    void process() override {};
+
     void processBlock(juce::AudioBuffer<float> &, juce::MidiBuffer &);
+    int getRoutingIndex() const noexcept;
 
     void prepareToPlay(int samplesPerBlock, double sampleRate) override {
     };
@@ -85,6 +90,7 @@ class RoutingProcessor : public ProcessorStateBase<PluginStateImpl_<RoutingParam
     // std::array<leaf::tAudioRouting,MAX_NUM_VOICES> audio_routings;
     int curr_lane;
     juce::AudioBuffer<float> *audio_out;
+    SynthBase* synthBase_ = nullptr;
 };
 
 

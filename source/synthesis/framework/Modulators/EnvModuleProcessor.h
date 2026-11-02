@@ -56,24 +56,32 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
         juce::ParameterID { "attack", 100 },
             "Attack",
             chowdsp::ParamUtils::createNormalisableRange (0.0f, 20000.0f, 4000.f),
-            0.005f,
+            3.0f,
             all_params[EnvParams::EnvAttack],
-            [this] (float val) {
-                for (auto mod: modules)tEnvModule_setParameter(mod,EnvAttack,val);
+        [this] (float val) {
+            const auto range = chowdsp::ParamUtils::createNormalisableRange(0.0f, 20000.f, 4000.f);
+            const float ms = range.convertFrom0to1(val);
+            for (auto mod : modules)
+            {
+                tEnvModule_setParameter(mod, EnvAttack, ms);
             }
+        }
     };
-
-
 
     // Decay param
     chowdsp::TimeMsParameter::Ptr decayParam {
         juce::ParameterID { "decay", 100 },
         "Decay",
         chowdsp::ParamUtils::createNormalisableRange (0.0f, 20000.0f, 4000.f),
-        0.3f,
+        3.0f,
         all_params[EnvParams::EnvDecay],
         [this] (float val) {
-            for (auto mod: modules)tEnvModule_setParameter(mod,EnvDecay,val);
+            const auto range = chowdsp::ParamUtils::createNormalisableRange(0.0f, 20000.f, 4000.f);
+            const float ms = range.convertFrom0to1(val);
+            for (auto mod : modules)
+            {
+                tEnvModule_setParameter(mod,EnvDecay,ms);
+            }
         }
     };
 
@@ -93,14 +101,20 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
     };
 
     // Release param
-    chowdsp::TimeMsParameter::Ptr releaseParam {
+    chowdsp::TimeMsParameter::Ptr releaseParam
+    {
         juce::ParameterID { "release", 100 },
         "Release",
         chowdsp::ParamUtils::createNormalisableRange (0.0f, 20000.0f, 4000.f),
-        3.f,
+        3.0f,
         all_params[EnvParams::EnvRelease],
-        [this] (float val) {
-            for (auto mod: modules) tEnvModule_setParameter(mod,EnvRelease,val);
+        [this] (float val){
+            const auto range = chowdsp::ParamUtils::createNormalisableRange(0.0f, 20000.f, 4000.f);
+            const float ms = range.convertFrom0to1(val);
+            for (auto mod : modules)
+            {
+                tEnvModule_setParameter(mod, EnvRelease, ms);
+            }
         }
     };
 

@@ -179,10 +179,9 @@ mapping_manager_ (m),ModulesInterface( module_list), footer_body(new OpenGlQuad(
                 .type = electrosynth::ConnectionType::Audio,
                 .nodeId = module_list.getNodeId(),
                 .endpointId = module_list.getAudioNodeDescriptor().outputPortId,
-                .direction = electrosynth::EndpointDirection::Source,
-                .audioDomain = module_list.getAudioNodeDescriptor().domain
+                .direction = electrosynth::EndpointType::Source
             },
-            .capabilities {
+            .features {
                 .maxIncomingConnections = 0
             }
         };
@@ -202,10 +201,9 @@ mapping_manager_ (m),ModulesInterface( module_list), footer_body(new OpenGlQuad(
                 .type = electrosynth::ConnectionType::Audio,
                 .nodeId = module_list.getNodeId(),
                 .endpointId = module_list.getAudioNodeDescriptor().inputPortId,
-                .direction = electrosynth::EndpointDirection::Destination,
-                .audioDomain = module_list.getAudioNodeDescriptor().domain
+                .direction = electrosynth::EndpointType::Destination
             },
-            .capabilities {
+            .features {
                 .hasAmount = true,
                 .maxIncomingConnections = 64
             }
@@ -263,6 +261,12 @@ void EffectModuleSection::handlePopupResult(int result) {
         list.appendChild(t, &undo);
     }
     else if (result == 4) {
+        juce::ValueTree t(IDs::EFFECTMODULE);
+        t.setProperty(IDs::type, "softclip", nullptr);
+        undo.beginNewTransaction();
+        list.appendChild(t, &undo);
+    }
+    else if (result == 5) {
         juce::ValueTree t(IDs::EFFECTMODULE);
         t.setProperty(IDs::type, "sampHold", nullptr);
         undo.beginNewTransaction();
@@ -423,7 +427,8 @@ PopupItems EffectModuleSection::createPopupMenu() {
     options.addItem(1, "add filt");
     options.addItem(2, "add delay");
     options.addItem(3, "add VCA");
-    options.addItem(4, "add Sample & Hold");
+    options.addItem(4, "add soft clip");
+    //options.addItem(5, "add Sample & Hold");
     return options;
 }
 

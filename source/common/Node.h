@@ -20,11 +20,6 @@ namespace electrosynth::audio
         Sink
     };
 
-    enum class AudioDomain // describes buffer format
-    {
-        PerVoiceStereo
-    };
-
     enum class EndpointKind
     {
         Audio,
@@ -42,7 +37,6 @@ namespace electrosynth::audio
         juce::String id;
         EndpointKind kind = EndpointKind::Audio;
         PortDirection direction = PortDirection::Input;
-        AudioDomain domain = AudioDomain::PerVoiceStereo;
 
         bool hasAmount = false;
         bool hasBipolar = false;
@@ -53,7 +47,6 @@ namespace electrosynth::audio
     struct NodeDescriptor // defines one component's complete routing capabilities, will later contain multiple port adresses
     {
         NodeType type = NodeType::Processor;
-        AudioDomain domain = AudioDomain::PerVoiceStereo;
         juce::String nodeId;
         juce::String displayName;
 
@@ -94,11 +87,10 @@ namespace electrosynth::audio
     {
         return {
         .type = NodeType::Generator,
-        .domain = AudioDomain::PerVoiceStereo,
         .nodeId = {},
         .displayName = {},
         .endpoints = {
-            { "audio_out", EndpointKind::Audio, PortDirection::Output, AudioDomain::PerVoiceStereo, false, false, false, 1 }
+            { "audio_out", EndpointKind::Audio, PortDirection::Output, false, false, false, 1 }
         },
         .hasInput = false,
         .hasOutput= true,
@@ -110,12 +102,11 @@ namespace electrosynth::audio
     {
         return {
             .type = NodeType::Processor,
-            .domain = AudioDomain::PerVoiceStereo,
             .nodeId = {},
             .displayName = {},
             .endpoints = {
-                { "audio_in", EndpointKind::Audio, PortDirection::Input, AudioDomain::PerVoiceStereo, false, false, false, 1 },
-                { "audio_out", EndpointKind::Audio, PortDirection::Output, AudioDomain::PerVoiceStereo, false, false, false, 1 }
+                { "audio_in", EndpointKind::Audio, PortDirection::Input, false, false, false, 1 },
+                { "audio_out", EndpointKind::Audio, PortDirection::Output,  false, false, false, 1 }
             },
             .hasInput = true,
             .hasOutput = true,
@@ -128,12 +119,11 @@ namespace electrosynth::audio
     {
         return {
             .type = NodeType::SystemProcessor,
-            .domain = AudioDomain::PerVoiceStereo,
             .nodeId = {},
             .displayName = {},
             .endpoints = {
-                { "audio_in", EndpointKind::Audio, PortDirection::Input, AudioDomain::PerVoiceStereo, false, false, false, 1 },
-                { "audio_out", EndpointKind::Audio, PortDirection::Output, AudioDomain::PerVoiceStereo, false, false, false, 1 }
+                { "audio_in", EndpointKind::Audio, PortDirection::Input, false, false, false, 1 },
+                { "audio_out", EndpointKind::Audio, PortDirection::Output, false, false, false, 1 }
             },
             .hasInput = true,
             .hasOutput = true,

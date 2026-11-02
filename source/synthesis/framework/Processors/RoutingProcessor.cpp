@@ -5,18 +5,24 @@
 #include "RoutingProcessor.h"
 #include "ParameterView/RoutingView.h"
 #include "mapping.h"
+#include "synth_base.h"
 #include "sound_engine.h"
 
-RoutingProcessor::RoutingProcessor(electrosynth::SoundEngine *engine, const juce::ValueTree &v, LEAF *leaf,juce::UndoManager * um)
+RoutingProcessor::RoutingProcessor(electrosynth::SoundEngine *engine, SynthBase* synthBase, const juce::ValueTree &v, LEAF *leaf,juce::UndoManager * um)
 : ProcessorStateBase(engine,leaf,v,um) {
+    synthBase_ = synthBase;
 
         callbacks += {
-                state_.addParameterListener (*state_.params.routing, chowdsp::ParameterListenerThread::AudioThread,
+                state_.addParameterListener (*state_.params.routing, chowdsp::ParameterListenerThread::MessageThread,
                     [this] {
+                    if (this->engine == nullptr)
+                        return;
                     auto routing = state_.params.routing.get();
                     float lane =  routing->getIndex(); /// (float)4; //numroutings
                     curr_lane = lane;
                         audio_out = &this->engine->temp_fx_buffers[curr_lane];
+                    if (synthBase_ != nullptr)
+                        synthBase_->markModuleGraphTopologyDirty();
                     // for (auto mod: state_.params.modules) {
                     //     mod->setterFunctions[OscParams::OscType](mod,val);
                     //     mod->setterFunctions[OscParams::OscShapeParam](mod->theOsc, *mod->params[OscShapeParam]);
@@ -35,6 +41,13 @@ std::unique_ptr<SynthSection> RoutingProcessor::createEditor() {
         state.getProperty(IDs::type).toString() + state.getProperty(IDs::uuid).toString());
 }
 
+int RoutingProcessor::getRoutingIndex() const noexcept {
+    if (state_.params.routing == nullptr)
+        return 0;
+
+    return state_.params.routing->getIndex();
+}
+
 void RoutingProcessor::processBlock(juce::AudioBuffer<float> & buffer, juce::MidiBuffer &) {
     state_.getParameterListeners().callAudioThreadBroadcasters();
     int numSamples = buffer.getNumSamples();
@@ -51,7 +64,7 @@ void RoutingProcessor::processBlock(juce::AudioBuffer<float> & buffer, juce::Mid
         for (int i = 0; i < numSamples; i++)
         {
             tVCAModule_tick(state_.params.modules[v],inL);
-            outL[i] += state_.params.modules[v]->header.previousOutput;
+            outL[i] += state_.params.modules[v]->header.outputs[0];
             outR[i] = outL[i];
         }
     }

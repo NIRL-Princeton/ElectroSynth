@@ -30,18 +30,13 @@ SampleAndHoldProcessor::SampleAndHoldProcessor(electrosynth::SoundEngine* engine
 {
 }
 
-void SampleAndHoldProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer&) {
-    int numSamples = buffer.getNumSamples();
-
+void SampleAndHoldProcessor::process() {
+    int numSamples = 1;
     for (int v = 0; v < engine->voiceHandler.numVoicesActive; v++) {
         tSampleAndHoldModule_setParameter(state_.params.modules[v], SampHoldMidiPitch,engine->voiceHandler.voiceNote[v]/127.f );
-        auto* L = buffer.getWritePointer(v*2);
-        auto* R = buffer.getWritePointer(v*2 +1);
-        for (int i = 0; i < numSamples; i++)
-        {
-            tSampleAndHoldModule_tick (state_.params.modules[v],L);
-
-            R[i] = L[i];
+        for (int i = 0; i < numSamples; i++) {
+            float input = 0.f;
+            tSampleAndHoldModule_tick (state_.params.modules[v], &input);
         }
 
     }

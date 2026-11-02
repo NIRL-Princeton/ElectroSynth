@@ -49,15 +49,13 @@ OscillatorModuleProcessor::OscillatorModuleProcessor(electrosynth::SoundEngine* 
 
 }
 
-void OscillatorModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midi)
+void OscillatorModuleProcessor::process ()
 {
     state_.getParameterListeners().callAudioThreadBroadcasters();
-    int numSamples = buffer.getNumSamples();
-    //buffer.clear();
+    int numSamples = 1;
 
     float glideOrigin = state_.params.modules[tStack_first(engine->voiceHandler.voiceOrder)]->pitchSmooth.curr;
 
-    //    auto* samplesL = buffer.getReadPointer(0);
     int counter = 0;
     for (int v = 0; v < engine->voiceHandler.numVoicesActive; v++) {
 
@@ -76,13 +74,13 @@ void OscillatorModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
             //state_.params.modules[v]->pitchSmooth.curr = state_.params.modules[v]->pitchSmooth.dest;
             noVoicesSounding = 0;
         }
-        auto* L = buffer.getWritePointer(v*2);
-        auto* R = buffer.getWritePointer(v*2+1);
-        for (int i = 0; i < numSamples; i++)
-        {
-           tOscModule_tick(state_.params.modules[v],L);
-            L[i] += state_.params.modules[v]->header.outputs[0];
-            R[i] = L[i];
+        // auto* L = 1.getWritePointer(v*2);
+        // auto* R = buffer.getWritePointer(v*2+1);
+        for (int i = 0; i < numSamples; i++) {
+            float dummy = 0.f;
+            tOscModule_tick(state_.params.modules[v], &dummy);
+            // L[i] += state_.params.modules[v]->header.outputs[0];
+            // R[i] = L[i];
         }
     }
 
@@ -93,5 +91,4 @@ void OscillatorModuleProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     {
         noVoicesSounding = 0;
     }
-    // ProcessorBase::processBlock(buffer,midi);
 }

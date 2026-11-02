@@ -129,7 +129,7 @@ public:
     LEAF *getLeaf();
 
 
-    electrosynth::SoundEngine *getEngine() { return engine_.get(); }
+    electrosynth::SoundEngine *getEngine() const { return engine_.get(); }
     juce::MidiKeyboardState *getKeyboardState() { return keyboard_state_.get(); }
 
     void notifyOversamplingChanged();
@@ -193,6 +193,7 @@ public:
     }
 
     void addModulationSource(std::unique_ptr<ModulatorBase> processor, int voice_index);
+    void markModuleGraphTopologyDirty() noexcept { moduleGraphTopologyDirty_ = true; }
 
     // juce::ValueTree& getValueTree();
     juce::UndoManager &getUndoManager();
@@ -220,6 +221,7 @@ public:
     void disconnectModulationsForDestinationProcessor(const std::string& processor_name);
 
     void processMappingChanges();
+    void refreshModuleGraphTopologyIfNeeded();
 
     int getNumModulations(const std::string &destination);
 
@@ -229,6 +231,7 @@ private:
     static constexpr std::size_t kEffectOrderQueueCapacity = 64;
 
     void drainEffectOrderQueue();
+    void drainProcessorInitQueue();
     void completeEffectOrderCommand(const EffectOrderCommand& command);
     bool applyEffectOrderCommand(const EffectOrderCommand& command);
     void flushPendingEffectOrderCommands();
@@ -243,6 +246,7 @@ private:
     std::atomic<std::uint64_t> lastAdoptedEffectOrderGeneration_{0};
     std::atomic<std::uint64_t> rejectedEffectOrderCommandCount_{0};
     std::atomic<bool> effectOrderReconciliationRequested_{false};
+    bool moduleGraphTopologyDirty_ = false;
 
 public:
 

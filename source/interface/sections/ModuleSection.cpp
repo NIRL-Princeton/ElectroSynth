@@ -73,10 +73,9 @@ ModuleSection::ModuleSection(const juce::ValueTree &v, electrosynth::audio::Node
                 .type = electrosynth::ConnectionType::Audio,
                 .nodeId = getNodeId(),
                 .endpointId = audioNodeDescriptor_.outputPortId,
-                .direction = electrosynth::EndpointDirection::Source,
-                .audioDomain = audioNodeDescriptor_.domain
+                .direction = electrosynth::EndpointType::Source
             },
-            .capabilities {
+            .features {
                 .maxIncomingConnections = 0
             }
         };
@@ -95,10 +94,9 @@ ModuleSection::ModuleSection(const juce::ValueTree &v, electrosynth::audio::Node
                 .type = electrosynth::ConnectionType::Audio,
                 .nodeId = getNodeId(),
                 .endpointId = audioNodeDescriptor_.inputPortId,
-                .direction = electrosynth::EndpointDirection::Destination,
-                .audioDomain = audioNodeDescriptor_.domain
+                .direction = electrosynth::EndpointType::Destination
             },
-            .capabilities {
+            .features {
                 .hasAmount = true,
                 .maxIncomingConnections = 64
             }

@@ -12,6 +12,7 @@
 #include "leaf-midi.h"
 #include "sound_engine.h"
 #include "leaf-tables.h"
+#include <cmath>
 
 namespace electrosynth{
     namespace utils
@@ -226,23 +227,22 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
     //         //{module->setterFunctions[OscParams::OscType](mod,val);
     //     }
     // };
-    //float* brug;
     chowdsp::GainDBParameter::Ptr gain
         {
             juce::ParameterID{"gain" , 100},
             "Gain",
-            chowdsp::ParamUtils::createNormalisableRange(-10000.f, 12.f ,0.f),
-             0.f,
+            chowdsp::ParamUtils::createNormalisableRange(-80.f, 10.f, 0.f),
+            -6.f,
             all_params[OscParams::OscGainParam],
-            [this]( float val)
-            {for (auto mod : modules)
-                tOscModule_setParameter(mod,OscGainParam,val);
-                //printf("Raw Amp: %f\n", val);
-
-                //DBG("amp [0 - 1] " + juce::String(val) + ".. .... amp actual " + juce::String(modules[0]->amp));
-            },
-            //&chowdsp::ParamUtils::gainValToString,
-            //&chowdsp::ParamUtils::stringToGainVal
+            [this](float val)
+            {
+                const auto gainDb = chowdsp::ParamUtils::createNormalisableRange(-80.f, 10.f, 0.f).convertFrom0to1(val);
+                const auto gainLin = std::pow(10.0f, gainDb / 20.0f);
+                for (auto mod : modules)
+                {
+                    tOscModule_setParameter(mod, OscGainParam, gainLin);
+                }
+            }
         };
 
     chowdsp::BoolParameter::Ptr pitchStepped{
@@ -285,7 +285,7 @@ public:
     }
 
     void getNextAudioBlock (const juce::AudioSourceChannelInfo &bufferToFill) override {}
-    void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
+    void process () override;
     void prepareToPlay (int samplesPerBlock, double sampleRate ) override {};
     void releaseResources() override {}
     //void processAudioBlock (juce::AudioBuffer<float>& buffer) override {};

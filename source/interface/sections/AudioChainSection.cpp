@@ -286,6 +286,7 @@ void AudioChainSection::handlePopupResult(int result) {
         juce::ValueTree t(IDs::SOUNDMODULE);
         t.setProperty(IDs::type, "osc", nullptr);
         juce::ValueTree v(IDs::CHAIN);
+        v.setProperty(IDs::type, "chain", nullptr);
         undo.beginNewTransaction();
         v.appendChild(t, &undo);
         chains_.appendChild(v, &undo);
@@ -293,6 +294,7 @@ void AudioChainSection::handlePopupResult(int result) {
         juce::ValueTree t(IDs::SOUNDMODULE);
         t.setProperty(IDs::type, "string", nullptr);
         juce::ValueTree v(IDs::CHAIN);
+        v.setProperty(IDs::type, "chain", nullptr);
         undo.beginNewTransaction();
         v.appendChild(t, &undo);
         chains_.appendChild(v, &undo);
@@ -300,6 +302,7 @@ void AudioChainSection::handlePopupResult(int result) {
         juce::ValueTree t(IDs::SOUNDMODULE);
         t.setProperty(IDs::type, "noise", nullptr);
         juce::ValueTree v(IDs::CHAIN);
+        v.setProperty(IDs::type, "chain", nullptr);
         undo.beginNewTransaction();
         v.appendChild(t, &undo);
         chains_.appendChild(v, &undo);
@@ -315,7 +318,7 @@ void AudioChainSection::handlePopupResult(int result) {
 
 std::map<std::string, SynthSlider *> AudioChainSection::getAllSliders() {
     std::map<std::string, SynthSlider *> sliders;
-    DBG("getAllSliders");
+    //DBG("getAllSliders");
     for (auto &obj: sound_module_sections) {
         auto section_sliders = obj->getAllSliders();
         sliders.insert(section_sliders.begin(), section_sliders.end());

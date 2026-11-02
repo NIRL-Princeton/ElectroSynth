@@ -28,6 +28,8 @@
 #include "melatonin_audio_sparklines/melatonin_audio_sparklines.h"
 #include "parameterArrays.h"
 
+#include <unordered_set>
+
 namespace electrosynth
 {
     static void LEAF_errorCallback(LEAF* const leaf, LEAFErrorType error)
@@ -36,6 +38,7 @@ namespace electrosynth
 
         DBG("LEAF ERROR: " + juce::String(error));
     }
+
     SoundEngine::SoundEngine (juce::UndoManager& um) : undo (um), /*voice_handler_(nullptr),*/
                                                        last_oversampling_amount_ (-1),
                                                        last_sample_rate_ (-1),
@@ -196,321 +199,22 @@ namespace electrosynth
                && effectLaneTransitions_[static_cast<std::size_t>(lane)].isSilent();
     }
 
-    void SoundEngine::registerModule(ModuleBase* module)
+    void SoundEngine::processMappings(const RuntimeTopologySnapshot& snapshot)
     {
-        if (module == nullptr)
-            return;
-
-        const auto nodeId = module->getNodeId();
-        if (nodeId.isEmpty())
-            return;
-
-        if (module->procArray != nullptr)
+        for (const auto& runtimeConnection : snapshot.modulationConnections)
         {
-            for (auto* header : *module->procArray)
-            {
-                if (header != nullptr)
-                {
-                    header->previousInput = 0.0f;
-                    header->previousOutput = 0.0f;
-                }
-            }
-        }
-
-        moduleRegistry_[nodeId] = module;
-        if (moduleGraph_ != nullptr)
-            moduleGraph_->registerNode(nodeId, module, ModuleGraph::NodeKind::AudioModule);
-    }
-
-    void SoundEngine::registerEffectLaneNodeId(int lane, const juce::String& nodeId) noexcept
-    {
-        if (!juce::isPositiveAndBelow(lane, static_cast<int>(laneNodeIds.size())))
-            return;
-
-        laneNodeIds[static_cast<std::size_t>(lane)] = nodeId;
-        if (moduleGraph_ != nullptr)
-            moduleGraph_->registerNode(nodeId, nullptr, ModuleGraph::NodeKind::LaneHeader, lane, 0);
-    }
-
-    void SoundEngine::registerModulePlacement(ModuleBase* module,
-                                              ModuleGraph::NodeKind kind,
-                                              int groupIndex,
-                                              int orderIndex)
-    {
-        if (module == nullptr || moduleGraph_ == nullptr)
-            return;
-
-        const auto nodeId = module->getNodeId();
-        if (nodeId.isEmpty())
-            return;
-
-        moduleGraph_->registerNode(nodeId, module, kind, groupIndex, orderIndex);
-    }
-
-    void SoundEngine::refreshModuleGraphTopology()
-    {
-        if (moduleGraph_ == nullptr)
-            return;
-
-        for (std::size_t chainIndex = 0; chainIndex < processors.size(); ++chainIndex)
-        {
-            auto& chain = processors[chainIndex];
-            for (std::size_t orderIndex = 0; orderIndex < chain.size(); ++orderIndex)
-            {
-                if (auto* module = chain[orderIndex].get())
-                    moduleGraph_->registerNode(module->getNodeId(), module,
-                        ModuleGraph::NodeKind::AudioModule,
-                        static_cast<int>(chainIndex),
-                        static_cast<int>(orderIndex));
-            }
-        }
-
-        for (std::size_t laneIndex = 0; laneIndex < effects.size(); ++laneIndex)
-        {
-            auto& lane = effects[laneIndex];
-            for (std::size_t orderIndex = 0; orderIndex < lane.size(); ++orderIndex)
-            {
-                if (auto* module = lane[orderIndex].get())
-                    moduleGraph_->registerNode(module->getNodeId(), module,
-                        ModuleGraph::NodeKind::AudioModule,
-                        static_cast<int>(laneIndex),
-                        static_cast<int>(orderIndex));
-            }
-        }
-
-        for (std::size_t laneIndex = 0; laneIndex < modSources.size(); ++laneIndex)
-        {
-            auto& lane = modSources[laneIndex];
-            for (std::size_t orderIndex = 0; orderIndex < lane.size(); ++orderIndex)
-            {
-                if (auto* module = lane[orderIndex].get())
-                    moduleGraph_->registerNode(module->getNodeId(), module,
-                        ModuleGraph::NodeKind::Modulator,
-                        static_cast<int>(laneIndex),
-                        static_cast<int>(orderIndex));
-            }
-        }
-
-        for (std::size_t laneIndex = 0; laneIndex < laneNodeIds.size(); ++laneIndex)
-        {
-            const auto& nodeId = laneNodeIds[laneIndex];
-            if (nodeId.isNotEmpty())
-                moduleGraph_->registerNode(nodeId, nullptr,
-                    ModuleGraph::NodeKind::LaneHeader,
-                    static_cast<int>(laneIndex), 0);
-        }
-    }
-
-    void SoundEngine::unregisterModule(ModuleBase* module)
-    {
-        if (module == nullptr)
-            return;
-
-        const auto nodeId = module->getNodeId();
-        if (nodeId.isEmpty())
-            return;
-
-        auto it = moduleRegistry_.find(nodeId);
-        if (it != moduleRegistry_.end() && it->second == module)
-            moduleRegistry_.erase(it);
-        if (moduleGraph_ != nullptr)
-            moduleGraph_->unregisterNode(nodeId);
-    }
-
-    ModuleBase* SoundEngine::getModuleByNodeId(const juce::String& nodeId) const
-    {
-        if (nodeId.isEmpty())
-            return nullptr;
-
-        const auto it = moduleRegistry_.find(nodeId);
-        return it != moduleRegistry_.end() ? it->second : nullptr;
-    }
-
-    int SoundEngine::getEffectLaneIndex(const juce::String& nodeId) const noexcept
-    {
-        if (nodeId.isEmpty())
-            return -1;
-
-        for (int lane = 0; lane < static_cast<int>(laneNodeIds.size()); ++lane)
-        {
-            if (laneNodeIds[static_cast<std::size_t>(lane)] == nodeId)
-                return lane;
-        }
-
-        return -1;
-    }
-
-    bool SoundEngine::connectGraphConnection(const electrosynth::ConnectionRecord& connection)
-    {
-        if (moduleGraph_ == nullptr || !moduleGraph_->connect(connection))
-            return false;
-
-#if JUCE_DEBUG
-        moduleGraph_->debugPrint("ModuleGraph after connect: " + connection.id,
-            [this](const juce::String& nodeId)
-            {
-                if (auto* module = getModuleByNodeId(nodeId))
-                    return module->getDisplayName().isNotEmpty() ? module->getDisplayName() : nodeId;
-                return nodeId;
-            });
-#endif
-
-        if (connection.type != electrosynth::ConnectionType::Modulation)
-            return true;
-
-        auto& state = modulationStates_[connection.id];
-        state.record = connection;
-        state.scalingValue.store(connection.amount, std::memory_order_relaxed);
-
-        state.source = nullptr;
-        if (auto* sourceModule = getModuleByNodeId(connection.source.nodeId))
-            state.source = sourceModule->procArray;
-
-        if (state.source == nullptr)
-        {
-            std::stringstream source_stream(connection.source.endpointId.toStdString());
-            std::string source_token;
-            std::getline(source_stream, source_token, '_');
-            state.source = getLEAFProcessorModulator(source_token);
-        }
-
-        std::tie(state.destination, state.destinationParamIndex) = getParameterInfo(connection.destination.endpointId.toStdString());
-
-        if (state.source == nullptr || state.destination == nullptr || state.destinationParamIndex < 0)
-        {
-            moduleGraph_->disconnect(connection.id);
-            modulationStates_.erase(connection.id);
-            return false;
-        }
-
-        for (int voice = 0; voice < MAX_NUM_VOICES; ++voice)
-        {
-            if (state.mapping[voice] == nullptr)
-                tMapping_init(&state.mapping[voice], &leaf);
-
-            auto* voice_mapping = state.mapping[voice];
-            if (voice_mapping == nullptr
-                || !juce::isPositiveAndBelow(voice, static_cast<int>(state.source->size()))
-                || !juce::isPositiveAndBelow(voice, static_cast<int>(state.destination->size())))
+            if (runtimeConnection.state == nullptr)
                 continue;
 
-            auto* sourceModule = state.source->at(voice);
-            auto* destinationModule = state.destination->at(voice);
-            if (sourceModule == nullptr || destinationModule == nullptr)
+            auto& moduleRuntime = *runtimeConnection.state;
+            if (moduleRuntime.source == nullptr
+                || moduleRuntime.destination == nullptr
+                || moduleRuntime.destinationParamIndex < 0)
                 continue;
 
-            auto* destValue = destinationModule->params[state.destinationParamIndex];
-            if (destValue == nullptr)
-                continue;
-
-            tMappingAdd_(voice_mapping,
-                &sourceModule->outputs[0],
-                sourceModule->uniqueID,
-                destValue,
-                destinationModule->uniqueID,
-                destinationModule->setterFunctions[state.destinationParamIndex],
-                state.destinationParamIndex,
-                destinationModule,
-                &leaf,
-                &state.scalingValue);
-        }
-
-        return true;
-    }
-
-    bool SoundEngine::updateGraphConnection(const electrosynth::ConnectionRecord& connection)
-    {
-        return moduleGraph_ != nullptr && moduleGraph_->update(connection);
-    }
-
-    void SoundEngine::disconnectGraphConnection(const juce::String& connectionId)
-    {
-        if (moduleGraph_ == nullptr)
-            return;
-
-        const auto& connections = moduleGraph_->getConnections();
-        const auto connectionIt = std::find_if(connections.begin(), connections.end(),
-            [&connectionId](const auto& connection)
+            for (int voice = 0; voice < voiceHandler.numVoicesActive; ++voice)
             {
-                return connection.id == connectionId;
-            });
-
-        const auto targetConnectionExists = connectionIt != connections.end();
-        const auto* targetConnection = targetConnectionExists ? &*connectionIt : nullptr;
-
-        const bool otherConnectionStillDrivesDestination =
-            targetConnection != nullptr
-            && std::any_of(connections.begin(), connections.end(),
-                [targetConnection](const auto& connection)
-                {
-                    return connection.id != targetConnection->id
-                        && connection.type == targetConnection->type
-                        && connection.destination.endpointId == targetConnection->destination.endpointId
-                        && connection.destinationSlot == targetConnection->destinationSlot;
-                });
-
-        auto stateIt = modulationStates_.find(connectionId);
-        if (stateIt != modulationStates_.end())
-        {
-            for (auto& mapping : stateIt->second.mapping)
-            {
-                if (mapping == nullptr)
-                    continue;
-
-                if (!otherConnectionStillDrivesDestination
-                    && mapping->destObject != nullptr
-                    && mapping->initialVal != nullptr
-                    && mapping->paramID < 255)
-                {
-                    leaf::tMapping_setParameter(mapping->destObject, mapping->paramID, *mapping->initialVal);
-                }
-
-                auto* toFree = mapping;
-                tMapping_free(&toFree);
-                mapping = nullptr;
-            }
-            modulationStates_.erase(stateIt);
-        }
-
-        moduleGraph_->disconnect(connectionId);
-
-#if JUCE_DEBUG
-        moduleGraph_->debugPrint("ModuleGraph after disconnect: " + connectionId,
-            [this](const juce::String& nodeId)
-            {
-                if (auto* module = getModuleByNodeId(nodeId))
-                    return module->getDisplayName().isNotEmpty() ? module->getDisplayName() : nodeId;
-                return nodeId;
-            });
-#endif
-    }
-
-    void SoundEngine::processMappings()
-    {
-        if (moduleGraph_ == nullptr)
-            return;
-
-        for (const auto& connection : moduleGraph_->getConnections())
-        {
-            if (connection.type != electrosynth::ConnectionType::Modulation)
-                continue;
-
-            auto stateIt = modulationStates_.find(connection.id);
-            if (stateIt == modulationStates_.end())
-                continue;
-
-            auto& state = stateIt->second;
-            state.record = connection;
-            state.scalingValue.store(connection.amount, std::memory_order_relaxed);
-
-            if (state.source == nullptr
-                || state.destination == nullptr
-                || state.destinationParamIndex < 0)
-                continue;
-
-            for (int voice = 0; voice < MAX_NUM_VOICES; ++voice)
-            {
-                auto* voice_mapping = state.mapping[voice];
+                auto* voice_mapping = moduleRuntime.mapping[voice];
                 if (voice_mapping == nullptr)
                     continue;
 
@@ -528,94 +232,172 @@ namespace electrosynth
         }
     }
 
-    void SoundEngine::processAudioConnections()
+    void SoundEngine::processAudioConnections(juce::AudioBuffer<float>& masterEnvelope,
+                                              const RuntimeTopologySnapshot& snapshot)
     {
-        if (moduleGraph_ == nullptr)
-            return;
-
-        for (const auto& connection : moduleGraph_->getConnections())
+        for (const auto& connection : snapshot.audioConnections)
         {
-            if (connection.type != electrosynth::ConnectionType::Audio)
+            if (connection.sourceModule == nullptr || connection.destinationModule == nullptr)
                 continue;
 
-            auto const* sourceModule = getModuleByNodeId(connection.source.nodeId);
-            auto const* destModule = getModuleByNodeId(connection.destination.nodeId);
-
-            if (sourceModule == nullptr || sourceModule->procArray == nullptr)
+            if (connection.sourceModule->procArray == nullptr
+                || connection.destinationModule->procArray == nullptr)
                 continue;
 
-            if (destModule != nullptr && destModule->procArray != nullptr)
+            for (int v = 0; v < voiceHandler.numVoicesActive; ++v)
             {
-                for (int v = 0; v < MAX_NUM_VOICES; ++v)
-                {
-                    auto* src = sourceModule->procArray->at(v);
-                    auto* dst = destModule->procArray->at(v);
-
-                    if (src != nullptr && dst != nullptr)
-                        dst->summedInput += src->previousOutput * connection.amount;
-                }
-                continue;
-            }
-
-            const int lane = getEffectLaneIndex(connection.destination.nodeId);
-            if (lane < 0)
-                continue;
-
-            auto& laneInput = laneSummedInputs[static_cast<std::size_t>(lane)];
-            for (int v = 0; v < MAX_NUM_VOICES; ++v)
-            {
-                auto* src = sourceModule->procArray->at(v);
-                if (src == nullptr)
+                auto* src = connection.sourceModule->procArray->at(v);
+                auto* dst = connection.destinationModule->procArray->at(v);
+                if (src == nullptr || dst == nullptr)
                     continue;
 
-                const float sample = src->previousOutput * connection.amount;
-                laneInput.addSample(v * 2, 0, sample);
-                laneInput.addSample(v * 2 + 1, 0, sample);
+                const auto envValue = masterEnvelope.getSample (v * 2, 0);
+                const auto sourceOut = connection.sourceIsChainExit ? src->outputs[0].load() * envValue : src->outputs[0].load(); // intervene with the master envelope baby !
+                dst->inputs[0] = dst->inputs[0] + sourceOut * connection.amount;
+                dst->inputs[0] = LEAF_clip(-1.f, dst->inputs[0], 1.f); // might get aliasing... could replace with soft clip.
             }
         }
     }
 
-    static void commitCurrentOutputs(std::array<ModuleHeader*, MAX_NUM_VOICES>* procArray) noexcept
-    {
-        if (procArray == nullptr)
-            return;
 
-        for (auto* header : *procArray)
-        {
-            if (header != nullptr)
-                header->previousOutput = header->outputs[0];
-        }
+
+    static void tickAllModules(const std::vector<ModuleBase*>& modules) noexcept
+    {
+        for  (auto* module : modules) if (module) module->tick();
     }
 
-    static void fillBufferFromPreviousOutputs(juce::AudioBuffer<float>& buffer,
-                                              std::array<ModuleHeader*, MAX_NUM_VOICES>* procArray) noexcept
+    // get rid of this ??
+    void SoundEngine::mixChainOutputsWithMasterEnvelope(juce::AudioBuffer<float>& masterEnvelope,
+                                                        const RuntimeTopologySnapshot& snapshot) const noexcept
     {
-        if (procArray == nullptr || buffer.getNumChannels() == 0)
-            return;
-
-        const int numVoices = juce::jmin(buffer.getNumChannels(), static_cast<int>(procArray->size())) / 2;
-        for (int v = 0; v < numVoices; ++v)
+        for (auto* module : snapshot.chainExitModules)
         {
-            auto* header = (*procArray)[static_cast<std::size_t>(v)];
-            if (header == nullptr)
+            if (module == nullptr || module->procArray == nullptr)
                 continue;
 
-            const int left = v * 2;
-            const int right = left + 1;
-            buffer.setSample(left, 0, header->previousOutput);
-            buffer.setSample(right, 0, header->previousOutput);
+            for (int v = 0; v < voiceHandler.numVoicesActive; ++v)
+            {
+                auto* header = (*module->procArray)[v];
+                if (header == nullptr)
+                    continue;
+
+                const float envL = masterEnvelope.getSample(v * 2, 0);
+                const float envR = masterEnvelope.getSample(v * 2 + 1, 0);
+
+                // If mono per-voice, pick one envelope value or decide a policy here.
+                header->outputs[0] = header->outputs[0] * envL;
+            }
         }
     }
 
-    static void commitCurrentOutputsForAllModules(
-        const std::map<juce::String, ModuleBase*>& moduleRegistry) noexcept
+    void SoundEngine::mixTerminalModulesToOutput(juce::AudioSampleBuffer& audio_buffer,
+                                                 juce::AudioBuffer<float>& masterEnvelope,
+                                                 const RuntimeTopologySnapshot& snapshot,
+                                                 int i,
+                                                 bool mixWithMasterEnvelope) const
     {
-        for (const auto& [_, module] : moduleRegistry)
+        for (const auto& terminalModule : snapshot.terminalAudioModules)
         {
-            if (module != nullptr)
-                commitCurrentOutputs(module->procArray);
+            auto* module = terminalModule.module;
+            if (module == nullptr || module->procArray == nullptr)
+                continue;
+
+            const auto* procArray = module->procArray;
+            for (int v = 0; v < voiceHandler.numVoicesActive; ++v)
+            {
+                auto* header = (*procArray)[v];
+                if (header == nullptr)
+                    continue;
+
+                const float env = terminalModule.isChainExit ? masterEnvelope.getSample(v * 2, 0) : 1.0f;
+                audio_buffer.addSample (
+                    0,
+                    i,
+                    mixWithMasterEnvelope ? env : 1.0f * header->outputs[0] * env);
+                audio_buffer.addSample (
+                    1,
+                    i,
+                    mixWithMasterEnvelope ? env : 1.0f * header->outputs[0] * env);
+
+            }
         }
     }
+
+    void SoundEngine::debugPrintTerminalAudioModules(const juce::String& header) const
+    {
+#if JUCE_DEBUG
+        juce::String out;
+        if (header.isNotEmpty())
+            out << header << "\n";
+
+        out << "Terminal audio modules: "
+            << juce::String(terminalAudioModules_.size()) << "\n";
+
+        if (terminalAudioModules_.empty())
+        {
+            out << "    <none>\n";
+            DBG(out);
+            return;
+        }
+
+        for (std::size_t index = 0; index < terminalAudioModules_.size(); ++index)
+        {
+            const auto* module = terminalAudioModules_[index];
+            if (module == nullptr)
+            {
+                out << "    [" << juce::String(index) << "] <null>\n";
+                continue;
+            }
+
+            out << "    [" << juce::String(index) << "] "
+                << module->getNodeId()
+                << " display=\"" << module->getDisplayName() << "\""
+                << " ptr=" << juce::String::toHexString(static_cast<juce::uint64>(
+                    reinterpret_cast<juce::pointer_sized_int>(module)));
+
+            if (module->procArray != nullptr)
+                out << " voices=" << juce::String(module->procArray->size());
+
+            out << "\n";
+        }
+
+        DBG(out);
+#endif
+    }
+
+    void SoundEngine::debugPrintChainExitModules() const
+    {
+#if JUCE_DEBUG
+        juce::String out;
+
+        out << "Num chain exit modules: "
+            << juce::String(static_cast<int>(chainExitModules_.size())) << "\n";
+
+        if (chainExitModules_.empty())
+        {
+            out << "    <none>\n";
+            DBG(out);
+            return;
+        }
+
+        int index = 0;
+        for (const auto* module : chainExitModules_)
+        {
+            if (module == nullptr)
+            {
+                out << "    [" << juce::String(index) << "] <null>\n";
+                ++index;
+                continue;
+            }
+
+            out << "    display=\"" << module->getDisplayName() << "\"\n";
+            ++index;
+        }
+
+        DBG(out);
+#endif
+    }
+
 
     static void flushLaneInputToBuffer(juce::AudioBuffer<float>& laneInput, juce::AudioBuffer<float>& laneBuffer)
     {
@@ -639,12 +421,19 @@ namespace electrosynth
         //VITAL_ASSERT(num_samples <= output()->buffer_size);
         // benchmark();
         juce::FloatVectorOperations::disableDenormalisedNumberSupport();
+
+        // Create / load runtime graph at block level instead of every sample.
+        static const RuntimeTopologySnapshot kEmptySnapshot;
+        const auto runtimeSnapshot = getRuntimeTopologySnapshot();
+        const RuntimeTopologySnapshot& snapshot = runtimeSnapshot != nullptr ? *runtimeSnapshot : kEmptySnapshot;
         temp_voice_buffer.clear();
         for (auto& buffer : temp_fx_buffers)
             buffer.clear();
+
         //juce::MidiBuffer midimessages;
         int mpe = voiceHandler.mpeMode ? 1 : 0;
         int impe = 1 - mpe;
+
         for (int i = offset; i < samples + offset; i++)
         {
             for (int v = 0; v < voiceHandler.numVoicesActive; ++v)
@@ -709,111 +498,24 @@ namespace electrosynth
                 //samples[1][v] = 0.f;
             }
             {
-                juce::ScopedLock sl (myCoolLock);
-                // we're ticking master envelope first
-                auto amp_vals = MasterVoiceEnvelopeProcessor->processMasterEnvelope();
+                const auto masterEnvelope = MasterVoiceEnvelopeProcessor->processMasterEnvelope();
 
-                processMappings();
-                processAudioConnections();
+                processMappings(snapshot); // process modulations !! :)
 
-                for (std::size_t lane = 0; lane < laneSummedInputs.size(); ++lane)
-                    flushLaneInputToBuffer(laneSummedInputs[lane], temp_fx_buffers[lane + 1]);
+                processAudioConnections(*masterEnvelope, snapshot); // process all audio connections (e.g. route their audio to and fro) - robert frost
 
-                // actually tick modulators
-                for (auto& modLane : modSources)
-                {
-                    for (auto& modulator : modLane)
-                    {
-                        if (modulator != nullptr)
-                        {
-                            modulator->tick();
-                        }
-                    }
-                }
+                tickAllModules(snapshot.modulesToTick); // tick all the modules, one by one, indiscriminately (cold)
 
-                int chainIndex = -1;
-                for (auto& proc_chain : processors)
-                {
-                    chainIndex++;
-                    if (proc_chain.empty())
-                        continue;
-                    for (auto& proc : proc_chain)
-                    {
-                        if (proc != nullptr)
-                        {
-                            proc->processBlock (temp_voice_buffer, empty);
-                            // is procArray really previous output or current output?
-                            fillBufferFromPreviousOutputs (temp_voice_buffer, proc->procArray);
-                        }
-                    }
+                mixTerminalModulesToOutput(audio_buffer, *masterEnvelope, snapshot, i); // get actual outputs from graph (terminal modules) and fill JUCE output buffer
 
-                    for (int v = 0; v < voiceHandler.numVoicesActive; ++v)
-                    {
-                        // audio_buffer.addSample(0, i, temp_voice_buffer.getSample(v*2, 0));
-                        // audio_buffer.addSample(1, i, temp_voice_buffer.getSample(v*2+1, 0));
-                        temp_voice_buffer.setSample (
-                            v * 2,
-                            0,
-                            amp_vals->getSample (v * 2, 0) * temp_voice_buffer.getSample (v * 2, 0)
-                            );
-                        temp_voice_buffer.setSample (
-                            v * 2 + 1,
-                            0,
-                            amp_vals->getSample (v * 2 + 1, 0) * temp_voice_buffer.getSample (v * 2 + 1, 0));
-                    }
-                    //writes out to fx_buffers
-                    auto& chainPostInputBuffer = chainPostGainBuffers[static_cast<std::size_t>(chainIndex)];
-                    chainPostGain[chainIndex]->processBlock (chainPostInputBuffer, empty);
-                    chainPostInputBuffer.makeCopyOf (temp_voice_buffer);
-
-                    temp_voice_buffer.clear();
-                }
+                // Mike notes:
+                // 1. "snapshot" paradigm is to make audio thread more efficient and deterministic as it should be.
+                // 2. eventually worth reworking modulegraph / topology paradigm to be "agnostic" of ElectroSynth so that we can reuse for other projects
+                // 3. may be some non-thread safe stuff with changes to modulegraph that could cause clicks in software side when a preset changes.
+                //    when snapshot is taken, we need to make sure that all modules are in a consistent state.
             }
-
-            int index = 1;
-            for (int v = 0; v < voiceHandler.numVoicesActive; ++v)
-            {
-                audio_buffer.addSample (0, i, temp_fx_buffers[0].getSample (v * 2, 0));
-                audio_buffer.addSample (1, i, temp_fx_buffers[0].getSample (v * 2 + 1, 0));
-            }
-            std::size_t effectLaneIndex = 0;
-            for (auto& fx_lane : effects)
-            {
-                const auto laneGain = effectLaneTransitions_[effectLaneIndex].advance();
-                auto& laneBuffer = laneProcessingBuffers[effectLaneIndex];
-                laneBuffer.makeCopyOf(temp_fx_buffers[index]);
-                for (auto& fx : fx_lane)
-                {
-                    if (fx != nullptr)
-                    {
-                        fx->processBlock (laneBuffer, empty);
-                        fillBufferFromPreviousOutputs(laneBuffer, fx->procArray);
-                    }
-                }
-                for (int v = 0; v < voiceHandler.numVoicesActive; ++v)
-                {
-                    audio_buffer.addSample (0, i, laneGain * laneBuffer.getSample (v * 2, 0));
-                    audio_buffer.addSample (1, i, laneGain * laneBuffer.getSample (v * 2 + 1, 0));
-                }
-                temp_fx_buffers[index].makeCopyOf(laneBuffer);
-                index++;
-                effectLaneIndex++;
-            }
-
-            for (auto& fx : temp_fx_buffers)
-            {
-                fx.clear();
-            }
-
-            commitCurrentOutputsForAllModules(moduleRegistry_);
-            // melatonin::printSparklin   e (*amp_vals.get,true);
         }
-        // melatonin::printSparkline(audio_buffer, true);
 
-        if (getNumActiveVoices() == 0)
-        {
-        }
-        //   bufferDebugger->capture("main out", audio_buffer.getReadPointer(0), audio_buffer.getNumSamples(), -20.f, 20.f);
     }
 
     void SoundEngine::process (juce::AudioSampleBuffer& audio_buffer, juce::MidiBuffer& midi_buffer)
@@ -1149,110 +851,4 @@ namespace electrosynth
     {
     }
 
-    void SoundEngine::connectMapping (const electrosynth::mapping_change& change)
-    {
-        if (moduleGraph_ == nullptr || change.connection == nullptr)
-            return;
-
-        electrosynth::ConnectionRecord record {
-            .id = juce::String (change.connection->uuid),
-            .type = electrosynth::ConnectionType::Modulation,
-            .source {
-                .type = electrosynth::ConnectionType::Modulation,
-                .nodeId = juce::String (change.connection->source_name),
-                .endpointId = juce::String (change.connection->source_name),
-                .direction = electrosynth::EndpointDirection::Source
-            },
-            .destination {
-                .type = electrosynth::ConnectionType::Modulation,
-                .nodeId = juce::String (change.connection->destination_name),
-                .endpointId = juce::String (change.connection->destination_name),
-                .direction = electrosynth::EndpointDirection::Destination
-            },
-            .destinationSlot = change.connection->destination_slot,
-            .amount = change.connection->getCurrentBaseValue(),
-            .bipolar = change.connection->isBipolar(),
-            .bypass = change.connection->isBypass(),
-            .stereo = change.connection->isStereo()
-        };
-
-        if (!moduleGraph_->connect(record))
-            return;
-
-        auto& state = modulationStates_[record.id];
-        state.record = record;
-        state.scalingValue.store(record.amount, std::memory_order_relaxed);
-        state.source = change._source;
-        state.destination = change._dest;
-        state.destinationParamIndex = change.dest_param_index;
-
-        if (state.source == nullptr || state.destination == nullptr || state.destinationParamIndex < 0)
-        {
-            moduleGraph_->disconnect(record.id);
-            modulationStates_.erase(record.id);
-            return;
-        }
-
-        for (int voice = 0; voice < MAX_NUM_VOICES; ++voice)
-        {
-            if (state.mapping[voice] == nullptr)
-                tMapping_init(&state.mapping[voice], &leaf);
-
-            auto* voice_mapping = state.mapping[voice];
-            if (voice_mapping == nullptr
-                || !juce::isPositiveAndBelow(voice, static_cast<int>(state.source->size()))
-                || !juce::isPositiveAndBelow(voice, static_cast<int>(state.destination->size())))
-                continue;
-
-            auto* sourceModule = state.source->at(voice);
-            auto* destinationModule = state.destination->at(voice);
-            if (sourceModule == nullptr || destinationModule == nullptr)
-                continue;
-
-            auto* destValue = destinationModule->params[state.destinationParamIndex];
-            if (destValue == nullptr)
-                continue;
-            tMappingAdd_(
-                voice_mapping,
-                &sourceModule->outputs[0],
-                sourceModule->uniqueID,
-                destValue,
-                destinationModule->uniqueID,
-                destinationModule->setterFunctions[state.destinationParamIndex],
-                state.destinationParamIndex,
-                destinationModule,
-                &leaf,
-                &state.scalingValue
-            );
-        }
-
-        DBG ("added new modulation");
-    }
-
-    //returns true if the mapping should be completely removd from process mappings
-    void SoundEngine::disconnectMapping (const electrosynth::mapping_change& change)
-    {
-        if (change.connection == nullptr)
-            return;
-
-        const auto connectionId = juce::String (change.connection->uuid);
-        if (moduleGraph_ != nullptr)
-            moduleGraph_->disconnect(connectionId);
-
-        auto stateIt = modulationStates_.find(connectionId);
-        if (stateIt == modulationStates_.end())
-            return;
-
-        for (auto& mapping : stateIt->second.mapping)
-        {
-            if (mapping == nullptr)
-                continue;
-
-            auto* toFree = mapping;
-            tMapping_free(&toFree);
-            mapping = nullptr;
-        }
-
-        modulationStates_.erase(stateIt);
-    }
 } // namespace vital

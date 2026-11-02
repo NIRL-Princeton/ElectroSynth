@@ -122,14 +122,11 @@ void ModuleList<T>::newObjectAdded(T* processor) {
     {
         const auto descriptor = processor->getAudioNodeDescriptor();
 
-        DBG("Processor: " + processor->name);
-        DBG("  input: " + juce::String(descriptor.hasInput ? "yes" : "no"));
-        DBG("  output: " + juce::String(descriptor.hasOutput ? "yes" : "no"));
+        DBG("Added new processor: " + processor->name + " | " + juce::String(descriptor.hasInput ? "has input" : "no input") + " | " + juce::String(descriptor.hasOutput ? "has output" : "no output"));
     }
     else if constexpr (std::is_same_v<T, ModulatorBase>)
     {
-        DBG("Modulation source: " + processor->name);
-        DBG("  audio node: no");
+        DBG("Added new modulation: " + processor->name);
     }
 
     for (auto listener: listeners_) {
@@ -177,7 +174,7 @@ ModuleList<T> *ChainList<T>::createNewObject(const juce::ValueTree &v) {
     ModuleList<T> *list;
     if constexpr (std::is_same_v<T, ProcessorBase>) {
         auto* leaf  = synth_->getLeaf();
-        auto proc = std::make_unique<RoutingProcessor>(synth_->getEngine(),v,leaf,&synth_->um);
+        auto proc = std::make_unique<RoutingProcessor>(synth_->getEngine(), synth_, v, leaf, &synth_->um);
         auto * rawPtr = proc.get();
         auto task = [this, _proc = std::move(proc),index = v.getParent().indexOf(v)  ]() mutable {
             synth_->addChainRouting(std::move(_proc), index);

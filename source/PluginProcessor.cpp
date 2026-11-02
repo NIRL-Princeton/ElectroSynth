@@ -127,17 +127,12 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Midi
     midi_manager_->removeNextBlockOfMessages(midi_messages, num_samples);
     processKeyboardEvents(midi_messages, num_samples);
 
-    //double sample_time = 1.0 / getSampleRate();
-    double sample_time = 1.0 / AudioProcessor::getSampleRate();
     for (int sample_offset = 0; sample_offset < num_samples;) {
-        const int samplesToProcess = std::min<int>(samplesToProcess - sample_offset, electrosynth::kMaxBufferSize);
-
-        //engine_->correctToTime(current_time_);
+        const int samplesToProcess = std::min<int>(num_samples - sample_offset, electrosynth::kMaxBufferSize);
 
         processMidi(midi_messages, sample_offset, samplesToProcess+ sample_offset);
         processAudio(&buffer, num_channels, samplesToProcess, sample_offset);
         sample_offset += samplesToProcess;
-        //current_time_ += current_samples * sample_time;
     }
 }
 

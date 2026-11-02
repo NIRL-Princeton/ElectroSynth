@@ -36,11 +36,16 @@ struct DelayParams : public LEAFParams<_tDelayModule >
         chowdsp::TimeMsParameter::Ptr time {
         juce::ParameterID { "delayTime", 100 },
         "Time",
-        chowdsp::ParamUtils::createNormalisableRange (0.0f, 1000.0f, 500.0f),
-        0.0f,
+        chowdsp::ParamUtils::createNormalisableRange (0.0f, 2250.0f, 200.0f),
+        0.f,
         all_params[DelParams::DelayTime],
         [this](float val)
-        {for (auto mod: modules)    tDelayModule_setParameter(mod,DelayTime,val);
+        {
+            for (auto mod: modules)
+            {
+                const auto ms = chowdsp::ParamUtils::createNormalisableRange (0.0f, 2250.0f, 200.0f).convertFrom0to1 (val);
+                tDelayModule_setParameter(mod,DelayTime, ms);
+            }
         }
     };
 
@@ -64,7 +69,7 @@ public:
     electrosynth::audio::NodeDescriptor getAudioNodeDescriptor() const noexcept override {
         return electrosynth::audio::makeProcessorDescriptor();
     }
-    void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
+    void process() override;
     std::unique_ptr<SynthSection> createEditor() override
     {
         return std::make_unique<electrosynth::FxModuleTemplateView>(state_, state_.params, state.getProperty(IDs::type).toString() + state.getProperty(IDs::uuid).toString());

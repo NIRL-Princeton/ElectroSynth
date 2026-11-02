@@ -101,7 +101,7 @@ public:
                 slider.parentHierarchyChanged();
 
                 _ASSERT(slider.getSectionParent() != nullptr);
-                DBG("create slider for " + param.paramID + "with parent " + parent.getName());
+                //DBG("create slider for " + param.paramID + "with parent " + parent.getName());
              }
 
              ~SliderParameterComponent() {

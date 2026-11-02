@@ -17,6 +17,8 @@
 #pragma once
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <atomic>
+#include <memory>
+#include <unordered_set>
 #include "../framework/note_handler.h"
 #include "ModuleBase.h"
 #include "ConnectionRecord.h"
@@ -47,6 +49,37 @@ namespace electrosynth {
         std::atomic<float> scalingValue { 0.0f };
     };
 
+    struct RuntimeAudioConnection {
+        ModuleBase* sourceModule = nullptr;
+        ModuleBase* destinationModule = nullptr;
+        float amount = 1.0f;
+        bool sourceIsChainExit = false;
+    };
+
+    struct RuntimeTerminalAudioModule {
+        ModuleBase* module = nullptr;
+        bool isChainExit = false;
+    };
+
+    struct RuntimeModulationConnection {
+        std::shared_ptr<ModulationRuntimeState> state;
+        float amount = 1.0f; // optional if scaling already wired
+    };
+
+    // for Jeff: This snapshot struct contains the full real-time state of electrosynth: all of it's modules and parameters.
+    //          We update the snapshot every block with the getRuntimeTopologySnapshot() call.
+    //          The snapshot represents a minimal represention of graph that audio thread can step through deterministically
+    //          I set up a call from the UI side callback for the "SEND TO DEVICE" button
+    //          FullInterface.cpp line 350 or FullInterface::sendToDeviceRequested()
+    //          Check it out!
+    struct RuntimeTopologySnapshot {
+        std::vector<RuntimeAudioConnection> audioConnections; // audio routing, represented as audio connections between source and dest modules
+        std::vector<RuntimeTerminalAudioModule> terminalAudioModules; // modules that should go to speakers / be heard
+        std::vector<ModuleBase*> chainExitModules; // modules that are at end of chain and therefore need MasterEnvelope applied applied
+        std::vector<RuntimeModulationConnection> modulationConnections; // modulations (ModulationRuntimeState inside RuntimeModulationConnection contains the good old tMapping)
+        std::vector<ModuleBase*> modulesToTick; // all modules that should be ticked
+    };
+
     class SoundEngine : public NoteHandler {
     public:
       static constexpr int kDefaultOversamplingAmount = 2;
@@ -66,16 +99,33 @@ namespace electrosynth {
       juce::CriticalSection myCoolLock;
         void process(juce::AudioSampleBuffer&, juce::MidiBuffer &);
         void process(juce::AudioSampleBuffer&,int channels, int samples, int offset);
-        void processMappings();
-        void processAudioConnections();
+        void processMappings(const RuntimeTopologySnapshot& snapshot);
+        void processAudioConnections(juce::AudioBuffer<float>& masterEnvelope,
+                                     const RuntimeTopologySnapshot& snapshot);
         void refreshModuleGraphTopology();
+        void rebuildRuntimeTopologySnapshot();
+        void mixChainOutputsWithMasterEnvelope(juce::AudioBuffer<float>& masterEnvelope,
+                                               const RuntimeTopologySnapshot& snapshot) const noexcept;
+        void mixTerminalModulesToOutput(juce::AudioSampleBuffer& audio_buffer,
+                                        juce::AudioBuffer<float>& masterEnvelope,
+                                        const RuntimeTopologySnapshot& snapshot,
+                                        int i,
+                                        bool mixWithMasterEnvelope = false) const;
+        void debugPrintTerminalAudioModules(const juce::String& header = {}) const;
+        void debugPrintChainExitModules() const;
         int getEffectLaneIndex(const juce::String& nodeId) const noexcept;
         void registerEffectLaneNodeId(int lane, const juce::String& nodeId) noexcept;
-        void registerModulePlacement(ModuleBase* module, ModuleGraph::NodeKind kind, int groupIndex, int orderIndex);
+        void registerModulePlacement(ModuleBase* module,
+                                     ModuleGraph::NodeKind kind,
+                                     int groupIndex,
+                                     int orderIndex,
+                                     bool inLane = false,
+                                     bool inProcessorChain = false);
         bool connectGraphConnection(const electrosynth::ConnectionRecord& connection);
         bool updateGraphConnection(const electrosynth::ConnectionRecord& connection);
         void disconnectGraphConnection(const juce::String& connectionId);
         const std::vector<electrosynth::ConnectionRecord>& getConnections() const noexcept { return moduleGraph_->getConnections(); }
+        const std::vector<ModuleBase*>& getTerminalModules() const noexcept { return terminalAudioModules_; }
         void releaseResources() {
         }
 
@@ -158,16 +208,29 @@ namespace electrosynth {
         std::array<ModuleHeader*, MAX_NUM_VOICES>*  getLEAFProcessor(const std::string&);
         std::array<ModuleHeader*, MAX_NUM_VOICES>* getLEAFProcessorModulator(const std::string&);
         std::pair<  std::array<ModuleHeader*, MAX_NUM_VOICES>* , int> getParameterInfo(const std::string&);
+
+
+
+        // module graph is being constructed based on contents of below (processors, effects, modSources)
+        // but we could just keep track of "where a module is" through its Node metadata in moduleGraph
+        // and have one container for all modules, like this? :
+        // std::vector<std::unique_ptr<ModuleBase>> modules;
         std::vector<std::vector<std::unique_ptr<ProcessorBase>>> processors;
+        std::array<std::vector<std::unique_ptr<ProcessorBase>>,3> effects;
+        std::vector<std::vector<std::unique_ptr<ModulatorBase>>> modSources;
+
         std::vector<std::unique_ptr<RoutingProcessor>> chainPostGain;
         std::array<juce::AudioBuffer<float>, 10> chainPostGainBuffers;
+
         std::vector<leaf::tAudioRouting*> chain_to_lane_routings;
         std::vector<std::unique_ptr<RoutingProcessor>> effectPreGain;
-        std::array<std::vector<std::unique_ptr<ProcessorBase>>,3> effects;
         void beginEffectLaneFadeOut(int lane) noexcept;
         void beginEffectLaneFadeIn(int lane) noexcept;
         bool isEffectLaneSilent(int lane) const noexcept;
-        std::vector<std::vector<std::unique_ptr<ModulatorBase>>> modSources;
+
+        std::vector<ModuleBase*> terminalAudioModules_;
+        std::unordered_set<ModuleBase*> chainExitModules_;
+        std::vector<RuntimeAudioConnection> laneBridgeAudioConnections_;
         void registerModule(ModuleBase* module);
         void unregisterModule(ModuleBase* module);
         ModuleBase* getModuleByNodeId(const juce::String& nodeId) const;
@@ -176,9 +239,11 @@ namespace electrosynth {
         void connectMapping (const electrosynth::mapping_change& change);
         ProcessorBase* getProcessorFromUUID(int uuid);
         ModulatorBase* getModulatorFromUUID(int uuid);
+        std::shared_ptr<const RuntimeTopologySnapshot> getRuntimeTopologySnapshot() const noexcept;
         std::unique_ptr<ModuleGraph> moduleGraph_;
         std::map<juce::String, ModuleBase*> moduleRegistry_;
-        std::map<juce::String, ModulationRuntimeState> modulationStates_;
+        std::map<juce::String, std::shared_ptr<ModulationRuntimeState>> modulationStates_;
+        mutable std::shared_ptr<const RuntimeTopologySnapshot> runtimeTopologySnapshot_;
 
 
      std::array<ModuleHeader*, MAX_NUM_VOICES>* getLeafProcessorFromUUID(int uuid);

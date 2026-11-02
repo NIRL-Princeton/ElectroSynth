@@ -196,7 +196,7 @@ public:
         return electrosynth::audio::makeGeneratorDescriptor();
     }
 
-    void processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midi) override;
+    void process() override;
 
     void prepareToPlay(int samplesPerBlock, double sampleRate) override
     {
