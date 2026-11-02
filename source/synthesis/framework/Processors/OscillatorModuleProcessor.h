@@ -228,22 +228,18 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
     //     }
     // };
     chowdsp::GainDBParameter::Ptr gain
+    {
+        juce::ParameterID{"gain" , 100},
+        "Gain",
+        chowdsp::ParamUtils::createNormalisableRange(-10000.f, 12.f ,0.f),
+         0.f,
+        all_params[OscParams::OscGainParam],
+        [this]( float val)
         {
-            juce::ParameterID{"gain" , 100},
-            "Gain",
-            chowdsp::ParamUtils::createNormalisableRange(-80.f, 10.f, 0.f),
-            -6.f,
-            all_params[OscParams::OscGainParam],
-            [this](float val)
-            {
-                const auto gainDb = chowdsp::ParamUtils::createNormalisableRange(-80.f, 10.f, 0.f).convertFrom0to1(val);
-                const auto gainLin = std::pow(10.0f, gainDb / 20.0f);
-                for (auto mod : modules)
-                {
-                    tOscModule_setParameter(mod, OscGainParam, gainLin);
-                }
-            }
-        };
+            for (auto mod : modules)
+                tOscModule_setParameter(mod, OscGainParam, val);
+        }
+    };
 
     chowdsp::BoolParameter::Ptr pitchStepped{
         juce::ParameterID{"pitchStepped" , 100},
