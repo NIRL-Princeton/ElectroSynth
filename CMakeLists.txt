@@ -261,6 +261,13 @@ message("C++ Compiler Version: ${CMAKE_CXX_COMPILER_VERSION}")
 
 set(CMAKE_CXX_STANDARD 17)
 
+# Override SharedCodeDefaults -Ofast settings per config
+target_compile_options(SharedCode INTERFACE
+        $<$<CONFIG:Release>:-O3 -fno-fast-math>
+        $<$<CONFIG:RelWithDebInfo>:-O1 -g -fno-fast-math>
+)
+
+
 # Removes optimizations ?
 #set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
 #set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0")
