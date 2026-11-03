@@ -72,11 +72,28 @@ void HeaderSection::resized() {
 void HeaderSection::reset() {
 }
 
+static juce::String ensureASCIIOnly(juce::String name)
+{
+    juce::String asciiOnlyString = "";
+
+    for (auto p = name.getCharPointer(); !p.isEmpty(); ++p)
+    {
+        juce::juce_wchar c = *p; // Get the character
+
+        // Example: Print or inspect 'c'
+        if (c >= 0 && c <= 127)
+        {
+            asciiOnlyString += static_cast<juce::juce_wchar>(c);
+        }
+    }
+    return asciiOnlyString;
+}
+
 static juce::String processDeviceText(juce::String name) {
+    name = ensureASCIIOnly(name);
     if (name.length() > 14) name = name.substring (0, 14);
     return name.paddedRight (' ', 14);
 }
-
 
 void HeaderSection::textEditorTextChanged(juce::TextEditor& editor) {
 
