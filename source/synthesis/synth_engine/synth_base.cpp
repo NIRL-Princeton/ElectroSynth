@@ -326,7 +326,6 @@ void SynthBase::removeChainRouting(RoutingProcessor *processor) {
 void SynthBase::addChainRouting(std::unique_ptr<RoutingProcessor> processor, int chain_index) {
     juce::ScopedLock sl(getCriticalSection());
     processor->prepareToPlay(engine_->getSampleRate(), engine_->getBufferSize());
-    engine_->registerModule(processor.get());
 
     engine_->chainPostGain[chain_index]=std::move(processor);
     moduleGraphTopologyDirty_ = true;
