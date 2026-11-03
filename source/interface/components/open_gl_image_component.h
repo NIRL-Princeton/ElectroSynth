@@ -133,6 +133,8 @@ class OpenGlTextEditor : public OpenGlAutoImageComponent<juce::TextEditor>, publ
       addListener(this);
     }
 
+    //std::shared_ptr<OpenGlTextEditor> getGlComponent() { return editor_component_; }
+
     bool keyPressed(const juce::KeyPress& key) override {
       bool result = juce::TextEditor::keyPressed(key);
       redoImage();

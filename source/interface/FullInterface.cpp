@@ -347,10 +347,16 @@ bool FullInterface::sendMidiBufferToSelectedOutput(const juce::MidiBuffer& midi_
     return false;
 }
 
+void FullInterface::sendtoDeviceStringChanged(const juce::String& deviceString)
+{
+    send_to_device_name_ = deviceString;
+    DBG("DEVICE STRING: " + send_to_device_name_);
+}
+
 void FullInterface::sendToDeviceRequested() {
     // value-initialize preset so it doesn't contain indeterminent data
 
-    DBG("SENDING TO DEVICE!");
+    DBG("SENDING TO DEVICE: " + send_to_device_name_);
 
     // for Jeff, we get the runtime snapshot here and can use it to create mappingpreset7bits or in another way to get all the data over!
     const auto* synth = data != nullptr ? data->synth : nullptr; // make sure data and data->synth exist

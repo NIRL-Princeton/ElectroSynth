@@ -42,7 +42,7 @@ void DefaultLookAndFeel::fillTextEditorBackground(Graphics& g, int width, int he
     return;
 
     SynthSection* parent = text_editor.findParentComponentOfClass<SynthSection>();
-    float rounding = 5.0f;
+    float rounding = 2.0f;
     if (parent) rounding = parent->findValue(Skin::kWidgetRoundedCorner);
     g.setColour(text_editor.findColour(Skin::kTextEditorBackground, true));
     g.fillRoundedRectangle(0, 0, width, height, rounding);

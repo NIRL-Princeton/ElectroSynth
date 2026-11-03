@@ -6,7 +6,6 @@
 
 HeaderSection::HeaderSection() : SynthSection("header_section"), tab_offset_(0), body_(new OpenGlQuad(Shaders::kRoundedRectangleFragment)) {
 
-
     addOpenGlComponent(body_);
 
     audioSettingsButton = std::make_unique<OpenGlTextButton>("header_audio");
@@ -23,8 +22,24 @@ HeaderSection::HeaderSection() : SynthSection("header_section"), tab_offset_(0),
     sendToDeviceButton->setLookAndFeel(TextLookAndFeel::instance());
     sendToDeviceButton->setButtonText("Send to Device");
 
-  setAlwaysOnTop(true);
-  setSkinOverride(Skin::kHeader);
+
+    sendToDeviceTextEditor  = std::make_unique<OpenGlTextEditor>("header_text_send");
+    addOpenGlComponent (sendToDeviceTextEditor->getImageComponent());
+    addAndMakeVisible(sendToDeviceTextEditor.get());
+    sendToDeviceTextEditor->addListener (this);
+
+    const auto buttonTextColourOff = findColour(Skin::kIconButtonOff);
+    const auto buttonTextColourOn = findColour(Skin::kIconButtonOffHover);
+    const auto buttonTextBackgroundColour = findColour(Skin::kTextComponentBackground);
+    sendToDeviceTextEditor->setColour (Skin::kTextEditorBackground, buttonTextBackgroundColour);
+    sendToDeviceTextEditor->setColour (juce::TextEditor::textColourId, buttonTextColourOn);
+    sendToDeviceTextEditor->setColour (juce::TextEditor::highlightColourId, buttonTextColourOff);
+    sendToDeviceTextEditor->setLookAndFeel(TextLookAndFeel::instance());
+    sendToDeviceTextEditor->setTextToShowWhenEmpty ("Device to send to...", juce::Colours::darkgrey);
+    sendToDeviceTextEditor->redoImage();
+
+    setAlwaysOnTop(true);
+    setSkinOverride(Skin::kHeader);
 }
 
 void HeaderSection::paintBackground(Graphics& g) {
@@ -48,13 +63,34 @@ void HeaderSection::resized() {
     bounds.removeFromRight (Skin::kLargePadding);
     sendToDeviceButton->setBounds(bounds.removeFromRight (120 * ratio).withHeight (30 * ratio).withY(getLocalBounds().getHeight()/4));
 
+    bounds.removeFromRight (Skin::kLargePadding);
+    sendToDeviceTextEditor->setBounds(bounds.removeFromRight (240 * ratio).withHeight (30 * ratio).withY(getLocalBounds().getHeight()/4));
+
   SynthSection::resized();
 }
 
 void HeaderSection::reset() {
 }
 
+void HeaderSection::textEditorTextChanged(juce::TextEditor& editor) {
+    if (&editor == sendToDeviceTextEditor.get()) {
+        const auto name = sendToDeviceTextEditor->getText();
+        for (Listener* listener : listeners_)
+            listener->sendtoDeviceStringChanged(name);
+    }
+}
 
+void HeaderSection::textEditorReturnKeyPressed(juce::TextEditor& editor) {
+    if (&editor == sendToDeviceTextEditor.get()) {
+        // handle Enter key
+    }
+}
+
+void HeaderSection::textEditorFocusLost(juce::TextEditor& editor) {
+    if (&editor == sendToDeviceTextEditor.get()) {
+        // handle commit on blur
+    }
+}
 
 void HeaderSection::buttonClicked(Button* clicked_button) {
   if (clicked_button == exit_temporary_button_.get()) {

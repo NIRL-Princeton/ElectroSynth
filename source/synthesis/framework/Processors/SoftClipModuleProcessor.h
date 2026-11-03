@@ -38,9 +38,8 @@ struct SoftClipParams : public LEAFParams<_tSoftClipModule >
         all_params[SoftClipModuleParams::SoftClipInputGain],
         [this](float val)
         {
-            for (auto mod: modules)    tSoftClipModule_setParameter(mod,SoftClipInputGain,val);
-
-        //DBG("Soft Clip [0 - 1]" + juce::String(val) + " .. .  Soft Clip actual Val" + juce::String(modules[0]->inputGain));
+            for (auto mod: modules)
+                tSoftClipModule_setParameter(mod,SoftClipInputGain,val);
         }
     };
 

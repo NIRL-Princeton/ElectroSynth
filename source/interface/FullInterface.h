@@ -39,7 +39,7 @@ public :
     FullInterface(SynthGuiData *synth_gui_data);
     ~FullInterface() override;
 
-     void paintBackground(juce::Graphics& g) override;
+    void paintBackground(juce::Graphics& g) override;
 
     void parentHierarchyChanged() override {
         SynthSection::parentHierarchyChanged();
@@ -56,6 +56,7 @@ public :
     void applySkinToSubtree(SynthSection* section);
     void showAboutSection() override;
     void sendToDeviceRequested() override;
+    void sendtoDeviceStringChanged(const juce::String& device) override;
     void setSelectedMidiOutputProvider(std::function<juce::MidiOutput*()> provider);
     bool sendMidiBufferToSelectedOutput(const juce::MidiBuffer& midi_messages);
     void repaintChildBackground(SynthSection* child);
@@ -115,6 +116,7 @@ private :
     std::unique_ptr<MappingManager> modulation_manager;
     std::unique_ptr<MainSection> main_;
     std::unique_ptr<HeaderSection> header_;
+    juce::String send_to_device_name_;
 //std::unique_ptr<TestSection> test_;
 
     int width_;

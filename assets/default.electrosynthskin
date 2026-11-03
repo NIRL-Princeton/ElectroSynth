@@ -143,7 +143,9 @@
 
         "Header": {
             "Widget Background": "{palette.almostBlackCharcoal}",
-            "UI Action Button": "{palette.accentSoundModule}"
+            "UI Action Button": "{palette.accentSoundModule}",
+            "Widget Rounded Corner": 3.0
+
         },
 
         "Sound Module": {
