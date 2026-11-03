@@ -72,23 +72,34 @@ void HeaderSection::resized() {
 void HeaderSection::reset() {
 }
 
+static juce::String processDeviceText(juce::String name) {
+    if (name.length() > 14) name = name.substring (0, 14);
+    return name.paddedRight (' ', 14);
+}
+
+
 void HeaderSection::textEditorTextChanged(juce::TextEditor& editor) {
+
     if (&editor == sendToDeviceTextEditor.get()) {
-        const auto name = sendToDeviceTextEditor->getText();
+        const auto name = processDeviceText(editor.getText());
+
         for (Listener* listener : listeners_)
-            listener->sendtoDeviceStringChanged(name);
+            listener->sendToDeviceStringChanged(name);
     }
 }
 
 void HeaderSection::textEditorReturnKeyPressed(juce::TextEditor& editor) {
+
     if (&editor == sendToDeviceTextEditor.get()) {
-        // handle Enter key
+        auto name = processDeviceText(sendToDeviceTextEditor->getText());
+        sendToDeviceTextEditor->setText(name);
     }
 }
 
 void HeaderSection::textEditorFocusLost(juce::TextEditor& editor) {
     if (&editor == sendToDeviceTextEditor.get()) {
-        // handle commit on blur
+        auto name = processDeviceText(sendToDeviceTextEditor->getText());
+        sendToDeviceTextEditor->setText(name);
     }
 }
 

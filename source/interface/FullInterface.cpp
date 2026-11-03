@@ -347,10 +347,10 @@ bool FullInterface::sendMidiBufferToSelectedOutput(const juce::MidiBuffer& midi_
     return false;
 }
 
-void FullInterface::sendtoDeviceStringChanged(const juce::String& deviceString)
+void FullInterface::sendToDeviceStringChanged(const juce::String& deviceString)
 {
     send_to_device_name_ = deviceString;
-    DBG("DEVICE STRING: " + send_to_device_name_);
+    DBG("DEVICE STRING: |" + send_to_device_name_ + "|");
 }
 
 void FullInterface::sendToDeviceRequested() {

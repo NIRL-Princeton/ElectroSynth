@@ -56,7 +56,7 @@ public :
     void applySkinToSubtree(SynthSection* section);
     void showAboutSection() override;
     void sendToDeviceRequested() override;
-    void sendtoDeviceStringChanged(const juce::String& device) override;
+    void sendToDeviceStringChanged(const juce::String& device) override;
     void setSelectedMidiOutputProvider(std::function<juce::MidiOutput*()> provider);
     bool sendMidiBufferToSelectedOutput(const juce::MidiBuffer& midi_messages);
     void repaintChildBackground(SynthSection* child);

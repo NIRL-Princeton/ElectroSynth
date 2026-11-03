@@ -233,7 +233,7 @@ class HeaderSection : public SynthSection, public LogoSection::Listener, public 
         virtual ~Listener() { }
 
         virtual void showAboutSection() = 0;
-        virtual void sendtoDeviceStringChanged(const juce::String& device) = 0;
+        virtual void sendToDeviceStringChanged(const juce::String& device) = 0;
         virtual void sendToDeviceRequested() = 0;
     };
     void mouseEnter (const MouseEvent& event) {
