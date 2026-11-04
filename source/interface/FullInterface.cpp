@@ -468,6 +468,7 @@ void FullInterface::sendToDeviceRequested() {
             fullPreset.routing[i].active = 1;
             fullPreset.routing[i].sUuid = audioConnection.sourceModule->getUUID();
             fullPreset.routing[i].dUuid = audioConnection.destinationModule->getUUID();
+            fullPreset.routing[i].amount = audioConnection.amount;
             i++;
         }
 
