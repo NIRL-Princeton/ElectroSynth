@@ -28,6 +28,8 @@
 #include "test_section.h"
 #include "text_look_and_feel.h"
 
+using namespace leaf;
+
 FullInterface::FullInterface(SynthGuiData* synth_data) : SynthSection("full_interface"), width_(0), resized_width_(0),
     last_render_scale_(0.0f), display_scale_(1.0f), pixel_multiple_(1),unsupported_(false), animate_(true), enable_redo_background_(true),
     open_gl_(open_gl_context_), data(synth_data) {
@@ -375,6 +377,23 @@ void FullInterface::sendToDeviceRequested() {
             + "\nNum chain exit modules: "
             + juce::String(static_cast<int>(runtimeSnapshot->chainExitModules.size()))
             );
+
+        tFullPresetState fullPreset;
+
+        for (int i = 0; auto module : runtimeSnapshot->modulesToTick)
+        {
+            ModuleHeader* header  = module->procArray->at (0);
+
+            fullPreset.modules[i].type = header->moduleType;
+            fullPreset.modules[i].uuid = header->uniqueID;
+
+            for (int p = 0; p < MAX_NUM_PARAMS; p++)
+            {
+                fullPreset.modules[i].params[p] = header->params[p]->load();
+            }
+            i++;
+        }
+
     }
 
     leaf::tMappingPreset7Bit preset7Bit {};
