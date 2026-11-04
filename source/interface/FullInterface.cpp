@@ -358,23 +358,30 @@ void FullInterface::sendToDeviceStringChanged(const juce::String& deviceString)
     DBG("DEVICE STRING: |" + send_to_device_name_ + "|");
 }
 
+static void printModuleSmall(tModuleSmall& module, int i = 0)
+{
+    if (module.active == 0) return;
+
+    DBG("Module " << ((i < 0) ? "master" : String(i)));
+    DBG("  type " << static_cast<int>(module.type));
+    DBG("  uuid " << static_cast<int>(module.uuid));
+    DBG("  terminal " << static_cast<int>(module.terminal));
+    DBG("  chainEnd " << static_cast<int>(module.chainEnd));
+    String params = "  params ";
+    for (int p = 0; p < MAX_NUM_PARAMS; p++)
+    {
+        params += " " + String(module.params[p]);
+    }
+    DBG(params);
+}
+
 static void printFullPreset(tFullPresetState& preset)
 {
+    printModuleSmall (preset.master, -1);
+
     for (int i = 0; i < MAX_NUM_MODULES; i++)
     {
-        if (preset.modules[i].active == 0) continue;
-
-        DBG("Module " << i);
-        DBG("  type " << static_cast<int>(preset.modules[i].type));
-        DBG("  uuid " << static_cast<int>(preset.modules[i].uuid));
-        DBG("  terminal " << static_cast<int>(preset.modules[i].terminal));
-        DBG("  chainEnd " << static_cast<int>(preset.modules[i].chainEnd));
-        String params = "  params ";
-        for (int p = 0; p < MAX_NUM_PARAMS; p++)
-        {
-            params += " " + String(preset.modules[i].params[p]);
-        }
-        DBG(params);
+        printModuleSmall (preset.modules[i], i);
     }
 
     for (int i = 0; i < MAX_NUM_MAPPINGS; i++)
@@ -426,6 +433,24 @@ void FullInterface::sendToDeviceRequested() {
         std::vector<uint32_t> chainExitModules;
         for (int i = 0; auto module : runtimeSnapshot->terminalAudioModules) terminalModules.push_back(module.module->getUUID());
         for (int i = 0; auto module : runtimeSnapshot->chainExitModules) chainExitModules.push_back(module->getUUID());
+
+        // Transfer master envelope module, not included in traditional module registry
+        const ModuleHeader* masterHeader  = runtimeSnapshot->masterEnvelope->procArray->at(0);
+        if (masterHeader != nullptr)
+        {
+            fullPreset.master.active = 1;
+            fullPreset.master.type = masterHeader->moduleType;
+            fullPreset.master.uuid = masterHeader->uniqueID;
+            fullPreset.master.terminal = 0;
+            fullPreset.master.chainEnd = 0;
+        }
+        for (int p = 0; p < MAX_NUM_PARAMS; p++)
+        {
+            if (masterHeader->params[p] != nullptr)
+                fullPreset.master.params[p] = masterHeader->params[p]->load(std::memory_order_relaxed);
+            else
+                fullPreset.master.params[p] = 0.0f;
+        }
 
         for (int i = 0; auto module : runtimeSnapshot->modulesToTick)
         {

@@ -78,6 +78,7 @@ namespace electrosynth {
         std::vector<ModuleBase*> chainExitModules; // modules that are at end of chain and therefore need MasterEnvelope applied applied
         std::vector<RuntimeModulationConnection> modulationConnections; // modulations (ModulationRuntimeState inside RuntimeModulationConnection contains the good old tMapping)
         std::vector<ModuleBase*> modulesToTick; // all modules that should be ticked
+        ModuleBase* masterEnvelope = nullptr; // the master envelope module
     };
 
     class SoundEngine : public NoteHandler {

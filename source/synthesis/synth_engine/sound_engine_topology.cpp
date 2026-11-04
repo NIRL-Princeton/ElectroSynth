@@ -3,6 +3,7 @@
 #include "ModuleGraph.h"
 #include "RoutingProcessor.h"
 #include "Modulators/ModulatorBase.h"
+#include "Modulators/EnvModuleProcessor.h"
 
 #include <algorithm>
 #include <sstream>
@@ -392,6 +393,8 @@ namespace electrosynth
         for (const auto& [_, module] : moduleRegistry_)
             if (module != nullptr)
                 snapshot->modulesToTick.push_back(module);
+
+        snapshot->masterEnvelope = MasterVoiceEnvelopeProcessor.get();
 
         const std::shared_ptr<const RuntimeTopologySnapshot> constSnapshot = snapshot;
         std::atomic_store_explicit(&runtimeTopologySnapshot_, constSnapshot, std::memory_order_release);

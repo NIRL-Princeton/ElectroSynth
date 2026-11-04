@@ -90,7 +90,6 @@ class SynthApplication : public JUCEApplication {
             editor_->animate(true);
             setContentOwned(editor_, true);
 
-
             constrainer_.setMinimumSize(electrosynth::kMinWindowWidth, electrosynth::kMinWindowHeight);
             constrainer_.setBorder(getPeer()->getFrameSize());
             float ratio = (1.0f * electrosynth::kDefaultWindowWidth) / electrosynth::kDefaultWindowHeight;
