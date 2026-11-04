@@ -358,7 +358,7 @@ void FullInterface::sendToDeviceStringChanged(const juce::String& deviceString)
     DBG("DEVICE STRING: |" + send_to_device_name_ + "|");
 }
 
-static void printModuleSmall(tModuleSmall& module, int i = 0)
+static void printModuleSmall (const tModuleSmall& module, int i = -1)
 {
     if (module.active == 0) return;
 
@@ -375,9 +375,32 @@ static void printModuleSmall(tModuleSmall& module, int i = 0)
     DBG(params);
 }
 
+static void printMappingSmall (const tMappingSmall& mapping, int i = -1)
+{
+    if (mapping.active == 0) return;
+
+    DBG("Mapping " << ((i < 0) ? "" : String(i)));
+    DBG ("  map " << static_cast<int>(mapping.mapUuid));
+    DBG("  s_id " << static_cast<int>(mapping.sUuid));
+    DBG("  d_id " << static_cast<int>(mapping.dUuid));
+    DBG("  d_param " << static_cast<int>(mapping.dParamId));
+    DBG("  scalar " << mapping.scalar);
+    DBG("  bipolar " << mapping.bipolarOffset);
+}
+
+static void printAudioConnectionSmall (const tAudioConnectionSmall& routing, int i = -1)
+{
+    if (routing.active == 0) return;
+
+    DBG("Routing " << ((i < 0) ? "" : String(i)));
+    DBG("  s_id " << static_cast<int>(routing.sUuid));
+    DBG("  d_id " << static_cast<int>(routing.dUuid));
+    DBG("  amount " << routing.amount);
+}
+
 static void printFullPreset(tFullPresetState& preset)
 {
-    printModuleSmall (preset.master, -1);
+    printModuleSmall (preset.master);
 
     for (int i = 0; i < MAX_NUM_MODULES; i++)
     {
@@ -386,28 +409,12 @@ static void printFullPreset(tFullPresetState& preset)
 
     for (int i = 0; i < MAX_NUM_MAPPINGS; i++)
     {
-        const tMappingSmall& mapping = preset.mappings[i];
-
-        if (mapping.active == 0) continue;
-
-        DBG("Mapping " << i);
-        DBG ("  map " << static_cast<int>(mapping.mapUuid));
-        DBG("  s_id " << static_cast<int>(mapping.sUuid));
-        DBG("  d_id " << static_cast<int>(mapping.dUuid));
-        DBG("  d_param " << static_cast<int>(mapping.dParamId));
-        DBG("  scalar " << mapping.scalar);
-        DBG("  bipolar " << mapping.bipolarOffset);
+        printMappingSmall (preset.mappings[i], i);
     }
 
     for (int i = 0; i < MAX_NUM_AUDIO_CONNECTIONS; i++)
     {
-        const tAudioConnectionSmall& routing = preset.routing[i];
-        if (routing.active == 0) continue;
-
-        DBG("Routing " << i);
-        DBG("  s_id " << static_cast<int>(routing.sUuid));
-        DBG("  d_id " << static_cast<int>(routing.dUuid));
-        DBG("  amount " << routing.amount);
+        printAudioConnectionSmall (preset.routing[i], i);
     }
 }
 
