@@ -355,6 +355,37 @@ void FullInterface::sendToDeviceStringChanged(const juce::String& deviceString)
     DBG("DEVICE STRING: |" + send_to_device_name_ + "|");
 }
 
+static void printFullPreset(tFullPresetState& preset)
+{
+    for (int i = 0; i < MAX_NUM_MODULES; i++)
+    {
+        if (preset.modules[i].active == 0) continue;
+
+        DBG("Module " << i);
+        DBG("  type " << static_cast<int>(preset.modules[i].type));
+        DBG("  uuid " << static_cast<int>(preset.modules[i].uuid));
+        String params = "  params ";
+        for (int p = 0; p < MAX_NUM_PARAMS; p++)
+        {
+            params += " " + String(preset.modules[i].params[p]);
+        }
+        DBG(params);
+    }
+
+    for (int i = 0; i < MAX_NUM_MAPPINGS; i++)
+    {
+        if (preset.mappings[i].active == 0) continue;
+
+        DBG("Mapping " << i);
+        DBG ("  map " << static_cast<int>(preset.mappings[i].mapUuid));
+        DBG("  s_id " << static_cast<int>(preset.mappings[i].sUuid));
+        DBG("  d_id " << static_cast<int>(preset.mappings[i].dUuid));
+        DBG("  d_param " << static_cast<int>(preset.mappings[i].dParamId));
+        DBG("  scalar " << preset.mappings[i].scalar);
+        DBG("  bipolar " << preset.mappings[i].bipolarOffset);
+    }
+}
+
 void FullInterface::sendToDeviceRequested() {
     // value-initialize preset so it doesn't contain indeterminent data
 
@@ -380,20 +411,55 @@ void FullInterface::sendToDeviceRequested() {
 
         tFullPresetState fullPreset;
 
+        // initialize active flag to 0
+        for (int i = 0; i < MAX_NUM_MODULES; i++) fullPreset.modules[i].active = 0;
+        for (int i = 0; i < MAX_NUM_MAPPINGS; i++) fullPreset.mappings[i].active = 0;
+
         for (int i = 0; auto module : runtimeSnapshot->modulesToTick)
         {
-            ModuleHeader* header  = module->procArray->at (0);
+            if (i >= MAX_NUM_MODULES) break;
+            if (module == nullptr || module->procArray == nullptr || module->procArray->empty())
+            {
+                DBG("skipping");
+                continue;
+            }
 
+            ModuleHeader* header  = module->procArray->at (0);
+            if (header == nullptr)
+                continue;
+
+            fullPreset.modules[i].active = 1;
             fullPreset.modules[i].type = header->moduleType;
             fullPreset.modules[i].uuid = header->uniqueID;
 
             for (int p = 0; p < MAX_NUM_PARAMS; p++)
             {
-                fullPreset.modules[i].params[p] = header->params[p]->load();
+                if (header->params[p] != nullptr) {
+                    fullPreset.modules[i].params[p] = header->params[p]->load(std::memory_order_relaxed);
+                }
+                else
+                    fullPreset.modules[i].params[p] = 0.0f;
             }
             i++;
         }
 
+        for (int i = 0; auto runtimeMapping : runtimeSnapshot->modulationConnections)
+        {
+            if (i >= MAX_NUM_MAPPINGS) break;
+
+            const auto mapping = runtimeMapping.state;
+
+            fullPreset.mappings[i].active = 1;
+            fullPreset.mappings[i].mapUuid = mapping->mapping.at(0)->uuid;
+            fullPreset.mappings[i].sUuid = mapping->source->at(0)->uniqueID;
+            fullPreset.mappings[i].dUuid = mapping->destination->at(0)->uniqueID;
+            fullPreset.mappings[i].dParamId = mapping->mapping.at(0)->paramID;
+            fullPreset.mappings[i].scalar = mapping->record.amount;
+            fullPreset.mappings[i].bipolarOffset = mapping->record.bipolar;
+            i++;
+        }
+
+        printFullPreset (fullPreset);
     }
 
     leaf::tMappingPreset7Bit preset7Bit {};
