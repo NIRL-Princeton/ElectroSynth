@@ -28,6 +28,9 @@
 #include "test_section.h"
 #include "text_look_and_feel.h"
 
+#include <algorithm>
+#include <ranges>
+
 using namespace leaf;
 
 FullInterface::FullInterface(SynthGuiData* synth_data) : SynthSection("full_interface"), width_(0), resized_width_(0),
@@ -364,6 +367,8 @@ static void printFullPreset(tFullPresetState& preset)
         DBG("Module " << i);
         DBG("  type " << static_cast<int>(preset.modules[i].type));
         DBG("  uuid " << static_cast<int>(preset.modules[i].uuid));
+        DBG("  terminal " << static_cast<int>(preset.modules[i].terminal));
+        DBG("  chainEnd " << static_cast<int>(preset.modules[i].chainEnd));
         String params = "  params ";
         for (int p = 0; p < MAX_NUM_PARAMS; p++)
         {
@@ -417,28 +422,29 @@ void FullInterface::sendToDeviceRequested() {
         for (int i = 0; i < MAX_NUM_MAPPINGS; i++) fullPreset.mappings[i].active = 0;
         for (int i = 0; i < MAX_NUM_AUDIO_CONNECTIONS; i++) fullPreset.routing[i].active = 0;
 
+        std::vector<uint32_t> terminalModules;
+        std::vector<uint32_t> chainExitModules;
+        for (int i = 0; auto module : runtimeSnapshot->terminalAudioModules) terminalModules.push_back(module.module->getUUID());
+        for (int i = 0; auto module : runtimeSnapshot->chainExitModules) chainExitModules.push_back(module->getUUID());
+
         for (int i = 0; auto module : runtimeSnapshot->modulesToTick)
         {
             if (i >= MAX_NUM_MODULES) break;
-            if (module == nullptr || module->procArray == nullptr || module->procArray->empty())
-            {
-                DBG("skipping");
-                continue;
-            }
+            if (module == nullptr || module->procArray == nullptr || module->procArray->empty()) continue;
 
-            ModuleHeader* header  = module->procArray->at (0);
-            if (header == nullptr)
-                continue;
+            const ModuleHeader* header  = module->procArray->at (0);
+            if (header == nullptr) continue;
 
             fullPreset.modules[i].active = 1;
             fullPreset.modules[i].type = header->moduleType;
             fullPreset.modules[i].uuid = header->uniqueID;
+            fullPreset.modules[i].terminal = std::ranges::find(terminalModules, header->uniqueID) != terminalModules.end();
+            fullPreset.modules[i].chainEnd = std::ranges::find(chainExitModules, header->uniqueID) != chainExitModules.end();
 
             for (int p = 0; p < MAX_NUM_PARAMS; p++)
             {
-                if (header->params[p] != nullptr) {
+                if (header->params[p] != nullptr) 
                     fullPreset.modules[i].params[p] = header->params[p]->load(std::memory_order_relaxed);
-                }
                 else
                     fullPreset.modules[i].params[p] = 0.0f;
             }
