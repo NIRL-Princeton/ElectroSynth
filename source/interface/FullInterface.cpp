@@ -374,15 +374,28 @@ static void printFullPreset(tFullPresetState& preset)
 
     for (int i = 0; i < MAX_NUM_MAPPINGS; i++)
     {
-        if (preset.mappings[i].active == 0) continue;
+        const tMappingSmall& mapping = preset.mappings[i];
+
+        if (mapping.active == 0) continue;
 
         DBG("Mapping " << i);
-        DBG ("  map " << static_cast<int>(preset.mappings[i].mapUuid));
-        DBG("  s_id " << static_cast<int>(preset.mappings[i].sUuid));
-        DBG("  d_id " << static_cast<int>(preset.mappings[i].dUuid));
-        DBG("  d_param " << static_cast<int>(preset.mappings[i].dParamId));
-        DBG("  scalar " << preset.mappings[i].scalar);
-        DBG("  bipolar " << preset.mappings[i].bipolarOffset);
+        DBG ("  map " << static_cast<int>(mapping.mapUuid));
+        DBG("  s_id " << static_cast<int>(mapping.sUuid));
+        DBG("  d_id " << static_cast<int>(mapping.dUuid));
+        DBG("  d_param " << static_cast<int>(mapping.dParamId));
+        DBG("  scalar " << mapping.scalar);
+        DBG("  bipolar " << mapping.bipolarOffset);
+    }
+
+    for (int i = 0; i < MAX_NUM_AUDIO_CONNECTIONS; i++)
+    {
+        const tAudioConnectionSmall& routing = preset.routing[i];
+        if (routing.active == 0) continue;
+
+        DBG("Routing " << i);
+        DBG("  s_id " << static_cast<int>(routing.sUuid));
+        DBG("  d_id " << static_cast<int>(routing.dUuid));
+        DBG("  amount " << routing.amount);
     }
 }
 
@@ -397,23 +410,12 @@ void FullInterface::sendToDeviceRequested() {
     const auto runtimeSnapshot = engine != nullptr ? engine->getRuntimeTopologySnapshot() : nullptr; // get the snapshot !
     if (runtimeSnapshot != nullptr)
     {
-        DBG("Num audio connections: "
-            + juce::String(static_cast<int>(runtimeSnapshot->audioConnections.size()))
-            + "\nNum modulation connections: "
-            + juce::String(static_cast<int>(runtimeSnapshot->modulationConnections.size()))
-            + "\nNum modules to tick: "
-            + juce::String(static_cast<int>(runtimeSnapshot->modulesToTick.size()))
-            + "\nNum terminal modules: "
-            + juce::String(static_cast<int>(runtimeSnapshot->terminalAudioModules.size()))
-            + "\nNum chain exit modules: "
-            + juce::String(static_cast<int>(runtimeSnapshot->chainExitModules.size()))
-            );
-
         tFullPresetState fullPreset;
 
         // initialize active flag to 0
         for (int i = 0; i < MAX_NUM_MODULES; i++) fullPreset.modules[i].active = 0;
         for (int i = 0; i < MAX_NUM_MAPPINGS; i++) fullPreset.mappings[i].active = 0;
+        for (int i = 0; i < MAX_NUM_AUDIO_CONNECTIONS; i++) fullPreset.routing[i].active = 0;
 
         for (int i = 0; auto module : runtimeSnapshot->modulesToTick)
         {
@@ -456,6 +458,16 @@ void FullInterface::sendToDeviceRequested() {
             fullPreset.mappings[i].dParamId = mapping->mapping.at(0)->paramID;
             fullPreset.mappings[i].scalar = mapping->record.amount;
             fullPreset.mappings[i].bipolarOffset = mapping->record.bipolar;
+            i++;
+        }
+
+        for (int i = 0; auto audioConnection : runtimeSnapshot->audioConnections)
+        {
+            if (i >= MAX_NUM_AUDIO_CONNECTIONS) break;
+
+            fullPreset.routing[i].active = 1;
+            fullPreset.routing[i].sUuid = audioConnection.sourceModule->getUUID();
+            fullPreset.routing[i].dUuid = audioConnection.destinationModule->getUUID();
             i++;
         }
 

@@ -32,6 +32,10 @@ public:
 
     virtual ~ModuleBase() = default;
 
+    uint32_t getUUID() const {
+        return (procArray->at(0) != nullptr) ? procArray->at(0)->uniqueID : 0;
+    }
+
     juce::String getNodeId() const {
         return state.getProperty(IDs::nodeID).toString();
     }
