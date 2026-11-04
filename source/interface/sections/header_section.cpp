@@ -64,7 +64,7 @@ void HeaderSection::resized() {
     sendToDeviceButton->setBounds(bounds.removeFromRight (120 * ratio).withHeight (30 * ratio).withY(getLocalBounds().getHeight()/4));
 
     bounds.removeFromRight (Skin::kLargePadding);
-    sendToDeviceTextEditor->setBounds(bounds.removeFromRight (240 * ratio).withHeight (30 * ratio).withY(getLocalBounds().getHeight()/4));
+    sendToDeviceTextEditor->setBounds(bounds.removeFromRight (150 * ratio).withHeight (30 * ratio).withY(getLocalBounds().getHeight()/4));
 
   SynthSection::resized();
 }
