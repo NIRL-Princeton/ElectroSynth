@@ -511,19 +511,42 @@ void FullInterface::sendToDeviceRequested() {
         }
 
         printFullPreset (fullPreset);
+
+        leaf::tFullPresetStateWithNameAndNumber fullPresetWithName {};
+        fullPresetWithName.fullstate = fullPreset;
+        fullPresetWithName.presetVersionNumberMajor = 1; //this will be some variable stating the version of the preset format, number before the dot
+        fullPresetWithName.presetVersionNumberMinor = 0; //this will be some variable stating the version of the preset format, number after the dot
+        fullPresetWithName.presetNumber = 8; //this will be a text entry box for which slot to store it in. Putting 8 for now just so I can have a value in there.
+        for (int i = 0; i < 14; i++)
+        {
+            if (i < send_to_device_name_.getNumBytesAsUTF8())
+            {
+                fullPresetWithName.name[i] = send_to_device_name_[i];
+            }
+            else
+            {
+                fullPresetWithName.name[i] = 0;
+            }
+        }
+        //fullPresetWithName.name[0] = 255; //dumb for testing
+        // build sysex message
+        juce::MidiBuffer midi_messages;
+        sendPresetOverMidi(fullPresetWithName, sizeof(fullPresetWithName), midi_messages);
+
+        // send message to currently selected output, or show the alert
+        if (!sendMidiBufferToSelectedOutput(midi_messages)) {
+            juce::AlertWindow::showMessageBoxAsync(juce::AlertWindow::WarningIcon, "MIDI Output",
+                "No valid output selected in Audio/MIDI Settings.");
+        }
     }
 
-    leaf::tMappingPreset7Bit preset7Bit {};
 
-    // build sysex message
-    juce::MidiBuffer midi_messages;
-    sendPresetOverMidi(preset7Bit, electrosynth::kSysexChunkSize, midi_messages);
 
-    // send message to currently selected output, or show the alert
-    if (!sendMidiBufferToSelectedOutput(midi_messages)) {
-        juce::AlertWindow::showMessageBoxAsync(juce::AlertWindow::WarningIcon, "MIDI Output",
-            "No valid output selected in Audio/MIDI Settings.");
-    }
+
+
+    //leaf::tMappingPreset7Bit preset7Bit {};
+
+
 }
 
 void FullInterface::animate(bool animate) {

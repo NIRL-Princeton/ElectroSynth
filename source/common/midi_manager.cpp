@@ -32,21 +32,61 @@ namespace {
 
 // todo: take out maxChunkSize arg
 // changed from juce::MidiOutput* midi_output to juce::MidiBuffer& midi_messages
-void sendPresetOverMidi(const leaf::tMappingPreset7Bit& preset, size_t maxChunkSize, juce::MidiBuffer& midi_messages) {
+void sendPresetOverMidi(const leaf::tFullPresetStateWithNameAndNumber& preset, size_t maxChunkSize, juce::MidiBuffer& midi_messages) {
 
-    juce::ignoreUnused(preset);
-
+    uint32_t presetSize = sizeof(preset);
+/*
     if (maxChunkSize > electrosynth::kSysexChunkSize) {
         jassertfalse;
         return;
     }
+*/
+    leaf::tFullPresetStateWithNameAndNumberUnion presetUnion;
 
-    const std::array<std::byte, 2> payload {std::byte { BYTETAGS::MAPTAG }, std::byte { 0x08 }};
+    presetUnion.fullstate = preset;
+
+
+    size_t sevenBitSize = round(presetSize * (8.0/7.0) + 0.5);
+
+
+    //it's stupid to set this as some fixed size array, but I couldn't figure out how to get std::vector working with push_back resizing, or else the debugger just wasn't showing it working. -JS
+    std::array<std::byte, 10000> payload;
+    uint32_t payLoadByteCount = 0;
+    uint32_t payLoadBitCount = 0;
+    payload[payLoadByteCount] = (std::byte { BYTETAGS::FULLPRESETTAG });
+    payLoadByteCount++;
+    payload[payLoadByteCount] = (std::byte { 0x05}); //meaningless for now
+    payLoadByteCount++;
+
+    uint8_t tempByte = 0;
+    //split the 8-bit bytes up and pack them in 7-bit bytes
+    for (int inputByte = 0; inputByte < presetSize; inputByte++)
+    {
+        for (int bit = 0; bit < 8; bit++)
+        {
+            //uint8_t  bitMagic = ~(1 << bit) | (presetUnion.bytes[inputByte] << bit);
+            uint8_t valueOfCurrentBit = (presetUnion.bytes[inputByte] >> bit) & 1; //get the value of the bit we're reading from the 8-bit byte
+            tempByte |= (valueOfCurrentBit << payLoadBitCount); //plop it in the 7-bit byte in the position where it needs to be.
+
+            //count which bit you're on in the 7-bit word (different from "bit" in the 8-bit word)
+            payLoadBitCount++;
+            //roll over the 7-bit byte if you reached the end
+            if (payLoadBitCount >= 7)
+            {
+                payload[payLoadByteCount] = (std::byte{tempByte});
+                payLoadBitCount = 0;
+                tempByte = 0;
+                payLoadByteCount++;
+            }
+        }
+    }
+
+
 
     // Sample position zero is appropriate because this buffer is sent
     // immediately rather than synchronized with an audio block.
     midi_messages.addEvent(juce::MidiMessage::createSysExMessage(payload.data(),
-            payload.size()), 0);
+            payLoadByteCount), 0);
 
 
     /*
