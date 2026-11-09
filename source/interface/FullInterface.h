@@ -57,6 +57,7 @@ public :
     void showAboutSection() override;
     void sendToDeviceRequested() override;
     void sendToDeviceStringChanged(const juce::String& device) override;
+    void sendToDevicePresetNumberChanged(const int presetNumber) override;
     void setSelectedMidiOutputProvider(std::function<juce::MidiOutput*()> provider);
     bool sendMidiBufferToSelectedOutput(const juce::MidiBuffer& midi_messages);
     void repaintChildBackground(SynthSection* child);
@@ -117,6 +118,7 @@ private :
     std::unique_ptr<MainSection> main_;
     std::unique_ptr<HeaderSection> header_;
     juce::String send_to_device_name_;
+    int send_to_device_preset_number_;
 //std::unique_ptr<TestSection> test_;
 
     int width_;

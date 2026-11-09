@@ -234,6 +234,7 @@ class HeaderSection : public SynthSection, public LogoSection::Listener, public 
 
         virtual void showAboutSection() = 0;
         virtual void sendToDeviceStringChanged(const juce::String& device) = 0;
+        virtual void sendToDevicePresetNumberChanged(const int presetNumber) = 0;
         virtual void sendToDeviceRequested() = 0;
     };
     void mouseEnter (const MouseEvent& event) {
@@ -273,6 +274,7 @@ class HeaderSection : public SynthSection, public LogoSection::Listener, public 
 
     int tab_offset_;
     std::unique_ptr<OpenGlTextButton> audioSettingsButton;
+    std::unique_ptr<OpenGlTextEditor> sendToDevicePresetNumberEditor;
     std::unique_ptr<OpenGlTextEditor> sendToDeviceTextEditor;
     std::unique_ptr<OpenGlTextButton> sendToDeviceButton;
     std::unique_ptr<PlainTextComponent> temporary_tab_;

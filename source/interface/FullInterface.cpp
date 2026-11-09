@@ -352,6 +352,12 @@ bool FullInterface::sendMidiBufferToSelectedOutput(const juce::MidiBuffer& midi_
     return false;
 }
 
+void FullInterface::sendToDevicePresetNumberChanged (const int presetNumber)
+{
+    send_to_device_preset_number_ = presetNumber;
+    DBG("DEVICE PRESET NUMBER: |" << send_to_device_preset_number_ << "|");
+}
+
 void FullInterface::sendToDeviceStringChanged(const juce::String& deviceString)
 {
     send_to_device_name_ = deviceString;
@@ -398,8 +404,17 @@ static void printAudioConnectionSmall (const tAudioConnectionSmall& routing, int
     DBG("  amount " << routing.amount);
 }
 
-static void printFullPreset(tFullPresetState& preset)
+static void printFullPreset(tFullPresetStateWithNameAndNumber& fullPreset)
 {
+    juce::String name = "";
+    for (unsigned char i : fullPreset.name)
+    {
+        name += static_cast<juce_wchar>(i);
+    }
+    DBG("Preset name: " << name);
+    DBG("Preset number: " << fullPreset.presetNumber);
+
+    tFullPresetState preset = fullPreset.fullstate;
     printModuleSmall (preset.master);
 
     for (int i = 0; i < MAX_NUM_MODULES; i++)
@@ -419,10 +434,6 @@ static void printFullPreset(tFullPresetState& preset)
 }
 
 void FullInterface::sendToDeviceRequested() {
-    // value-initialize preset so it doesn't contain indeterminent data
-
-    DBG("SENDING TO DEVICE: " + send_to_device_name_);
-
     // for Jeff, we get the runtime snapshot here and can use it to create mappingpreset7bits or in another way to get all the data over!
     const auto* synth = data != nullptr ? data->synth : nullptr; // make sure data and data->synth exist
     auto* engine = synth != nullptr ? synth->getEngine() : nullptr; // get engine from synth
@@ -510,13 +521,11 @@ void FullInterface::sendToDeviceRequested() {
             i++;
         }
 
-        printFullPreset (fullPreset);
-
         leaf::tFullPresetStateWithNameAndNumber fullPresetWithName {};
         fullPresetWithName.fullstate = fullPreset;
         fullPresetWithName.presetVersionNumberMajor = 1; //this will be some variable stating the version of the preset format, number before the dot
         fullPresetWithName.presetVersionNumberMinor = 0; //this will be some variable stating the version of the preset format, number after the dot
-        fullPresetWithName.presetNumber = 8; //this will be a text entry box for which slot to store it in. Putting 8 for now just so I can have a value in there.
+        fullPresetWithName.presetNumber = send_to_device_preset_number_;
         for (int i = 0; i < 14; i++)
         {
             if (i < send_to_device_name_.getNumBytesAsUTF8())
@@ -528,6 +537,8 @@ void FullInterface::sendToDeviceRequested() {
                 fullPresetWithName.name[i] = 0;
             }
         }
+
+        printFullPreset(fullPresetWithName);
         //fullPresetWithName.name[0] = 255; //dumb for testing
         // build sysex message
         juce::MidiBuffer midi_messages;
