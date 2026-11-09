@@ -95,8 +95,8 @@ void NoiseModuleProcessor::process ()
         }
         for (int i = 0; i < numSamples; i++)
         {
-            float dummy = 0.f;
-            tNoiseModule_tick(state_.params.modules[v], &dummy);
+
+            tNoiseModule_tick(state_.params.modules[v]);
         }
     }
 

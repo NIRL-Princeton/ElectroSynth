@@ -16,8 +16,7 @@ void VCAModuleProcessor::process()
     for (int v = 0; v < engine->voiceHandler.numVoicesActive; v++) {
         for (int i = 0; i < numSamples; i++)
         {
-            float dummy = 0.f;
-            tVCAModule_tick(state_.params.modules[v], &dummy);
+            tVCAModule_tick(state_.params.modules[v]);
         }
 
     }

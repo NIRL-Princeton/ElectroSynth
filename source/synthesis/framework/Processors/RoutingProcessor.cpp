@@ -63,7 +63,7 @@ void RoutingProcessor::processBlock(juce::AudioBuffer<float> & buffer, juce::Mid
         auto* outR = audio_out->getWritePointer(v * 2 + 1);
         for (int i = 0; i < numSamples; i++)
         {
-            tVCAModule_tick(state_.params.modules[v],inL);
+            tVCAModule_tick(state_.params.modules[v]);
             outL[i] += state_.params.modules[v]->header.outputs[0];
             outR[i] = outL[i];
         }

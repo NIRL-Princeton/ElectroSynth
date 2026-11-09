@@ -17,8 +17,7 @@ void StringModuleProcessor::process ()
         tStringModule_setParameter(state_.params.modules[v], StringMIDIPitch,mtof (engine->voiceHandler.voiceNote[v]/127.f));
         for (int i = 0; i < numSamples; i++)
         {
-            float dummy = 0.f;
-            tStringModule_tick(state_.params.modules[v], &dummy);
+            tStringModule_tick(state_.params.modules[v]);
         }
     }
 }

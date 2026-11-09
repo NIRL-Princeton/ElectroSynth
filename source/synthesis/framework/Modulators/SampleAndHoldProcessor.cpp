@@ -36,7 +36,7 @@ void SampleAndHoldProcessor::process() {
         tSampleAndHoldModule_setParameter(state_.params.modules[v], SampHoldMidiPitch,engine->voiceHandler.voiceNote[v]/127.f );
         for (int i = 0; i < numSamples; i++) {
             float input = 0.f;
-            tSampleAndHoldModule_tick (state_.params.modules[v], &input);
+            tSampleAndHoldModule_tick (state_.params.modules[v]);
         }
 
     }

@@ -72,8 +72,8 @@ void SineModuleProcessor::process ()
         // }
         for (int i = 0; i < numSamples; i++)
         {
-            float dummy = 0.f;
-            tSineModule_tick(state_.params.modules[v], &dummy);
+
+            tSineModule_tick(state_.params.modules[v]);
         }
     }
 

@@ -45,8 +45,7 @@ void FilterModuleProcessor::process () {
         tFiltModule_setParameter(state_.params.modules[v], FiltMidiPitch,engine->voiceHandler.voiceNote[v]/127.f);
         for (int i = 0; i < numSamples; i++)
         {
-            float dummy = 0.f;
-            tFiltModule_tick (state_.params.modules[v], &dummy);
+            tFiltModule_tick (state_.params.modules[v]);
         }
 
     }

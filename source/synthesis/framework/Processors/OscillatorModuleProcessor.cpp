@@ -77,8 +77,8 @@ void OscillatorModuleProcessor::process ()
         // auto* L = 1.getWritePointer(v*2);
         // auto* R = buffer.getWritePointer(v*2+1);
         for (int i = 0; i < numSamples; i++) {
-            float dummy = 0.f;
-            tOscModule_tick(state_.params.modules[v], &dummy);
+
+            tOscModule_tick(state_.params.modules[v]);
             // L[i] += state_.params.modules[v]->header.outputs[0];
             // R[i] = L[i];
         }
