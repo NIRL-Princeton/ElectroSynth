@@ -54,6 +54,7 @@ void OscillatorModuleProcessor::process ()
     state_.getParameterListeners().callAudioThreadBroadcasters();
     int numSamples = 1;
 
+    //JS- it often crashes here during debugging - maybe an unsafe access?
     float glideOrigin = state_.params.modules[tStack_first(engine->voiceHandler.voiceOrder)]->pitchSmooth.curr;
 
     int counter = 0;
