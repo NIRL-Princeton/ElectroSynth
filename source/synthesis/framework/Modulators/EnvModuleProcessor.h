@@ -59,11 +59,11 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
             3.0f,
             all_params[EnvParams::EnvAttack],
         [this] (float val) {
-            const auto range = chowdsp::ParamUtils::createNormalisableRange(0.0f, 20000.f, 4000.f);
-            const float ms = range.convertFrom0to1(val);
+            //const auto range = chowdsp::ParamUtils::createNormalisableRange(0.0f, 20000.f, 4000.f);
+            //const float ms = range.convertFrom0to1(val);
             for (auto mod : modules)
             {
-                tEnvModule_setParameter(mod, EnvAttack, ms);
+                tEnvModule_setParameter(mod, EnvAttack, val);
             }
         }
     };
@@ -76,11 +76,11 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
         3.0f,
         all_params[EnvParams::EnvDecay],
         [this] (float val) {
-            const auto range = chowdsp::ParamUtils::createNormalisableRange(0.0f, 20000.f, 4000.f);
-            const float ms = range.convertFrom0to1(val);
+            //const auto range = chowdsp::ParamUtils::createNormalisableRange(0.0f, 20000.f, 4000.f);
+            //const float ms = range.convertFrom0to1(val);
             for (auto mod : modules)
             {
-                tEnvModule_setParameter(mod,EnvDecay,ms);
+                tEnvModule_setParameter(mod,EnvDecay,val);
             }
         }
     };
@@ -113,7 +113,7 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
             const float ms = range.convertFrom0to1(val);
             for (auto mod : modules)
             {
-                tEnvModule_setParameter(mod, EnvRelease, ms);
+                tEnvModule_setParameter(mod, EnvRelease, val);
             }
         }
     };
