@@ -43,7 +43,7 @@ struct FilterParams : public LEAFParams<_tFiltModule > {
     chowdsp::FreqHzParameter::Ptr cutoff {
         juce::ParameterID{"cutoff" , 100},
         "Cutoff",
-        chowdsp::ParamUtils::createNormalisableRange(0.0f, 20000.f, 1000.f),
+        chowdsp::ParamUtils::createNormalisableRange(20.0f, 19000.f, 1000.f),
         1000.f,
         all_params[FiltParams::FiltCutoff],
         [this](float val)

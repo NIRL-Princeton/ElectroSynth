@@ -43,7 +43,7 @@ void sendPresetOverMidi(const leaf::tFullPresetStateWithNameAndNumber& preset, s
 */
     leaf::tFullPresetStateWithNameAndNumberUnion presetUnion;
 
-    presetUnion.fullstate = preset;
+    presetUnion.data = preset;
 
 
     size_t sevenBitSize = round(presetSize * (8.0/7.0) + 0.5);

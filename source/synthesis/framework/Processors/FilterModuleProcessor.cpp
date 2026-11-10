@@ -42,7 +42,7 @@ void FilterModuleProcessor::process () {
     //    auto* samplesL = buffer.getReadPointer(0);
 
     for (int v = 0; v < engine->voiceHandler.numVoicesActive; v++) {
-        tFiltModule_setParameter(state_.params.modules[v], FiltMidiPitch,engine->voiceHandler.voiceNote[v]/127.f);
+        tFiltModule_setParameter(state_.params.modules[v], FiltMidiPitch,engine->voiceHandler.voiceNote[v]);
         for (int i = 0; i < numSamples; i++)
         {
             tFiltModule_tick (state_.params.modules[v]);
