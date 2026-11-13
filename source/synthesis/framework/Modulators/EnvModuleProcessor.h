@@ -56,7 +56,7 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
         juce::ParameterID { "attack", 100 },
             "Attack",
             chowdsp::ParamUtils::createNormalisableRange (0.0f, 20000.0f, 4000.f),
-            3.0f,
+            6.0f,
             all_params[EnvParams::EnvAttack],
         [this] (float val) {
             //const auto range = chowdsp::ParamUtils::createNormalisableRange(0.0f, 20000.f, 4000.f);
@@ -73,7 +73,7 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
         juce::ParameterID { "decay", 100 },
         "Decay",
         chowdsp::ParamUtils::createNormalisableRange (0.0f, 20000.0f, 4000.f),
-        3.0f,
+        6.0f,
         all_params[EnvParams::EnvDecay],
         [this] (float val) {
             //const auto range = chowdsp::ParamUtils::createNormalisableRange(0.0f, 20000.f, 4000.f);
@@ -106,7 +106,7 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
         juce::ParameterID { "release", 100 },
         "Release",
         chowdsp::ParamUtils::createNormalisableRange (0.0f, 20000.0f, 4000.f),
-        3.0f,
+        6.0f,
         all_params[EnvParams::EnvRelease],
         [this] (float val){
             const auto range = chowdsp::ParamUtils::createNormalisableRange(0.0f, 20000.f, 4000.f);

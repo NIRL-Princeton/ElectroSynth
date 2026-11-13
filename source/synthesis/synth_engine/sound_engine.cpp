@@ -100,9 +100,6 @@ namespace electrosynth
 
         MasterVoiceEnvelopeProcessor = std::make_unique<EnvModuleProcessor> (
             this, juce::ValueTree (IDs::MODULATOR).setProperty (IDs::type, "env", nullptr), &leaf, &undo);
-        MasterVoiceEnvelopeProcessor->state_.params.attackParam->setParameterValue (0.1);
-        MasterVoiceEnvelopeProcessor->state_.params.decayParam->setParameterValue (0.01);
-        MasterVoiceEnvelopeProcessor->state_.params.releaseParam->setParameterValue (0.001);
         MasterVoiceEnvelopeProcessor->state.setProperty (IDs::name, "master_voice", nullptr);
         //temp_voice_buffer.set
         for (auto& buffer : temp_fx_buffers)
