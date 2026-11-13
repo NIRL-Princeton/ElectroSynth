@@ -554,6 +554,8 @@ void ModulationModuleSection::redoBackgroundImage() {
     container_->paintBackground(background_graphics);
     background_.setOwnImage(background_image);
 }
+
+
 std::map<std::string, ConnectionButton*> ModulationModuleSection::getAllModulationButtons() {
     //test_->getAllSliders();
     return container_->getAllModulationButtons();

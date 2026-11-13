@@ -23,7 +23,6 @@ const std::array<std::vector<std::string>, 14> paramsAllArray =
         {
             "eventWatch",
             "midiPitch", // OscMidiPitch
-
             "harmonic", // OscHarmonic
             "pitch", // OscPitchOffset
             "pitchfine", // OscPitchFine
@@ -34,8 +33,7 @@ const std::array<std::vector<std::string>, 14> paramsAllArray =
             "glide", // OscGlide
             "harmonicStepped", // OscStepped
             "", // OscSyncMode (undefined / not modulatable )
-            "", // OscSyncIn (undefined / not modulaatblae )
-
+            "", // OscSyncIn (undefined / not modulatable )
             "portaType" // OscPortaType (always or not always)
             "" // OscNumParams (typically represents the count, no corresponding parameter)
         },
