@@ -580,8 +580,9 @@ namespace electrosynth
 
             if (v >= 0)
             {
-                velocity = ((0.007685533519034f * velocity * 127.f) + 0.0239372430f);
-                velocity = velocity * velocity;
+                //velocity = ((0.007685533519034f * velocity * 127.f) + 0.0239372430f);
+                //velocity = velocity * velocity;
+                //now doing this in the envelope
                 //note -= midiKeyMin;
                 //note -= midiKeyMin;
                 {
