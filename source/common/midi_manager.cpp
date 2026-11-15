@@ -59,6 +59,14 @@ void sendPresetOverMidi(const leaf::tFullPresetStateWithNameAndNumber& preset, s
     payLoadByteCount++;
 
     uint8_t tempByte = 0;
+
+    //test data
+    #if 0
+    for (int i = 0; i < presetSize; i++)
+    {
+        presetUnion.bytes[i] = i % 256;
+    }
+#endif
     //split the 8-bit bytes up and pack them in 7-bit bytes
     for (int inputByte = 0; inputByte < presetSize; inputByte++)
     {
@@ -86,7 +94,7 @@ void sendPresetOverMidi(const leaf::tFullPresetStateWithNameAndNumber& preset, s
     // Sample position zero is appropriate because this buffer is sent
     // immediately rather than synchronized with an audio block.
     midi_messages.addEvent(juce::MidiMessage::createSysExMessage(payload.data(),
-            payLoadByteCount), 0);
+            (int)payLoadByteCount), 0);
 
 
     /*
