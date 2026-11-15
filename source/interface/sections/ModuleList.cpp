@@ -12,8 +12,10 @@
 #include "Modulators/PerlinNoiseModuleProcessor.h"
 #include "Modulators/SimpleNoiseModuleProcessor.h"
 #include "Modulators/SampleAndHoldProcessor.h"
+#include "Modulators/ControlModuleProcessor.h"
 #include "Processors/SineModuleProcessor.h"
 #include "Processors/VCAModuleProcessor.h"
+
 #include "Node.h"
 #include "NoiseModuleProcessor.h"
 #include "OscillatorModuleProcessor.h"
@@ -47,7 +49,7 @@ ModuleList<T>::ModuleList(SynthBase *synth,const ValueTree& v) : tracktion::engi
         factory.template registerType<SimpNoiseModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*, juce::UndoManager*>("simpNos");
         factory.template registerType<PerlNoiseModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*, juce::UndoManager*>("perlNos");
         //factory.template registerType<SampleAndHoldProcessor,electrosynth::SoundEngine*, juce::ValueTree, LEAF*, juce::UndoManager*>("sampHold");
-
+        factory.template registerType<ControlModuleProcessor, electrosynth::SoundEngine*,juce::ValueTree, LEAF*, juce::UndoManager*>("control");
 
     }
     tracktion::engine::ValueTreeObjectList<T>::rebuildObjects();

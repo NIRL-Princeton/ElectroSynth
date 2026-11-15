@@ -120,6 +120,8 @@ add_library(SharedCode INTERFACE
         source/common/ModuleBase.h
         source/synthesis/synth_engine/ModuleGraph.cpp
         source/synthesis/synth_engine/ModuleGraph.h
+        source/synthesis/framework/Modulators/ControlModuleProcessor.cpp
+        source/synthesis/framework/Modulators/ControlModuleProcessor.h
 
 
 )

@@ -192,6 +192,7 @@ protected:
     int current_folder_;
     int current_preset_;
 
+
     const electrosynth::ValueDetails* armed_value_;
     midi_map midi_learn_map_;
 

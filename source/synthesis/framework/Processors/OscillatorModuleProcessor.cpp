@@ -55,6 +55,8 @@ void OscillatorModuleProcessor::process ()
     int numSamples = 1;
 
     //JS- it often crashes here during debugging - maybe an unsafe access? (debugger says member found by ambiguous name lookup)
+    //but really the crash happens because of playing a note again after breaking in the debugger so it hasn't gotten a note off (it thinks the note is already held down), really only going to happen in debugging
+    //but we should have a check for null or same note or something
     float glideOrigin = state_.params.modules[tStack_first(engine->voiceHandler.voiceOrder)]->pitchSmooth.curr;
 
     int counter = 0;

@@ -95,6 +95,7 @@ namespace electrosynth {
           juce::FloatVectorOperations::disableDenormalisedNumberSupport();
       }
 
+        uint8_t ccArray[127];
       juce::MidiBuffer empty;
 
       juce::CriticalSection myCoolLock;
@@ -178,8 +179,8 @@ namespace electrosynth {
 
       void noteOn(int note, float velocity, int sample, int channel) override;
       void noteOff(int note, float lift, int sample, int channel) override;
-      void setModWheel(float value, int channel);
-      void setModWheelAllChannels(float value);
+      void setCC(float value, int channel);
+      void setCCAllChannels(float value);
       void setPitchWheel(float value, int channel);
       void setZonedPitchWheel(float value, int from_channel, int to_channel);
 

@@ -27,6 +27,8 @@ namespace electrosynth {
             prefix = "LFO ";
         else if (source_name.startsWithIgnoreCase("vca") || source_name.containsIgnoreCase("master"))
             prefix = "Master ";
+        else if (source_name.startsWithIgnoreCase("control"))
+            prefix = "Control ";
         else
             return prefix = "Noise ";
 
@@ -46,6 +48,8 @@ namespace electrosynth {
             return ShaderColors::kLfoTextColor;
         if (source_name.startsWithIgnoreCase("vca") || source_name.containsIgnoreCase("master"))
             return ShaderColors::kMasterEnvelopeTextColor;
+        if (source_name.startsWithIgnoreCase("control"))
+            return ShaderColors::kEnvelopeTextColor;
         return ShaderColors::kNoise;
     }
 }
@@ -303,6 +307,13 @@ void ModulationModuleSection::handlePopupResult(int result) {
         undo.beginNewTransaction();
         list.appendChild(t,&undo);
     }
+    else if (result == 7 )
+    {
+        juce::ValueTree t(IDs::MODULATOR);
+        t.setProperty(IDs::type, "control", nullptr);
+        undo.beginNewTransaction();
+        list.appendChild(t,&undo);
+    }
     // else if (result == 5)
     // {
     //     juce::ValueTree t(IDs::MODULATOR);
@@ -390,6 +401,7 @@ void ModulationModuleSection::updateTabs() {
         const bool is_lfo = !is_default_tab && module_sections[module_index]->getModulatorType().equalsIgnoreCase("lfo");
         const bool is_perlNos = !is_default_tab && module_sections[module_index]->getModulatorType().equalsIgnoreCase("perlNos");
         const bool is_simpNos = !is_default_tab && module_sections[module_index]->getModulatorType().equalsIgnoreCase("simpNos");
+        const bool is_control = !is_default_tab && module_sections[module_index]->getModulatorType().equalsIgnoreCase("control");
         //const bool is_sampHold = !is_default_tab && module_sections[module_index]->getModulatorType().equalsIgnoreCase("sampHold");
         const bool selected = is_default_tab ? selected_tab_ == kDefaultTab : module_index == selected_tab_;
         auto color = (Skin::kEnvelopeAccent);
@@ -429,6 +441,10 @@ void ModulationModuleSection::updateTabs() {
         else if (is_ADEnv)
         {
             label = juce::String("AD Env ") + juce::String(number);
+        }
+        else if (is_control)
+        {
+            label = juce::String("Control ") + juce::String(number);
         }
         // else if (is_sampHold)
         // {
@@ -494,6 +510,7 @@ PopupItems ModulationModuleSection::createPopupMenu() {
     options.addItem(4, "add Perlin Noise");
     options.addItem(5, "add Simple Env");
     options.addItem(6, "add AD Env");
+    options.addItem(7, "add Control");
     //options.addItem(5, "add Sample and Hold");
 
     return options;
@@ -567,7 +584,7 @@ void ModulationModuleSection::moduleAdded(ModulatorBase *newModule) {
     const auto modulator_type = module_section->getModulatorType();
     Skin::SectionOverride skin_override = Skin::kNoise;
     if (modulator_type.equalsIgnoreCase("env") || modulator_type.equalsIgnoreCase("simpleEnv")
-        || modulator_type.equalsIgnoreCase("ADEnv")) skin_override = Skin::kEnvelope;
+        || modulator_type.equalsIgnoreCase("ADEnv") || modulator_type.equalsIgnoreCase("control")) skin_override = Skin::kEnvelope;
     else if (modulator_type.equalsIgnoreCase("lfo")) skin_override = Skin::kLfo;
     //else if (modulator_type.equalsIgnoreCase("perlNos")) skin_override = Skin::kPerlNos;
 

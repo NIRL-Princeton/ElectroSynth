@@ -655,12 +655,14 @@ namespace electrosynth
         //printf("\n");
     }
 
-    void SoundEngine::setModWheel (float value, int channel)
+    void SoundEngine::setCC (float value, int channel)
     {
+
+
         //    voice_handler_->setModWheel(value, channel);
     }
 
-    void SoundEngine::setModWheelAllChannels (float value)
+    void SoundEngine::setCCAllChannels (float value)
     {
         //    voice_handler_->setModWheelAllChannels(value);
     }

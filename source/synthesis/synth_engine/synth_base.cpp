@@ -121,7 +121,7 @@ void SynthBase::pitchWheelGuiChanged(float value) {
 }
 
 void SynthBase::modWheelGuiChanged(float value) {
-    engine_->setModWheelAllChannels(value);
+    //engine_->setModWheelAllChannels(value);
 }
 
 void SynthBase::presetChangedThroughMidi(File preset) {

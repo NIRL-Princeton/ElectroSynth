@@ -359,6 +359,8 @@ void MidiManager::processMidiMessage(const MidiMessage& midi_message, int sample
            return;
        }
        case kController: {
+           engine_->ccArray[midi_message.getControllerNumber()] = midi_message.getControllerValue();
+            /*
            MidiSecondaryType secondary_type = static_cast<MidiSecondaryType>(midi_message.getControllerNumber());
            switch (secondary_type) {
                case kSlide: {
@@ -406,6 +408,7 @@ void MidiManager::processMidiMessage(const MidiMessage& midi_message, int sample
                    current_folder_ = midi_message.getControllerValue();
                    return;
            }
+           */
            midiInput(midi_message.getControllerNumber(), midi_message.getControllerValue());
        }
    }
