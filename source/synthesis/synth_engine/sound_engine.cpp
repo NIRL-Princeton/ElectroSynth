@@ -62,7 +62,7 @@ namespace electrosynth
         //     voiceHandler.voiceIsSounding[i] = false;
         //     voiceHandler.voicePrevBend[i] = 0.0f;
         // }
-        LEAF_init (&leaf, 44100.0f, memory, 536870912, []() { return (float) rand() / RAND_MAX; });
+        LEAF_init (&leaf, 44100.0f, memory, 536870912);
         //processors.push_back(std::make_shared<OscillatorModuleProcessor> (&leaf));
         //SoundEngine::init();
         LEAF_setErrorCallback(&leaf, LEAF_errorCallback);
