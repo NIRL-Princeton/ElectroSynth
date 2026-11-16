@@ -152,10 +152,9 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
         }
     };
 
-    chowdsp::TimeMsParameter::Ptr glide
-    {
-        juce::ParameterID{"porta" , 100},
-        "Porta",
+    chowdsp::TimeMsParameter::Ptr glide{
+        juce::ParameterID{"glide" , 100},
+        "Glide",
         chowdsp::ParamUtils::createNormalisableRange(0.f, 8000.f,500.f),
         0.0f,
         all_params[OscParams::OscGlide],
@@ -166,8 +165,7 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
         }
     };
 
-    chowdsp::FloatParameter::Ptr shape
-        {
+    chowdsp::FloatParameter::Ptr shape{
             juce::ParameterID{"shape" , 100},
             "Shape",
             chowdsp::ParamUtils::createNormalisableRange(0.0f, 1.f ,0.5f),
@@ -183,8 +181,7 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
             &chowdsp::ParamUtils::stringToFloatVal
         };
 
-    chowdsp::FloatParameter::Ptr oscType
-    {
+    chowdsp::FloatParameter::Ptr oscType{
         juce::ParameterID{"oscType" , 100},
         "Waveform",
         chowdsp::ParamUtils::createNormalisableRange(0.f, 5.f, 2.5f, 1.f),
@@ -199,8 +196,7 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
         &chowdsp::ParamUtils::stringToFloatVal
     };
 
-    chowdsp::FloatParameter::Ptr octave
-{
+    chowdsp::FloatParameter::Ptr octave{
     juce::ParameterID{"octave" , 100},
     "Octave",
     chowdsp::ParamUtils::createNormalisableRange(-2.f, 2.f, 0.0f, 1.f),
@@ -215,9 +211,8 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
     &chowdsp::ParamUtils::stringToFloatVal
 };
 
-    chowdsp::FloatParameter::Ptr amp
-{
-    juce::ParameterID{"oscAmp" , 100},
+    chowdsp::FloatParameter::Ptr amp{
+    juce::ParameterID{"amp" , 100},
     "Amp",
     chowdsp::ParamUtils::createNormalisableRange(0.f, 1.f, 0.5f),
     1.0f,
@@ -276,7 +271,7 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
 
     chowdsp::BoolParameter::Ptr pitchStepped{
         juce::ParameterID{"pitchStepped" , 100},
-        "Harmonic stepped",
+        "Pitch stepped",
         0.0,
         all_params[OscParams::OscSteppedPitch],
         [this]( float val)

@@ -9,20 +9,14 @@
 #include "ParameterView/ParametersView.h"
 #include "Identifiers.h"
 #include "ProcessorBase.h"
-namespace electrosynth{
-    namespace utils
-    {
-        float stringToHarmonicVal(const juce::String &s);
-        juce::String harmonicValToString(float harmonic);
-    }
-}
+
 
 struct StringParams : public LEAFParams<_tStringModule>
 {
     StringParams(LEAF* leaf) : LEAFParams<_tStringModule>(leaf)
     {
         add(
-            oversample, waveLength, dampFreq, decay, targetLevel,
+            dampFreq, decay, targetLevel,
             levelSmooth, levelStrength, pickupPoint, levelMode, rippleGain,
             rippleDelay, pluckPosition
         );
@@ -40,17 +34,7 @@ struct StringParams : public LEAFParams<_tStringModule>
         &chowdsp::ParamUtils::stringToFloatVal
     };
 
-    chowdsp::FloatParameter::Ptr oversample {
-        juce::ParameterID{"oversample", 100},
-        "Oversample",
-        chowdsp::ParamUtils::createNormalisableRange(2.f,4.f, 3.f, 2.0f),
-        2.f,
-        all_params[StringOversample],
-        [this](float val) { for (auto mod: modules) tStringModule_setParameter(mod,StringOversample,1.f);
-            }
-        ,    &chowdsp::ParamUtils::floatValToString,
-        &chowdsp::ParamUtils::stringToFloatVal
-    };
+
 
     // chowdsp::FloatParameter::Ptr freq {
     //     juce::ParameterID{"freq", 100},
@@ -65,16 +49,6 @@ struct StringParams : public LEAFParams<_tStringModule>
     // &chowdsp::ParamUtils::stringToFloatVal
     // };
 
-    chowdsp::FloatParameter::Ptr waveLength {
-        juce::ParameterID{"waveLength", 100},
-        "Wave Length",
-        chowdsp::ParamUtils::createNormalisableRange(5.f, 100.f, 50.f),
-        50.f,
-        all_params[StringWaveLength],
-        [this](float val) { for (auto mod: modules)tStringModule_setParameter(mod,StringWaveLength,val); },
-        &chowdsp::ParamUtils::floatValToString,
-    &chowdsp::ParamUtils::stringToFloatVal
-    };
 
     chowdsp::FloatParameter::Ptr dampFreq {
         juce::ParameterID{"dampFreq", 100},
@@ -82,7 +56,7 @@ struct StringParams : public LEAFParams<_tStringModule>
         chowdsp::ParamUtils::createNormalisableRange(0.f, 1.f, 0.5f),
       0.5f,
         all_params[StringDampFreq],
-        [this](float val) { for (auto mod: modules)tStringModule_setParameter(mod,StringDampFreq,val * 19980.f + 20.f);},
+        [this](float val) { for (auto mod: modules)tStringModule_setParameter(mod,StringDampFreq,val);},
         &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal
     };
@@ -90,10 +64,10 @@ struct StringParams : public LEAFParams<_tStringModule>
     chowdsp::FloatParameter::Ptr decay {
         juce::ParameterID{"decay", 100},
         "Decay",
-        chowdsp::ParamUtils::createNormalisableRange(0.01f, 1.f, 0.5f),
-        0.5f,
+        chowdsp::ParamUtils::createNormalisableRange(0.4f, 1.f, 0.95f),
+        0.9995f,
         all_params[StringDecay],
-        [this](float val) { for (auto mod: modules) tStringModule_setParameter(mod,StringDecay,1.f); },
+        [this](float val) { for (auto mod: modules) tStringModule_setParameter(mod,StringDecay,val);},
         &chowdsp::ParamUtils::floatValToString,
     &chowdsp::ParamUtils::stringToFloatVal
     };
@@ -142,19 +116,22 @@ struct StringParams : public LEAFParams<_tStringModule>
     &chowdsp::ParamUtils::stringToFloatVal
     };
 
-    chowdsp::BoolParameter::Ptr levelMode {
+    chowdsp::FloatParameter::Ptr levelMode {
         juce::ParameterID{"levelMode", 100},
         "Level Mode",
-        false,
+        chowdsp::ParamUtils::createNormalisableRange(0.f, 1.f, 0.5f),
+      1.0f,
         all_params[StringLevelMode],
-        [this](float val) { for (auto mod: modules) tStringModule_setParameter(mod,StringLevelMode,val); }
+        [this](float val) { for (auto mod: modules) tStringModule_setParameter(mod,StringLevelMode,val); },
+        &chowdsp::ParamUtils::floatValToString,
+        &chowdsp::ParamUtils::stringToFloatVal
     };
 
     chowdsp::FloatParameter::Ptr rippleGain {
         juce::ParameterID{"rippleGain", 100},
         "Ripple Gain",
         chowdsp::ParamUtils::createNormalisableRange(0.f, 1.f, 0.5f),
-     0.5f,
+     0.0f,
         all_params[StringRippleGain],
         [this](float val) { for (auto mod: modules) tStringModule_setParameter(mod,StringRippleGain,val); },
         &chowdsp::ParamUtils::floatValToString,

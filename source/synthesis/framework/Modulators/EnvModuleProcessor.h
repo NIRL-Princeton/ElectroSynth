@@ -15,13 +15,13 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
 {
     EnvParamHolder(LEAF* leaf) : LEAFParams<_tEnvModule>(leaf)
     {
-        add(velocityParam,
-            attackParam,
-            decayParam,
-            sustainParam,
-            releaseParam,
-            leakParam,
-            shapeParam
+        add(velocity,
+            attack,
+            decay,
+            sustain,
+            release,
+            leak,
+            shape
 
             );
     }
@@ -37,7 +37,7 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
         &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal
     };
-    chowdsp::FloatParameter::Ptr velocityParam {
+    chowdsp::FloatParameter::Ptr velocity {
         juce::ParameterID { "velocity", 100 },
         "Velocity Sensitivity",
         chowdsp::ParamUtils::createNormalisableRange (0.0f, 1.0f, 0.5f),
@@ -51,7 +51,7 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
     };
 
     // Attack param
-    chowdsp::TimeMsParameter::Ptr attackParam
+    chowdsp::TimeMsParameter::Ptr attack
     {
         juce::ParameterID { "attack", 100 },
             "Attack",
@@ -69,7 +69,7 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
     };
 
     // Decay param
-    chowdsp::TimeMsParameter::Ptr decayParam {
+    chowdsp::TimeMsParameter::Ptr decay {
         juce::ParameterID { "decay", 100 },
         "Decay",
         chowdsp::ParamUtils::createNormalisableRange (0.0f, 20000.0f, 4000.f),
@@ -87,7 +87,7 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
 
 
     // Sustain param
-    chowdsp::FloatParameter::Ptr sustainParam {
+    chowdsp::FloatParameter::Ptr sustain {
         juce::ParameterID { "sustain", 100 },
         "Sustain",
         chowdsp::ParamUtils::createNormalisableRange (0.0f, 1.0f, 0.5f),
@@ -101,7 +101,7 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
     };
 
     // Release param
-    chowdsp::TimeMsParameter::Ptr releaseParam
+    chowdsp::TimeMsParameter::Ptr release
     {
         juce::ParameterID { "release", 100 },
         "Release",
@@ -119,7 +119,7 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
     };
 
     // Leak param
-    chowdsp::FloatParameter::Ptr leakParam {
+    chowdsp::FloatParameter::Ptr leak {
         juce::ParameterID { "leak", 100 },
         "Leak",
         chowdsp::ParamUtils::createNormalisableRange (0.0f, 1.0f, 0.5f),
@@ -133,7 +133,7 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
     };
 
     // Shape param
-    chowdsp::FloatParameter::Ptr shapeParam {
+    chowdsp::FloatParameter::Ptr shape {
         juce::ParameterID { "shape", 100 },
         "Shape",
         chowdsp::ParamUtils::createNormalisableRange (0.0f, 1.0f, 0.5f),

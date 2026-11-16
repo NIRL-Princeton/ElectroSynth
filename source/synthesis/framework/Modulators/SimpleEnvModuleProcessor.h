@@ -37,8 +37,8 @@ struct SimpEnvParamHolder : public LEAFParams<_tSimpleEnvModule>
     chowdsp::FloatParameter::Ptr velocityParam {
         juce::ParameterID { "velocity", 100 },
         "Velocity Sensitivity",
-        chowdsp::ParamUtils::createNormalisableRange (0.0f, 1.0f, 0.9f),
-        1.0f,
+        chowdsp::ParamUtils::createNormalisableRange (0.0f, 1.0f, 0.5f),
+        0.5f,
         all_params[SimpEnvVelocitySense],
         [this] (float val) {
             for (auto mod: modules) tSimpleEnvModule_setParameter(mod, SimpEnvVelocitySense, val);

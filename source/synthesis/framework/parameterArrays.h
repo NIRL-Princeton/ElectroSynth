@@ -20,6 +20,7 @@ const std::array<std::vector<std::string>, 15> paramsAllArray =
 {
     {
         // oscillator
+
         {
             "eventWatch",
             "midiPitch", // OscMidiPitch
@@ -32,9 +33,11 @@ const std::array<std::vector<std::string>, 15> paramsAllArray =
             "gain", // OscAmpParam
             "glide", // OscGlide
             "harmonicStepped", // OscStepped
-            "", // OscSyncMode (undefined / not modulatable )
-            "", // OscSyncIn (undefined / not modulatable )
-            "portaType" // OscPortaType (always or not always)
+            "pitchStepped", // OscSyncMode (undefined / not modulatable )
+            "syncMode", // OscSyncIn (undefined / not modulatable )
+            "syncIn", // OscPortaType (always or not always)
+            "amp",
+            "octave",
             "" // OscNumParams (typically represents the count, no corresponding parameter)
         },
 
@@ -76,7 +79,8 @@ const std::array<std::vector<std::string>, 15> paramsAllArray =
         {
             "eventWatch",    // StringEventWatchFlag
             "oversample",    // StringOversample
-            "freq",          // StringFreq
+            "midiPitch",          // StringMIDIPitch
+            "freq",
             "waveLength",    // StringWaveLength
             "dampFreq",      // StringDampFreq
             "decay",         // StringDecay
@@ -87,12 +91,20 @@ const std::array<std::vector<std::string>, 15> paramsAllArray =
             "levelMode",     // StringLevelMode
             "rippleGain",    // StringRippleGain
             "rippleDelay",   // StringRippleDelay
-            "pluckPosition"  // StringPluckPosition
+            "pluckPosition",  // StringPluckPosition
+            ""
         },
 
         // VCA
-        {},
-
+        {
+            "eventWatch",    //
+            "gain",
+            "amp",
+            "CVOffset",
+            "routing",
+            "audioInput",
+            ""
+        },
         // softclip
         {
             "eventWatch", //
