@@ -41,13 +41,37 @@ struct VCAParamHolder : public LEAFParams<_tVCAModule > {
 
     chowdsp::GainDBParameter::Ptr gainParam{
         juce::ParameterID{"gain", 100},
-        "Gain",
+        "Gain (Exp)",
         chowdsp::ParamUtils::createNormalisableRange (-10000.f,12.f,0.f),
         0.f,
         all_params[VCAParams::VCAGain],
         [this](float val) {
             for (auto mod: modules)
                 tVCAModule_setParameter(mod, VCAGain, val);
+        }
+    };
+
+    chowdsp::GainDBParameter::Ptr ampParam{
+        juce::ParameterID{"amp", 100},
+        "Amp (Linear)",
+        chowdsp::ParamUtils::createNormalisableRange (0.0f,1.0f,0.5f),
+        1.0f,
+        all_params[VCAParams::VCAAmp],
+        [this](float val) {
+            for (auto mod: modules)
+                tVCAModule_setParameter(mod, VCAAmp, val);
+        }
+    };
+
+    chowdsp::GainDBParameter::Ptr CVOffsetParam{
+        juce::ParameterID{"CVOffset", 100},
+        "CV Offset",
+        chowdsp::ParamUtils::createNormalisableRange (0.0f, 1.0f, 0.5f),
+        0.f,
+        all_params[VCAParams::VCAOffset],
+        [this](float val) {
+            for (auto mod: modules)
+                tVCAModule_setParameter(mod, VCAOffset, val);
         }
     };
 };

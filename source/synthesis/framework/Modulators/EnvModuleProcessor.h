@@ -41,7 +41,7 @@ struct EnvParamHolder : public LEAFParams<_tEnvModule>
         juce::ParameterID { "velocity", 100 },
         "Velocity Sensitivity",
         chowdsp::ParamUtils::createNormalisableRange (0.0f, 1.0f, 0.5f),
-        1.0f,
+        0.5f,
         all_params[EnvVelocitySense],
         [this] (float val) {
             for (auto mod: modules) tEnvModule_setParameter(mod, EnvVelocitySense, val);
