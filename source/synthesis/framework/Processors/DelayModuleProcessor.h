@@ -15,7 +15,8 @@ struct DelayParams : public LEAFParams<_tDelayModule >
 {
     DelayParams(LEAF* leaf) : LEAFParams<_tDelayModule>(leaf)
     {
-        add(time,gain);
+
+        add(delayTime,delayHP,delayLP,delayFB,delayGain,delayMix );
     }
 
     //add env watch param so that it isnt null
@@ -33,11 +34,11 @@ struct DelayParams : public LEAFParams<_tDelayModule >
     };
 
     // time
-        chowdsp::TimeMsParameter::Ptr time {
+        chowdsp::TimeMsParameter::Ptr delayTime {
         juce::ParameterID { "delayTime", 100 },
         "Time",
-        chowdsp::ParamUtils::createNormalisableRange (0.0f, 1000.0f, 500.0f),
-        0.f,
+        chowdsp::ParamUtils::createNormalisableRange (0.0f, 3000.0f, 1500.0f),
+        1500.f,
         all_params[DelParams::DelayTime],
         [this](float val)
         {
@@ -48,9 +49,55 @@ struct DelayParams : public LEAFParams<_tDelayModule >
         }
     };
 
+    // hp cutoff
+    chowdsp::FloatParameter::Ptr delayHP {
+        ParameterID{"delayHP", 100},
+        "HP Cutoff",
+        chowdsp::ParamUtils::createNormalisableRange(0.f, 1.0f, 0.5f),
+        0.f,
+        all_params[DelayHPCutoff],
+        [this](float val)
+        {
+            for (auto mod: modules)  tDelayModule_setParameter(mod,DelayHPCutoff,val);
+        },
+        &chowdsp::ParamUtils::floatValToString,
+        &chowdsp::ParamUtils::stringToFloatVal
+    };
+
+    // hp cutoff
+    chowdsp::FloatParameter::Ptr delayLP {
+        juce::ParameterID{"delayLP", 100},
+        "LP Cutoff",
+        chowdsp::ParamUtils::createNormalisableRange(0.f, 1.0f, 0.5f),
+        1.0f,
+        all_params[DelayLPCutoff],
+        [this](float val)
+        {
+            for (auto mod: modules)  tDelayModule_setParameter(mod,DelayLPCutoff,val);
+        },
+        &chowdsp::ParamUtils::floatValToString,
+        &chowdsp::ParamUtils::stringToFloatVal
+    };
+
+    // hp cutoff
+    chowdsp::FloatParameter::Ptr delayFB {
+        juce::ParameterID{"delayFB", 100},
+        "Feedback",
+        chowdsp::ParamUtils::createNormalisableRange(0.f, 1.0f, 0.7f),
+        1.0f,
+        all_params[DelayFeedback],
+        [this](float val)
+        {
+            for (auto mod: modules)  tDelayModule_setParameter(mod,DelayFeedback,val);
+        },
+        &chowdsp::ParamUtils::floatValToString,
+        &chowdsp::ParamUtils::stringToFloatVal
+    };
+
+
     // gain
-    chowdsp::GainDBParameter::Ptr gain {
-        juce::ParameterID{"gain", 100},
+    chowdsp::GainDBParameter::Ptr delayGain {
+        juce::ParameterID{"delayGain", 100},
         "Gain",
         chowdsp::ParamUtils::createNormalisableRange(0.0f, 2.0f, 1.0f),
         1.f,
@@ -58,6 +105,22 @@ struct DelayParams : public LEAFParams<_tDelayModule >
         [this](float val)
         {for (auto mod: modules)    tDelayModule_setParameter(mod,DelayGain,val);
         },
+    };
+
+
+
+    chowdsp::FloatParameter::Ptr delayMix {
+        juce::ParameterID{"delayMix", 100},
+        "Mix",
+        chowdsp::ParamUtils::createNormalisableRange(0.f, 1.0f, 0.5f),
+        1.0f,
+        all_params[DelayMix],
+        [this](float val)
+        {
+            for (auto mod: modules)  tDelayModule_setParameter(mod,DelayMix,val);
+        },
+        &chowdsp::ParamUtils::floatValToString,
+        &chowdsp::ParamUtils::stringToFloatVal
     };
 };
 

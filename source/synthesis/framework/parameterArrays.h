@@ -115,10 +115,15 @@ const std::array<std::vector<std::string>, 15> paramsAllArray =
 
         // delay
         {
-            "eventWatch",
-            "delayTime",
-            "gain",
-            ""
+            "eventWatch",//DelayEventWatchFlag,
+            "delayTime",//     DelayTime,
+            "delayHP",//    DelayHPCutoff,
+            "delayLP",//    DelayLPCutoff,
+            "delayFB",//    DelayFeedback,
+            "delayGain",//    DelayGain,
+            "delayMix",
+            ""    //DelayNumParams
+
         },
 
         // noise
