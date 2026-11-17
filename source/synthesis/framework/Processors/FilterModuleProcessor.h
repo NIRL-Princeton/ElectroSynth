@@ -17,7 +17,7 @@
 // creating the parameters associated with a filter module [cutoff, Q, and amp]
 struct FilterParams : public LEAFParams<_tFiltModule > {
     FilterParams(LEAF* leaf) : LEAFParams<_tFiltModule>(leaf) {
-        add(cutoff,Q,keyFollow, bandGain, gain, filterType, filtMix);
+        add(cutoff,Q,filterType,keyFollow, gain,  filtMix);
     }
     //add env watch param so that it isn't null
     chowdsp::FloatParameter::Ptr envwatchparam {
@@ -77,6 +77,19 @@ struct FilterParams : public LEAFParams<_tFiltModule > {
 
 
 
+    chowdsp::FloatParameter::Ptr filterType {
+        juce::ParameterID{"filterType", 100},
+        "FilterType",
+        chowdsp::ParamUtils::createNormalisableRange(0.f, 8.0f, 4.f, 1.f),
+        0.f,
+        all_params[FiltParams::FiltType],
+        [this](float val)
+        {
+            for (auto mod: modules)  tFiltModule_setParameter(mod,FiltType,val);
+        },
+        &chowdsp::ParamUtils::floatValToString,
+        &chowdsp::ParamUtils::stringToFloatVal
+    };
 
     chowdsp::FloatParameter::Ptr keyFollow {
         juce::ParameterID{"keyfollow", 100},
@@ -92,18 +105,6 @@ struct FilterParams : public LEAFParams<_tFiltModule > {
         &chowdsp::ParamUtils::stringToFloatVal
     };
 
-    // this is where the knob labeled "Gain" is created
-    chowdsp::GainDBParameter::Ptr bandGain {
-        juce::ParameterID{"bandGain", 100},
-        "Band Gain",
-        chowdsp::ParamUtils::createNormalisableRange(-10000.f, 12.0f, 0.0f),
-        0.f,
-        all_params[FiltParams::FiltBandGain],
-        [this](float val)
-        {
-            for (auto mod: modules) tFiltModule_setParameter(mod,FiltBandGain,val);
-        },
-    };
 
     // this is where the knob labeled "Gain" is created
     chowdsp::GainDBParameter::Ptr gain {
@@ -119,19 +120,6 @@ struct FilterParams : public LEAFParams<_tFiltModule > {
     };
 
 
-    chowdsp::FloatParameter::Ptr filterType {
-        juce::ParameterID{"filterType", 100},
-        "FilterType",
-        chowdsp::ParamUtils::createNormalisableRange(0.f, 8.0f, 4.f, 1.f),
-        0.f,
-        all_params[FiltParams::FiltType],
-        [this](float val)
-        {
-            for (auto mod: modules)  tFiltModule_setParameter(mod,FiltType,val);
-        },
-        &chowdsp::ParamUtils::floatValToString,
-        &chowdsp::ParamUtils::stringToFloatVal
-    };
 
     chowdsp::FloatParameter::Ptr filtMix {
         juce::ParameterID{"filtMix", 100},

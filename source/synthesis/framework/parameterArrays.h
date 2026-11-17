@@ -68,10 +68,9 @@ const std::array<std::vector<std::string>, 15> paramsAllArray =
             "midiPitch", // FiltMidiPitch
             "cutoff", // FiltCutoff
             "resonance", // FiltResonance
-            "keyfollow", // FiltKeyfollow
-            "bandGain", //FiltBandGain
-            "gain", // FiltGain
             "filterType", // FiltType
+            "keyfollow", // FiltKeyfollow
+            "gain", // FiltGain
             "filtMix", // FiltAudioInput
             "" // FiltNumParams (placeholder)
         },
