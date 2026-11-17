@@ -96,9 +96,9 @@ const std::array<std::vector<std::string>, 15> paramsAllArray =
         // VCA
         {
             "eventWatch",    //
-            "gain",
-            "amp",
             "CVOffset",
+            "amp",
+            "gain",
             "routing",
             "audioInput",
             ""
