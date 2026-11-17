@@ -67,11 +67,12 @@ const std::array<std::vector<std::string>, 15> paramsAllArray =
             "eventWatch", // FiltEventWatchFlag
             "midiPitch", // FiltMidiPitch
             "cutoff", // FiltCutoff
-            "gain", // FiltGain
             "resonance", // FiltResonance
             "keyfollow", // FiltKeyfollow
+            "bandGain", //FiltBandGain
+            "gain", // FiltGain
             "filterType", // FiltType
-            "audioInput", // FiltAudioInput
+            "filtMix", // FiltAudioInput
             "" // FiltNumParams (placeholder)
         },
 

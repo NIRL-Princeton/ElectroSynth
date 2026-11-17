@@ -12,18 +12,12 @@
 // FilterModuleProcessor.h creates a struct of type <_tFiltModule>, which is defined in FilterModule.h,
 // to represent a filter module, and defines each knob
 
-namespace electrosynth{
-    namespace utils
-    {
-        float stringToHarmonicVal(const juce::String &s);
-        juce::String harmonicValToString(float harmonic);
-    }
-}
+
 
 // creating the parameters associated with a filter module [cutoff, Q, and amp]
 struct FilterParams : public LEAFParams<_tFiltModule > {
     FilterParams(LEAF* leaf) : LEAFParams<_tFiltModule>(leaf) {
-        add(cutoff,Q,filterType, keyFollow, gain, mix);
+        add(cutoff,Q,keyFollow, bandGain, gain, filterType, filtMix);
     }
     //add env watch param so that it isn't null
     chowdsp::FloatParameter::Ptr envwatchparam {
@@ -32,6 +26,19 @@ struct FilterParams : public LEAFParams<_tFiltModule > {
         chowdsp::ParamUtils::createNormalisableRange (0.0f, 1.0f, 0.5f),
         1.0f,
         all_params[0],
+        [this] (float val) {
+            // for (auto mod: modules) mod->setterFunctions[EnvParams::EnvSustain](mod, val);
+        },
+        &chowdsp::ParamUtils::floatValToString,
+        &chowdsp::ParamUtils::stringToFloatVal
+    };
+    //add midipitch
+    chowdsp::FloatParameter::Ptr midiPitch {
+        juce::ParameterID { "midiPitch", 100 },
+        "midiPitch",
+        chowdsp::ParamUtils::createNormalisableRange (0.0f, 1.0f, 0.5f),
+        1.0f,
+        all_params[FiltMidiPitch],
         [this] (float val) {
             // for (auto mod: modules) mod->setterFunctions[EnvParams::EnvSustain](mod, val);
         },
@@ -68,6 +75,36 @@ struct FilterParams : public LEAFParams<_tFiltModule > {
         &chowdsp::ParamUtils::stringToFloatVal
     };
 
+
+
+
+    chowdsp::FloatParameter::Ptr keyFollow {
+        juce::ParameterID{"keyfollow", 100},
+        "Keyfollow",
+        chowdsp::ParamUtils::createNormalisableRange(0.f, 1.0f, 0.5f),
+        0.f,
+        all_params[FiltParams::FiltKeyfollow],
+        [this](float val)
+        {
+            for (auto mod: modules)  tFiltModule_setParameter(mod,FiltKeyfollow,val);
+        },
+        &chowdsp::ParamUtils::floatValToString,
+        &chowdsp::ParamUtils::stringToFloatVal
+    };
+
+    // this is where the knob labeled "Gain" is created
+    chowdsp::GainDBParameter::Ptr bandGain {
+        juce::ParameterID{"bandGain", 100},
+        "Band Gain",
+        chowdsp::ParamUtils::createNormalisableRange(-10000.f, 12.0f, 0.0f),
+        0.f,
+        all_params[FiltParams::FiltBandGain],
+        [this](float val)
+        {
+            for (auto mod: modules) tFiltModule_setParameter(mod,FiltBandGain,val);
+        },
+    };
+
     // this is where the knob labeled "Gain" is created
     chowdsp::GainDBParameter::Ptr gain {
         juce::ParameterID{"gain", 100},
@@ -81,17 +118,6 @@ struct FilterParams : public LEAFParams<_tFiltModule > {
         },
     };
 
-    // this is where the knob labeled "Mix" is created
-    chowdsp::PercentParameter::Ptr mix {
-        juce::ParameterID{"mix", 100},
-        "Mix",
-        all_params[FiltParams::FiltMix],
-        [this](float val)
-        {for (auto mod: modules) tFiltModule_setParameter(mod,FiltMix,val);
-        },
-        1.f,
-        false
-    };
 
     chowdsp::FloatParameter::Ptr filterType {
         juce::ParameterID{"filterType", 100},
@@ -107,15 +133,15 @@ struct FilterParams : public LEAFParams<_tFiltModule > {
         &chowdsp::ParamUtils::stringToFloatVal
     };
 
-    chowdsp::FloatParameter::Ptr keyFollow {
-        juce::ParameterID{"keyfollow", 100},
-        "Keyfollow",
+    chowdsp::FloatParameter::Ptr filtMix {
+        juce::ParameterID{"filtMix", 100},
+        "Mix",
         chowdsp::ParamUtils::createNormalisableRange(0.f, 1.0f, 0.5f),
-        0.f,
-        all_params[FiltParams::FiltKeyfollow],
+        1.f,
+        all_params[FiltParams::FiltMix],
         [this](float val)
         {
-            for (auto mod: modules)  tFiltModule_setParameter(mod,FiltKeyfollow,val);
+            for (auto mod: modules)  tFiltModule_setParameter(mod,FiltMix,val);
         },
         &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal
