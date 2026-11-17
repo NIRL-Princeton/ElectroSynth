@@ -16,7 +16,7 @@ struct StringParams : public LEAFParams<_tStringModule>
     StringParams(LEAF* leaf) : LEAFParams<_tStringModule>(leaf)
     {
         add(
-            dampFreq, decay, targetLevel,
+            dampFreq, freqOffset,decay, targetLevel,
             levelSmooth, levelStrength, pickupPoint, levelMode, rippleGain,
             rippleDelay, pluckPosition, octave
         );
@@ -61,11 +61,22 @@ struct StringParams : public LEAFParams<_tStringModule>
         &chowdsp::ParamUtils::stringToFloatVal
     };
 
+    chowdsp::FloatParameter::Ptr freqOffset {
+        juce::ParameterID{"freqOffset", 100},
+        "Freq Offset",
+        chowdsp::ParamUtils::createNormalisableRange(-1.f, 1.f, 0.0f),
+      0.0f,
+        all_params[StringFreqOffset],
+        [this](float val) { for (auto mod: modules) tStringModule_setParameter(mod,StringFreqOffset,val); },
+        &chowdsp::ParamUtils::floatValToString,
+    &chowdsp::ParamUtils::stringToFloatVal
+    };
+
     chowdsp::FloatParameter::Ptr decay {
         juce::ParameterID{"decay", 100},
         "Decay",
-        chowdsp::ParamUtils::createNormalisableRange(0.4f, 1.f, 0.95f),
-        0.9995f,
+        chowdsp::ParamUtils::createNormalisableRange(0.0f, 1.f, 0.5f),
+        0.5f,
         all_params[StringDecay],
         [this](float val) { for (auto mod: modules) tStringModule_setParameter(mod,StringDecay,val);},
         &chowdsp::ParamUtils::floatValToString,
@@ -109,7 +120,7 @@ struct StringParams : public LEAFParams<_tStringModule>
         juce::ParameterID{"pickupPoint", 100},
         "Pickup Point",
         chowdsp::ParamUtils::createNormalisableRange(0.f, 1.f, 0.5f),
-      0.5f,
+      0.9f,
         all_params[StringPickupPoint],
         [this](float val) { for (auto mod: modules)tStringModule_setParameter(mod,StringPickupPoint,val); },
         &chowdsp::ParamUtils::floatValToString,
@@ -119,7 +130,7 @@ struct StringParams : public LEAFParams<_tStringModule>
     chowdsp::FloatParameter::Ptr levelMode {
         juce::ParameterID{"levelMode", 100},
         "Level Mode",
-        chowdsp::ParamUtils::createNormalisableRange(0.f, 1.f, 0.5f),
+        chowdsp::ParamUtils::createNormalisableRange(0.f, 1.f, 0.5f, 1.0f),
       1.0f,
         all_params[StringLevelMode],
         [this](float val) { for (auto mod: modules) tStringModule_setParameter(mod,StringLevelMode,val); },
@@ -153,7 +164,7 @@ struct StringParams : public LEAFParams<_tStringModule>
         juce::ParameterID{"pluckPosition", 100},
         "Pluck Position",
         chowdsp::ParamUtils::createNormalisableRange(0.f, 1.f, 0.5f),
-      0.5f,
+      0.8f,
         all_params[StringPluckPosition],
         [this](float val) { for (auto mod: modules) tStringModule_setParameter(mod,StringPluckPosition,val); },
         &chowdsp::ParamUtils::floatValToString,
@@ -164,12 +175,14 @@ struct StringParams : public LEAFParams<_tStringModule>
         juce::ParameterID{"octave", 100},
         "Octave",
         chowdsp::ParamUtils::createNormalisableRange(-4.f, 4.f, 0.0f, 1.0f),
-      0.5f,
+      0.0f,
         all_params[StringOctave],
         [this](float val) { for (auto mod: modules) tStringModule_setParameter(mod,StringOctave,val); },
         &chowdsp::ParamUtils::floatValToString,
     &chowdsp::ParamUtils::stringToFloatVal
     };
+
+
 };
 
 

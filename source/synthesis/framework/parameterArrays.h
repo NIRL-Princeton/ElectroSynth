@@ -78,12 +78,9 @@ const std::array<std::vector<std::string>, 15> paramsAllArray =
         // string
         {
             "eventWatch",    // StringEventWatchFlag
-            "oversample",    // StringOversample
-            "midiPitch",          // StringMIDIPitch
-            "freq",
-            "waveLength",    // StringWaveLength
-            "dampFreq",      // StringDampFreq
-            "decay",         // StringDecay
+            "dampFreq",    // StringOversample
+            "freqOffset",          // StringMIDIPitch
+            "decay",      // StringDampFreq
             "targetLevel",   // StringTargetLevel
             "levelSmooth",   // StringLevelSmooth
             "levelStrength", // StringLevelStrength
@@ -92,6 +89,7 @@ const std::array<std::vector<std::string>, 15> paramsAllArray =
             "rippleGain",    // StringRippleGain
             "rippleDelay",   // StringRippleDelay
             "pluckPosition",  // StringPluckPosition
+            "octave",
             ""
         },
 
@@ -120,7 +118,6 @@ const std::array<std::vector<std::string>, 15> paramsAllArray =
             "eventWatch",
             "delayTime",
             "gain",
-            "",
             ""
         },
 
