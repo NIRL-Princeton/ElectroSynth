@@ -18,7 +18,7 @@ struct StringParams : public LEAFParams<_tStringModule>
         add(
             dampFreq, decay, targetLevel,
             levelSmooth, levelStrength, pickupPoint, levelMode, rippleGain,
-            rippleDelay, pluckPosition
+            rippleDelay, pluckPosition, octave
         );
     }
 
@@ -156,6 +156,17 @@ struct StringParams : public LEAFParams<_tStringModule>
       0.5f,
         all_params[StringPluckPosition],
         [this](float val) { for (auto mod: modules) tStringModule_setParameter(mod,StringPluckPosition,val); },
+        &chowdsp::ParamUtils::floatValToString,
+    &chowdsp::ParamUtils::stringToFloatVal
+    };
+
+    chowdsp::FloatParameter::Ptr octave {
+        juce::ParameterID{"octave", 100},
+        "Octave",
+        chowdsp::ParamUtils::createNormalisableRange(-4.f, 4.f, 0.0f, 1.0f),
+      0.5f,
+        all_params[StringOctave],
+        [this](float val) { for (auto mod: modules) tStringModule_setParameter(mod,StringOctave,val); },
         &chowdsp::ParamUtils::floatValToString,
     &chowdsp::ParamUtils::stringToFloatVal
     };

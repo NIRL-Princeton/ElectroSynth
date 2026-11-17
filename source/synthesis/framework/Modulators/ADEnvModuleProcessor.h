@@ -34,8 +34,8 @@ struct ADEnvParamHolder : public LEAFParams<_tADEnvModule>
     chowdsp::FloatParameter::Ptr velocityParam {
         juce::ParameterID { "velocity", 100 },
         "Velocity Sensitivity",
-        chowdsp::ParamUtils::createNormalisableRange (0.0f, 1.0f, 0.9f),
-        1.0f,
+        chowdsp::ParamUtils::createNormalisableRange (0.0f, 1.0f, 0.5f),
+        0.5f,
         all_params[ADEnvVelocitySense],
         [this] (float val) {
             for (auto mod: modules) tADEnvModule_setParameter(mod, ADEnvVelocitySense, val);
@@ -50,7 +50,7 @@ struct ADEnvParamHolder : public LEAFParams<_tADEnvModule>
         juce::ParameterID { "attack", 100 },
             "Attack",
             chowdsp::ParamUtils::createNormalisableRange (0.005f, 20000.0f, 4000.f),
-            0.005f,
+            4.0f,
             all_params[ADEnvAttack],
             [this] (float val) {
                 for (auto mod: modules) tADEnvModule_setParameter(mod,ADEnvAttack,val);
@@ -64,7 +64,7 @@ struct ADEnvParamHolder : public LEAFParams<_tADEnvModule>
         juce::ParameterID { "decay", 100 },
         "Decay",
         chowdsp::ParamUtils::createNormalisableRange (0.0f, 20000.0f, 4000.f),
-        0.3f,
+        4000.0f,
         all_params[ADEnvDecay],
         [this] (float val) {
             for (auto mod: modules)tADEnvModule_setParameter(mod,ADEnvDecay,val);
