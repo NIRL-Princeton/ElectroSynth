@@ -11,19 +11,19 @@
 #include "Identifiers.h"
 #include "ProcessorBase.h"
 //#include "leaf-midi.h"
-namespace electrosynth{
-    namespace utils
-    {
-        float stringToHarmonicVal(const juce::String &s);
-        juce::String harmonicValToString(float harmonic);
-    }
-}
+// namespace electrosynth{
+//     namespace utils
+//     {
+//         float stringToHarmonicVal(const juce::String &s);
+//         juce::String harmonicValToString(float harmonic);
+//     }
+// }
 
 struct SineOscParams : public LEAFParams<_tSineModule >
 {
     SineOscParams(LEAF* leaf) : LEAFParams<_tSineModule>(leaf)
     {
-       add(harmonic, pitchFine, amp, gain);
+       add(gain);
     }
     //add env watch param so that it isnt null
     chowdsp::FloatParameter::Ptr envwatchparam {
@@ -38,75 +38,6 @@ struct SineOscParams : public LEAFParams<_tSineModule >
         &chowdsp::ParamUtils::floatValToString,
         &chowdsp::ParamUtils::stringToFloatVal
     };
-
-    //add env watch param so that it isnt null
-    chowdsp::FloatParameter::Ptr harmonic {
-        juce::ParameterID { "harmonic", 100 },
-        "harmonic",
-        chowdsp::ParamUtils::createNormalisableRange (-15.0f, 15.0f, 0.0f, 1.0f),
-        0.0f,
-        all_params[SineHarmonic],
-        [this] (float val) {
-            {
-                for (auto mod : modules)
-                    tSineModule_setParameter(mod,SineHarmonic,val);
-            }
-        },
-        &electrosynth::utils::harmonicValToString,
-        &electrosynth::utils::stringToHarmonicVal,
-    };
-
-    //add env watch param so that it isnt null
-    chowdsp::FloatParameter::Ptr pitchFine {
-        juce::ParameterID { "pitchFine", 100 },
-        "pitchFine",
-        chowdsp::ParamUtils::createNormalisableRange (-1.0f, 1.0f, 0.0f),
-        0.0f,
-        all_params[SinePitchFine],
-        [this] (float val) {
-            for (auto mod : modules)
-            {
-                tSineModule_setParameter(mod,SinePitchFine,val);
-            }
-        },
-        &chowdsp::ParamUtils::floatValToString,
-        &chowdsp::ParamUtils::stringToFloatVal
-    };
-
-    //add env watch param so that it isnt null
-    chowdsp::FloatParameter::Ptr pitch {
-        juce::ParameterID { "pitch", 100 },
-        "pitch",
-        chowdsp::ParamUtils::createNormalisableRange (0.0f, 127.0f, 60.0f),
-        60.f,
-        all_params[SinePitch],
-        [this] (float val) {
-            for (auto mod : modules)
-            {
-                tSineModule_setParameter(mod,SinePitch,val);
-            }
-        },
-        &chowdsp::ParamUtils::floatValToString,
-        &chowdsp::ParamUtils::stringToFloatVal
-    };
-
-    //add env watch param so that it isnt null
-    chowdsp::FloatParameter::Ptr amp {
-        juce::ParameterID { "amp", 100 },
-        "amp",
-        chowdsp::ParamUtils::createNormalisableRange (0.0f, 1.0f, 0.5f),
-        1.0f,
-        all_params[SineAmp],
-        [this] (float val) {
-            for (auto mod : modules)
-            {
-                tSineModule_setParameter(mod,SineAmp,val);
-            }
-        },
-        &chowdsp::ParamUtils::floatValToString,
-        &chowdsp::ParamUtils::stringToFloatVal
-    };
-
 
     chowdsp::GainDBParameter::Ptr gain
     {

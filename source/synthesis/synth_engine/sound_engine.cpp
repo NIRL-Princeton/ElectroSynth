@@ -816,7 +816,6 @@ namespace electrosynth
 
         auto proc = getLEAFProcessor (proc_string);
         if (proc == nullptr || proc->at (0) == nullptr)
-            DBG("SoundEngine::getParameterInfo: Processor not found for string: " + juce::String(proc_string));
             return { nullptr, -1 };
 
         int procID = proc->at (0)->moduleType;

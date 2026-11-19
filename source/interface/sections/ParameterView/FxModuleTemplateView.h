@@ -23,15 +23,14 @@ public:
 
     // Right edge of the PostGain knob (tick-arc box) in this view's coordinates, or -1
     // before layout. Used by the owning ModuleSection to align its delete button.
-    /*
     int getPostGainRightEdge() const {
         if (postgain_knob_ == nullptr || postgain_knob_->getBounds().isEmpty())
             return -1;
         return postgain_knob_->getBounds().getRight();
     }
-*/
+
 private:
-    static constexpr int kMaxEffectSlots = 16;
+    static constexpr int kMaxEffectSlots = 5;
 
     void ensureLabels();
     void ensureModulationSlots(SynthSlider& slider);
@@ -40,10 +39,8 @@ private:
     juce::Colour getLabelColor(const juce::Component* control) const;
 
     std::vector<std::unique_ptr<juce::Component>> comps;
-    /*
     std::unique_ptr<SynthSlider> mix_knob_;
     std::unique_ptr<SynthSlider> postgain_knob_;
-    */
     // Filter modules only: the attached type selector between the module title and
     // the first control row.
     std::unique_ptr<OpenGLComboBox> filter_type_combo_;
