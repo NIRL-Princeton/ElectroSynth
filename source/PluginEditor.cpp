@@ -12,11 +12,10 @@ PluginEditor::PluginEditor (PluginProcessor& p)
     : AudioProcessorEditor (&p), SynthGuiInterface(&p), processorRef (p), was_animating_(true)
 {
     juce::ignoreUnused (processorRef);
-
+    //setScaleFactor (0.5f);
     setLookAndFeel(DefaultLookAndFeel::instance());
     gui_->reset();
     addAndMakeVisible(gui_.get());
-
     constrainer_.setMinimumSize(electrosynth::kMinWindowWidth, electrosynth::kMinWindowHeight);
     double ratio = (1.0 * electrosynth::kDefaultWindowWidth) / electrosynth::kDefaultWindowHeight;
     constrainer_.setFixedAspectRatio(ratio);

@@ -486,6 +486,7 @@ FxModuleTemplateView::FxModuleTemplateView(chowdsp::PluginState& pluginState, ch
             }
         }, [](auto&) {});
 
+        /*
     // Mix / PostGain are intended visible FX controls. NOTE: they are currently
     // UI-only (no chowdsp parameter attachment) and are NOT wired to DSP yet.
     // No greyed-out placeholder knobs are created for empty slots.
@@ -507,7 +508,7 @@ FxModuleTemplateView::FxModuleTemplateView(chowdsp::PluginState& pluginState, ch
     postgain_knob_->setKnobSizeScale(1.0f);
     addSlider(postgain_knob_.get(), true);
     postgain_knob_->parentHierarchyChanged();
-
+*/
     setLookAndFeel(DefaultLookAndFeel::instance());
     setOpaque(false);
     ensureLabels();
@@ -577,8 +578,7 @@ void FxModuleTemplateView::ensureLabels() {
         slider_labels_[slider] = label;
 
         if (auto* synth_slider = dynamic_cast<SynthSlider*>(slider);
-            synth_slider != nullptr && synth_slider != mix_knob_.get()
-            && synth_slider != postgain_knob_.get())
+            synth_slider != nullptr)
             ensureModulationSlots(*synth_slider);
     }
 }
@@ -599,7 +599,7 @@ void FxModuleTemplateView::updateLabels() {
             continue;
 
         const auto b = slider->getBounds();
-        if (slider != mix_knob_.get() && slider != postgain_knob_.get())
+
             it->second->setBounds(b.getX(), b.getY() - kFxLabelHeight - kFxLabelToArcGap,
                                   b.getWidth(), kFxLabelHeight);
         it->second->setText(getControlLabel(*slider));
@@ -639,7 +639,7 @@ int FxModuleTemplateView::getPreferredHeight() const {
     // const int utility_height = kFxUtilityTopGap + 2 * kFxUtilitySliderHeight
     //                          + kFxUtilityRowGap + kFxAudioPortReserve;
 
-    return top_pad + numRows * rowContentH + (numRows - 1) * kFxRowGap + kFxRowBottomPad + footerHeight + footerTopGap;
+    return top_pad + numRows * rowContentH + (numRows - 1) * kFxRowGap + kFxRowBottomPad;// + footerHeight + footerTopGap;
     //return top_pad + parameter_height + kFxRowBottomPad + utility_height;
 }
 
@@ -650,7 +650,7 @@ void FxModuleTemplateView::resized() {
     // change global skin values or shared SynthSlider constants.
     for (auto* slider : all_sliders_v)
         if (auto* ss = dynamic_cast<SynthSlider*>(slider);
-            ss != nullptr && ss != mix_knob_.get() && ss != postgain_knob_.get())
+            ss != nullptr)
             ss->setKnobSizeScale(kFxKnobScale);
 
     // 3. Rendered knob box, matched to the FX-scaled arc.
@@ -731,11 +731,11 @@ void FxModuleTemplateView::resized() {
         if (auto label = slider_labels_.find(&slider); label != slider_labels_.end())
             label->second->setBounds(label_bounds);
     };
-
+/*
     layoutUtilitySlider(*mix_knob_, utility_y);
     layoutUtilitySlider(*postgain_knob_,
                         utility_y + kFxUtilitySliderHeight + kFxUtilityRowGap);
-
+*/
     updateLabels();
     // constexpr int arrow_height = 30;
     // constexpr int sliderHeight = 20;

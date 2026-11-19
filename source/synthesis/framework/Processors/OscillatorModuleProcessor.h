@@ -100,14 +100,17 @@ struct OscillatorParams : public LEAFParams<_tOscModule >
         chowdsp::ParamUtils::createNormalisableRange(-15.f, 15.f, 0.f, 1.f),
         0.f,
         all_params[OscParams::OscHarmonic],
-        [this](float val){
+        [this](float val) {
             for (auto mod : modules)
-                tOscModule_setParameter(mod,OscHarmonic,val);
+            {
+            tOscModule_setParameter(mod,OscHarmonic,val);
+            }
         //DBG("harm [0 - 1]" + juce::String(val) + " .. .  harm actual Val" + juce::String(modules[0]->harmonicMultiplier));
         },
         &electrosynth::utils::harmonicValToString,
         &electrosynth::utils::stringToHarmonicVal
     };
+
     chowdsp::FloatParameter::Ptr pitchOffset {
         juce::ParameterID{"pitch" , 100},
         "Pitch",
