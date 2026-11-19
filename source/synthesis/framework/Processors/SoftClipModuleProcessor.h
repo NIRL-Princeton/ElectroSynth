@@ -78,16 +78,19 @@ struct SoftClipParams : public LEAFParams<_tSoftClipModule >
             for (auto mod: modules)    tSoftClipModule_setParameter(mod,SoftClipOutputGain,val);
         },
     };
-    chowdsp::PercentParameter::Ptr mix {
+    chowdsp::FloatParameter::Ptr mix {
         juce::ParameterID{"mix", 100},
         "Mix",
+        chowdsp::ParamUtils::createNormalisableRange(0.0f, 1.0f, 0.5f),
+        0.5f,
         all_params[SoftClipModuleParams::SoftClipMix],
         [this](float val)
         {for (auto mod: modules)    tSoftClipModule_setParameter(mod,SoftClipMix,val);
         },
-        1.f,
-        false
+    &chowdsp::ParamUtils::floatValToString,
+    &chowdsp::ParamUtils::stringToFloatVal
 };
+
 
 };
 
