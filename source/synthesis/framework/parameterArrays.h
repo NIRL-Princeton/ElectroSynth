@@ -110,7 +110,6 @@ const std::array<std::vector<std::string>, 15> paramsAllArray =
            "offset", // OscPitchOffset
            "shape", // OscPitchFine
            "outputGain", // OscFreqOffset
-            "mix",
            "" // OscNumParams (typically represents the count, no corresponding parameter)
         },
 
