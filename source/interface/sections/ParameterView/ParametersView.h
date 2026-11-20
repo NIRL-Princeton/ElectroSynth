@@ -35,7 +35,7 @@ namespace electrosynth {
             DBG("mouseenter parameterview");
         }
     private:
-        static constexpr int kDefaultKnobsPerRow = 7;
+        static constexpr int kDefaultKnobsPerRow = 10;
         static constexpr int kStringKnobsPerRow = 6;
         static constexpr int kModuleHeightPerKnobRow = 110;
         static constexpr int kKnobLabelHeight = 18;

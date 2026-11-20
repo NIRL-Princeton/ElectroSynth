@@ -30,7 +30,7 @@ public:
     }
 
 private:
-    static constexpr int kMaxEffectSlots = 5;
+    static constexpr int kMaxEffectSlots = 16;
 
     void ensureLabels();
     void ensureModulationSlots(SynthSlider& slider);
