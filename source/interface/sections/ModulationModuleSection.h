@@ -13,7 +13,7 @@ class ModulationModuleSection : public ModulesInterface<ModulatorBase>
 {
 public:
     static constexpr int kTabStripHeight = 34;
-    static constexpr int kMaxTabs = 18;
+    static constexpr int kMaxTabs = 13;
 
     ModulationModuleSection( MappingManager*,ModuleList<ModulatorBase>&, juce::UndoManager& um);
     virtual ~ModulationModuleSection();

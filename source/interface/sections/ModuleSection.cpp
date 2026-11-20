@@ -170,11 +170,9 @@ void ModuleSection::resized() {
     int exit_x = getLocalBounds().getRight() - kExitButtonRightOffset;
     if (auto* fx_view = dynamic_cast<electrosynth::FxModuleTemplateView*>(_view.get())) {
         // FX modules: align the delete button's right edge with the right edge of the
-        // PostGain knob's tick-arc box (last knob of the last row).
-        const int postgain_right = fx_view->getPostGainRightEdge();
-        if (postgain_right > 0)
+
             exit_x = juce::jlimit(0, std::max(0, getWidth() - kExitButtonSize),
-                                  fx_view->getX() + postgain_right - kExitButtonSize);
+                                  fx_view->getX() - kExitButtonSize);
     }
     else if (auto* sound_module = findParentComponentOfClass<SoundModuleSection>()) {
         const auto module_bounds_in_sound_module = sound_module->getLocalArea(this, getLocalBounds());
