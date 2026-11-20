@@ -263,10 +263,6 @@ void FullInterface::resized() {
 
     width_ = getWidth();
 
-    if (busyLoading_)
-    {
-        return;
-    }
     if (!enable_redo_background_) {
       // open_gl_context_.detach();
       //juce::DocumentWindow::resized();

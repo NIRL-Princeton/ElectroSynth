@@ -389,7 +389,7 @@ void MappingManager::registerEndpoint(EndpointArrowComponent& endpoint) {
     if (auto* slots = endpoint.getConnectionSlots())
         slots->addListener(this);
 
-    updateConnectionSlots();
+    scheduleComponentUpdate();
 }
 
 void MappingManager::unregisterEndpoint(const EndpointArrowComponent& endpoint) {
@@ -427,7 +427,7 @@ void MappingManager::unregisterEndpoint(const electrosynth::EndpointAddress& add
     std::erase_if(connection_records_, [&address](const auto& connection) {
         return connection.source.matches(address) || connection.destination.matches(address);
     });
-    updateConnectionSlots();
+    scheduleComponentUpdate();
 }
 
 juce::String MappingManager::getEndpointKey(const electrosynth::EndpointAddress& address) {

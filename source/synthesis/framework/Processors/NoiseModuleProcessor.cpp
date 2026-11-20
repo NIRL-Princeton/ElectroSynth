@@ -71,9 +71,12 @@ void NoiseModuleProcessor::process ()
     state_.getParameterListeners().callAudioThreadBroadcasters();
     int numSamples = 1;
     //buffer.clear();
-
-    float glideOrigin = state_.params.modules[tStack_first(engine->voiceHandler.voiceOrder)]->pitchSmoother.curr;
-
+    uint16_t myIndex = tStack_first(engine->voiceHandler.voiceOrder);
+    float glideOrigin = 0.0f;
+    if (myIndex < MAX_NUM_MODULES)
+    {
+        glideOrigin = state_.params.modules[myIndex]->pitchSmoother.curr;
+    }
     //    auto* samplesL = buffer.getReadPointer(0);
     int counter = 0;
     for (int v = 0; v < engine->voiceHandler.numVoicesActive; v++) {
