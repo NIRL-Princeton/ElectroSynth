@@ -82,7 +82,7 @@ struct SoftClipParams : public LEAFParams<_tSoftClipModule >
         juce::ParameterID{"mix", 100},
         "Mix",
         chowdsp::ParamUtils::createNormalisableRange(0.0f, 1.0f, 0.5f),
-        0.5f,
+        1.0f,
         all_params[SoftClipModuleParams::SoftClipMix],
         [this](float val)
         {for (auto mod: modules)    tSoftClipModule_setParameter(mod,SoftClipMix,val);
