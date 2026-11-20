@@ -110,6 +110,8 @@ public :
     std::map<std::string, ConnectionButton*> getAllModulationButtons() override;
     void modulationChanged();
     juce::ScopedPointer<ValueTreeDebugger> valueTreeDebugger;
+    //a hack from me to tr
+    bool busyLoading_;
 
 private :
 
@@ -129,6 +131,7 @@ private :
     bool enable_redo_background_{};
     float display_scale_;
     int pixel_multiple_;
+
 
     //juce::OpenGLContext open_gl_context_;
     std::unique_ptr<Shaders> shaders_;

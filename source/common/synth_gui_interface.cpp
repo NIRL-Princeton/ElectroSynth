@@ -20,6 +20,7 @@
 #include "Modulators/EnvModuleProcessor.h"
 #include "Modulators/ModulatorBase.h"
 #include "Processors/ProcessorBase.h"
+#include "juce_core/unit_tests/juce_UnitTestCategories.h"
 #include "load_save.h"
 #include "synth_base.h"
 
@@ -132,8 +133,13 @@ void SynthGuiInterface::openLoadDialog() {
     });
 }
 bool SynthGuiInterface::loadFromFile(juce::File preset, std::string &error) {
+
+    if (gui_ == nullptr)
+        return getSynth()->loadFromFile(preset, error);
+
+    juce::ScopedValueSetter<bool> loadingGuard(gui_->busyLoading_, true);
     return getSynth()->loadFromFile(preset, error);
-    //sampleLoadManager->loadSamples()
+
 }
 
 void SynthGuiInterface::openSaveDialog() {

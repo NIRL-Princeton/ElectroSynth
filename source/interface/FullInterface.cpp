@@ -36,7 +36,7 @@ using namespace leaf;
 FullInterface::FullInterface(SynthGuiData* synth_data) : SynthSection("full_interface"), width_(0), resized_width_(0),
     last_render_scale_(0.0f), display_scale_(1.0f), pixel_multiple_(1),unsupported_(false), animate_(true), enable_redo_background_(true),
     open_gl_(open_gl_context_), data(synth_data) {
-
+    busyLoading_ = false;
     full_screen_section_ = nullptr;
     Skin default_skin;
     default_skin.copyValuesToLookAndFeel(DefaultLookAndFeel::instance());
@@ -263,6 +263,10 @@ void FullInterface::resized() {
 
     width_ = getWidth();
 
+    if (busyLoading_)
+    {
+        return;
+    }
     if (!enable_redo_background_) {
       // open_gl_context_.detach();
       //juce::DocumentWindow::resized();
