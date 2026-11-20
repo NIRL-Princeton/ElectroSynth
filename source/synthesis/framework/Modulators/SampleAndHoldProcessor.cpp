@@ -5,26 +5,6 @@
 #include "SampleAndHoldProcessor.h"
 #include "sound_engine.h"
 
-float electrosynth::utils::stringToHarmonicVal2(const juce::String &s){
-    if(!s.contains("/"))
-    {
-        return s.getFloatValue();
-    }
-    else
-    {
-        juce::StringArray tokens;
-        tokens.addTokens(s,"/","\"");
-        return tokens[1].getFloatValue();
-    }
-}
-
-juce::String electrosynth::utils::harmonicValToString2(float harmonic)
-{
-    if(harmonic < 0.f)
-        return "1 / " + juce::String(abs(round(harmonic) - 1.f)) ;
-    else
-        return juce::String(round(harmonic + 1.f));
-}
 
 SampleAndHoldProcessor::SampleAndHoldProcessor(electrosynth::SoundEngine* engine,const juce::ValueTree &v, LEAF *leaf,juce::UndoManager* um) : ProcessorStateBase(engine,leaf,v,um)
 {

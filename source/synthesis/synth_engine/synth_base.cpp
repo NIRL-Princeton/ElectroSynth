@@ -1089,7 +1089,7 @@ void SynthBase::timerCallback() {
     juce::ScopedLock sl(getCriticalSection());
     drainProcessorInitQueue();
     drainEffectOrderQueue();
-    processMappingChanges();
+
     DeleteThreadAction action;
     while (processorDeleteQueue.try_dequeue(action))
         action();

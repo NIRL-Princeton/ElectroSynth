@@ -131,6 +131,11 @@ void SynthEditor::getNextAudioBlock(const AudioSourceChannelInfo& buffer) {
     processAudio(buffer.buffer, electrosynth::kNumChannels, num_samples, 0);
 
   AudioSampleBuffer& buff = *buffer.buffer;
+
+    //I moved this here to avoid the possibility that mapping changes happen on that timer thread and mappings are deleted while they are being read. it was causing some "read after free" errors. -JS
+//we still need to think about how to handle the other functions in SynthBase::timerCallback(), since I think modules can still be deleted there and cause issues
+    processMappingChanges();
+
 //  melatonin::printSparkline (buff,false);
 
     //processAudioAndMidi(*buffer.buffer, midi_messages);

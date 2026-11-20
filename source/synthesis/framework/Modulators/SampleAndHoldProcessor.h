@@ -14,19 +14,13 @@
 #include "ParameterView/FxModuleTemplateView.h"
 #include "PluginStateImpl_.h"
 
-namespace electrosynth{
-    namespace utils
-    {
-        float stringToHarmonicVal2(const juce::String &s);
-        juce::String harmonicValToString2(float harmonic);
-    }
-}
+
 
 struct SampHoldParamHolder : public LEAFParams<_tSampleAndHoldModule>
 {
     SampHoldParamHolder(LEAF* leaf) : LEAFParams(leaf)
     {
-        add(threshold, frequency, keyFollow, harmonic, durRand, gain, mix);
+        add(threshold, frequency, durRand, gain, mix);
     }
 
     //add env watch param so that it isnt null
@@ -78,33 +72,7 @@ struct SampHoldParamHolder : public LEAFParams<_tSampleAndHoldModule>
         }
     };
 
-    chowdsp::FloatParameter::Ptr keyFollow {
-        juce::ParameterID { "keyFollow", 100 },
-        "KeyFollow",
-        chowdsp::ParamUtils::createNormalisableRange (0.f,1.0f,.5f),
-        0.f,
-        all_params[SampHoldParams::SampHoldKeyFollow],
-        [this] (float val) {
-            for (auto mod: modules) tSampleAndHoldModule_setParameter(mod,SampHoldParams::SampHoldKeyFollow,val);
-        },
-        &chowdsp::ParamUtils::floatValToString,
-        &chowdsp::ParamUtils::stringToFloatVal
-    };
 
-    chowdsp::FloatParameter::Ptr harmonic {
-        juce::ParameterID{"harmonic" , 100},
-        "Harmonic",
-        chowdsp::ParamUtils::createNormalisableRange(-15.f, 15.f, 0.f, 1.f),
-        0.f,
-        all_params[SampHoldParams::SampHoldHarmonic],
-        [this](float val){
-            for (auto mod : modules)
-                tSampleAndHoldModule_setParameter(mod,SampHoldHarmonic,val);
-            //DBG("harm [0 - 1]" + juce::String(val) + " .. .  harm actual Val" + juce::String(modules[0]->harmonicMultiplier));
-        },
-        &electrosynth::utils::harmonicValToString2,
-        &electrosynth::utils::stringToHarmonicVal2
-    };
 
     chowdsp::FloatParameter::Ptr durRand {
         juce::ParameterID { "durRand", 100 },
@@ -131,15 +99,17 @@ struct SampHoldParamHolder : public LEAFParams<_tSampleAndHoldModule>
     };
 
     // this is where the knob labeled "Mix" is created
-    chowdsp::PercentParameter::Ptr mix {
+    chowdsp::FloatParameter::Ptr mix {
         juce::ParameterID{"mix", 100},
         "Mix",
+        chowdsp::ParamUtils::createNormalisableRange (0.f,1.0f,.5f),
+       1.f,
         all_params[SampHoldParams::SampHoldMix],
         [this](float val)
         {for (auto mod: modules) tSampleAndHoldModule_setParameter(mod,SampHoldMix,val);
         },
-        1.f,
-        false
+        &chowdsp::ParamUtils::floatValToString,
+        &chowdsp::ParamUtils::stringToFloatVal
     };
 };
 

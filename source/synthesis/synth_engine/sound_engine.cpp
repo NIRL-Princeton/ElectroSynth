@@ -816,11 +816,16 @@ namespace electrosynth
 
         auto proc = getLEAFProcessor (proc_string);
         if (proc == nullptr || proc->at (0) == nullptr)
+        {
+            DBG("SoundEngine::getParameterInfo: Processor not found for string: " + juce::String(proc_string));
             return { nullptr, -1 };
-
+        }
         int procID = proc->at (0)->moduleType;
         if (procID < 0 || procID >= static_cast<int> (paramsAllArray.size()))
+        {
+            DBG("SoundEngine::getParameterInfo: Invalid processor ID: " + juce::String(procID));
             return { nullptr, -1 };
+        }
 
         std::string param_string;
         std::getline (ss, param_string, '_');

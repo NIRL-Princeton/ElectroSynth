@@ -47,8 +47,8 @@ const std::array<std::vector<std::string>, 15> paramsAllArray =
             "rate",
             "shape",
             "phase",
-            "type",
-            "syncNoteOn"},
+            "oscType",
+            "syncToNoteOn"},
 
         // envelope
         {
@@ -132,8 +132,8 @@ const std::array<std::vector<std::string>, 15> paramsAllArray =
             "eventWatch",
             "gain",
             "tilt",
-            "peakAmt",
-            "freqKnob",
+            "peakGain",
+            "peakFreq",
             "peakBandwidth",
             "keyFollow",
             "glide",
@@ -151,14 +151,17 @@ const std::array<std::vector<std::string>, 15> paramsAllArray =
         {
             "eventWatch",
             "amp",
-            "rate",
+            "rateHz",
             "energy"
         },
 
         // sine
         {
             "eventWatch",
+            "harmonic",
+            "pitchFine",
             "pitch",
+            "amp",
             "gain"
         },
 
@@ -170,7 +173,7 @@ const std::array<std::vector<std::string>, 15> paramsAllArray =
             "durRand",
             "gain",
             "mix",
-               "harmonic",
+            ""
         },
 
         // simple envelope
